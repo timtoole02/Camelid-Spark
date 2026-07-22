@@ -3272,7 +3272,6 @@ pub(crate) fn repack_q8_soa(bytes: &[u8]) -> Vec<u8> {
 /// materialization. Byte-identical to `repack_q8_soa(&widen_q8(wire))` — the fusion
 /// exists so the hostreg load path never has to build `q8_0_blocks`. `dst` must be
 /// exactly `n*32 + n*4` bytes for `n = wire.len()/34` blocks.
-#[allow(dead_code)] // consumed by the hostreg build arm (wired next).
 pub(crate) fn repack_q8_wire_to_soa_into(wire: &[u8], dst: &mut [u8]) {
     let n = wire.len() / 34;
     debug_assert_eq!(wire.len(), n * 34, "wire length must be a 34-byte multiple");
@@ -3288,6 +3287,73 @@ pub(crate) fn repack_q8_wire_to_soa_into(wire: &[u8], dst: &mut [u8]) {
             crate::tensor::f16_bits_to_f32(u16::from_le_bytes([wire[base], wire[base + 1]]));
         scales[b * 4..b * 4 + 4].copy_from_slice(&scale.to_le_bytes());
         quants[b * 32..b * 32 + 32].copy_from_slice(&wire[base + 2..base + 34]);
+    }
+}
+
+/// One projection's host-side byte source handed to the resident builder.
+/// `Lane` is every pre-FLINT input: Q8_0 36-byte f32-scale blocks, or raw
+/// K-quant/i-quant super-block wire (repacked per lane as always). `Q8Wire` is
+/// the fast-load path (CAMELID_CUDA_HOSTREG / CAMELID_METAL_NOCOPY loaders): the
+/// tensor's bytes exist ONLY as raw 34-byte f16-scale GGUF wire pages, and the
+/// fused one-pass repack takes them straight to the SoA layout — `q8_0_blocks`
+/// are never materialized.
+#[derive(Clone, Copy)]
+pub(crate) enum WeightSource<'a> {
+    Lane(&'a [u8]),
+    Q8Wire(&'a [u8]),
+    /// Q8_0 wire bytes still on disk (the hostreg projection load path keeps NO
+    /// RAM copy): the builder streams the tensor's file range through a transient
+    /// buffer straight into its lane buffer, so host RAM holds ONE steady copy of
+    /// each weight — the registered SoA — never wire + SoA at once. This is what
+    /// keeps a 70B Q8_0 build inside a 128 GB unified pool.
+    Q8Stream(&'a crate::tensor::Q8_0FileBacking),
+}
+
+impl WeightSource<'_> {
+    /// The bytes in the layout the projection's GPU lane reads.
+    fn repack(&self, q: ProjQuant) -> Result<Vec<u8>, String> {
+        match self {
+            WeightSource::Lane(b) => Ok(repack_for_lane(b, q)),
+            WeightSource::Q8Wire(w) => {
+                debug_assert!(
+                    matches!(q, ProjQuant::Q8_0),
+                    "Q8Wire carries Q8_0 wire bytes only"
+                );
+                let n = w.len() / 34;
+                let mut out = vec![0u8; n * 32 + n * 4];
+                repack_q8_wire_to_soa_into(w, &mut out);
+                Ok(out)
+            }
+            WeightSource::Q8Stream(fb) => {
+                debug_assert!(
+                    matches!(q, ProjQuant::Q8_0),
+                    "Q8Stream carries Q8_0 wire bytes only"
+                );
+                // Fresh handle: page-cache enabled (the backing's own cached handle
+                // disables OS caching for the per-token streaming path).
+                let file = std::fs::File::open(&fb.path)
+                    .map_err(|e| format!("hostreg wire read open {}: {e}", fb.path.display()))?;
+                let wire_len = fb.storage_bytes() as usize;
+                let mut wire = vec![0u8; wire_len];
+                crate::platform_fs::read_exact_at(&file, &mut wire, fb.absolute_offset)
+                    .map_err(|e| format!("hostreg wire read: {e}"))?;
+                let n = wire_len / 34;
+                let mut out = vec![0u8; n * 32 + n * 4];
+                repack_q8_wire_to_soa_into(&wire, &mut out);
+                Ok(out)
+            }
+        }
+    }
+
+    /// Repacked size in bytes — what the lane's device (or registered-host)
+    /// buffer will occupy. Used by the builder's VRAM sizing.
+    pub(crate) fn vram_len(&self) -> usize {
+        match self {
+            WeightSource::Lane(b) => b.len(),
+            // 34-byte f16-scale wire widens to the 36-byte-per-block SoA.
+            WeightSource::Q8Wire(w) => w.len() / 34 * 36,
+            WeightSource::Q8Stream(fb) => fb.num_blocks * 36,
+        }
     }
 }
 
@@ -5905,8 +5971,12 @@ impl CudaResidentDecode {
     /// (`Registered`). Any registration failure falls back to the upload,
     /// silently per tensor; the build log's `N zero-copy / M uploaded` line is
     /// the engagement receipt.
-    fn upload_weight(&mut self, bytes: &[u8], quant: ProjQuant) -> Result<ProjBytes, String> {
-        let repacked = repack_for_lane(bytes, quant);
+    fn upload_weight(
+        &mut self,
+        src: WeightSource<'_>,
+        quant: ProjQuant,
+    ) -> Result<ProjBytes, String> {
+        let repacked = src.repack(quant)?;
         if cuda_hostreg_enabled() {
             if matches!(quant, ProjQuant::Q8_0) {
                 match self.try_register_host(&repacked) {
@@ -6013,13 +6083,13 @@ impl CudaResidentDecode {
     ) -> Result<(), String> {
         // Default: every layer resident in VRAM, all Q8_0 (unchanged behavior).
         self.set_layer_located(
-            q,
-            kk,
-            v,
-            o,
-            gate,
-            up,
-            down,
+            WeightSource::Lane(q),
+            WeightSource::Lane(kk),
+            WeightSource::Lane(v),
+            WeightSource::Lane(o),
+            WeightSource::Lane(gate),
+            WeightSource::Lane(up),
+            WeightSource::Lane(down),
             attn_norm,
             ffn_norm,
             None,
@@ -6036,13 +6106,13 @@ impl CudaResidentDecode {
     #[allow(clippy::too_many_arguments)]
     pub fn set_layer_located(
         &mut self,
-        q: &[u8],
-        kk: &[u8],
-        v: &[u8],
-        o: &[u8],
-        gate: &[u8],
-        up: &[u8],
-        down: &[u8],
+        q: WeightSource<'_>,
+        kk: WeightSource<'_>,
+        v: WeightSource<'_>,
+        o: WeightSource<'_>,
+        gate: WeightSource<'_>,
+        up: WeightSource<'_>,
+        down: WeightSource<'_>,
         attn_norm: &[f32],
         ffn_norm: &[f32],
         q_norm: Option<&[f32]>,
@@ -6098,8 +6168,8 @@ impl CudaResidentDecode {
         let repacked: Vec<Vec<u8>> = projections
             .iter()
             .enumerate()
-            .map(|(i, b)| repack_for_lane(b, quants[i]))
-            .collect();
+            .map(|(i, src)| src.repack(quants[i]))
+            .collect::<Result<Vec<_>, _>>()?;
         // 16-byte-align each projection start so the resident GEMV kernels' wide
         // (uint4) wire loads are legal off any projection's view base (the q4k_gemv
         // super-block is 144 B = 9*16, so every block in a row stays 16-aligned once
@@ -6253,7 +6323,7 @@ impl CudaResidentDecode {
     pub fn set_output(
         &mut self,
         final_norm: &[f32],
-        output_weight: &[u8],
+        output_weight: WeightSource<'_>,
         output_quant: ProjQuant,
     ) -> Result<(), String> {
         self.final_norm = self

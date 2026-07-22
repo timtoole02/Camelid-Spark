@@ -3,7 +3,7 @@
 //! isolated to a single kernel. All require a CUDA device (`#[ignore]`d in
 //! GPU-less CI); run with `cargo test --features cuda -- --ignored`.
 
-use super::{CudaResidentDecode, CudaResidentKernels, ProjQuant};
+use super::{CudaResidentDecode, CudaResidentKernels, ProjQuant, WeightSource};
 use cudarc::driver::{LaunchConfig, PushKernelArg};
 
 // Pure predicate (no GPU): the device-decode embed-gather allowlist must stay in
@@ -259,7 +259,7 @@ fn full_forward_token_matches_cpu() {
             .unwrap();
     }
     engine
-        .set_output(&final_norm, &output_w, ProjQuant::Q8_0)
+        .set_output(&final_norm, WeightSource::Lane(&output_w), ProjQuant::Q8_0)
         .unwrap();
 
     // CPU reference KV cache, layout [kv_head][position][head_dim] per layer.
@@ -416,7 +416,7 @@ fn prefill_then_decode_matches_sequential() {
                 .unwrap();
         }
         engine
-            .set_output(final_norm, output_w, ProjQuant::Q8_0)
+            .set_output(final_norm, WeightSource::Lane(output_w), ProjQuant::Q8_0)
             .unwrap();
         engine
     };
@@ -733,7 +733,7 @@ fn verify_batch_matches_sequential() {
             )
             .unwrap();
         }
-        e.set_output(&final_norm, &output_w, ProjQuant::Q8_0)
+        e.set_output(&final_norm, WeightSource::Lane(&output_w), ProjQuant::Q8_0)
             .unwrap();
         e
     };
@@ -1748,8 +1748,12 @@ impl SynthModel {
             )
             .unwrap();
         }
-        e.set_output(&self.final_norm, &self.output_w, ProjQuant::Q8_0)
-            .unwrap();
+        e.set_output(
+            &self.final_norm,
+            WeightSource::Lane(&self.output_w),
+            ProjQuant::Q8_0,
+        )
+        .unwrap();
         e
     }
 
