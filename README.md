@@ -63,13 +63,39 @@ non-Spark box (no GB10), run `FLINT_ALLOW_NON_SPARK=1 ./install.sh`.
 > **Why no CUDA toolkit to build?** cudarc uses `fallback-dynamic-loading` — it `dlopen()`s
 > `libcuda` at runtime, so the build needs no `nvcc`; the driver JIT-compiles the kernels at load.
 
-## Models
+## What models will it run?
 
-- **In the UI (recommended):** the **Models** page downloads curated, known-good **Q8_0** models
-  and shows live support status from `/api/capabilities`. This is the primary test path.
-- **CLI equivalent:** `camelid pull` lists the catalog; `camelid pull llama32_1b` downloads one.
-- **NVFP4:** the NVFP4 gemma-4-E4B pilot is a local requantization, **not** in the catalog — copy
-  your GGUF onto the Spark and use it by path. See [`FLINT_HANDOFF.md`](FLINT_HANDOFF.md).
+**Architectures:** `llama` (Llama 2/3, Mistral, TinyLlama), `qwen2`, `qwen3`, `qwen35`, `gemma2`,
+`gemma3`, `phi3`, plus `gemma4` (the NVFP4/Q8_0 pilot).
+**Quantizations:** `Q8_0`, the K-quants `Q6_K` / `Q5_K` / `Q4_K` / `Q3_K`, `Q4_0`, `IQ4_XS`, `F16`,
+`BF16`, `F32` (and `NVFP4` for gemma4). A covered arch **and** covered quant ⇒ it admits and runs.
+
+**Big models are the point on this box.** With **128 GB** unified memory and the CUDA lane, weights
+stay **quantized** on the GPU (memory ≈ the GGUF file size — the CPU path's f32 blow-up is bypassed),
+so you can run far bigger models than a typical machine: up to **~70B at Q4_K_M** (~40 GB) or **~30B
+at Q8_0** (~34 GB), with lots of headroom to spare.
+
+- **In the UI (recommended):** the **Models** page → **Get models** → download → load → chat. It shows
+  a host-specific **fits** badge (the 128 GB Spark shows the big ones as fitting) and live support
+  status from `/api/capabilities`.
+- **Curated picks now include larger models** for the Spark, at supported quants:
+
+  | Model | Quant | Size | Arch |
+  |---|---|---|---|
+  | Qwen3 14B | Q8_0 | 14.6 GB | qwen3 |
+  | Gemma 3 27B-It | Q8_0 | 26.7 GB | gemma3 |
+  | Qwen3 32B | Q8_0 | 32.4 GB | qwen3 |
+  | **Llama 3.3 70B Instruct** | Q4_K_M | **39.6 GB** | llama |
+
+  …alongside the small validated rows (Llama 3.2 1B/3B, Llama 3 8B, Qwen3 0.6–8B, Mistral 7B, Gemma, Phi-3).
+- **Validated vs experimental:** the ≤8B rows are **parity-anchored** exact rows (green *Supported*
+  badge). The larger picks are **runnable but not parity-validated** — they load in the *Experimental*
+  lane (functional, unverified). Perfect for "does a big model work here", not a correctness claim.
+- **Anything else:** searching the Models page browses live Hugging Face GGUFs (experimental), or load
+  any file by path: `camelid serve --model /path/to/model.gguf`.
+- **CLI:** `camelid pull` lists the catalog; `camelid pull qwen3_32b_q8_0` (etc.) downloads one.
+- **NVFP4:** the gemma-4-E4B NVFP4 pilot is a local requant, **not** in the catalog — supply it by
+  path. See [`FLINT_HANDOFF.md`](FLINT_HANDOFF.md).
 
 ## Troubleshooting
 
@@ -81,6 +107,7 @@ non-Spark box (no GB10), run `FLINT_ALLOW_NON_SPARK=1 ./install.sh`.
 | NVRTC / driver **symbol** error at first GPU use | Pinned cudarc targets the CUDA 12.x ABI. Put `/usr/local/cuda-13/compat` on `LD_LIBRARY_PATH` (install.sh does this if present); if it persists, bump cudarc to a `cuda-130xx` release. |
 | Build fails on `openssl-sys` / `curl-sys` | `sudo apt-get install -y pkg-config libssl-dev libcurl4-openssl-dev`. |
 | NVFP4 model refused *"Windows/macOS-only"* | You built upstream Camelid, not this repo — this one lifts that gate for Linux. |
+| Big-model load fails with `cpu_weight_materialization_exceeds_budget` | It fell to the CPU f32 path (default cap 6 GB), not the GPU-resident lane. Confirm the CUDA build (`--features cuda`) is what's running. To permit a large CPU-lane materialization anyway (uses host RAM): `CAMELID_MAX_CPU_WEIGHT_MATERIALIZATION_BYTES=<bytes> camelid serve …` — scale to your 128 GB. |
 
 ## CI
 

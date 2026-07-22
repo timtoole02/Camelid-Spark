@@ -52,6 +52,24 @@ curl -s http://127.0.0.1:8181/v1/chat/completions -H 'content-type: application/
   -d '{"model":"Llama 3.2 1B Instruct","messages":[{"role":"user","content":"The capital of France is"}],"temperature":0,"max_tokens":16}'
 ```
 
+### Stretch the 128 GB — bigger models
+
+The 1B model is just the first light. The catalog now includes larger picks so you can lean on the
+Spark's memory (the GPU-resident CUDA lane keeps weights **quantized**, so RAM ≈ the file size):
+
+| Model | Quant | Size | `pull` id |
+|---|---|---|---|
+| Qwen3 14B | Q8_0 | 14.6 GB | `qwen3_14b_q8_0` |
+| Gemma 3 27B-It | Q8_0 | 26.7 GB | `gemma3_27b_it_q8_0` |
+| Qwen3 32B | Q8_0 | 32.4 GB | `qwen3_32b_q8_0` |
+| **Llama 3.3 70B Instruct** | Q4_K_M | **39.6 GB** | `llama33_70b_instruct_q4_k_m` |
+
+Download them from the **Models** page (they'll show a *fits* badge on the 128 GB box) or `"$BIN" pull
+<id>`, then load + chat exactly like Part A. These are **experimental** (runnable, not parity-anchored)
+— the point is "does a big model run here on the GPU", not a correctness claim. Any other covered-arch
+GGUF works too via the Models-page Hugging Face search or `serve --model <path>`. If a big load ever
+errors `cpu_weight_materialization_exceeds_budget`, see the README troubleshooting row.
+
 ---
 
 ## Part B — NVFP4 on the GPU (the load-bearing FLINT change)

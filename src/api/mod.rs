@@ -17964,6 +17964,64 @@ pub fn curated_catalog() -> Vec<CatalogItem> {
             license: "mit",
             task_tags: &["reasoning", "coding"],
         },
+        // FLINT (DGX Spark): larger models to exercise the 128 GB unified memory.
+        // Covered architecture + covered quant, so they ADMIT and run on the
+        // GPU-resident CUDA lane (weights stay quantized, roughly the file size).
+        // These are NOT parity-anchored exact rows: they load in the EXPERIMENTAL
+        // lane (functional, unverified). Single-file GGUFs; sizes are the live HF
+        // Content-Length (must match, or pull's skip-if-complete/resume refires).
+        CatalogItem {
+            catalog_id: "qwen3_14b_q8_0",
+            name: "Qwen3 14B Q8_0 (large)",
+            repo_id: "Qwen/Qwen3-14B-GGUF",
+            filename: "Qwen3-14B-Q8_0.gguf",
+            size_bytes: 15698533728,
+            downloads: 0,
+            likes: 0,
+            quant: "Q8_0",
+            architecture: "qwen3",
+            license: "apache-2.0",
+            task_tags: &["reasoning", "coding"],
+        },
+        CatalogItem {
+            catalog_id: "gemma3_27b_it_q8_0",
+            name: "Gemma 3 27B-It Q8_0 (large)",
+            repo_id: "unsloth/gemma-3-27b-it-GGUF",
+            filename: "gemma-3-27b-it-Q8_0.gguf",
+            size_bytes: 28707972192,
+            downloads: 0,
+            likes: 0,
+            quant: "Q8_0",
+            architecture: "gemma3",
+            license: "gemma",
+            task_tags: &["general", "reasoning"],
+        },
+        CatalogItem {
+            catalog_id: "qwen3_32b_q8_0",
+            name: "Qwen3 32B Q8_0 (large)",
+            repo_id: "Qwen/Qwen3-32B-GGUF",
+            filename: "Qwen3-32B-Q8_0.gguf",
+            size_bytes: 34817718912,
+            downloads: 0,
+            likes: 0,
+            quant: "Q8_0",
+            architecture: "qwen3",
+            license: "apache-2.0",
+            task_tags: &["reasoning", "coding"],
+        },
+        CatalogItem {
+            catalog_id: "llama33_70b_instruct_q4_k_m",
+            name: "Llama 3.3 70B Instruct Q4_K_M (flagship, 128 GB)",
+            repo_id: "bartowski/Llama-3.3-70B-Instruct-GGUF",
+            filename: "Llama-3.3-70B-Instruct-Q4_K_M.gguf",
+            size_bytes: 42520398816,
+            downloads: 0,
+            likes: 0,
+            quant: "Q4_K_M",
+            architecture: "llama",
+            license: "llama3.3",
+            task_tags: &["general", "reasoning"],
+        },
     ]
 }
 
