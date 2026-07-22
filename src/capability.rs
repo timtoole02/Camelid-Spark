@@ -43,6 +43,13 @@ pub struct HardwareProfile {
     pub cuda_tensor_cores: bool,
     pub cuda_vram_total_bytes: u64,
     pub cuda_vram_free_bytes: u64,
+    /// CPU and GPU share ONE physical memory pool (integrated GPU — GB10/DGX
+    /// Spark, Jetson). Set from CU_DEVICE_ATTRIBUTE_INTEGRATED, with a
+    /// size-similarity fallback ("VRAM" total within 20% of host RAM total)
+    /// for drivers that misreport the attribute. Policies that assume separate
+    /// host/device pools (fit offload budgets, PCIe offload streaming, double
+    /// weight residency) key off this.
+    pub cuda_unified_memory: bool,
     pub cpu_logical_cores: usize,
     pub host_ram_total_bytes: u64,
     pub host_ram_free_bytes: u64,
@@ -63,6 +70,7 @@ impl HardwareProfile {
             cuda_tensor_cores,
             cuda_vram_total_bytes,
             cuda_vram_free_bytes,
+            cuda_integrated,
         ) = match &cap {
             Some(c) => (
                 true,
@@ -72,13 +80,22 @@ impl HardwareProfile {
                 c.compute_capability.0 >= 7,
                 c.vram_total_bytes,
                 c.vram_free_bytes,
+                c.integrated,
             ),
-            None => (false, 0, None, None, false, 0, 0),
+            None => (false, 0, None, None, false, 0, 0, false),
         };
         let cpu_logical_cores = std::thread::available_parallelism()
             .map(|n| n.get())
             .unwrap_or(1);
         let (host_ram_total_bytes, host_ram_free_bytes) = host_ram_bytes();
+        // Unified pool: the driver attribute is authoritative; the size
+        // heuristic catches drivers that misreport it (a discrete card's VRAM
+        // is never within 20% of host RAM on the machines this build targets).
+        let cuda_unified_memory = cuda_available
+            && (cuda_integrated
+                || (host_ram_total_bytes > 0
+                    && cuda_vram_total_bytes >= host_ram_total_bytes / 5 * 4
+                    && cuda_vram_total_bytes <= host_ram_total_bytes / 5 * 6));
         HardwareProfile {
             cuda_available,
             cuda_device_count,
@@ -87,6 +104,7 @@ impl HardwareProfile {
             cuda_tensor_cores,
             cuda_vram_total_bytes,
             cuda_vram_free_bytes,
+            cuda_unified_memory,
             cpu_logical_cores,
             host_ram_total_bytes,
             host_ram_free_bytes,
@@ -110,12 +128,17 @@ impl HardwareProfile {
         if self.cuda_available {
             let (cc_major, cc_minor) = self.cuda_compute_capability.unwrap_or((0, 0));
             eprintln!(
-                "[hw] GPU: {} (x{}) | compute {}.{} | tensor-cores {} | VRAM {:.1} GiB free / {:.1} GiB total",
+                "[hw] GPU: {} (x{}) | compute {}.{} | tensor-cores {} | {} {:.1} GiB free / {:.1} GiB total",
                 self.cuda_device_name.as_deref().unwrap_or("unknown"),
                 self.cuda_device_count,
                 cc_major,
                 cc_minor,
                 if self.cuda_tensor_cores { "yes" } else { "no" },
+                if self.cuda_unified_memory {
+                    "UNIFIED memory (shared with CPU)"
+                } else {
+                    "VRAM"
+                },
                 self.cuda_vram_free_bytes as f64 / GIB,
                 self.cuda_vram_total_bytes as f64 / GIB,
             );
@@ -179,7 +202,7 @@ fn host_ram_bytes() -> (u64, u64) {
 }
 
 #[cfg(target_os = "linux")]
-fn host_ram_bytes() -> (u64, u64) {
+pub(crate) fn host_ram_bytes() -> (u64, u64) {
     // /proc/meminfo reports kB; MemAvailable is the kernel's own estimate of what
     // is reclaimable for new allocations (better than MemFree for our purposes).
     let Ok(text) = std::fs::read_to_string("/proc/meminfo") else {

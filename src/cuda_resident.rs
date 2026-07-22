@@ -5562,12 +5562,20 @@ struct TreeScratch {
 /// nothing and cost a small fixed overhead (3B 53.2→52.5, TinyLlama 129→124 tok/s),
 /// at identical tokens. The path is kept (correct + parity-clean) because it pays off
 /// where decode becomes launch-bound: a much faster GPU, or after kernel fusion cuts
-/// GPU time below the launch cost. Opt in with `CAMELID_CUDA_GRAPHS=1`.
+/// GPU time below the launch cost.
+///
+/// FLINT (DGX Spark): default ON for Linux — the measured no-win above is a
+/// Windows/WDDM result (WDDM launch batching already hides enqueue cost, and
+/// capture misbehaved under that driver model), while GB10 under the Linux
+/// driver is exactly the "much faster GPU" case the note anticipates; the
+/// gemma4 CUDA lane has captured by default on Linux all along. Explicit
+/// `CAMELID_CUDA_GRAPHS=0` still disables; Windows/macOS keep the opt-in.
 fn cuda_graphs_enabled() -> bool {
-    matches!(
-        std::env::var("CAMELID_CUDA_GRAPHS").ok().as_deref(),
-        Some("1") | Some("true") | Some("on") | Some("yes")
-    )
+    match std::env::var("CAMELID_CUDA_GRAPHS").ok().as_deref() {
+        Some("1") | Some("true") | Some("on") | Some("yes") => true,
+        Some("0") | Some("false") | Some("off") | Some("no") => false,
+        _ => cfg!(target_os = "linux"),
+    }
 }
 
 /// Whether decode overlaps the independent K/V and FFN-up GEMV chains of each Full

@@ -158,6 +158,25 @@ fn assess_with_headroom(hw: &HardwareProfile, m: &FitInputs, vram_headroom_mib: 
     let footprint = m.footprint_bytes();
     let usable_ram = usable_host_ram_bytes(hw);
 
+    if has_usable_gpu(hw) && hw.cuda_unified_memory {
+        // FLINT (DGX Spark): one physical pool — "free VRAM" and host RAM are
+        // the SAME bytes, so the discrete-card arms below double-count (free
+        // VRAM + 80% RAM claimed ~2x the machine) and "offload" has no meaning.
+        // Today's loader holds host blocks AND a device copy, so a resident
+        // load needs ~2x the footprint from the one pool; between 1x and 2x is
+        // an honest Unknown (the zero-copy lane will lower this to ~1x).
+        let pool = hw
+            .cuda_vram_free_bytes
+            .max(usable_ram.unwrap_or(hw.cuda_vram_free_bytes));
+        return if footprint.saturating_mul(2) <= pool {
+            FitVerdict::FitsResident
+        } else if footprint <= pool {
+            FitVerdict::Unknown
+        } else {
+            FitVerdict::WontFit
+        };
+    }
+
     if has_usable_gpu(hw) {
         match crate::cuda_vram::evaluate(hw.cuda_vram_free_bytes, footprint, vram_headroom_mib) {
             Ok(_) => {
@@ -333,6 +352,7 @@ mod tests {
             cuda_tensor_cores: false,
             cuda_vram_total_bytes: vram_free_bytes,
             cuda_vram_free_bytes: vram_free_bytes,
+            cuda_unified_memory: false,
             cpu_logical_cores: 8,
             host_ram_total_bytes: ram_total_bytes,
             host_ram_free_bytes: ram_free_bytes,
@@ -350,6 +370,32 @@ mod tests {
     // A small headroom so tests reason in round GiB without the default 512 MiB
     // nudging boundary cases.
     const H: u64 = 0;
+
+    #[test]
+    fn unified_memory_uses_one_pool_with_double_residency_margin() {
+        // FLINT (DGX Spark): 128 GB unified pool, ~110 GB free. The discrete
+        // arms would double-count (VRAM free + 80% RAM ≈ 200 GB); the unified
+        // branch budgets ONE pool and requires 2x footprint while the loader
+        // holds host+device copies.
+        let mut hw = profile(true, 110 * GIB, 128 * GIB, 110 * GIB);
+        hw.cuda_unified_memory = true;
+        // 40 GB model: 2x80 <= 110 → resident.
+        assert_eq!(
+            assess_with_headroom(&hw, &inputs(40 * GIB, 0), 512),
+            FitVerdict::FitsResident
+        );
+        // 70 GB model: 1x fits, 2x does not → honest Unknown (not phantom offload).
+        assert_eq!(
+            assess_with_headroom(&hw, &inputs(70 * GIB, 0), 512),
+            FitVerdict::Unknown
+        );
+        // 120 GB model: exceeds the pool outright → WontFit (the discrete
+        // FitsWithOffload arm must NOT fire on one pool).
+        assert_eq!(
+            assess_with_headroom(&hw, &inputs(120 * GIB, 0), 512),
+            FitVerdict::WontFit
+        );
+    }
 
     #[test]
     fn resident_when_footprint_fits_vram_with_headroom() {

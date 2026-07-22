@@ -912,9 +912,21 @@ pub fn host_ram_status() -> Option<(u64, u64)> {
     Some((memsize, available))
 }
 
+/// Linux: reuse the capability module's /proc/meminfo probe (MemTotal /
+/// MemAvailable). FLINT (DGX Spark): without this, `kv_cache_budget_from` maps
+/// the `None` to u64::MAX and CPU-lane KV growth runs unguarded in the SAME
+/// physical pool the GPU weights live in.
+#[cfg(target_os = "linux")]
+pub fn host_ram_status() -> Option<(u64, u64)> {
+    match crate::capability::host_ram_bytes() {
+        (0, _) => None,
+        (total, available) => Some((total, available)),
+    }
+}
+
 /// `None` on the remaining unixes (no portable cheap probe wired up): the caller then
 /// proceeds without the RAM-derived gate, leaving the explicit env override as the gate.
-#[cfg(all(not(windows), not(target_os = "macos")))]
+#[cfg(all(not(windows), not(target_os = "macos"), not(target_os = "linux")))]
 pub fn host_ram_status() -> Option<(u64, u64)> {
     None
 }
