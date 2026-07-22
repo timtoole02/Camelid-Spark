@@ -2160,6 +2160,7 @@ impl LlamaInferenceSession {
                     if slot.engine.filled() > position {
                         slot.engine.set_filled(position);
                     }
+                    slot.committed_tokens.truncate(position);
                 }
             }
         }
@@ -2517,6 +2518,7 @@ impl LlamaInferenceSession {
                         key,
                         engine,
                         range: 0..n_layers,
+                        committed_tokens: Vec::new(),
                     })
                 }
                 None => return Ok(false),
@@ -2556,9 +2558,12 @@ impl LlamaInferenceSession {
             // A partial prefill leaves the GPU KV inconsistent; mark unfilled so the
             // decode path rebuilds/reseeds rather than trusting it.
             slot.engine.set_filled(0);
+            slot.committed_tokens.clear();
             return Ok(false);
         }
         slot.engine.set_filled(n);
+        slot.committed_tokens.clear();
+        slot.committed_tokens.extend_from_slice(token_ids);
         // The GPU prefill only fills the GPU KV cache. Copy it back so the CPU-side
         // KV cache is authoritative too: otherwise any later forward that takes the
         // CPU path (dense diagnostics, a GPU-decode fallback, or a KV rollback) reads
@@ -2572,6 +2577,7 @@ impl LlamaInferenceSession {
                 eprintln!("[resident-cuda] KV readback to host failed ({e}); using CPU prefill");
             }
             slot.engine.set_filled(0);
+            slot.committed_tokens.clear();
             return Ok(false);
         }
         drop(guard);
@@ -2742,7 +2748,7 @@ impl LlamaInferenceSession {
             .weights
             .token_embedding
             .embedding_lookup(&[token_id], "token_embedding")?;
-        match self.try_resident_decode_forward(&embedding, true, Some(token_id))? {
+        match self.try_resident_decode_forward(&embedding, true, Some(token_id), Some(token_id))? {
             Some(ResidentForward::Sampled(id)) => {
                 self.kv_cache.position += 1;
                 Ok(Some((id, started.elapsed().as_micros())))
@@ -2812,6 +2818,7 @@ impl LlamaInferenceSession {
             true,
             None,
             Some((inv_temp, seed)),
+            Some(token_id),
         )? {
             Some(ResidentForward::Sampled(id)) => {
                 self.kv_cache.position += 1;
@@ -2951,6 +2958,12 @@ impl LlamaInferenceSession {
         }
         let new_position = position + accepted.len();
         slot.engine.set_filled(new_position);
+        // Record maintenance: the accepted tokens' KV was written at
+        // [position, new_position) by verify_batch (rejected drafts beyond stay
+        // as stale bytes past filled — harmless, never suffix-trusted).
+        slot.committed_tokens.truncate(position);
+        slot.committed_tokens.extend_from_slice(&accepted);
+        debug_assert_eq!(slot.committed_tokens.len(), slot.engine.filled());
         drop(guard);
         self.kv_cache.position = new_position;
         Ok(Some(accepted))
@@ -3067,6 +3080,11 @@ impl LlamaInferenceSession {
         }
         let new_position = position + emitted.len();
         slot.engine.set_filled(new_position);
+        // Record maintenance: the accepted path's KV was compacted into
+        // [position, new_position) in emitted order.
+        slot.committed_tokens.truncate(position);
+        slot.committed_tokens.extend_from_slice(&emitted);
+        debug_assert_eq!(slot.committed_tokens.len(), slot.engine.filled());
         drop(guard);
         self.kv_cache.position = new_position;
         Ok(Some(emitted))
@@ -3118,6 +3136,7 @@ impl LlamaInferenceSession {
         embedding: &CpuTensor,
         compute_logits: bool,
         gpu_sample_token: Option<u32>,
+        fed_token: Option<u32>,
     ) -> Result<Option<ResidentForward>> {
         if std::env::var_os("CAMELID_RESIDENT_TRACE").is_some() {
             use std::sync::Once;
@@ -3136,6 +3155,7 @@ impl LlamaInferenceSession {
                 compute_logits,
                 gpu_sample_token,
                 None,
+                fed_token,
             );
         }
         self.try_resident_decode_forward_metal(embedding, compute_logits, gpu_sample_token)
@@ -3152,6 +3172,7 @@ impl LlamaInferenceSession {
         compute_logits: bool,
         gpu_sample_token: Option<u32>,
         sample: Option<(f32, u64)>,
+        fed_token: Option<u32>,
     ) -> Result<Option<ResidentForward>> {
         if !self.resident_decode_eligible(compute_logits)? {
             return Ok(None);
@@ -3287,6 +3308,7 @@ impl LlamaInferenceSession {
                         key,
                         engine,
                         range: range.clone(),
+                        committed_tokens: Vec::new(),
                     })
                 }
                 None => {
@@ -3377,6 +3399,10 @@ impl LlamaInferenceSession {
                 }
             }
             slot.engine.set_filled(position);
+            // Reseeded KV was rebuilt from the f16-rounded CPU history — the
+            // near-tie mechanism the resident lane deliberately bypasses for
+            // prefix reuse. It must NEVER be suffix-extended: clear the record.
+            slot.committed_tokens.clear();
             if trace {
                 eprintln!(
                     "[resident-cuda] seeded KV at position {position} in {} ms",
@@ -3452,6 +3478,17 @@ impl LlamaInferenceSession {
             }
         };
         slot.engine.set_filled(position + 1);
+        // Record maintenance: this step wrote the FED token's KV at `position`.
+        // Callers that cannot name the token (distributed hidden-state entry)
+        // pass None — clear the record rather than let it drift from the KV.
+        match fed_token {
+            Some(id) => {
+                slot.committed_tokens.truncate(position);
+                slot.committed_tokens.push(id);
+                debug_assert_eq!(slot.committed_tokens.len(), slot.engine.filled());
+            }
+            None => slot.committed_tokens.clear(),
+        }
         Ok(Some(forward))
     }
 
@@ -3463,6 +3500,7 @@ impl LlamaInferenceSession {
         compute_logits: bool,
         gpu_sample_token: Option<u32>,
         sample: Option<(f32, u64)>,
+        _fed_token: Option<u32>,
     ) -> Result<Option<ResidentForward>> {
         Ok(None)
     }
@@ -3627,7 +3665,7 @@ impl LlamaInferenceSession {
         // prefill and ineligible configs take the CPU chunk path below.
         if seq_len == 1 {
             if let Some(ResidentForward::Hidden(out)) =
-                self.try_resident_decode_forward(hidden, false, None)?
+                self.try_resident_decode_forward(hidden, false, None, None)?
             {
                 self.kv_cache.position += 1;
                 return Ok(out);
@@ -4245,7 +4283,7 @@ impl LlamaInferenceSession {
             // would swallow the distributed worker dispatch inside the layer loop below.
             None
         } else {
-            self.try_resident_decode_forward(&hidden, compute_logits, None)?
+            self.try_resident_decode_forward(&hidden, compute_logits, None, Some(token_id))?
         };
         // When the resident path also produced logits on the GPU, carry them here and skip the
         // CPU final norm + output projection below.
@@ -11007,6 +11045,15 @@ struct ResidentCudaSlot {
     /// would write another shard's K/V at this session's layer ids and mark it materialized.
     /// (The build/reseed decisions deliberately keep their existing key-only policy.)
     range: std::ops::Range<usize>,
+    /// P0-4 (suffix prefill): the token ids whose KV occupies positions
+    /// `[0, engine.filled())` — the record that lets a later turn prove the new
+    /// prompt extends this engine's live KV. Invariant at rest (mutex released):
+    /// `committed_tokens.len() == engine.filled()`. Maintained UNCONDITIONALLY at
+    /// every `set_filled` site (cheap Vec ops) so the suffix gate can flip
+    /// per-call; CLEARED on host-reseed (reseeded KV is f16-round-tripped — the
+    /// near-tie mechanism the resident lane deliberately bypasses — and must
+    /// never be suffix-extended) and on any prefill/mirror failure.
+    committed_tokens: Vec<u32>,
 }
 
 #[cfg(feature = "cuda")]
