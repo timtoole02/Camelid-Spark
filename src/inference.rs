@@ -481,9 +481,14 @@ impl LlamaLoadedWeights {
             );
         } else if cuda_hostreg_load {
             eprintln!(
-                "[camelid] CAMELID_CUDA_HOSTREG: loading Q8_0 weights as page-aligned wire \
-                 pages (the resident CUDA engine host-registers the repacked bytes; no \
-                 VRAM weight copies, no q8_0_blocks)"
+                "[camelid] CAMELID_CUDA_HOSTREG ({}): streaming Q8_0 weights (no q8_0_blocks; \
+                 the resident CUDA engine {})",
+                cuda_hostreg_mode_label(),
+                if cuda_hostreg_mode_label() == "upload" {
+                    "device-copies the repacked bytes and drops the transient"
+                } else {
+                    "host-registers the repacked bytes in place; no VRAM weight copies"
+                }
             );
         }
         let force_lazy_q8_0 = lazy_q8_0_linear_forced();
@@ -11771,8 +11776,13 @@ fn build_resident_cuda_engine(
     if crate::cuda_resident::cuda_hostreg_enabled() {
         // The hostreg engagement receipt (FLINT W2): zero counts with the flag on
         // means the flag silently didn't engage — treat identical tok/s as suspect.
+        // mode=register serves mapped host memory; mode=upload device-copies the
+        // same streamed bytes (the A/B pair that isolates the mapped-read penalty).
         let (zero_copy, uploaded) = engine.hostreg_counts();
-        eprintln!("[cuda] hostreg: {zero_copy} zero-copy / {uploaded} uploaded");
+        eprintln!(
+            "[cuda] hostreg mode={}: {zero_copy} zero-copy / {uploaded} uploaded",
+            crate::cuda_resident::cuda_hostreg_mode().label()
+        );
     }
     Some(engine)
 }
@@ -11980,6 +11990,19 @@ fn metal_nocopy_fast_load_enabled() -> bool {
 /// repacked bytes instead of uploading VRAM copies. Requires a live CUDA device —
 /// without one, wire-paged tensors (no `q8_0_blocks`) would strand decode on the
 /// per-token disk-streaming CPU path.
+/// The resolved hostreg mode label for loader banners ("off" without the cuda
+/// feature, where the gate below is constant false anyway).
+fn cuda_hostreg_mode_label() -> &'static str {
+    #[cfg(feature = "cuda")]
+    {
+        crate::cuda_resident::cuda_hostreg_mode().label()
+    }
+    #[cfg(not(feature = "cuda"))]
+    {
+        "off"
+    }
+}
+
 fn cuda_hostreg_fast_load_enabled() -> bool {
     #[cfg(feature = "cuda")]
     {

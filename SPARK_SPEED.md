@@ -44,8 +44,14 @@ buffers** (`cuMemHostRegister` DEVICEMAP + `cuMemHostGetDevicePointer`, raw
 one-pool hardware** — the driver reports INTEGRATED, or the pool is ≥ 96 GiB
 (covers a GB10 driver misreporting the attribute; the VRAM≈RAM size heuristic
 alone must never flip weight serving off VRAM on a discrete 8/8 or 16/16 box).
-Off everywhere else; `CAMELID_CUDA_HOSTREG=1/0` overrides either way. MoE
-models keep the historical loaders (they never pass resident admission), and a
+Off everywhere else; `CAMELID_CUDA_HOSTREG=1/0` overrides either way, and
+**`=upload`** selects a third mode: the same streamed 1× load, but the engine
+device-copies each streamed repack (`clone_htod`) instead of registering it —
+on one physical pool that is ALSO ~1× steady, with zero mapped-read risk. The
+`=1`-vs-`=upload` A/B on the same box isolates the mapped-read penalty (the
+receipt line carries the mode: `[cuda] hostreg mode=…: N zero-copy / M
+uploaded`). Unknown env spellings warn once and resolve OFF. MoE models keep
+the historical loaders (they never pass resident admission), and a
 hostreg-loaded session that falls to the CPU path warns loudly once. Registration lifetime = engine lifetime (synchronize → unregister →
 dealloc, guards drop last); any per-tensor registration failure falls back to
 upload silently, and the build prints the engagement receipt:
