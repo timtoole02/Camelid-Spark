@@ -54,6 +54,24 @@ uploaded`). Unknown env spellings warn once and resolve OFF. MoE models keep
 the historical loaders (they never pass resident admission), and a
 hostreg-loaded session that falls to the CPU path warns loudly once.
 
+**`CAMELID_CUDA_PREFILL_K`** (default 8) widens the batched-prefill chunk —
+TTFT scales ~1/K where weight reads dominate (3060 hostreg receipt: 1082-token
+prompt 33.6 s → 15.7 s at K=16, tokens identical; VRAM-resident legs barely
+move because their weight re-reads are cheap). K=16 needs > 48 KiB of
+ordered-sum shared memory past ~736 blocks/row, which the engine now raises
+via `cuFuncSetAttribute` (device opt-in permitting; clamped otherwise, capped
+at 8 while flash prefill's k<=8 oracle is active). Verify width stays 8.
+
+**Fixed in the same change — 32B/70B Q8_0 decode was broken outright**: the
+serial `q8_gemv` stages `blocks_per_row*68` B of shared memory, past the
+48 KiB launch default once ffn_dim ≥ ~23K (Qwen3-32B bpr 800 = 54,400 B,
+Llama-3.3-70B bpr 896 = 60,928 B) — every resident forward threw
+CUDA_ERROR_INVALID_VALUE before this; nothing larger than 8B had ever
+exercised the kernel. The engine now raises the cap at build (host-side launch
+config, kernel untouched; errors loudly into the CPU path only if even the
+device opt-in limit cannot fit). Without this fix the 70B would have loaded
+via hostreg and then failed its first token.
+
 Lossless **n-gram speculation** also defaults ON for unified-pool-class serve
 (`CAMELID_SPEC_DECODE=off` disables): every accepted draft skips a full weight
 pass — the only decode lever that multiplies past the bandwidth ceiling — and
