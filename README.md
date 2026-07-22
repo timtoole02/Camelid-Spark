@@ -1,4 +1,4 @@
-# Camelid-Spark (FLINT test build)
+# Camelid-Spark
 
 > **Test build** to evaluate that [Camelid](https://github.com/timtoole02/Camelid) — a
 > Rust-native local GGUF inference engine — runs on an NVIDIA **DGX Spark** (GB10 / `sm_121`).
