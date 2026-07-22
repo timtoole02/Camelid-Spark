@@ -88,7 +88,11 @@ fit badge for this row reads *unknown* — the advisor deliberately keeps the qu
 the load itself is the authority. **Receipts wanted from this box:** (1) the load-time stderr lines
 `[cuda] hostreg attrs: …` and `[cuda] hostreg: N zero-copy / M uploaded` (expect N = 561 = 80 layers
 × 7 + head for the 70B; any M > 0 means the per-tensor fallback engaged — send the line either way);
-(2) greedy decode tok/s; (3) an upload-vs-hostreg A/B **on the 14B Q8_0 row** (small enough that
+(2) greedy decode tok/s; (2b) the **mapped-vs-device A/B on the 70B itself**: the same short greedy
+run under `CAMELID_CUDA_HOSTREG=1` vs `CAMELID_CUDA_HOSTREG=upload` (both are streamed 1× loads —
+`upload` device-copies instead of registering; token streams must be identical, and the tok/s ratio
+IS the mapped-read penalty measurement, decode and TTFT both); (3) an upload-vs-hostreg A/B **on the
+14B Q8_0 row** (small enough that
 `=0` really takes the historical VRAM-upload path): short greedy runs `CAMELID_CUDA_HOSTREG=0` vs
 `=1` — token streams must be identical (they are token-identical across the whole matrix on the 3060
 reference card, `qa/evidence-bundles/flint-w3-*`). On the **70B**, a `=0` leg does NOT reach the

@@ -31,6 +31,35 @@ fn device_embed_gather_allowlist_matches_the_gather_dispatch() {
     }
 }
 
+// Pure host (no GPU): the hostreg mode parse is exact-spelling and fails OFF —
+// unknown strings must never fall into the hardware default (a typo on a unified
+// box would silently pin ~1x of the model), and the unset arm follows the
+// hardware answer it is given.
+#[test]
+fn hostreg_mode_parse_is_exact_and_fails_off() {
+    use super::HostregMode::{Off, Register, Upload};
+    for (raw, unified_default, want) in [
+        (Some("1"), false, Register),
+        (Some("true"), false, Register),
+        (Some("register"), false, Register),
+        (Some("upload"), false, Upload),
+        (Some("upload"), true, Upload),
+        (Some("0"), true, Off),
+        (Some("no"), true, Off),
+        (Some("of"), true, Off),
+        (Some("TRUE"), true, Off),
+        (Some("Upload"), true, Off),
+        (None, true, Register),
+        (None, false, Off),
+    ] {
+        assert_eq!(
+            super::hostreg_mode_from(raw, unified_default),
+            want,
+            "raw={raw:?} unified_default={unified_default}"
+        );
+    }
+}
+
 // Pure host (no GPU): the fused 34-byte-wire → SoA repack must be byte-identical to
 // the two-step `repack_q8_soa(&widen_q8(wire))` it replaces on the hostreg load path.
 #[test]

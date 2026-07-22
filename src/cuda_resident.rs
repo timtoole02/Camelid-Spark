@@ -5761,25 +5761,88 @@ fn cuda_graphs_enabled() -> bool {
 /// W3 matrix on the 3060 before the flip). Per-tensor fallback to upload keeps
 /// any registration failure silent and correct — the build log's
 /// `[cuda] hostreg: N zero-copy / M uploaded` line is the engagement receipt.
-pub(crate) fn cuda_hostreg_enabled() -> bool {
-    match std::env::var("CAMELID_CUDA_HOSTREG").ok().as_deref() {
-        Some("1") | Some("true") | Some("on") | Some("yes") => true,
-        Some("0") | Some("false") | Some("off") | Some("no") => false,
-        _ => {
-            // Default ON only for hardware that is unambiguously one-pool: the
-            // driver reports INTEGRATED, or the pool is unified-machine scale
-            // (>= 96 GiB — no discrete consumer/workstation card reaches that,
-            // covering a GB10 driver that misreports the attribute). The bare
-            // `cuda_unified_memory` flag also carries a VRAM≈RAM size
-            // heuristic that a discrete 8GB/8GB or 16GB/16GB box can trip;
-            // serving weights over PCIe by default there would be a silent
-            // multi-fold regression, so that heuristic alone must never flip
-            // this gate.
-            let hw = crate::capability::HardwareProfile::cached();
-            hw.cuda_unified_memory
-                && (hw.cuda_integrated || hw.cuda_vram_total_bytes >= 96 * 1024 * 1024 * 1024)
+/// Resolved CAMELID_CUDA_HOSTREG mode.
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+pub(crate) enum HostregMode {
+    /// Historical loaders + clone_htod VRAM uploads (flag off).
+    Off,
+    /// Streamed 1× load; weights served in place from cuMemHostRegister'd
+    /// page-aligned host memory (zero device copies).
+    Register,
+    /// Streamed 1× load; weights device-copied (clone_htod) from the streamed
+    /// repack and the transient dropped. On INTEGRATED hardware a device
+    /// allocation lives in the same physical pool, so this is ALSO ~1× steady —
+    /// with zero mapped-read risk (kernels read normal cached device memory).
+    /// The register-vs-upload A/B on the same box isolates the mapped-read
+    /// penalty; it is also the fallback if registered reads prove slow.
+    Upload,
+}
+
+impl HostregMode {
+    pub(crate) fn label(self) -> &'static str {
+        match self {
+            HostregMode::Off => "off",
+            HostregMode::Register => "register",
+            HostregMode::Upload => "upload",
         }
     }
+}
+
+/// Pure parse: `raw` is the env value (None = unset), `unified_default` is the
+/// hardware answer for the unset arm. Unknown spellings resolve Off — on a
+/// unified box a typo ("of", "ture") silently falling into a hardware default
+/// would pin ~1× of the model in host memory; the env wrapper warns once.
+fn hostreg_mode_from(raw: Option<&str>, unified_default: bool) -> HostregMode {
+    match raw {
+        Some("1") | Some("true") | Some("on") | Some("yes") | Some("register") => {
+            HostregMode::Register
+        }
+        Some("0") | Some("false") | Some("off") | Some("no") => HostregMode::Off,
+        Some("upload") => HostregMode::Upload,
+        Some(_) => HostregMode::Off,
+        None => {
+            if unified_default {
+                HostregMode::Register
+            } else {
+                HostregMode::Off
+            }
+        }
+    }
+}
+
+pub(crate) fn cuda_hostreg_mode() -> HostregMode {
+    let raw = std::env::var("CAMELID_CUDA_HOSTREG").ok();
+    let raw = raw.as_deref();
+    // Default ON only for hardware that is unambiguously one-pool: the driver
+    // reports INTEGRATED, or the pool is unified-machine scale (>= 96 GiB — no
+    // discrete consumer/workstation card reaches that, covering a GB10 driver
+    // that misreports the attribute). The bare `cuda_unified_memory` flag also
+    // carries a VRAM≈RAM size heuristic that a discrete 8GB/8GB or 16GB/16GB
+    // box can trip; serving weights over PCIe by default there would be a
+    // silent multi-fold regression, so that heuristic alone must never flip
+    // this gate.
+    let unified_default = {
+        let hw = crate::capability::HardwareProfile::cached();
+        hw.cuda_unified_memory
+            && (hw.cuda_integrated || hw.cuda_vram_total_bytes >= 96 * 1024 * 1024 * 1024)
+    };
+    let mode = hostreg_mode_from(raw, unified_default);
+    if let Some(other) = raw {
+        if mode == HostregMode::Off && !matches!(other, "0" | "false" | "off" | "no") {
+            static WARN: std::sync::Once = std::sync::Once::new();
+            WARN.call_once(|| {
+                eprintln!(
+                    "[cuda] CAMELID_CUDA_HOSTREG={other:?} not recognized \
+                     (1/true/on/yes/register, upload, 0/false/off/no) — treating as off"
+                );
+            });
+        }
+    }
+    mode
+}
+
+pub(crate) fn cuda_hostreg_enabled() -> bool {
+    cuda_hostreg_mode() != HostregMode::Off
 }
 
 /// Whether decode overlaps the independent K/V and FFN-up GEMV chains of each Full
@@ -5990,8 +6053,12 @@ impl CudaResidentDecode {
         quant: ProjQuant,
     ) -> Result<ProjBytes, String> {
         let repacked = src.repack(quant)?;
-        if cuda_hostreg_enabled() {
-            if matches!(quant, ProjQuant::Q8_0) {
+        let mode = cuda_hostreg_mode();
+        if mode != HostregMode::Off {
+            // Register mode pins Q8_0 lanes in mapped host memory; Upload mode
+            // (and non-Q8_0 lanes in either mode) device-copies the streamed
+            // repack — same bytes, same 1× steady state on one pool.
+            if mode == HostregMode::Register && matches!(quant, ProjQuant::Q8_0) {
                 match self.try_register_host(&repacked) {
                     Ok(pb) => {
                         self.hostreg_zero_copy += 1;
