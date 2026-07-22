@@ -2351,7 +2351,7 @@ impl LlamaInferenceSession {
         }
         if self.resident_paths_disabled
             || token_ids.len() < 2
-            || token_ids.len() > 16384
+            || token_ids.len() > resident_prefill_max_tokens()
             || self.kv_cache.position != 0
             || self.weights.layer_range.is_some()
             || !self.resident_decode_eligible(false)?
@@ -2848,6 +2848,11 @@ impl LlamaInferenceSession {
                 && slot.engine.weights_ready()
                 && slot.engine.filled() == position
                 && !slot.engine.is_offloaded()
+                // The batched verify shares the Q8_0-only batched GEMM stack
+                // (same machinery as the batched prefill); a K-quant engine
+                // must take the CPU chunk verify instead of reading kernels
+                // that do not exist for its formats.
+                && !slot.engine.uses_kquant()
         });
         if !ready {
             return Ok(None);
@@ -2951,6 +2956,11 @@ impl LlamaInferenceSession {
                 && slot.engine.weights_ready()
                 && slot.engine.filled() == position
                 && !slot.engine.is_offloaded()
+                // The batched verify shares the Q8_0-only batched GEMM stack
+                // (same machinery as the batched prefill); a K-quant engine
+                // must take the CPU chunk verify instead of reading kernels
+                // that do not exist for its formats.
+                && !slot.engine.uses_kquant()
         });
         if !ready {
             return Ok(None);
@@ -11394,7 +11404,15 @@ fn build_resident_cuda_engine(
     let default_headroom_mb = if is_drafter || honor_reserve {
         coexist_headroom_mb
     } else {
-        512
+        // FLINT (DGX Spark): 512 MiB is a 6 GB-card floor; on a unified pool
+        // the OS and every host allocation live in the same memory, so leave
+        // ~5% of the total instead (env override below still wins).
+        let hw = crate::capability::HardwareProfile::cached();
+        if hw.cuda_unified_memory {
+            512u64.max(hw.cuda_vram_total_bytes / 20 / (1024 * 1024))
+        } else {
+            512
+        }
     };
     let headroom_mb = std::env::var("CAMELID_CUDA_RESIDENT_HEADROOM_MB")
         .ok()
@@ -11451,8 +11469,25 @@ fn build_resident_cuda_engine(
         .and_then(|v| v.trim().parse::<usize>().ok())
         .unwrap_or(0)
         .min(n_layers);
+    // FLINT (DGX Spark): on a unified-memory GPU the offload split is an
+    // anti-feature — "host RAM" and "VRAM" are one pool, so offloading adds a
+    // duplicate pinned copy of every offloaded layer and a DDR-to-DDR memcpy
+    // per forward (~3x the bandwidth per offloaded byte) while freeing
+    // nothing. Refuse it: a model whose weights don't fit the pool is a clean
+    // CPU-lane fallback, not a tri-copy OOM. CAMELID_OFFLOAD_FORCE_LAYERS
+    // stays honored as an explicit test hook.
+    let unified_memory = crate::capability::HardwareProfile::cached().cuda_unified_memory;
     let (offload_count, offload_source) = if force_offload > 0 {
         (force_offload, "forced")
+    } else if unified_memory {
+        if free_vram > 0 && weights_bytes + headroom + min_kv > free_vram {
+            eprintln!(
+                "[resident-cuda] unified memory: weights ({} MiB) exceed the pool's free {} MiB;                  NOT offloading (one physical pool — streaming would add copies, not capacity)",
+                weights_bytes / (1024 * 1024),
+                free_vram / (1024 * 1024)
+            );
+        }
+        (0, "none-unified")
     } else if free_vram > 0 && weights_bytes + headroom + min_kv > free_vram {
         // Reserve KV(min) + headroom + scratch; offload trailing layers until the
         // resident weights fit the remainder.
@@ -11734,7 +11769,37 @@ fn resident_cuda_max_context() -> usize {
         .ok()
         .and_then(|v| v.trim().parse::<usize>().ok())
         .filter(|v| *v >= 256)
-        .unwrap_or(usize::MAX)
+        .unwrap_or_else(|| {
+            // FLINT (DGX Spark): the KV is allocated EAGERLY (zeroed at build)
+            // and, uncapped, greedily sizes to ALL remaining free memory at
+            // the model's trained context (131k for Llama-3.x) — tens of GB
+            // of the one unified pool gone before the first token. Default a
+            // practical 32k there; the env override above raises it at will.
+            if crate::capability::HardwareProfile::cached().cuda_unified_memory {
+                32768
+            } else {
+                usize::MAX
+            }
+        })
+}
+
+/// Longest prompt the GPU prefill accepts before falling back to the CPU loop.
+/// The historical 16384 literal was a 6 GB-card bound; on unified memory the
+/// engine's own VRAM-sized `max_pos()` check (which runs right after this) is
+/// the authoritative bound, so the literal only forced long prompts onto the
+/// CPU for no reason. `CAMELID_CUDA_PREFILL_MAX_TOKENS` overrides either way.
+fn resident_prefill_max_tokens() -> usize {
+    std::env::var("CAMELID_CUDA_PREFILL_MAX_TOKENS")
+        .ok()
+        .and_then(|v| v.trim().parse::<usize>().ok())
+        .filter(|v| *v >= 2)
+        .unwrap_or_else(|| {
+            if crate::capability::HardwareProfile::cached().cuda_unified_memory {
+                usize::MAX
+            } else {
+                16384
+            }
+        })
 }
 
 #[allow(dead_code)]

@@ -25,7 +25,22 @@ separate VRAM, PCIe. Both assumptions are false on the Spark, and that mismatch
 | Legacy `CAMELID_CUDA_Q8` ignored on unified memory | That lane re-uploads weights per matmul — same DRAM copied to itself |
 | Linux host-RAM probe wired into the gait budget | CPU-lane KV growth was unguarded (`None` → `u64::MAX`) in the same pool the GPU uses |
 
-## Stage S2 — planned: unified-memory weight strategy (the big unlock)
+## Stage S2 — shipped: unified-memory runtime policies
+
+| Change | Why |
+|---|---|
+| Auto layer-offload **disabled on unified memory** (`CAMELID_OFFLOAD_FORCE_LAYERS` stays as an explicit test hook) | Offloading on one pool adds a duplicate pinned copy + a DDR→DDR memcpy per forward (~3× traffic) while freeing nothing; a model that doesn't fit is now a clean CPU fallback with a log line, not a tri-copy OOM |
+| Resident context defaults to **32k** on unified (`CAMELID_CUDA_RESIDENT_MAX_CONTEXT` overrides) | The KV is allocated eagerly (zeroed at build) and, uncapped, sized to ALL remaining free memory at the trained context (131k) — tens of GB gone before the first token |
+| VRAM headroom scales to **5% of the pool** on unified (`CAMELID_CUDA_RESIDENT_HEADROOM_MB` overrides) | 512 MiB was a 6 GB-card floor; the OS lives in the same pool |
+| GPU prefill's 16384-token cap **lifted on unified** (`CAMELID_CUDA_PREFILL_MAX_TOKENS` overrides) | The engine's own VRAM-sized `max_pos()` bound is authoritative; the literal forced long prompts onto the CPU for no reason |
+| GPU speculative verify defaults **on** with a CUDA device (`CAMELID_SPEC_GPU=0` opts out) | CPU chunk-verify beside a resident target silently demoted the whole decode to the CPU lane |
+| K-quant guard on the batched GPU verify | The batched verify shares the Q8_0-only GEMM stack; a K-quant engine now falls back to the (lossless) CPU chunk verify instead of reading kernels that don't exist for its formats |
+
+## Stage S2-deep — pending: zero-copy weights (the 70B Q8_0 unlock)
+
+**Until this lands, test 70B via the Q4_K_M row** (fully resident, ~6.8 tok/s
+ceiling); the 70B Q8_0 row downloads and merges fine but will fall back to the
+CPU lane at load.
 
 **Today 70B Q8_0 is effectively dead on arrival**: the loader materializes all
 weights in host RAM (~74 GB), the resident engine uploads a **second** full copy
@@ -45,18 +60,23 @@ bytes (it counts the big lanes as 0, so model switches leak a full model).
 Expected: 70B Q8_0 from broken → **~3.9 tok/s**; every model frees ~1× its
 size; loads minutes → seconds.
 
-## Stage S3 — planned: prefill + multi-turn
+## Stage S3 — pending: prefill chunking + multi-turn KV reuse
+
+Held until the S1/S2 baseline is validated on real GB10 silicon (these change
+numerics-adjacent launch configs or the chat KV lifecycle):
 
 - **K-quant prefill is serial** (one full weight pass per prompt token): 70B
   Q4_K_M 2k-token prompt ≈ 5–10 min TTFT. Q8_0's batched prefill re-reads all
-  weights every **8** tokens (`MAX_VERIFY_K`, sized for 6 GB scratch).
+  weights every **8** tokens (`MAX_VERIFY_K`, sized for 6 GB shared-memory
+  scratch — raising it needs a launch-config audit against 48 KB smem).
 - **Every chat turn re-prefills the entire conversation** (prefix cache is
-  bypassed on the resident lane; GPU prefill requires position 0).
-- Prompts **>16384 tokens fall off the GPU** entirely.
-- Speculative decode (a measured 2.61× on the Metal twin) exists but is opt-in
-  env, and enabling it without `CAMELID_SPEC_GPU=1` silently runs CPU verify.
+  bypassed on the resident lane; GPU prefill requires position 0). Fix shape:
+  suffix prefill at `base=filled()` like the gemma4 lane's `cached_tokens`.
+- The CPU-materialization estimator counts the big lanes as 0 bytes, so model
+  switching leaks one whole model per switch until eviction math is honest.
 - GPU sampling lane (Gumbel) is default-off after a Windows-driver corruption;
-  re-validate on the Spark — costs ~20-25% of sampled-decode throughput.
+  re-validate on the Spark (`CAMELID_GPU_SAMPLING=1` if the env exists in this
+  tree) — costs ~20-25% of sampled-decode throughput while off.
 
 ## Verified-good already
 
