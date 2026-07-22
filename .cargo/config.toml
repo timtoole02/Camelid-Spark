@@ -13,3 +13,14 @@
 # target feature`). aarch64 keeps its defaults (NEON is baseline there).
 [target.'cfg(target_arch = "x86_64")']
 rustflags = ["-C", "target-cpu=x86-64-v3"]
+
+# FLINT (DGX Spark): the aarch64 NEON kernels include hand-written half-precision
+# inline asm (`fmla/fadd v*.8h`, e.g. in src/inference.rs). The generic
+# aarch64-unknown-linux-gnu target does NOT enable the ARMv8.2 FP16 feature by
+# default, so a RELEASE codegen fails with `error: instruction requires: fullfp16`
+# (cargo check passes — it does no codegen; macOS/Apple-Silicon builds pass — fp16
+# is on there by default). The Spark's Grace CPU (Neoverse V2, ARMv9) has FP16, so
+# enable it for this target. Triple-scoped, so x86_64 and aarch64-apple-darwin are
+# untouched. NEON stays baseline (this only ADDS fullfp16).
+[target.aarch64-unknown-linux-gnu]
+rustflags = ["-C", "target-feature=+fullfp16"]
