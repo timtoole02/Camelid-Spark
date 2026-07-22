@@ -5185,6 +5185,7 @@ fn apply_deterministic_mode() {
         "CAMELID_METAL_Q8_RETAINED",
         "CAMELID_HYBRID_Q8_RETAINED",
         "CAMELID_METAL_NOCOPY",
+        "CAMELID_CUDA_HOSTREG",
     ] {
         std::env::set_var(key, "0");
     }

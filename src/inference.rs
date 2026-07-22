@@ -11882,6 +11882,23 @@ fn metal_nocopy_fast_load_enabled() -> bool {
     cfg!(target_os = "macos") && env_flag_enabled("CAMELID_METAL_NOCOPY")
 }
 
+/// Fast-load gate, CUDA twin (FLINT W2): under CAMELID_CUDA_HOSTREG, Q8_0 linears
+/// load as page-aligned wire pages so the resident CUDA engine host-registers their
+/// repacked bytes instead of uploading VRAM copies. Requires a live CUDA device —
+/// without one, wire-paged tensors (no `q8_0_blocks`) would strand decode on the
+/// per-token disk-streaming CPU path.
+#[allow(dead_code)] // consumed by the load path once the engine's hostreg arm lands (wired next).
+fn cuda_hostreg_fast_load_enabled() -> bool {
+    #[cfg(feature = "cuda")]
+    {
+        crate::cuda_resident::cuda_hostreg_enabled() && crate::cuda::is_available()
+    }
+    #[cfg(not(feature = "cuda"))]
+    {
+        false
+    }
+}
+
 const Q8_0_BLOCK_VALUES: usize = 32;
 const X86_Q8_PACKED_ROWS4_DECODE_PARALLEL_MIN_OUTPUTS: usize = 1024;
 const X86_Q8_PACKED_ROWS4_MATMUL_PARALLEL_MIN_GROUPS: usize = 64;

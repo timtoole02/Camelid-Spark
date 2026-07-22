@@ -1,0 +1,4 @@
+[offload] forced VRAM budget: 64 MiB
+model: layers=32 hidden=4096 ffn=14336 heads=32 kv_heads=8 head_dim=128 vocab=Some(128256) | KV reserved at context=4096
+[offload] PLAN FAILED: model cannot run even fully offloaded: need 2641 MiB (KV 1024 + ends 1127 + safety 256 + 1 layer scratch 234) but only 64 MiB free — short by 2577 MiB
+[offload] layer map (V=VRAM, H=host): HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH

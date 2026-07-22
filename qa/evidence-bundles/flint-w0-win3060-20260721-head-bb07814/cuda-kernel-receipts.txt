@@ -1,0 +1,62 @@
+    Finished `release` profile [optimized] target(s) in 0.40s
+     Running unittests src\lib.rs (target\release\deps\camelid-8a860b5f2d3bc4d4.exe)
+
+running 42 tests
+[cuda] selected device 0 of 1: "NVIDIA GeForce RTX 3060 Laptop GPU" (compute capability 8.6) | VRAM 5122 MiB free / 6143 MiB total
+test cuda_resident::tests::deinterleave_qgate_matches_cpu ... ok
+test cuda_resident::tests::gemm_batched_matches_per_token ... ok
+test cuda_resident::tests::attention_decode_sw_matches_cpu ... ok
+nvfp4_gemv_matches_oracle: 46/46 rows bit-identical, worst rel diff 0.000e0
+test cuda_resident::tests::nvfp4_gemv_matches_oracle ... ok
+test cuda_resident::tests::nvfp4_gemv_fuses_residual_add ... ok
+test cuda_resident::tests::argmax_matches_cpu ... ok
+q2k_gemv_matches_oracle: 96/96 rows bit-identical, worst rel diff 0.000e0
+test cuda_resident::tests::q2k_gemv_matches_oracle ... ok
+test cuda_resident::tests::nvfp4_gemv_requires_even_q8_blocks ... ok
+test cuda_resident::tests::iq4xs_gemv_matches_oracle ... ok
+[cuda] Q8_0 hybrid decode active on NVIDIA GeForce RTX 3060 Laptop GPU — first GPU matmul completed
+test cuda::backend::tests::cuda_block_kernel_matches_cpu_reference_within_tolerance ... ok
+test cuda::backend::tests::cuda_q8_kernel_is_bit_identical_to_cpu_reference ... ok
+test cuda_resident::tests::attention_decode_matches_cpu ... ok
+test cuda_resident::tests::nvfp4_gemv_decodes_ue4m3_sentinels_pin_cpu_bitwise ... ok
+test cuda_resident::tests::geglu_mul_matches_cpu ... ok
+q3k_gemv_matches_oracle: 96/96 rows bit-identical, worst rel diff 0.000e0
+test cuda_resident::tests::q3k_gemv_matches_oracle ... ok
+q4_0_gemv_matches_oracle: 96/96 rows bit-identical, worst rel diff 0.000e0
+test cuda_resident::tests::q4_0_gemv_matches_oracle ... ok
+q4_1_gemv_matches_oracle: 96/96 rows bit-identical, worst rel diff 0.000e0
+test cuda_resident::tests::q4_1_gemv_matches_oracle ... ok
+q4k_gemv_matches_oracle: 96/96 rows bit-identical, worst rel diff 0.000e0
+test cuda_resident::tests::q4k_gemv_matches_oracle ... ok
+q5k_gemv_matches_oracle: 96/96 rows bit-identical, worst rel diff 0.000e0
+test cuda_resident::tests::q5k_gemv_matches_oracle ... ok
+q6k_gemv_matches_oracle: 96/96 rows bit-identical, worst rel diff 0.000e0
+test cuda_resident::tests::q6k_gemv_matches_oracle ... ok
+test cuda_resident::tests::quantize_q8_0_matches_cpu ... ok
+test cuda_resident::tests::rms_norm_matches_cpu ... ok
+test cuda_resident::tests::rms_norm_per_head_parity ... ok
+test cuda_resident::tests::full_forward_token_matches_cpu ... ok
+test cuda_resident::tests::rope_adjacent_parity ... ok
+test cuda_resident::tests::rope_matches_cpu ... ok
+skip: set CAMELID_GEMMA4_GGUF to the gemma4 E4B Q8_0 gguf path
+test gemma4_runtime::cuda_parity_tests::gemma4_cuda_matches_cpu_greedy ... ok
+test cuda_resident::tests::rope_split_half_parity ... ok
+test cuda_resident::tests::sigmoid_mul_matches_cpu ... ok
+test cuda_resident::tests::silu_mul_matches_cpu ... ok
+test cuda_resident::tests::soft_cap_matches_cpu ... ok
+test cuda_resident::tests::ssm_conv1d_matches_cpu ... ok
+test cuda_resident::tests::splitk_spec_verify_bit_identical ... ok
+test cuda_resident::tests::ssm_delta_rule_matches_cpu ... ok
+test cuda_resident::tests::ssm_gates_matches_cpu ... ok
+test cuda_resident::tests::ssm_l2_norm_per_head_matches_cpu ... ok
+test cuda_resident::tests::ssm_layer_chain_matches_cpu ... ok
+test cuda_resident::tests::tree_linear_matches_verify_batch ... ok
+tree_verify_forced_compaction_lossless: 32 tokens, 16 rounds, 16 COMPACTING rounds, 2.00 accepted/round
+test cuda_resident::tests::tree_verify_forced_compaction_lossless ... ok
+tree_verify_multiround_lossless: 40 tokens over 37 rounds, 1.05 accepted/round, 1 compacting rounds
+test cuda_resident::tests::tree_verify_multiround_lossless ... ok
+test cuda_resident::tests::verify_batch_matches_sequential ... ok
+test cuda_resident::tests::prefill_then_decode_matches_sequential ... ok
+
+test result: ok. 42 passed; 0 failed; 0 ignored; 0 measured; 877 filtered out; finished in 2.81s
+

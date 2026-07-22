@@ -3266,6 +3266,31 @@ pub(crate) fn repack_q8_soa(bytes: &[u8]) -> Vec<u8> {
     out
 }
 
+/// Fused Q8_0 wire → SoA repack: one pass from the 34-byte f16-scale GGUF wire
+/// blocks straight to the tensor-global SoA layout `q8_gemv` reads (all i8 quants
+/// first, then all f32 scales at `+ n*32`), skipping the intermediate 36-byte block
+/// materialization. Byte-identical to `repack_q8_soa(&widen_q8(wire))` — the fusion
+/// exists so the hostreg load path never has to build `q8_0_blocks`. `dst` must be
+/// exactly `n*32 + n*4` bytes for `n = wire.len()/34` blocks.
+#[allow(dead_code)] // consumed by the hostreg build arm (wired next).
+pub(crate) fn repack_q8_wire_to_soa_into(wire: &[u8], dst: &mut [u8]) {
+    let n = wire.len() / 34;
+    debug_assert_eq!(wire.len(), n * 34, "wire length must be a 34-byte multiple");
+    debug_assert_eq!(
+        dst.len(),
+        n * 32 + n * 4,
+        "dst must be the exact SoA length"
+    );
+    let (quants, scales) = dst.split_at_mut(n * 32);
+    for b in 0..n {
+        let base = b * 34;
+        let scale =
+            crate::tensor::f16_bits_to_f32(u16::from_le_bytes([wire[base], wire[base + 1]]));
+        scales[b * 4..b * 4 + 4].copy_from_slice(&scale.to_le_bytes());
+        quants[b * 32..b * 32 + 32].copy_from_slice(&wire[base + 2..base + 34]);
+    }
+}
+
 /// Repack one projection's wire bytes into the GPU layout its lane reads. Q8_0 is
 /// repacked to the SoA layout `q8_gemv` reads; the K-quant lanes pass the RAW GGUF
 /// super-block wire bytes straight through — `q4k_gemv` (144 B/sb) and `q6k_gemv`
@@ -5575,6 +5600,25 @@ fn cuda_graphs_enabled() -> bool {
         Some("1") | Some("true") | Some("on") | Some("yes") => true,
         Some("0") | Some("false") | Some("off") | Some("no") => false,
         _ => cfg!(target_os = "linux"),
+    }
+}
+
+/// FLINT W2: zero-copy weights — `cuMemHostRegister` the page-aligned repacked Q8_0
+/// host buffers (DEVICEMAP) and hand the resident engine mapped device pointers
+/// instead of `clone_htod` VRAM copies. On discrete GPUs the kernels then read
+/// weights over PCIe — slow but correct, which is what the 3060 reference box can
+/// prove; the win is on unified-memory hardware (DGX Spark) where host and device
+/// share one physical pool. **Default OFF in this phase**; Phase W4 flips the unset
+/// default to `HardwareProfile::cached().cuda_unified_memory` (the S1/S2 gate
+/// shape). Per-tensor fallback to upload keeps any registration failure silent and
+/// correct — the build log's `[cuda] hostreg: N zero-copy / M uploaded` line is the
+/// engagement receipt.
+#[allow(dead_code)] // consumed by the hostreg build arm (wired next).
+pub(crate) fn cuda_hostreg_enabled() -> bool {
+    match std::env::var("CAMELID_CUDA_HOSTREG").ok().as_deref() {
+        Some("1") | Some("true") | Some("on") | Some("yes") => true,
+        Some("0") | Some("false") | Some("off") | Some("no") => false,
+        _ => false,
     }
 }
 

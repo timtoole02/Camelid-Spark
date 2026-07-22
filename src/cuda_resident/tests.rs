@@ -31,6 +31,22 @@ fn device_embed_gather_allowlist_matches_the_gather_dispatch() {
     }
 }
 
+// Pure host (no GPU): the fused 34-byte-wire → SoA repack must be byte-identical to
+// the two-step `repack_q8_soa(&widen_q8(wire))` it replaces on the hostreg load path.
+#[test]
+fn fused_wire_to_soa_repack_matches_the_two_step_repack() {
+    let scales = [0.0117f32, -3.5, 0.25, 8192.0, -0.000_061];
+    let mut wire = Vec::new();
+    for (b, s) in scales.iter().enumerate() {
+        wire.extend_from_slice(&crate::inference::f32_to_f16_bits(*s).to_le_bytes());
+        wire.extend((0..32u16).map(|i| (b as u16 * 37 + i * 5) as u8));
+    }
+    let expected = super::repack_q8_soa(&super::widen_q8(&wire));
+    let mut fused = vec![0u8; expected.len()];
+    super::repack_q8_wire_to_soa_into(&wire, &mut fused);
+    assert_eq!(fused, expected);
+}
+
 // f16 round-trip matching the engine.
 fn f16rt(x: f32) -> f32 {
     crate::inference::f16_bits_to_f32(crate::inference::f32_to_f16_bits(x))
