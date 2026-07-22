@@ -72,6 +72,20 @@ config, kernel untouched; errors loudly into the CPU path only if even the
 device opt-in limit cannot fit). Without this fix the 70B would have loaded
 via hostreg and then failed its first token.
 
+**`CAMELID_CUDA_SUFFIX_PREFILL`** (opt-in, default off) reuses the resident
+engine's live KV across chat turns: turn N+1 prefills only the token-exact new
+suffix instead of the whole conversation, making steady-state turn TTFT
+proportional to the NEW tokens (~minutes → seconds at 70B/long-history scale).
+The engine records which token ids built its KV; any divergence re-prefills
+from the divergence point (token-exact match only — never partial trust), a
+host-reseeded KV is never suffix-extended (the f16 near-tie mechanism stays
+bypassed), and stale rolled-back draft KV beyond the cursor is never read.
+Receipts: an engine-level test proves suffix-built KV BIT-IDENTICAL to a fresh
+full prefill across all write paths (batched/serial-decode/spec-verify, incl.
+live stale draft bytes), and a session-level A/B proves token-identical turns
+with pure-hit / extend / divergent-history traces. Byte-identity claim is
+scoped flash-off (flash prefill is token-parity and gates per chunk).
+
 Lossless **n-gram speculation** also defaults ON for unified-pool-class serve
 (`CAMELID_SPEC_DECODE=off` disables): every accepted draft skips a full weight
 pass — the only decode lever that multiplies past the bandwidth ceiling — and

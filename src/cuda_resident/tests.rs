@@ -723,6 +723,213 @@ fn batched_prefill_k16_high_bpr_matches_k8_and_serial() {
     );
 }
 
+// P0-4 (suffix prefill): KV built across ALL write paths — batched prefill,
+// serial decode forwards, and a verify_batch round with a partial accept that
+// leaves stale draft KV beyond the live cursor (H1) — then extended by
+// prefill_batched_from at the live base, must be BIT-IDENTICAL to a fresh
+// engine's single full batched prefill over the same embedding sequence, for
+// every layer and every position, and produce bitwise-identical next-token
+// logits. This is the empirical proof of the suffix parity chain (the batched
+// stack, serial forward, and verify share per-token math; chunk boundaries and
+// write paths must not matter). Also covers the n_new == 1 suffix edge.
+#[test]
+#[ignore = "requires a CUDA device"]
+fn suffix_prefill_matches_fresh_full_prefill_bitwise() {
+    let Some(_k) = kernels() else {
+        return;
+    };
+    let n_layers = 2usize;
+    let hidden = 2048usize;
+    let n_heads = 32usize;
+    let n_kv = 4usize;
+    let head_dim = 64usize;
+    let rope_dim = 64usize;
+    let ffn = 5632usize;
+    let vocab = 2048usize;
+    let max_pos = 64usize;
+    let eps = 1e-5f32;
+    let base = 10000f32;
+    let q_width = n_heads * head_dim;
+    let kv_width = n_kv * head_dim;
+    let scale = 1.0 / (head_dim as f32).sqrt();
+    let mut rng = Lcg(0x5eed_cafe);
+    let rand = |rng: &mut Lcg, n: usize| (0..n).map(|_| rng.next_f32()).collect::<Vec<f32>>();
+
+    struct LayerF {
+        q: Vec<u8>,
+        k: Vec<u8>,
+        v: Vec<u8>,
+        o: Vec<u8>,
+        gate: Vec<u8>,
+        up: Vec<u8>,
+        down: Vec<u8>,
+        an: Vec<f32>,
+        fnv: Vec<f32>,
+    }
+    let layers: Vec<LayerF> = (0..n_layers)
+        .map(|_| LayerF {
+            q: quantize_blocks(&rand(&mut rng, q_width * hidden), hidden),
+            k: quantize_blocks(&rand(&mut rng, kv_width * hidden), hidden),
+            v: quantize_blocks(&rand(&mut rng, kv_width * hidden), hidden),
+            o: quantize_blocks(&rand(&mut rng, hidden * q_width), q_width),
+            gate: quantize_blocks(&rand(&mut rng, ffn * hidden), hidden),
+            up: quantize_blocks(&rand(&mut rng, ffn * hidden), hidden),
+            down: quantize_blocks(&rand(&mut rng, hidden * ffn), ffn),
+            an: rand(&mut rng, hidden)
+                .iter()
+                .map(|v| v * 0.2 + 1.0)
+                .collect(),
+            fnv: rand(&mut rng, hidden)
+                .iter()
+                .map(|v| v * 0.2 + 1.0)
+                .collect(),
+        })
+        .collect();
+    let final_norm: Vec<f32> = rand(&mut rng, hidden)
+        .iter()
+        .map(|v| v * 0.2 + 1.0)
+        .collect();
+    let output_w = quantize_blocks(&rand(&mut rng, vocab * hidden), hidden);
+    let build = || {
+        let mut engine = CudaResidentDecode::new(
+            n_layers, n_heads, n_kv, head_dim, hidden, ffn, rope_dim, max_pos, vocab, eps, false,
+        )
+        .unwrap();
+        for l in &layers {
+            engine
+                .set_layer(
+                    &l.q, &l.k, &l.v, &l.o, &l.gate, &l.up, &l.down, &l.an, &l.fnv,
+                )
+                .unwrap();
+        }
+        engine
+            .set_output(&final_norm, WeightSource::Lane(&output_w), ProjQuant::Q8_0)
+            .unwrap();
+        engine
+    };
+
+    // The token sequence, as embeddings (engine-level "tokens"):
+    //   [0..6)   turn-1 prompt        — engine A: prefill_batched
+    //   [6..8)   turn-1 decode        — engine A: forward_token_logits x2
+    //   8        verify anchor        — engine A: verify_batch (k=3: anchor + 2 drafts)
+    //   (9..11 stale draft KV in A — the round "accepts" only the anchor)
+    //   [9..13)  turn-2 suffix        — engine A: prefill_batched_from(base=9)
+    //   [13..14) n_new==1 suffix edge — engine A: prefill_batched_from(base=13)
+    let total = 14usize;
+    let embeddings: Vec<Vec<f32>> = (0..total + 2).map(|_| rand(&mut rng, hidden)).collect();
+    let drafts: Vec<Vec<f32>> = (0..2).map(|_| rand(&mut rng, hidden)).collect();
+    let half = rope_dim / 2;
+    let mut cos_all = vec![0f32; (total + 2) * half];
+    let mut sin_all = vec![0f32; (total + 2) * half];
+    for pos in 0..total + 2 {
+        for p in 0..half {
+            let theta = base.powf(-(2.0 * p as f32) / rope_dim as f32);
+            cos_all[pos * half + p] = (pos as f32 * theta).cos();
+            sin_all[pos * half + p] = (pos as f32 * theta).sin();
+        }
+    }
+    let flat = |range: std::ops::Range<usize>| -> Vec<f32> {
+        embeddings[range].iter().flatten().copied().collect()
+    };
+
+    // Engine A: the multi-path history.
+    let mut a = build();
+    a.prefill_batched(
+        &flat(0..6),
+        &cos_all[..6 * half],
+        &sin_all[..6 * half],
+        6,
+        scale,
+    )
+    .unwrap();
+    for pos in 6..8 {
+        a.forward_token_logits(
+            &embeddings[pos],
+            &cos_all[pos * half..(pos + 1) * half],
+            &sin_all[pos * half..(pos + 1) * half],
+            pos,
+            scale,
+        )
+        .unwrap();
+    }
+    // Verify round at base 8: anchor = embeddings[8], then two draft embeddings.
+    // KV is written at 8, 9, 10; the "round" accepts only the anchor, so 9 and 10
+    // are STALE DRAFT BYTES beyond the live cursor when the suffix lands at 9.
+    let mut vemb = embeddings[8].clone();
+    vemb.extend_from_slice(&drafts[0]);
+    vemb.extend_from_slice(&drafts[1]);
+    a.verify_batch(
+        &vemb,
+        &cos_all[8 * half..11 * half],
+        &sin_all[8 * half..11 * half],
+        8,
+        3,
+        scale,
+    )
+    .unwrap();
+    // Turn-2 suffix at base 9 (overwrites the stale draft KV), then the 1-token edge.
+    a.prefill_batched_from(
+        9,
+        &flat(9..13),
+        &cos_all[9 * half..13 * half],
+        &sin_all[9 * half..13 * half],
+        4,
+        scale,
+    )
+    .unwrap();
+    a.prefill_batched_from(
+        13,
+        &flat(13..14),
+        &cos_all[13 * half..14 * half],
+        &sin_all[13 * half..14 * half],
+        1,
+        scale,
+    )
+    .unwrap();
+    let a_logits = a
+        .forward_token_logits(
+            &embeddings[total],
+            &cos_all[total * half..(total + 1) * half],
+            &sin_all[total * half..(total + 1) * half],
+            total,
+            scale,
+        )
+        .unwrap();
+
+    // Engine B: one fresh full batched prefill over the identical live sequence.
+    let mut b = build();
+    b.prefill_batched(
+        &flat(0..total),
+        &cos_all[..total * half],
+        &sin_all[..total * half],
+        total,
+        scale,
+    )
+    .unwrap();
+    let b_logits = b
+        .forward_token_logits(
+            &embeddings[total],
+            &cos_all[total * half..(total + 1) * half],
+            &sin_all[total * half..(total + 1) * half],
+            total,
+            scale,
+        )
+        .unwrap();
+
+    // KV bytes bit-identical for every layer over the whole live range [0, total+1)
+    // (total prompt positions + the final decode token's KV).
+    for layer in 0..n_layers {
+        let (ak, av) = a.read_kv_layer(layer, total + 1).unwrap();
+        let (bk, bv) = b.read_kv_layer(layer, total + 1).unwrap();
+        assert_eq!(ak, bk, "K cache diverged at layer {layer}");
+        assert_eq!(av, bv, "V cache diverged at layer {layer}");
+    }
+    assert_eq!(
+        a_logits, b_logits,
+        "suffix-built history produced different next-token logits than a fresh full prefill"
+    );
+}
+
 // Deterministic LCG so the tests need no rand dependency.
 struct Lcg(u64);
 impl Lcg {
