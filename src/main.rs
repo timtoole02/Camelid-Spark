@@ -6163,10 +6163,16 @@ fn apply_spec_decode_env(
         // weights, but the Metal-resident plan deliberately keeps CPU-side weights file-backed
         // (the GPU owns the resident copy), so each verify round would pay a file-speed weight
         // pass — fall back to the validated CPU repack plan in that case only.
-        let spec_gpu = matches!(
-            std::env::var("CAMELID_SPEC_GPU").ok().as_deref(),
-            Some("1") | Some("true") | Some("on") | Some("yes")
-        );
+        // Mirrors api's spec_gpu_enabled (api/mod.rs): explicit on/off, else ON
+        // whenever a CUDA device is present (the S2 default flip). The old
+        // explicit-only check here contradicted api's actual verify route — a
+        // CUDA host with the env unset got the CPU execution plan while api
+        // verified on the GPU.
+        let spec_gpu = match std::env::var("CAMELID_SPEC_GPU").ok().as_deref() {
+            Some("1") | Some("true") | Some("on") | Some("yes") => true,
+            Some("0") | Some("false") | Some("off") | Some("no") => false,
+            _ => camelid::cuda::is_available(),
+        };
         if !spec_gpu {
             std::env::set_var("CAMELID_METAL_RESIDENT_DECODE", "0");
             std::env::set_var("CAMELID_METAL_RESIDENT_PREFILL", "0");

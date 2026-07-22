@@ -1,8 +1,23 @@
 # Lossless Greedy Speculative Decoding
 
-Default-off serving optimization (`camelid serve --spec-decode …`). It makes **no support
-claim**: enabling it promotes no lane, changes no release-ledger row, and byte-parity for a
-lane is asserted only by evidence (tests and parity receipts), never by resemblance.
+Default-off serving optimization (`camelid serve --spec-decode …`) — with one FLINT
+exception: on unified-pool-class CUDA hardware (DGX Spark; `unified_pool_class`,
+src/capability.rs) lossless **n-gram** speculation defaults ON at serve
+(`CAMELID_SPEC_DECODE=off` disables; unknown spellings warn once and disable). On a
+bandwidth-bound big model every accepted draft skips a full weight pass — the only decode
+lever that multiplies past the memory-bandwidth ceiling — and the n-gram drafter costs
+nothing when it has nothing to propose. It makes **no support claim**: enabling it promotes
+no lane, changes no release-ledger row, and byte-parity for a lane is asserted only by
+evidence (tests and parity receipts), never by resemblance.
+
+**CUDA GPU verify (current default on CUDA hosts):** the "trade the resident stack away"
+cost analyzed below is the CPU/Metal-era shape. On CUDA, `CAMELID_SPEC_GPU` (default ON
+with a device — the S2 flip) routes verification through `verify_drafts_gpu` →
+`q8_gemm_batched` on the target's own resident engine: each weight block is read once per
+round, the reduction order is bit-identical to K sequential decode GEMVs, and this was
+parity-proven over host-registered weights in the FLINT W3 matrix. When GPU verify is
+explicitly off AND the weights are hostreg-loaded (no CPU-readable blocks), serve skips
+drafting entirely rather than route verify chunks onto per-token disk streaming.
 
 ## What it is
 
@@ -103,7 +118,9 @@ recovered an 18× speedup with zero kernel changes.
 2. a Metal batched-verify kernel (multi-token forward with per-position logits and GPU-side
    KV rollback) so speculation can ride the resident stack instead of trading it away.
 
-Performance claims stay bounded to the measured rows above; the flag stays default-off.
+Performance claims stay bounded to the measured rows above; the flag stays default-off on
+CPU/Metal/discrete-CUDA hosts (the unified-pool-class n-gram default is the one exception,
+justified by the GPU-verify economics at the top of this doc).
 
 ## Support boundary
 

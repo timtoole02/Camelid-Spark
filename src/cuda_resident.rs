@@ -5813,19 +5813,10 @@ fn hostreg_mode_from(raw: Option<&str>, unified_default: bool) -> HostregMode {
 pub(crate) fn cuda_hostreg_mode() -> HostregMode {
     let raw = std::env::var("CAMELID_CUDA_HOSTREG").ok();
     let raw = raw.as_deref();
-    // Default ON only for hardware that is unambiguously one-pool: the driver
-    // reports INTEGRATED, or the pool is unified-machine scale (>= 96 GiB — no
-    // discrete consumer/workstation card reaches that, covering a GB10 driver
-    // that misreports the attribute). The bare `cuda_unified_memory` flag also
-    // carries a VRAM≈RAM size heuristic that a discrete 8GB/8GB or 16GB/16GB
-    // box can trip; serving weights over PCIe by default there would be a
-    // silent multi-fold regression, so that heuristic alone must never flip
-    // this gate.
-    let unified_default = {
-        let hw = crate::capability::HardwareProfile::cached();
-        hw.cuda_unified_memory
-            && (hw.cuda_integrated || hw.cuda_vram_total_bytes >= 96 * 1024 * 1024 * 1024)
-    };
+    // Default ON only for unambiguously one-pool hardware — see
+    // `HardwareProfile::unified_pool_class` for why the bare unified flag
+    // (with its VRAM≈RAM heuristic) must never flip this gate.
+    let unified_default = crate::capability::HardwareProfile::cached().unified_pool_class();
     let mode = hostreg_mode_from(raw, unified_default);
     if let Some(other) = raw {
         if mode == HostregMode::Off && !matches!(other, "0" | "false" | "off" | "no") {

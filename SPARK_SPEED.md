@@ -52,7 +52,16 @@ on one physical pool that is ALSO ~1× steady, with zero mapped-read risk. The
 receipt line carries the mode: `[cuda] hostreg mode=…: N zero-copy / M
 uploaded`). Unknown env spellings warn once and resolve OFF. MoE models keep
 the historical loaders (they never pass resident admission), and a
-hostreg-loaded session that falls to the CPU path warns loudly once. Registration lifetime = engine lifetime (synchronize → unregister →
+hostreg-loaded session that falls to the CPU path warns loudly once.
+
+Lossless **n-gram speculation** also defaults ON for unified-pool-class serve
+(`CAMELID_SPEC_DECODE=off` disables): every accepted draft skips a full weight
+pass — the only decode lever that multiplies past the bandwidth ceiling — and
+verification rides `q8_gemm_batched` on the resident engine (each block read
+once per round, bit-identical reductions, W3-proven over registered memory).
+Drafting auto-disables when GPU verify is explicitly off under hostreg (the
+CPU chunk verify would disk-stream). See
+docs/architecture/SPECULATIVE_DECODE.md. Registration lifetime = engine lifetime (synchronize → unregister →
 dealloc, guards drop last); any per-tensor registration failure falls back to
 upload silently, and the build prints the engagement receipt:
 `[cuda] hostreg: N zero-copy / M uploaded`.
