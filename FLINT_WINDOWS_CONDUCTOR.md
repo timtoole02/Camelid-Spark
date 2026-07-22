@@ -1,5 +1,35 @@
 # FLINT_WINDOWS_CONDUCTOR.md — validate the Spark speed work on the RTX 3060 (TEST BUILD)
 
+> **STATUS — RUN COMPLETE 2026-07-22 (PR #8 → main 9ae323a; arm64+cuda CI green).** W0–W4 all
+> sealed on this box; only the Spark tester's leg remains (see "Done when"). Execution deltas vs
+> the plan as written below:
+>
+> - **Premise corrections (W1 recon):** `WirePages` is a page-aligned HEAP allocation, not an
+>   mmap (the `GgufWireMmap`/`q8_0_wire_mmap` plumbing is dormant, never populated), and NO Q8_0
+>   resident lane is passthrough — `q8_gemv`/`q8_gemm_batched` read a widened f32-scale SoA
+>   layout, so the lane registers **repacked** page-aligned buffers (this doc's own sanctioned
+>   alternative in §W2). The NOCOPY gate anchor is `inference.rs:11878`, not `:11816`.
+> - **1× streaming build (W2):** the first wire-pages variant held ~2× host RAM (retained wire +
+>   registered SoA) — a 70B build would have peaked ~151 GB of the Spark's 128 GB and never
+>   loaded. Shipped instead: Q8_0 projections load file-backed only and the builder streams each
+>   tensor disk → transient → its registered SoA buffer (ONE steady copy; the token embedding
+>   alone keeps wire pages for the CPU's per-token row reads). 70B projects ~78.2 GB SoA /
+>   ~80.5 GB peak. Verified on-box: hostreg peak 1.247 GB vs 1.256 GB flag-off control.
+> - **W3:** token-identical across the full matrix (TinyLlama + qwen3 0.6B/1.7B × plain /
+>   batched-prefill / graphs / spec / CPU-fallback; 197-155-113 zero-copy, 0 uploads anywhere) —
+>   `qa/evidence-bundles/flint-w3-win3060-20260722-head-c50aa93/W3-PARITY-VERDICT.md`. Bonus W0
+>   finds: **CUDA graph capture now WORKS under WDDM** on driver 576.83 (the 2026-07-03 broken-
+>   capture STATUS comment near `cuda_resident.rs:7454` is stale), and S2's `spec_gpu_enabled`
+>   flip is NOT unified-gated (deliberate; disclosed in the W0 verdict).
+> - **W4 + pre-merge adversarial review (17 findings, 9 confirmed, all fixed pre-merge):** the
+>   unset default requires the INTEGRATED attribute **or a ≥ 96 GiB pool** — NOT bare
+>   `cuda_unified_memory`, whose VRAM≈RAM heuristic can misfire on discrete 8/8–24/24 boxes; MoE
+>   models keep the historical loaders (resident admission always declines them); the loader gate
+>   mirrors the decode gate, with a loud once-per-process warning if hostreg-loaded weights ever
+>   hit the CPU file-reader path; dist-worker/dist-master pin the flag off; and the fit advisor
+>   deliberately KEEPS the 2× unified margin (it is quant/arch-blind, so the 70B row honestly
+>   reads *unknown* — the load path is the authority and admits it).
+
 **Goal:** you are on the engine's original CUDA reference machine — Windows, RTX 3060 Laptop
 6 GB, driver 576.83, CUDA 12.9 — the exact card every existing `windows-cuda-resident-parity`
 evidence bundle was captured on. Two jobs, in order:
@@ -130,11 +160,25 @@ zero-copy/uploaded projection counts from the build log.
 
 ## Done when
 
-1. W0 regression receipts recorded (banner, tests, one parity suite). [AGENT]
-2. `CAMELID_CUDA_HOSTREG` implemented, default-off→unified-on, with per-tensor fallback. [AGENT]
-3. The W3 parity table shows token-identical across the matrix on this card. [AGENT]
-4. PR merged with arm64 CI green; SPARK_SPEED.md/FLINT_HANDOFF.md updated. [AGENT]
-5. The Spark tester reports the 70B Q8_0 load result + tok/s. [TESTER — the other machine]
+1. ✅ W0 regression receipts recorded — `qa/evidence-bundles/flint-w0-win3060-20260721-head-bb07814/`
+   (W0-VERDICT.md: suites green, banner VRAM, gemma4 E2B CUDA parity 5/5 oracle-identical). [AGENT]
+2. ✅ `CAMELID_CUDA_HOSTREG` implemented — default off → INTEGRATED-or-≥96GiB-on, per-tensor
+   silent fallback, `[cuda] hostreg: N zero-copy / M uploaded` engagement receipt. [AGENT]
+3. ✅ W3 parity table token-identical across the matrix on this card
+   (`qa/evidence-bundles/flint-w3-win3060-20260722-head-c50aa93/W3-PARITY-VERDICT.md`). [AGENT]
+4. ✅ PR #8 squash-merged, arm64+cuda CI green (main 9ae323a); SPARK_SPEED.md (S2-deep → SHIPPED,
+   perf pending) + FLINT_HANDOFF.md updated. [AGENT]
+5. ⏳ The Spark tester reports, per the FLINT_HANDOFF.md 70B section: [TESTER — the other machine]
+   - the 70B Q8_0 load-time stderr lines `[cuda] hostreg attrs: …` and
+     `[cuda] hostreg: N zero-copy / M uploaded` (expect N = 561 = 80×7 + head; any M > 0 means
+     the per-tensor fallback engaged — send the line either way);
+   - greedy decode tok/s on the 70B Q8_0;
+   - an upload-vs-hostreg A/B **on the 14B Q8_0 row** (`CAMELID_CUDA_HOSTREG=0` vs `=1`, short
+     greedy — token streams must be identical). A `=0` leg on the **70B** lands on the CPU lane
+     (the pre-hostreg posture; ~2× cannot fit the pool and unified refuses offload) — still
+     expected token-identical, just minutes-slow;
+   - watch item: one unreproduced >10-min `spec_draft_rollback` stall right after heavy
+     register/unregister churn on the 3060 (W3 verdict, anomaly 2) — report if it reproduces.
 
 Known traps, from this campaign's history: `cargo check` ≠ release build on new
 targets; `with_extension` mangles dotted stems (append suffixes instead); test literals of
