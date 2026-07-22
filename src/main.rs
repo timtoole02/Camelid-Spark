@@ -2089,12 +2089,21 @@ async fn main() -> anyhow::Result<()> {
                     .unwrap_or_else(|| std::path::Path::new("."))
                     .join(&set.merged_name)
             });
+            // An --out that aliases a shard would overwrite the input on the
+            // rename below (and --delete-shards would then delete the output).
+            camelid::gguf::merge::refuse_aliasing(&out_path, &set.paths)?;
             println!(
                 "Merging {} shards into {} …",
                 set.paths.len(),
                 out_path.display()
             );
-            let tmp = out_path.with_extension("gguf.merge-tmp");
+            // Append (never with_extension: it would truncate at the stem's
+            // last dot for extensionless outs, colliding across runs).
+            let tmp = {
+                let mut name = out_path.as_os_str().to_owned();
+                name.push(".merge-tmp");
+                std::path::PathBuf::from(name)
+            };
             let report = match camelid::gguf::merge::merge_shards(&set.paths, &tmp) {
                 Ok(report) => report,
                 Err(e) => {

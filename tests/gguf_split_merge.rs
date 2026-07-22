@@ -203,6 +203,31 @@ fn split_merge_round_trip_three_shards_is_byte_identical() {
 }
 
 #[test]
+fn split_merge_round_trip_one_tensor_per_shard_is_byte_identical() {
+    // Regression: the group partitioner's must_break was off by one and could
+    // not fill the tail groups of front-heavy inputs (e.g. n_parts == tensor
+    // count), erroring on perfectly splittable files.
+    round_trip(TENSORS.len());
+}
+
+#[test]
+fn merge_refuses_output_aliasing_a_shard() {
+    // Regression: File::create on an aliased output would truncate the shard
+    // after validation but before its data is copied.
+    let dir = tmpdir("alias");
+    let orig = dir.join("model.gguf");
+    write_original(&orig);
+    let shards = split_gguf(&orig, 2, &dir).expect("split");
+    let err = merge_shards(&shards, shards[1].as_path()).expect_err("aliased out must refuse");
+    assert!(err.to_string().contains("aliases"), "{err}");
+    // Both shards must be intact afterwards (nothing truncated).
+    for s in &shards {
+        read_metadata(s).expect("shard survives the refused merge");
+    }
+    let _ = fs::remove_dir_all(&dir);
+}
+
+#[test]
 fn merge_refuses_fewer_than_two_shards() {
     let dir = tmpdir("neg1");
     let orig = dir.join("model.gguf");

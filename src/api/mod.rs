@@ -19136,7 +19136,16 @@ pub struct ActiveDownload {
     /// progress poll can sum them. Empty for single-file downloads.
     #[serde(skip)]
     pub part_paths: Vec<String>,
+    /// Identity of the WORKER RUN that owns this entry. Every checkpoint in a
+    /// download task compares its own token against the map's — a bare
+    /// `contains_key` would let a canceled run's zombie thread mistake a
+    /// freshly re-installed entry for its own and fail/clean it.
+    #[serde(skip)]
+    pub run_token: u64,
 }
+
+/// Monotonic id source for [`ActiveDownload::run_token`].
+static NEXT_DOWNLOAD_RUN_TOKEN: std::sync::atomic::AtomicU64 = std::sync::atomic::AtomicU64::new(1);
 
 #[derive(Debug, serde::Deserialize)]
 pub struct InstallCatalogRequest {
@@ -19245,21 +19254,36 @@ async fn install_catalog_model(
     // download is genuinely complete, so a half-downloaded model cannot be loaded.
     let part_path = format!("{dest_path}.part");
 
-    // FLINT: split models (e.g. 70B Q8_0) ship as gguf-split shards. Parts are
-    // resolved SERVER-SIDE from the curated catalog by id — the client cannot
-    // supply remote paths — then fetched sequentially and merged into the
-    // single `filename` via crate::gguf::merge. The entry keeps status
+    // FLINT: split models (e.g. 70B Q8_0) ship as gguf-split shards. The whole
+    // row — repo, landing filename, and part paths — is resolved SERVER-SIDE
+    // from the curated catalog by id, and the client-supplied repo/filename
+    // must MATCH it (a curated id paired with a foreign repo would merge
+    // attacker bytes under a trusted name). The entry keeps status
     // "downloading" through the merge (the frontend's poll/settlement logic
     // treats any other status as terminal).
-    let curated_parts: &'static [CatalogPart] = curated_catalog()
-        .iter()
-        .find(|c| c.catalog_id == req.catalog_id)
-        .map(|c| c.parts)
-        .unwrap_or(&[]);
-    if !curated_parts.is_empty() {
+    let curated_item = curated_catalog()
+        .into_iter()
+        .find(|c| c.catalog_id == req.catalog_id && !c.parts.is_empty());
+    if let Some(item) = curated_item {
+        if req.repo_id != item.repo_id || req.filename != item.filename {
+            return api_error(
+                StatusCode::BAD_REQUEST,
+                "multipart_identity_mismatch",
+                format!(
+                    "catalog id {} is pinned to {}/{}; refusing to fetch parts for {}/{}",
+                    item.catalog_id, item.repo_id, item.filename, req.repo_id, req.filename
+                ),
+                Some("repo_id"),
+            );
+        }
+        let curated_parts = item.parts;
+        let run_token = NEXT_DOWNLOAD_RUN_TOKEN.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
         let part_files: Vec<String> = (1..=curated_parts.len())
             .map(|i| format!("{dest_path}.shard{i:02}"))
             .collect();
+        // Per-RUN merge temp: two runs (cancel + re-install) must never write
+        // the same temp file; finalize promotes exactly this run's output.
+        let merge_tmp = format!("{dest_path}.part{run_token}");
         let download = ActiveDownload {
             id: req.catalog_id.clone(),
             repo_id: req.repo_id.clone(),
@@ -19271,13 +19295,13 @@ async fn install_catalog_model(
             child_pid: None,
             finished_at: None,
             part_paths: part_files.clone(),
+            run_token,
         };
         map.insert(req.catalog_id.clone(), download);
         drop(map);
 
         let catalog_id = req.catalog_id.clone();
         let repo_id = req.repo_id.clone();
-        let part_path_clone = part_path.clone();
         let dest_path_clone = dest_path.clone();
         let lifecycle = state.model_file_lifecycle.clone();
         tokio::task::spawn_blocking(move || {
@@ -19286,11 +19310,33 @@ async fn install_catalog_model(
                     let _ = std::fs::remove_file(f);
                 }
             };
+            /// The three answers an ownership checkpoint can give.
+            enum Owns {
+                Yes,
+                /// Entry removed: the user canceled THIS run.
+                Canceled,
+                /// Entry exists with a different token: a newer run owns the
+                /// id (cancel + re-install). Touch NOTHING — the files now
+                /// belong to the new run.
+                Superseded,
+            }
+            let owns = |mutate: &mut dyn FnMut(&mut ActiveDownload)| -> Owns {
+                let mut map = active_downloads_map().lock().unwrap();
+                match map.get_mut(&catalog_id) {
+                    Some(dl) if dl.run_token == run_token => {
+                        mutate(dl);
+                        Owns::Yes
+                    }
+                    Some(_) => Owns::Superseded,
+                    None => Owns::Canceled,
+                }
+            };
+
             let mut all_ok = true;
             for (i, part) in curated_parts.iter().enumerate() {
-                // Shard filenames are hard-renamed to `.shardNN` locally; the
-                // merger needs the gguf-split names, so download AS-IS and let
-                // merge_shards read the ordered list directly.
+                // Shard filenames land as `.shardNN` (never `.gguf`, so the
+                // models scan can't list a partial shard); the merger takes
+                // the ordered list directly, names don't matter to it.
                 let url = format!(
                     "https://huggingface.co/{repo_id}/resolve/main/{}",
                     part.remote_path
@@ -19324,88 +19370,130 @@ async fn install_catalog_model(
                         break;
                     }
                 };
-                {
-                    let mut map = active_downloads_map().lock().unwrap();
-                    match map.get_mut(&catalog_id) {
-                        // Track the CURRENT part's pid so cancel kills the
-                        // right process at every point in the sequence.
-                        Some(dl) => dl.child_pid = Some(child.id()),
-                        None => {
-                            // Canceled between parts: stop, remove partials.
-                            let _ = child.kill();
-                            let _ = child.wait();
-                            cleanup_parts(&part_files);
-                            return;
-                        }
+                // Track the CURRENT part's pid so cancel kills the right
+                // process at every point in the sequence.
+                match owns(&mut |dl| dl.child_pid = Some(child.id())) {
+                    Owns::Yes => {}
+                    Owns::Canceled => {
+                        let _ = child.kill();
+                        let _ = child.wait();
+                        cleanup_parts(&part_files);
+                        return;
+                    }
+                    Owns::Superseded => {
+                        let _ = child.kill();
+                        let _ = child.wait();
+                        return;
                     }
                 }
                 let _ = child.wait();
+                // Clear the reaped pid immediately: the OS may recycle it, and
+                // a cancel arriving during the (minutes-long) merge must not
+                // signal an unrelated process.
+                match owns(&mut |dl| dl.child_pid = None) {
+                    Owns::Yes => {}
+                    Owns::Canceled => {
+                        cleanup_parts(&part_files);
+                        return;
+                    }
+                    Owns::Superseded => return,
+                }
                 // The per-part gate is the EXACT Hub size (known from the
                 // catalog): it passes a resume-of-complete-file (curl 416) and
                 // fails any truncated or size-shifted part, regardless of exit
                 // code.
-                let size_ok = std::fs::metadata(&part_files[i])
-                    .map(|m| m.len() == part.size_bytes)
-                    .unwrap_or(false);
-                if !size_ok {
-                    all_ok = false;
-                    break;
+                let have = std::fs::metadata(&part_files[i]).map(|m| m.len());
+                match have {
+                    Ok(len) if len == part.size_bytes => {}
+                    Ok(len) => {
+                        if len > part.size_bytes {
+                            // An oversized shard can never be repaired by a
+                            // range resume — deleting it un-wedges the retry.
+                            let _ = std::fs::remove_file(&part_files[i]);
+                            eprintln!(
+                                "[catalog] shard {} was {len} bytes, expected {}; removed so the next attempt starts clean",
+                                part_files[i], part.size_bytes
+                            );
+                        }
+                        all_ok = false;
+                        break;
+                    }
+                    Err(_) => {
+                        all_ok = false;
+                        break;
+                    }
                 }
             }
 
             if all_ok {
-                let tracked = active_downloads_map()
-                    .lock()
-                    .unwrap()
-                    .contains_key(&catalog_id);
-                let merged = tracked
+                // ~total_bytes more disk is needed for the merged copy while
+                // the parts still exist; failing early beats filling the disk.
+                let space_ok = crate::gguf::merge::available_space(std::path::Path::new(
+                    &dest_path_clone,
+                ))
+                .is_none_or(|free| {
+                    let need: u64 = curated_parts.iter().map(|p| p.size_bytes).sum();
+                    if free < need {
+                        eprintln!(
+                            "[catalog] not enough disk to merge: {free} bytes free, ~{need} needed (parts kept)"
+                        );
+                    }
+                    free >= need
+                });
+                let proceed = matches!(owns(&mut |_| {}), Owns::Yes);
+                let merged = proceed
+                    && space_ok
                     && crate::gguf::merge::merge_shards(
                         &part_files
                             .iter()
                             .map(std::path::PathBuf::from)
                             .collect::<Vec<_>>(),
-                        std::path::Path::new(&part_path_clone),
+                        std::path::Path::new(&merge_tmp),
                     )
                     .map_err(|e| eprintln!("[catalog] shard merge failed: {e}"))
                     .is_ok();
                 let _reader = lifecycle.blocking_read();
                 let mut map = active_downloads_map().lock().unwrap();
-                let still_tracked = map.contains_key(&catalog_id);
-                let status = finalize_download_artifact(
-                    merged,
-                    still_tracked,
-                    &part_path_clone,
-                    &dest_path_clone,
-                );
-                if let Some(dl) = map.get_mut(&catalog_id) {
-                    dl.status = status;
-                    dl.finished_at = Some(std::time::Instant::now());
-                    if status == "completed" {
-                        dl.bytes_downloaded = dl.total_bytes;
+                let still_owner = map
+                    .get(&catalog_id)
+                    .is_some_and(|dl| dl.run_token == run_token);
+                let status =
+                    finalize_download_artifact(merged, still_owner, &merge_tmp, &dest_path_clone);
+                if still_owner {
+                    if let Some(dl) = map.get_mut(&catalog_id) {
+                        dl.status = status;
+                        dl.finished_at = Some(std::time::Instant::now());
+                        if status == "completed" {
+                            dl.bytes_downloaded = dl.total_bytes;
+                        }
                     }
                 }
                 drop(map);
-                // The merged single file is promoted (or cleaned); the shard
-                // parts are no longer needed either way.
-                cleanup_parts(&part_files);
-            } else {
-                let mut map = active_downloads_map().lock().unwrap();
-                let canceled = !map.contains_key(&catalog_id);
-                if let Some(dl) = map.get_mut(&catalog_id) {
-                    dl.status = "failed";
-                    dl.finished_at = Some(std::time::Instant::now());
-                }
-                drop(map);
-                let _ = std::fs::remove_file(&part_path_clone);
-                if canceled {
-                    // User intent: remove partials.
+                if status == "completed" {
+                    // Promoted: the shard parts are no longer needed.
                     cleanup_parts(&part_files);
                 }
-                // On FAILURE the completed `.shardNN` files are deliberately
-                // KEPT: parts are tens of GB and `curl -C -` resumes them on
-                // the next Download click. Nothing loadable is left behind —
-                // `.shardNN` is not a `.gguf` name, so the models scan never
-                // sees it.
+                // On merge FAILURE the fully-downloaded shards are KEPT (tens
+                // of GB; the next Download click 416-skips them and only the
+                // merge re-runs). finalize already removed this run's temp.
+            } else {
+                match owns(&mut |dl| {
+                    dl.status = "failed";
+                    dl.finished_at = Some(std::time::Instant::now());
+                }) {
+                    Owns::Yes | Owns::Superseded => {
+                        // Owner failure: keep completed `.shardNN` files —
+                        // `curl -C -` resumes them on the next Download click,
+                        // and nothing loadable is left behind (`.shardNN` is
+                        // not a `.gguf` name, the models scan never sees it).
+                        // Superseded: the new run owns the files; touch nothing.
+                    }
+                    Owns::Canceled => {
+                        // User intent: remove partials.
+                        cleanup_parts(&part_files);
+                    }
+                }
+                let _ = std::fs::remove_file(&merge_tmp);
             }
         });
 
@@ -19455,6 +19543,8 @@ async fn install_catalog_model(
     {
         Ok(child) => {
             let pid = child.id();
+            let run_token =
+                NEXT_DOWNLOAD_RUN_TOKEN.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
             let download = ActiveDownload {
                 id: req.catalog_id.clone(),
                 repo_id: req.repo_id.clone(),
@@ -19466,6 +19556,7 @@ async fn install_catalog_model(
                 child_pid: Some(pid),
                 finished_at: None,
                 part_paths: Vec::new(),
+                run_token,
             };
             map.insert(req.catalog_id.clone(), download);
 
@@ -19473,7 +19564,10 @@ async fn install_catalog_model(
             let part_path_clone = part_path.clone();
             let dest_path_clone = dest_path.clone();
             let lifecycle = state.model_file_lifecycle.clone();
-            tokio::spawn(async move {
+            // spawn_blocking: child.wait() parks a thread for the download's
+            // whole duration — on tokio's async workers a handful of large
+            // pulls would starve the entire HTTP server (including cancel).
+            tokio::task::spawn_blocking(move || {
                 let mut child = child;
                 let succeeded = matches!(child.wait(), Ok(status) if status.success());
                 // Completion is the curl exit code AND a successful promote of the
@@ -19481,19 +19575,32 @@ async fn install_catalog_model(
                 // is held across the promote decision so a cancel cannot race the
                 // rename: cancel removes the entry, and an untracked (canceled)
                 // download must never promote, whatever curl's exit code says.
-                let _reader = lifecycle.read().await;
+                // Ownership is the RUN TOKEN, not bare entry existence: after a
+                // cancel + re-install, this zombie must neither promote nor
+                // fail the new run's entry (nor delete the .part the new run
+                // is writing — hence the owner check gating the finalize too).
+                let _reader = lifecycle.blocking_read();
                 let mut map = active_downloads_map().lock().unwrap();
-                let still_tracked = map.contains_key(&catalog_id_clone);
-                let status = finalize_download_artifact(
-                    succeeded,
-                    still_tracked,
-                    &part_path_clone,
-                    &dest_path_clone,
-                );
-                if let Some(dl) = map.get_mut(&catalog_id_clone) {
-                    dl.status = status;
-                    dl.finished_at = Some(std::time::Instant::now());
+                let still_owner = map
+                    .get(&catalog_id_clone)
+                    .is_some_and(|dl| dl.run_token == run_token);
+                let entry_exists = map.contains_key(&catalog_id_clone);
+                if still_owner || !entry_exists {
+                    let status = finalize_download_artifact(
+                        succeeded,
+                        still_owner,
+                        &part_path_clone,
+                        &dest_path_clone,
+                    );
+                    if still_owner {
+                        if let Some(dl) = map.get_mut(&catalog_id_clone) {
+                            dl.status = status;
+                            dl.finished_at = Some(std::time::Instant::now());
+                        }
+                    }
                 }
+                // Superseded (entry exists under a newer token): touch nothing —
+                // the .part now belongs to the new run.
             });
 
             (StatusCode::OK, "Download started").into_response()
@@ -19849,6 +19956,7 @@ mod local_model_delete_tests {
                 child_pid: None,
                 finished_at: None,
                 part_paths: Vec::new(),
+                run_token: 0,
             },
         );
         let token = scanned_token(app.clone(), "guarded.gguf").await;
@@ -20471,6 +20579,7 @@ mod download_cancel_tests {
             child_pid: None,
             finished_at: Some(std::time::Instant::now()),
             part_paths: Vec::new(),
+            run_token: 0,
         };
         terminal.status = "completed";
         active_downloads_map()
@@ -20523,6 +20632,7 @@ mod download_cancel_tests {
                 child_pid: None,
                 finished_at: None,
                 part_paths: Vec::new(),
+                run_token: 0,
             },
         );
         let app = router_with_state(AppState::default());
