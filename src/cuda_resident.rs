@@ -5756,16 +5756,16 @@ fn cuda_graphs_enabled() -> bool {
 /// instead of `clone_htod` VRAM copies. On discrete GPUs the kernels then read
 /// weights over PCIe — slow but correct, which is what the 3060 reference box can
 /// prove; the win is on unified-memory hardware (DGX Spark) where host and device
-/// share one physical pool. **Default OFF in this phase**; Phase W4 flips the unset
-/// default to `HardwareProfile::cached().cuda_unified_memory` (the S1/S2 gate
-/// shape). Per-tensor fallback to upload keeps any registration failure silent and
-/// correct — the build log's `[cuda] hostreg: N zero-copy / M uploaded` line is the
-/// engagement receipt.
+/// share one physical pool. **Default: on when `cuda_unified_memory`, off on
+/// discrete** (the S1/S2 gate shape; parity-proven token-identical across the
+/// W3 matrix on the 3060 before the flip). Per-tensor fallback to upload keeps
+/// any registration failure silent and correct — the build log's
+/// `[cuda] hostreg: N zero-copy / M uploaded` line is the engagement receipt.
 pub(crate) fn cuda_hostreg_enabled() -> bool {
     match std::env::var("CAMELID_CUDA_HOSTREG").ok().as_deref() {
         Some("1") | Some("true") | Some("on") | Some("yes") => true,
         Some("0") | Some("false") | Some("off") | Some("no") => false,
-        _ => false,
+        _ => crate::capability::HardwareProfile::cached().cuda_unified_memory,
     }
 }
 

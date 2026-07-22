@@ -1,0 +1,56 @@
+warning: type `WeightSource<'_>` is more private than the item `CudaResidentDecode::set_layer_located`
+    --> src\cuda_resident.rs:6107:5
+     |
+6107 | /     pub fn set_layer_located(
+6108 | |         &mut self,
+6109 | |         q: WeightSource<'_>,
+6110 | |         kk: WeightSource<'_>,
+...    |
+6121 | |         quants: LayerQuants,
+6122 | |     ) -> Result<(), String> {
+     | |___________________________^ method `CudaResidentDecode::set_layer_located` is reachable at visibility `pub`
+     |
+note: but type `WeightSource<'_>` is only usable at visibility `pub(crate)`
+    --> src\cuda_resident.rs:3301:1
+     |
+3301 | pub(crate) enum WeightSource<'a> {
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     = note: `#[warn(private_interfaces)]` on by default
+
+warning: type `WeightSource<'_>` is more private than the item `CudaResidentDecode::set_output`
+    --> src\cuda_resident.rs:6323:5
+     |
+6323 | /     pub fn set_output(
+6324 | |         &mut self,
+6325 | |         final_norm: &[f32],
+6326 | |         output_weight: WeightSource<'_>,
+6327 | |         output_quant: ProjQuant,
+6328 | |     ) -> Result<(), String> {
+     | |___________________________^ method `CudaResidentDecode::set_output` is reachable at visibility `pub`
+     |
+note: but type `WeightSource<'_>` is only usable at visibility `pub(crate)`
+    --> src\cuda_resident.rs:3301:1
+     |
+3301 | pub(crate) enum WeightSource<'a> {
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: `camelid` (lib) generated 2 warnings
+   Compiling camelid v0.3.1 (C:\Users\timto\Camelid-Spark)
+    Finished `release` profile [optimized] target(s) in 31.62s
+     Running tests\resident_kv_cpu_fallback.rs (target\release\deps\resident_kv_cpu_fallback-3e4e6a581bccd126.exe)
+
+running 2 tests
+[cuda] selected device 0 of 1: "NVIDIA GeForce RTX 3060 Laptop GPU" (compute capability 8.6) | VRAM 5122 MiB free / 6143 MiB total
+[gpu] all 16 layers resident in VRAM (5122 MiB free) — full GPU speed
+resident, no verify-chunk : [22463, 13, 578, 6864, 315, 18157, 374, 25048]
+pure-CPU              : [22463, 13, 578, 6864, 315, 18157, 374, 25048]
+[gpu] all 16 layers resident in VRAM (5122 MiB free) — full GPU speed
+[gpu] all 16 layers resident in VRAM (5122 MiB free) — full GPU speed
+resident, one verify-chunk: [22463, 13, 578, 6864, 315, 18157, 374, 25048]
+test speculative_verify_chunk_preserves_the_resident_kv_history ... ok
+[gpu] all 16 layers resident in VRAM (5122 MiB free) — full GPU speed
+SKIP resident KV fallback regression: resident lane unavailable on this host
+test cpu_fallback_mid_sequence_preserves_the_resident_kv_history ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 9.23s
+

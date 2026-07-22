@@ -1,0 +1,112 @@
+   Compiling camelid v0.3.1 (C:\Users\timto\Camelid-Spark)
+warning: type `WeightSource<'_>` is more private than the item `CudaResidentDecode::set_layer_located`
+    --> src\cuda_resident.rs:6107:5
+     |
+6107 | /     pub fn set_layer_located(
+6108 | |         &mut self,
+6109 | |         q: WeightSource<'_>,
+6110 | |         kk: WeightSource<'_>,
+...    |
+6121 | |         quants: LayerQuants,
+6122 | |     ) -> Result<(), String> {
+     | |___________________________^ method `CudaResidentDecode::set_layer_located` is reachable at visibility `pub`
+     |
+note: but type `WeightSource<'_>` is only usable at visibility `pub(crate)`
+    --> src\cuda_resident.rs:3301:1
+     |
+3301 | pub(crate) enum WeightSource<'a> {
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     = note: `#[warn(private_interfaces)]` on by default
+
+warning: type `WeightSource<'_>` is more private than the item `CudaResidentDecode::set_output`
+    --> src\cuda_resident.rs:6323:5
+     |
+6323 | /     pub fn set_output(
+6324 | |         &mut self,
+6325 | |         final_norm: &[f32],
+6326 | |         output_weight: WeightSource<'_>,
+6327 | |         output_quant: ProjQuant,
+6328 | |     ) -> Result<(), String> {
+     | |___________________________^ method `CudaResidentDecode::set_output` is reachable at visibility `pub`
+     |
+note: but type `WeightSource<'_>` is only usable at visibility `pub(crate)`
+    --> src\cuda_resident.rs:3301:1
+     |
+3301 | pub(crate) enum WeightSource<'a> {
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: `camelid` (lib test) generated 2 warnings
+    Finished `release` profile [optimized] target(s) in 4m 56s
+     Running unittests src\lib.rs (target\release\deps\camelid-8a860b5f2d3bc4d4.exe)
+
+running 42 tests
+[cuda] selected device 0 of 1: "NVIDIA GeForce RTX 3060 Laptop GPU" (compute capability 8.6) | VRAM 5122 MiB free / 6143 MiB total
+[cuda] Q8_0 hybrid decode active on NVIDIA GeForce RTX 3060 Laptop GPU — first GPU matmul completed
+test cuda::backend::tests::cuda_block_kernel_matches_cpu_reference_within_tolerance ... ok
+test cuda::backend::tests::cuda_q8_kernel_is_bit_identical_to_cpu_reference ... ok
+test cuda_resident::tests::argmax_matches_cpu ... ok
+test cuda_resident::tests::attention_decode_sw_matches_cpu ... ok
+test cuda_resident::tests::nvfp4_gemv_requires_even_q8_blocks ... ok
+test cuda_resident::tests::attention_decode_matches_cpu ... ok
+test cuda_resident::tests::deinterleave_qgate_matches_cpu ... ok
+test cuda_resident::tests::nvfp4_gemv_decodes_ue4m3_sentinels_pin_cpu_bitwise ... ok
+test cuda_resident::tests::gemm_batched_matches_per_token ... ok
+nvfp4_gemv_matches_oracle: 46/46 rows bit-identical, worst rel diff 0.000e0
+test cuda_resident::tests::nvfp4_gemv_matches_oracle ... ok
+q2k_gemv_matches_oracle: 96/96 rows bit-identical, worst rel diff 0.000e0
+test cuda_resident::tests::q2k_gemv_matches_oracle ... ok
+test cuda_resident::tests::iq4xs_gemv_matches_oracle ... ok
+test cuda_resident::tests::geglu_mul_matches_cpu ... ok
+test cuda_resident::tests::nvfp4_gemv_fuses_residual_add ... ok
+q3k_gemv_matches_oracle: 96/96 rows bit-identical, worst rel diff 0.000e0
+test cuda_resident::tests::q3k_gemv_matches_oracle ... ok
+q4_0_gemv_matches_oracle: 96/96 rows bit-identical, worst rel diff 0.000e0
+test cuda_resident::tests::q4_0_gemv_matches_oracle ... ok
+q4_1_gemv_matches_oracle: 96/96 rows bit-identical, worst rel diff 0.000e0
+test cuda_resident::tests::q4_1_gemv_matches_oracle ... ok
+q4k_gemv_matches_oracle: 96/96 rows bit-identical, worst rel diff 0.000e0
+test cuda_resident::tests::q4k_gemv_matches_oracle ... ok
+q5k_gemv_matches_oracle: 96/96 rows bit-identical, worst rel diff 0.000e0
+test cuda_resident::tests::q5k_gemv_matches_oracle ... ok
+[cuda] hostreg attrs: host_register_supported=1 can_use_host_pointer=0 unified_addressing=1 dptr_eq_host=false
+test cuda_resident::tests::full_forward_token_matches_cpu ... ok
+q6k_gemv_matches_oracle: 96/96 rows bit-identical, worst rel diff 0.000e0
+test cuda_resident::tests::q6k_gemv_matches_oracle ... ok
+test cuda_resident::tests::quantize_q8_0_matches_cpu ... ok
+test cuda_resident::tests::rms_norm_matches_cpu ... ok
+test cuda_resident::tests::rms_norm_per_head_parity ... ok
+test cuda_resident::tests::rope_adjacent_parity ... ok
+test cuda_resident::tests::rope_matches_cpu ... ok
+skip: set CAMELID_GEMMA4_GGUF to the gemma4 E4B Q8_0 gguf path
+test gemma4_runtime::cuda_parity_tests::gemma4_cuda_matches_cpu_greedy ... ok
+test cuda_resident::tests::rope_split_half_parity ... ok
+test cuda_resident::tests::sigmoid_mul_matches_cpu ... ok
+test cuda_resident::tests::silu_mul_matches_cpu ... ok
+test cuda_resident::tests::soft_cap_matches_cpu ... ok
+test cuda_resident::tests::ssm_conv1d_matches_cpu ... ok
+test cuda_resident::tests::splitk_spec_verify_bit_identical ... ok
+test cuda_resident::tests::ssm_delta_rule_matches_cpu ... ok
+test cuda_resident::tests::ssm_gates_matches_cpu ... ok
+test cuda_resident::tests::ssm_l2_norm_per_head_matches_cpu ... ok
+test cuda_resident::tests::ssm_layer_chain_matches_cpu ... ok
+[cuda] hostreg attrs: host_register_supported=1 can_use_host_pointer=0 unified_addressing=1 dptr_eq_host=false
+[cuda] hostreg attrs: host_register_supported=1 can_use_host_pointer=0 unified_addressing=1 dptr_eq_host=false
+[cuda] hostreg attrs: host_register_supported=1 can_use_host_pointer=0 unified_addressing=1 dptr_eq_host=false
+[cuda] hostreg attrs: host_register_supported=1 can_use_host_pointer=0 unified_addressing=1 dptr_eq_host=false
+[cuda] hostreg attrs: host_register_supported=1 can_use_host_pointer=0 unified_addressing=1 dptr_eq_host=false
+[cuda] hostreg attrs: host_register_supported=1 can_use_host_pointer=0 unified_addressing=1 dptr_eq_host=false
+[cuda] hostreg attrs: host_register_supported=1 can_use_host_pointer=0 unified_addressing=1 dptr_eq_host=false
+[cuda] hostreg attrs: host_register_supported=1 can_use_host_pointer=0 unified_addressing=1 dptr_eq_host=false
+test cuda_resident::tests::tree_linear_matches_verify_batch ... ok
+tree_verify_forced_compaction_lossless: 32 tokens, 16 rounds, 16 COMPACTING rounds, 2.00 accepted/round
+test cuda_resident::tests::tree_verify_forced_compaction_lossless ... ok
+test cuda_resident::tests::verify_batch_matches_sequential ... ok
+[cuda] hostreg attrs: host_register_supported=1 can_use_host_pointer=0 unified_addressing=1 dptr_eq_host=false
+[cuda] hostreg attrs: host_register_supported=1 can_use_host_pointer=0 unified_addressing=1 dptr_eq_host=false
+tree_verify_multiround_lossless: 40 tokens over 37 rounds, 1.05 accepted/round, 1 compacting rounds
+test cuda_resident::tests::tree_verify_multiround_lossless ... ok
+[cuda] hostreg attrs: host_register_supported=1 can_use_host_pointer=0 unified_addressing=1 dptr_eq_host=false
+test cuda_resident::tests::prefill_then_decode_matches_sequential ... ok
+
+test result: ok. 42 passed; 0 failed; 0 ignored; 0 measured; 879 filtered out; finished in 4.27s
+
