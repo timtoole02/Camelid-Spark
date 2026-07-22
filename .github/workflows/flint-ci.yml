@@ -1,13 +1,17 @@
 name: FLINT CI (aarch64 Linux + CUDA)
 
-# The FLINT gate: does Camelid compile for the DGX Spark target
-# (aarch64-unknown-linux-gnu) with the CUDA backend enabled?
+# The FLINT gate: does the full Camelid product — web UI embedded + CUDA engine —
+# build for the DGX Spark target (aarch64-unknown-linux-gnu)?
 #
-# cudarc is pinned with `fallback-dynamic-loading`, so it dlopen()s libcuda at
-# RUNTIME — no CUDA toolkit is needed to `cargo check --features cuda`. That makes
-# a plain arm64 Ubuntu runner (no GPU) a valid compile gate. It does NOT run the
-# tests (many need a GPU/model); the token-producing checks live in FLINT_HANDOFF.md
-# and run on the actual Spark.
+#   1. build the web UI (npm run build) so the REAL chat surface is embedded, not
+#      the blank placeholder — this is what `camelid serve` opens in the browser.
+#   2. cargo check --features cuda   (fast compile gate; cudarc dlopen()s libcuda
+#      at runtime via fallback-dynamic-loading, so no CUDA toolkit is needed here).
+#   3. cargo build --release --bin camelid --features cuda  (authoritative: the
+#      shippable binary links AND embeds the built UI).
+#
+# It does NOT run the model tests (they need a GPU/model) — those run on the real
+# Spark, see FLINT_HANDOFF.md.
 
 on:
   push:
@@ -21,8 +25,8 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  check:
-    name: check + fmt (aarch64-linux, --features cuda)
+  build:
+    name: build UI + engine (aarch64-linux, --features cuda)
     runs-on: ubuntu-24.04-arm
     steps:
       - uses: actions/checkout@v4
@@ -32,13 +36,17 @@ jobs:
           sudo apt-get update -y
           sudo apt-get install -y cmake build-essential pkg-config libssl-dev libcurl4-openssl-dev
 
+      - name: Node.js 22 (web UI build)
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
       - name: Rust toolchain (pinned by rust-toolchain.toml)
         run: |
           rustup show active-toolchain || rustup toolchain install
           rustup component add rustfmt clippy
           rustc --version
-          # Host is aarch64-unknown-linux-gnu — the Spark target — so no cross target needed.
-          rustc -vV | grep host
+          rustc -vV | grep host   # aarch64-unknown-linux-gnu = the Spark target (native, no cross)
 
       - name: Cache cargo
         uses: actions/cache@v4
@@ -49,14 +57,24 @@ jobs:
             target
           key: flint-${{ runner.os }}-arm-${{ hashFiles('Cargo.lock') }}
 
+      - name: Build the web UI (embedded into the binary)
+        working-directory: frontend
+        run: |
+          npm ci
+          npm run build
+          test "$(wc -c < dist/index.html)" -gt 200   # real app, not the placeholder
+
       - name: rustfmt --check
         run: cargo fmt --all --check
 
       - name: install.sh syntax
         run: bash -n install.sh
 
-      - name: cargo check --all-targets --features cuda  (THE GATE)
+      - name: cargo check --all-targets --features cuda  (fast gate)
         run: cargo check --all-targets --features cuda
+
+      - name: cargo build --release --bin camelid --features cuda  (ships the UI + engine)
+        run: cargo build --release --bin camelid --features cuda
 
       - name: cargo clippy (informational)
         continue-on-error: true
