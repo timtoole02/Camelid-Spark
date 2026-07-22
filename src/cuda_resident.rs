@@ -9339,39 +9339,76 @@ impl CudaResidentDecode {
         if self.is_offloaded() {
             return self.prefill(embeddings, cos_all, sin_all, n, scale);
         }
+        self.prefill_batched_from(0, embeddings, cos_all, sin_all, n, scale)
+    }
+
+    /// P0-4 (suffix prefill): batched prefill of `n_new` tokens at ABSOLUTE
+    /// positions `[base0, base0 + n_new)` over the engine's live KV — the same
+    /// chunk loop as a full prefill, started at `base0` instead of 0. The input
+    /// slices are RELATIVE to the suffix (`embeddings[0..n_new*hidden]` is the
+    /// first suffix token); the caller passes rope tables built at absolute
+    /// positions (slice `[base0*half..]` of a full-table build — identical angle
+    /// math to a fresh prefill by construction). Every kernel is already
+    /// absolute-position: `kv_scatter_batched` writes at `base_position + t` and
+    /// `attention_batched` attends `[0, base_position + t]` causally with a
+    /// per-token reduction-regime pick, so suffix chunking produces the same KV
+    /// bytes as fresh chunking on the default (non-flash) path. Errs on an
+    /// offloaded engine — no silent serial fallback (base>0 is untested there).
+    pub fn prefill_batched_from(
+        &mut self,
+        base0: usize,
+        embeddings: &[f32],
+        cos_all: &[f32],
+        sin_all: &[f32],
+        n_new: usize,
+        scale: f32,
+    ) -> Result<(), String> {
+        if self.is_offloaded() {
+            return Err("prefill_batched_from: offloaded engine (suffix is resident-only)".into());
+        }
+        if base0 + n_new > self.max_pos {
+            return Err(format!(
+                "prefill_batched_from: base {base0} + {n_new} tokens exceeds max_pos {}",
+                self.max_pos
+            ));
+        }
         let map = |e: cudarc::driver::DriverError| format!("cuda prefill: {e}");
         let hidden = self.hidden;
         let half = self.rope_dim / 2;
-        if embeddings.len() < n * hidden || cos_all.len() < n * half || sin_all.len() < n * half {
-            return Err("prefill_batched: input slices too short".into());
+        if embeddings.len() < n_new * hidden
+            || cos_all.len() < n_new * half
+            || sin_all.len() < n_new * half
+        {
+            return Err("prefill_batched_from: input slices too short".into());
         }
         self.ensure_verify_scratch()?;
         let s = self.k.stream.clone();
         let mut sc = self.verify_scratch.take().expect("allocated above");
-        let mut base = 0usize;
-        while base < n {
-            let kk = (n - base).min(self.prefill_k);
+        let mut off = 0usize;
+        while off < n_new {
+            let kk = (n_new - off).min(self.prefill_k);
             // Stage this chunk's embeddings + RoPE tables into the shared scratch at
-            // offset 0; the layer stack reads [0, kk) and scatters K/V at [base, base+kk).
+            // offset 0; the layer stack reads [0, kk) and scatters K/V at the ABSOLUTE
+            // positions [base0+off, base0+off+kk).
             s.memcpy_htod(
-                &embeddings[base * hidden..(base + kk) * hidden],
+                &embeddings[off * hidden..(off + kk) * hidden],
                 &mut sc.vh.slice_mut(0..kk * hidden),
             )
             .map_err(map)?;
             s.memcpy_htod(
-                &cos_all[base * half..(base + kk) * half],
+                &cos_all[off * half..(off + kk) * half],
                 &mut sc.vcos.slice_mut(0..kk * half),
             )
             .map_err(map)?;
             s.memcpy_htod(
-                &sin_all[base * half..(base + kk) * half],
+                &sin_all[off * half..(off + kk) * half],
                 &mut sc.vsin.slice_mut(0..kk * half),
             )
             .map_err(map)?;
             // Same stream → the next chunk's stage waits for this chunk's reads; no
             // explicit per-chunk sync needed (matches the serial prefill's one-sync-at-end).
-            self.run_batched_layer_stack(&mut sc, &s, base, kk, scale, true)?;
-            base += kk;
+            self.run_batched_layer_stack(&mut sc, &s, base0 + off, kk, scale, true)?;
+            off += kk;
         }
         self.k
             .ctx

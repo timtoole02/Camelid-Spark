@@ -2411,6 +2411,20 @@ impl LlamaInferenceSession {
     /// the CPU prefill ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â the main time-to-first-token cost. Returns `false` to fall
     /// back to the CPU prefill for any unsupported config.
     #[cfg(feature = "cuda")]
+    /// P0-4 opt-in: reuse the resident engine's live KV across turns by
+    /// prefilling only the token-exact new suffix (`CAMELID_CUDA_SUFFIX_PREFILL`
+    /// = 1/true/on/yes; default off = today's full-prefill path, byte-for-byte).
+    #[cfg(feature = "cuda")]
+    fn suffix_prefill_enabled() -> bool {
+        std::env::var_os("CAMELID_CUDA_SUFFIX_PREFILL")
+            .map(|v| {
+                let v = v.to_string_lossy();
+                let v = v.trim().to_ascii_lowercase();
+                v == "1" || v == "true" || v == "on" || v == "yes"
+            })
+            .unwrap_or(false)
+    }
+
     fn try_resident_prefill_cuda(&mut self, token_ids: &[u32]) -> Result<bool> {
         // Explicit escape hatch: `CAMELID_CUDA_RESIDENT_PREFILL=0` keeps prefill on
         // the CPU while still allowing GPU-resident decode (debugging / isolation).
@@ -2547,7 +2561,69 @@ impl LlamaInferenceSession {
             // kernels. (Decode after either is token-identical for Q8_0; for K-quant only
             // the serial path exists.)
             .unwrap_or_else(|| slot.engine.uses_kquant());
-        let prefill_result = if serial_prefill {
+        // P0-4: suffix prefill. When the new prompt token-exactly extends the
+        // tokens whose KV already lives in this engine (committed_tokens), prefill
+        // only the new suffix at base = LCP instead of the whole prompt from 0.
+        // The prefix KV is the engine's OWN live bits — the record clears on any
+        // host reseed, so the bypassed f16-round-trip mechanism is categorically
+        // not involved. Any divergence → prefill from the divergence point
+        // (overwrite); token-exact match only, never partial trust; base is
+        // additionally capped by filled() (spec rollback leaves stale KV beyond).
+        let suffix_base = if Self::suffix_prefill_enabled()
+            && !serial_prefill
+            && !slot.engine.is_offloaded()
+            && !slot.committed_tokens.is_empty()
+        {
+            let lcp = slot
+                .committed_tokens
+                .iter()
+                .zip(token_ids.iter())
+                .take_while(|(a, b)| a == b)
+                .count();
+            lcp.min(slot.engine.filled())
+        } else {
+            0
+        };
+        let half = rope_dim / 2;
+        if suffix_base == n {
+            // Pure hit: every prefill token's KV is already live (a regenerate or
+            // a longer prior conversation). Truncate the cursor — stale KV beyond
+            // is never read (attention is position-bounded) — and skip GPU compute;
+            // the last prompt token decodes normally (need_seed sees filled==n).
+            slot.engine.set_filled(n);
+            slot.committed_tokens.truncate(n);
+            if let Err(e) =
+                self.copy_resident_cuda_kv_to_host(&slot.engine, n_layers, n, n_kv, head_dim)
+            {
+                if trace {
+                    eprintln!(
+                        "[resident-cuda] KV readback to host failed ({e}); using CPU prefill"
+                    );
+                }
+                slot.engine.set_filled(0);
+                slot.committed_tokens.clear();
+                return Ok(false);
+            }
+            drop(guard);
+            self.kv_cache.position = n;
+            if trace {
+                eprintln!(
+                    "[resident-cuda] suffix prefill pure hit: {n} tokens already live in {} ms",
+                    started.elapsed().as_millis()
+                );
+            }
+            return Ok(true);
+        }
+        let prefill_result = if suffix_base > 0 {
+            slot.engine.prefill_batched_from(
+                suffix_base,
+                &embeddings.data[suffix_base * hidden..],
+                &tables.cos[suffix_base * half..],
+                &tables.sin[suffix_base * half..],
+                n - suffix_base,
+                scale,
+            )
+        } else if serial_prefill {
             slot.engine
                 .prefill(&embeddings.data, &tables.cos, &tables.sin, n, scale)
         } else {
@@ -2583,10 +2659,18 @@ impl LlamaInferenceSession {
         drop(guard);
         self.kv_cache.position = n;
         if trace {
-            eprintln!(
-                "[resident-cuda] GPU prefill {n} tokens in {} ms",
-                started.elapsed().as_millis()
-            );
+            if suffix_base > 0 {
+                eprintln!(
+                    "[resident-cuda] suffix prefill {} tokens at base {suffix_base} in {} ms",
+                    n - suffix_base,
+                    started.elapsed().as_millis()
+                );
+            } else {
+                eprintln!(
+                    "[resident-cuda] GPU prefill {n} tokens in {} ms",
+                    started.elapsed().as_millis()
+                );
+            }
         }
         Ok(true)
     }
