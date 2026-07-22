@@ -5325,17 +5325,36 @@ impl ProjQuant {
 /// The seven projection quant types of one layer, in q,k,v,o,gate,up,down order.
 type LayerQuants = [ProjQuant; 7];
 
+/// One weight tensor's device bytes for the resident engine. `Owned` is the
+/// `clone_htod` VRAM copy every lane uses today. FLINT W2's hostreg arm adds a
+/// second, registered-host-memory representation behind CAMELID_CUDA_HOSTREG.
+/// `Deref` to `CudaSlice<u8>` keeps every kernel call site (`&layer.q`,
+/// `.as_view()`, `.len()`) compiling unchanged — zero kernel/launcher edits, so
+/// the parity charter holds by construction.
+enum ProjBytes {
+    Owned(CudaSlice<u8>),
+}
+
+impl std::ops::Deref for ProjBytes {
+    type Target = CudaSlice<u8>;
+    fn deref(&self) -> &CudaSlice<u8> {
+        match self {
+            ProjBytes::Owned(s) => s,
+        }
+    }
+}
+
 struct ResidentLayer {
     // Resident VRAM projections. For an OFFLOADED layer (`offloaded.is_some()`) these
     // are 1-byte placeholders that are never read — the real bytes live in `offloaded`
     // and stream into scratch each forward.
-    q: CudaSlice<u8>,
-    k: CudaSlice<u8>,
-    v: CudaSlice<u8>,
-    o: CudaSlice<u8>,
-    gate: CudaSlice<u8>,
-    up: CudaSlice<u8>,
-    down: CudaSlice<u8>,
+    q: ProjBytes,
+    k: ProjBytes,
+    v: ProjBytes,
+    o: ProjBytes,
+    gate: ProjBytes,
+    up: ProjBytes,
+    down: ProjBytes,
     attn_norm: CudaSlice<f32>,
     ffn_norm: CudaSlice<f32>,
     q_norm: Option<CudaSlice<f32>>,
@@ -5367,11 +5386,11 @@ enum LayerKind {
 /// tensors stay f32, and `conv_state` + `state` persist across tokens (never reset).
 #[allow(dead_code)] // fields read by the SSM forward branch (wired next).
 struct SsmResident {
-    wqkv: CudaSlice<u8>,      // hidden -> conv_dim
-    wqkv_gate: CudaSlice<u8>, // hidden -> value_dim (z gate)
-    beta: CudaSlice<u8>,      // hidden -> num_v_heads
-    alpha: CudaSlice<u8>,     // hidden -> num_v_heads
-    ssm_out: CudaSlice<u8>,   // value_dim -> hidden
+    wqkv: ProjBytes,      // hidden -> conv_dim
+    wqkv_gate: ProjBytes, // hidden -> value_dim (z gate)
+    beta: ProjBytes,      // hidden -> num_v_heads
+    alpha: ProjBytes,     // hidden -> num_v_heads
+    ssm_out: ProjBytes,   // value_dim -> hidden
     /// Per-projection quant lane (wqkv, wqkv_gate, beta, alpha, ssm_out).
     quants: [ProjQuant; 5],
     conv1d: CudaSlice<f32>, // [conv_dim * d_conv], channel-major [c*d_conv + tap]
@@ -5437,7 +5456,7 @@ pub struct CudaResidentDecode {
     split_half_pairing: bool,
     layers: Vec<ResidentLayer>,
     final_norm: CudaSlice<f32>,
-    output_weight: CudaSlice<u8>,
+    output_weight: ProjBytes,
     /// Quant lane of the output (lm_head) projection. Q6_K for Q4_K_M models.
     output_quant: ProjQuant,
     /// True if any projection in the model is a K-quant lane (Q4K/Q6K). Lets the
@@ -5493,7 +5512,7 @@ pub struct CudaResidentDecode {
     /// generated-token ring (argmax writes d_out_tokens[step]; the NEXT step's
     /// embed_gather reads it directly — no per-token D2H/H2D round-trip), and a
     /// 1-slot buffer for host-fed (prefill) token ids.
-    embd_table: Option<(CudaSlice<u8>, ProjQuant)>,
+    embd_table: Option<(ProjBytes, ProjQuant)>,
     d_rope_cos_all: Option<CudaSlice<f32>>,
     d_rope_sin_all: Option<CudaSlice<f32>>,
     d_out_tokens: Option<CudaSlice<u32>>,
@@ -5742,7 +5761,9 @@ impl CudaResidentDecode {
             split_half_pairing,
             layers: Vec::with_capacity(n_layers),
             final_norm: alloc_f(hidden)?,
-            output_weight: s.alloc_zeros::<u8>(1).map_err(|e| format!("alloc: {e}"))?,
+            output_weight: ProjBytes::Owned(
+                s.alloc_zeros::<u8>(1).map_err(|e| format!("alloc: {e}"))?,
+            ),
             output_quant: ProjQuant::Q8_0,
             uses_kquant: false,
             cache_k,
@@ -5880,8 +5901,9 @@ impl CudaResidentDecode {
         if resident {
             // Resident: each projection uploaded once to its own VRAM slice (repacked
             // into the layout its quant lane reads); no offload metadata.
-            let vram = |i: usize| -> Result<CudaSlice<u8>, String> {
+            let vram = |i: usize| -> Result<ProjBytes, String> {
                 s.clone_htod(&repack_for_lane(projections[i], quants[i]))
+                    .map(ProjBytes::Owned)
                     .map_err(|e| format!("htod: {e}"))
             };
             self.layers.push(ResidentLayer {
@@ -5931,7 +5953,11 @@ impl CudaResidentDecode {
         let pinned = CacheablePinned::from_bytes(ctx, &packed)?;
         // 1-byte placeholders for the resident-projection fields (never read while
         // offloaded — the forward resolves weights from the streamed scratch).
-        let ph = || s.clone_htod(&[0u8]).map_err(|e| format!("htod: {e}"));
+        let ph = || {
+            s.clone_htod(&[0u8])
+                .map(ProjBytes::Owned)
+                .map_err(|e| format!("htod: {e}"))
+        };
         self.layers.push(ResidentLayer {
             q: ph()?,
             k: ph()?,
@@ -6065,9 +6091,10 @@ impl CudaResidentDecode {
     ) -> Result<(), String> {
         let s = &self.k.stream;
         self.final_norm = s.clone_htod(final_norm).map_err(|e| format!("htod: {e}"))?;
-        self.output_weight = s
-            .clone_htod(&repack_for_lane(output_weight, output_quant))
-            .map_err(|e| format!("htod: {e}"))?;
+        self.output_weight = ProjBytes::Owned(
+            s.clone_htod(&repack_for_lane(output_weight, output_quant))
+                .map_err(|e| format!("htod: {e}"))?,
+        );
         self.output_quant = output_quant;
         if output_quant.needs_q8k() {
             self.uses_kquant = true;
@@ -6200,14 +6227,19 @@ impl CudaResidentDecode {
         d_state: usize,
     ) -> Result<(), String> {
         let s = self.k.stream.clone();
-        let up_u8 = |b: &[u8], q: ProjQuant| -> Result<CudaSlice<u8>, String> {
+        let up_u8 = |b: &[u8], q: ProjQuant| -> Result<ProjBytes, String> {
             s.clone_htod(&repack_for_lane(b, q))
+                .map(ProjBytes::Owned)
                 .map_err(|e| format!("htod: {e}"))
         };
         let up_f = |b: &[f32]| -> Result<CudaSlice<f32>, String> {
             s.clone_htod(b).map_err(|e| format!("htod: {e}"))
         };
-        let ph = || s.clone_htod(&[0u8]).map_err(|e| format!("htod: {e}"));
+        let ph = || {
+            s.clone_htod(&[0u8])
+                .map(ProjBytes::Owned)
+                .map_err(|e| format!("htod: {e}"))
+        };
         let ssm = SsmResident {
             wqkv: up_u8(wqkv, ssm_quants[0])?,
             wqkv_gate: up_u8(wqkv_gate, ssm_quants[1])?,
@@ -7558,7 +7590,7 @@ impl CudaResidentDecode {
         let sin = s.clone_htod(sin_all).map_err(map)?;
         let out_tokens = s.alloc_zeros::<u32>(self.max_pos).map_err(map)?;
         let token_in = s.alloc_zeros::<u32>(1).map_err(map)?;
-        self.embd_table = Some((table, family));
+        self.embd_table = Some((ProjBytes::Owned(table), family));
         self.d_rope_cos_all = Some(cos);
         self.d_rope_sin_all = Some(sin);
         self.d_out_tokens = Some(out_tokens);
