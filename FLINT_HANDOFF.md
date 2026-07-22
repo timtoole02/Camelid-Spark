@@ -62,13 +62,21 @@ Spark's memory (the GPU-resident CUDA lane keeps weights **quantized**, so RAM �
 | Qwen3 14B | Q8_0 | 14.6 GB | `qwen3_14b_q8_0` |
 | Gemma 3 27B-It | Q8_0 | 26.7 GB | `gemma3_27b_it_q8_0` |
 | Qwen3 32B | Q8_0 | 32.4 GB | `qwen3_32b_q8_0` |
-| **Llama 3.3 70B Instruct** | Q4_K_M | **39.6 GB** | `llama33_70b_instruct_q4_k_m` |
+| Llama 3.3 70B Instruct | Q4_K_M | 39.6 GB | `llama33_70b_instruct_q4_k_m` |
+| **Llama 3.3 70B Instruct** | **Q8_0** | **~70 GB (2-part, auto-merged)** | `llama33_70b_instruct_q8_0` |
 
 Download them from the **Models** page (they'll show a *fits* badge on the 128 GB box) or `"$BIN" pull
 <id>`, then load + chat exactly like Part A. These are **experimental** (runnable, not parity-anchored)
 — the point is "does a big model run here on the GPU", not a correctness claim. Any other covered-arch
 GGUF works too via the Models-page Hugging Face search or `serve --model <path>`. If a big load ever
 errors `cpu_weight_materialization_exceeds_budget`, see the README troubleshooting row.
+
+**The 70B Q8_0 is special:** the Hub only ships it as two gguf-split shards (~40 GB + ~35 GB). Both
+the Models-page download and `pull` handle that automatically — two parts fetched under one progress
+row, then **merged into a single loadable `.gguf`** (parts deleted afterwards; the merge is proven
+byte-exact by a split→merge sha256 round trip on a real model). Budget ~140 GB transient disk. If you
+copied shard files onto the box by hand instead: `"$BIN" gguf-merge <any-shard>.gguf` merges them
+(siblings are discovered automatically).
 
 ---
 

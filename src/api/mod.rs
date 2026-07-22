@@ -17610,6 +17610,23 @@ pub struct CatalogItem {
     /// Advisory "best for" positioning for the Models tab (curated, not
     /// benchmarked). Constrained to: `general`, `reasoning`, `coding`, `tools`.
     pub task_tags: &'static [&'static str],
+    /// FLINT: gguf-split shard parts for models the Hub only ships split
+    /// (e.g. 70B Q8_0). Empty = a normal single-file download. When non-empty,
+    /// `filename` is the LOCAL landing name of the MERGED file, `size_bytes` is
+    /// the sum of the part sizes (what gets transferred), and each part's
+    /// `remote_path` is the Hub path (may contain '/'; never a local name).
+    /// The download pipeline fetches every part, merges via
+    /// `crate::gguf::merge::merge_shards`, and deletes the parts.
+    pub parts: &'static [CatalogPart],
+}
+
+/// One remote shard of a split catalog model. See [`CatalogItem::parts`].
+#[derive(Debug, Clone, Copy, serde::Serialize)]
+pub struct CatalogPart {
+    /// Path under `https://huggingface.co/<repo_id>/resolve/main/`.
+    pub remote_path: &'static str,
+    /// Exact Hub byte size of this part (drives resume + integrity checks).
+    pub size_bytes: u64,
 }
 
 /// A catalog item plus its predicted runnable lane, so the Models tab can show which
@@ -17776,6 +17793,7 @@ pub fn curated_catalog() -> Vec<CatalogItem> {
             architecture: "llama",
             license: "llama3.2",
             task_tags: &["general", "tools"],
+            parts: &[],
         },
         CatalogItem {
             catalog_id: "llama32_3b_instruct_q8_0",
@@ -17789,6 +17807,7 @@ pub fn curated_catalog() -> Vec<CatalogItem> {
             architecture: "llama",
             license: "llama3.2",
             task_tags: &["general", "tools"],
+            parts: &[],
         },
         CatalogItem {
             catalog_id: "tinyllama_1_1b_chat_q8_0",
@@ -17804,6 +17823,7 @@ pub fn curated_catalog() -> Vec<CatalogItem> {
             architecture: "llama",
             license: "other",
             task_tags: &["general"],
+            parts: &[],
         },
         CatalogItem {
             catalog_id: "llama3_8b_instruct_q8_0",
@@ -17817,6 +17837,7 @@ pub fn curated_catalog() -> Vec<CatalogItem> {
             architecture: "llama",
             license: "llama3",
             task_tags: &["general", "reasoning"],
+            parts: &[],
         },
         CatalogItem {
             catalog_id: "mistral_7b_instruct_v0_3_q8_0",
@@ -17830,6 +17851,7 @@ pub fn curated_catalog() -> Vec<CatalogItem> {
             architecture: "llama",
             license: "apache-2.0",
             task_tags: &["general", "coding"],
+            parts: &[],
         },
         CatalogItem {
             catalog_id: "qwen3_0_6b_instruct_q8_0",
@@ -17843,6 +17865,7 @@ pub fn curated_catalog() -> Vec<CatalogItem> {
             architecture: "qwen3",
             license: "apache-2.0",
             task_tags: &["general"],
+            parts: &[],
         },
         CatalogItem {
             catalog_id: "qwen3_1_7b_instruct_q8_0",
@@ -17856,6 +17879,7 @@ pub fn curated_catalog() -> Vec<CatalogItem> {
             architecture: "qwen3",
             license: "apache-2.0",
             task_tags: &["general", "reasoning"],
+            parts: &[],
         },
         CatalogItem {
             catalog_id: "qwen3_4b_instruct_q8_0",
@@ -17869,6 +17893,7 @@ pub fn curated_catalog() -> Vec<CatalogItem> {
             architecture: "qwen3",
             license: "apache-2.0",
             task_tags: &["reasoning", "coding"],
+            parts: &[],
         },
         CatalogItem {
             catalog_id: "qwen3_8b_instruct_q8_0",
@@ -17882,6 +17907,7 @@ pub fn curated_catalog() -> Vec<CatalogItem> {
             architecture: "qwen3",
             license: "apache-2.0",
             task_tags: &["reasoning", "coding"],
+            parts: &[],
         },
         CatalogItem {
             catalog_id: "gemma4_e4b_it_q8_0",
@@ -17895,6 +17921,7 @@ pub fn curated_catalog() -> Vec<CatalogItem> {
             architecture: "gemma4",
             license: "gemma",
             task_tags: &["general"],
+            parts: &[],
         },
         CatalogItem {
             catalog_id: "gemma4_e2b_it_q8_0",
@@ -17908,6 +17935,7 @@ pub fn curated_catalog() -> Vec<CatalogItem> {
             architecture: "gemma4",
             license: "gemma",
             task_tags: &["general"],
+            parts: &[],
         },
         CatalogItem {
             catalog_id: "gemma4_12b_it_q8_0",
@@ -17921,6 +17949,7 @@ pub fn curated_catalog() -> Vec<CatalogItem> {
             architecture: "gemma4",
             license: "gemma",
             task_tags: &["general", "reasoning"],
+            parts: &[],
         },
         CatalogItem {
             catalog_id: "gemma4_26b_a4b_it_q4_0",
@@ -17934,6 +17963,7 @@ pub fn curated_catalog() -> Vec<CatalogItem> {
             architecture: "gemma4",
             license: "gemma",
             task_tags: &["reasoning"],
+            parts: &[],
         },
         CatalogItem {
             catalog_id: "gemma3_1b_it_q8_0",
@@ -17947,6 +17977,7 @@ pub fn curated_catalog() -> Vec<CatalogItem> {
             architecture: "gemma3",
             license: "gemma",
             task_tags: &["general"],
+            parts: &[],
         },
         CatalogItem {
             catalog_id: "phi3_mini_4k_instruct_q8_0",
@@ -17963,6 +17994,7 @@ pub fn curated_catalog() -> Vec<CatalogItem> {
             architecture: "phi3",
             license: "mit",
             task_tags: &["reasoning", "coding"],
+            parts: &[],
         },
         // FLINT (DGX Spark): larger models to exercise the 128 GB unified memory.
         // Covered architecture + covered quant, so they ADMIT and run on the
@@ -17982,6 +18014,7 @@ pub fn curated_catalog() -> Vec<CatalogItem> {
             architecture: "qwen3",
             license: "apache-2.0",
             task_tags: &["reasoning", "coding"],
+            parts: &[],
         },
         CatalogItem {
             catalog_id: "gemma3_27b_it_q8_0",
@@ -17995,6 +18028,7 @@ pub fn curated_catalog() -> Vec<CatalogItem> {
             architecture: "gemma3",
             license: "gemma",
             task_tags: &["general", "reasoning"],
+            parts: &[],
         },
         CatalogItem {
             catalog_id: "qwen3_32b_q8_0",
@@ -18008,6 +18042,7 @@ pub fn curated_catalog() -> Vec<CatalogItem> {
             architecture: "qwen3",
             license: "apache-2.0",
             task_tags: &["reasoning", "coding"],
+            parts: &[],
         },
         CatalogItem {
             catalog_id: "llama33_70b_instruct_q4_k_m",
@@ -18021,6 +18056,36 @@ pub fn curated_catalog() -> Vec<CatalogItem> {
             architecture: "llama",
             license: "llama3.3",
             task_tags: &["general", "reasoning"],
+            parts: &[],
+        },
+        // The Hub only ships 70B Q8_0 split into gguf-split shards; the download
+        // pipeline fetches both parts and merges them into the single `filename`
+        // (size_bytes = sum of the parts = bytes transferred; the merged file is
+        // marginally smaller — one header instead of two).
+        CatalogItem {
+            catalog_id: "llama33_70b_instruct_q8_0",
+            name: "Llama 3.3 70B Instruct Q8_0 (flagship, 128 GB, 2-part)",
+            repo_id: "bartowski/Llama-3.3-70B-Instruct-GGUF",
+            filename: "Llama-3.3-70B-Instruct-Q8_0.gguf",
+            size_bytes: 74975055008,
+            downloads: 0,
+            likes: 0,
+            quant: "Q8_0",
+            architecture: "llama",
+            license: "llama3.3",
+            task_tags: &["general", "reasoning"],
+            parts: &[
+                CatalogPart {
+                    remote_path:
+                        "Llama-3.3-70B-Instruct-Q8_0/Llama-3.3-70B-Instruct-Q8_0-00001-of-00002.gguf",
+                    size_bytes: 39927004064,
+                },
+                CatalogPart {
+                    remote_path:
+                        "Llama-3.3-70B-Instruct-Q8_0/Llama-3.3-70B-Instruct-Q8_0-00002-of-00002.gguf",
+                    size_bytes: 35048050944,
+                },
+            ],
         },
     ]
 }
@@ -19067,6 +19132,10 @@ pub struct ActiveDownload {
     pub child_pid: Option<u32>,
     #[serde(skip)]
     pub finished_at: Option<std::time::Instant>,
+    /// FLINT multi-part downloads: local paths of the shard part files, so the
+    /// progress poll can sum them. Empty for single-file downloads.
+    #[serde(skip)]
+    pub part_paths: Vec<String>,
 }
 
 #[derive(Debug, serde::Deserialize)]
@@ -19175,6 +19244,174 @@ async fn install_catalog_model(
     // exits successfully. The loadable GGUF therefore never exists until the
     // download is genuinely complete, so a half-downloaded model cannot be loaded.
     let part_path = format!("{dest_path}.part");
+
+    // FLINT: split models (e.g. 70B Q8_0) ship as gguf-split shards. Parts are
+    // resolved SERVER-SIDE from the curated catalog by id — the client cannot
+    // supply remote paths — then fetched sequentially and merged into the
+    // single `filename` via crate::gguf::merge. The entry keeps status
+    // "downloading" through the merge (the frontend's poll/settlement logic
+    // treats any other status as terminal).
+    let curated_parts: &'static [CatalogPart] = curated_catalog()
+        .iter()
+        .find(|c| c.catalog_id == req.catalog_id)
+        .map(|c| c.parts)
+        .unwrap_or(&[]);
+    if !curated_parts.is_empty() {
+        let part_files: Vec<String> = (1..=curated_parts.len())
+            .map(|i| format!("{dest_path}.shard{i:02}"))
+            .collect();
+        let download = ActiveDownload {
+            id: req.catalog_id.clone(),
+            repo_id: req.repo_id.clone(),
+            filename: req.filename.clone(),
+            continuation_mode,
+            total_bytes: req.size_bytes,
+            bytes_downloaded: 0,
+            status: "downloading",
+            child_pid: None,
+            finished_at: None,
+            part_paths: part_files.clone(),
+        };
+        map.insert(req.catalog_id.clone(), download);
+        drop(map);
+
+        let catalog_id = req.catalog_id.clone();
+        let repo_id = req.repo_id.clone();
+        let part_path_clone = part_path.clone();
+        let dest_path_clone = dest_path.clone();
+        let lifecycle = state.model_file_lifecycle.clone();
+        tokio::task::spawn_blocking(move || {
+            let cleanup_parts = |files: &[String]| {
+                for f in files {
+                    let _ = std::fs::remove_file(f);
+                }
+            };
+            let mut all_ok = true;
+            for (i, part) in curated_parts.iter().enumerate() {
+                // Shard filenames are hard-renamed to `.shardNN` locally; the
+                // merger needs the gguf-split names, so download AS-IS and let
+                // merge_shards read the ordered list directly.
+                let url = format!(
+                    "https://huggingface.co/{repo_id}/resolve/main/{}",
+                    part.remote_path
+                );
+                let child = std::process::Command::new("curl")
+                    .args([
+                        "-f",
+                        "-L",
+                        "-C",
+                        "-",
+                        "--connect-timeout",
+                        "30",
+                        "--speed-limit",
+                        "1024",
+                        "--speed-time",
+                        "30",
+                        "--retry",
+                        "10",
+                        "--retry-delay",
+                        "2",
+                        "--retry-all-errors",
+                        "-o",
+                        &part_files[i],
+                        &url,
+                    ])
+                    .spawn();
+                let mut child = match child {
+                    Ok(c) => c,
+                    Err(_) => {
+                        all_ok = false;
+                        break;
+                    }
+                };
+                {
+                    let mut map = active_downloads_map().lock().unwrap();
+                    match map.get_mut(&catalog_id) {
+                        // Track the CURRENT part's pid so cancel kills the
+                        // right process at every point in the sequence.
+                        Some(dl) => dl.child_pid = Some(child.id()),
+                        None => {
+                            // Canceled between parts: stop, remove partials.
+                            let _ = child.kill();
+                            let _ = child.wait();
+                            cleanup_parts(&part_files);
+                            return;
+                        }
+                    }
+                }
+                let _ = child.wait();
+                // The per-part gate is the EXACT Hub size (known from the
+                // catalog): it passes a resume-of-complete-file (curl 416) and
+                // fails any truncated or size-shifted part, regardless of exit
+                // code.
+                let size_ok = std::fs::metadata(&part_files[i])
+                    .map(|m| m.len() == part.size_bytes)
+                    .unwrap_or(false);
+                if !size_ok {
+                    all_ok = false;
+                    break;
+                }
+            }
+
+            if all_ok {
+                let tracked = active_downloads_map()
+                    .lock()
+                    .unwrap()
+                    .contains_key(&catalog_id);
+                let merged = tracked
+                    && crate::gguf::merge::merge_shards(
+                        &part_files
+                            .iter()
+                            .map(std::path::PathBuf::from)
+                            .collect::<Vec<_>>(),
+                        std::path::Path::new(&part_path_clone),
+                    )
+                    .map_err(|e| eprintln!("[catalog] shard merge failed: {e}"))
+                    .is_ok();
+                let _reader = lifecycle.blocking_read();
+                let mut map = active_downloads_map().lock().unwrap();
+                let still_tracked = map.contains_key(&catalog_id);
+                let status = finalize_download_artifact(
+                    merged,
+                    still_tracked,
+                    &part_path_clone,
+                    &dest_path_clone,
+                );
+                if let Some(dl) = map.get_mut(&catalog_id) {
+                    dl.status = status;
+                    dl.finished_at = Some(std::time::Instant::now());
+                    if status == "completed" {
+                        dl.bytes_downloaded = dl.total_bytes;
+                    }
+                }
+                drop(map);
+                // The merged single file is promoted (or cleaned); the shard
+                // parts are no longer needed either way.
+                cleanup_parts(&part_files);
+            } else {
+                let mut map = active_downloads_map().lock().unwrap();
+                let canceled = !map.contains_key(&catalog_id);
+                if let Some(dl) = map.get_mut(&catalog_id) {
+                    dl.status = "failed";
+                    dl.finished_at = Some(std::time::Instant::now());
+                }
+                drop(map);
+                let _ = std::fs::remove_file(&part_path_clone);
+                if canceled {
+                    // User intent: remove partials.
+                    cleanup_parts(&part_files);
+                }
+                // On FAILURE the completed `.shardNN` files are deliberately
+                // KEPT: parts are tens of GB and `curl -C -` resumes them on
+                // the next Download click. Nothing loadable is left behind —
+                // `.shardNN` is not a `.gguf` name, so the models scan never
+                // sees it.
+            }
+        });
+
+        return (StatusCode::OK, "Download started").into_response();
+    }
+
     let url = format!(
         "https://huggingface.co/{}/resolve/main/{}",
         req.repo_id, req.filename
@@ -19228,6 +19465,7 @@ async fn install_catalog_model(
                 status: "downloading",
                 child_pid: Some(pid),
                 finished_at: None,
+                part_paths: Vec::new(),
             };
             map.insert(req.catalog_id.clone(), download);
 
@@ -19286,9 +19524,20 @@ async fn get_catalog_downloads(State(state): State<AppState>) -> Json<Vec<Active
         // ONLY by curl's exit code (set in the spawn task above), never by a size
         // comparison against the catalog's approximate `size_bytes`, which could
         // flip a download to "completed" before it actually finished.
-        let part_path = format!("{}.part", state.models_dir.join(&dl.filename).display());
-        if let Ok(metadata) = std::fs::metadata(&part_path) {
-            dl.bytes_downloaded = metadata.len();
+        if !dl.part_paths.is_empty() {
+            // FLINT multi-part: sum the shard files (capped — during the merge
+            // the shards total the full size and the merge temp also grows).
+            let sum: u64 = dl
+                .part_paths
+                .iter()
+                .filter_map(|p| std::fs::metadata(p).ok().map(|m| m.len()))
+                .sum();
+            dl.bytes_downloaded = sum.min(dl.total_bytes);
+        } else {
+            let part_path = format!("{}.part", state.models_dir.join(&dl.filename).display());
+            if let Ok(metadata) = std::fs::metadata(&part_path) {
+                dl.bytes_downloaded = metadata.len();
+            }
         }
     }
 
@@ -19599,6 +19848,7 @@ mod local_model_delete_tests {
                 status: "downloading",
                 child_pid: None,
                 finished_at: None,
+                part_paths: Vec::new(),
             },
         );
         let token = scanned_token(app.clone(), "guarded.gguf").await;
@@ -20220,6 +20470,7 @@ mod download_cancel_tests {
             status: "downloading",
             child_pid: None,
             finished_at: Some(std::time::Instant::now()),
+            part_paths: Vec::new(),
         };
         terminal.status = "completed";
         active_downloads_map()
@@ -20271,6 +20522,7 @@ mod download_cancel_tests {
                 status: "downloading",
                 child_pid: None,
                 finished_at: None,
+                part_paths: Vec::new(),
             },
         );
         let app = router_with_state(AppState::default());

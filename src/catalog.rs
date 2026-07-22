@@ -109,6 +109,12 @@ fn download(item: &CatalogItem, models_dir: &Path) -> anyhow::Result<PathBuf> {
     std::fs::create_dir_all(models_dir)?;
     let dest = models_dir.join(item.filename);
 
+    // FLINT: split models (the Hub only ships some large rows as gguf-split
+    // shards). Fetch every part, then merge into the single `filename`.
+    if !item.parts.is_empty() {
+        return download_multipart(item, models_dir, &dest);
+    }
+
     // Authoritative size from the Hub; fall back to the catalog constant offline.
     let expected = remote_size(item);
     let target = expected.unwrap_or(item.size_bytes);
@@ -178,6 +184,113 @@ fn download(item: &CatalogItem, models_dir: &Path) -> anyhow::Result<PathBuf> {
     }
 
     Ok(dest)
+}
+
+/// Multi-part variant of [`download`]: fetch each gguf-split shard (resumable,
+/// exact-size gated against the catalog's per-part byte counts), merge them
+/// into the single `filename` with `crate::gguf::merge`, then delete the parts.
+/// A pre-existing merged file that parses as GGUF is treated as complete.
+fn download_multipart(
+    item: &CatalogItem,
+    models_dir: &Path,
+    dest: &Path,
+) -> anyhow::Result<PathBuf> {
+    if let Ok(meta) = std::fs::metadata(dest) {
+        if meta.len() > 0 && crate::gguf::read_metadata(dest).is_ok() {
+            eprintln!(
+                "{} already downloaded and parseable at {} ({:.1} GB)",
+                item.name,
+                dest.display(),
+                meta.len() as f64 / 1e9
+            );
+            return Ok(dest.to_path_buf());
+        }
+    }
+
+    let total: u64 = item.parts.iter().map(|p| p.size_bytes).sum();
+    eprintln!(
+        "Downloading {} in {} parts ({:.1} GB total) from {}",
+        item.name,
+        item.parts.len(),
+        total as f64 / 1e9,
+        item.repo_id
+    );
+
+    let mut shard_paths = Vec::with_capacity(item.parts.len());
+    for (i, part) in item.parts.iter().enumerate() {
+        // Deliberately NOT a `.gguf` name: the models scan lists `*.gguf`, and
+        // a half-downloaded shard must never show up as a (broken) model. The
+        // merger takes the ordered path list directly, so names don't matter.
+        let shard_dest = models_dir.join(format!("{}.shard{:02}", item.filename, i + 1));
+        if std::fs::metadata(&shard_dest).map(|m| m.len()).ok() == Some(part.size_bytes) {
+            eprintln!(
+                "  part {}/{}: already complete ({})",
+                i + 1,
+                item.parts.len(),
+                shard_dest.display()
+            );
+            shard_paths.push(shard_dest);
+            continue;
+        }
+        let url = format!(
+            "https://huggingface.co/{}/resolve/main/{}",
+            item.repo_id, part.remote_path
+        );
+        eprintln!(
+            "  part {}/{}: {} ({:.1} GB)",
+            i + 1,
+            item.parts.len(),
+            part.remote_path,
+            part.size_bytes as f64 / 1e9
+        );
+        let status = std::process::Command::new("curl")
+            .args(["-L", "-C", "-", "--fail", "-o"])
+            .arg(&shard_dest)
+            .arg(&url)
+            .status()
+            .map_err(|err| anyhow::anyhow!("could not run curl (is it installed?): {err}"))?;
+        let have = std::fs::metadata(&shard_dest).map(|m| m.len()).unwrap_or(0);
+        // Exact-size gate: passes a resume-of-complete (curl 416), fails any
+        // truncated or size-shifted part regardless of exit code.
+        if have != part.size_bytes {
+            if !status.success() {
+                anyhow::bail!(
+                    "part {} download failed (curl exited with {status}); re-run to resume",
+                    i + 1
+                );
+            }
+            anyhow::bail!(
+                "part {} is {have} bytes, expected {} — re-run to resume",
+                i + 1,
+                part.size_bytes
+            );
+        }
+        shard_paths.push(shard_dest);
+    }
+
+    eprintln!(
+        "Merging {} parts into {} …",
+        item.parts.len(),
+        dest.display()
+    );
+    let tmp = dest.with_extension("gguf.merge-tmp");
+    match crate::gguf::merge::merge_shards(&shard_paths, &tmp) {
+        Ok(report) => {
+            std::fs::rename(&tmp, dest)?;
+            for p in &shard_paths {
+                let _ = std::fs::remove_file(p);
+            }
+            eprintln!(
+                "Merged {} tensors ({} split keys dropped); parts deleted.",
+                report.tensors, report.kv_dropped
+            );
+            Ok(dest.to_path_buf())
+        }
+        Err(e) => {
+            let _ = std::fs::remove_file(&tmp);
+            anyhow::bail!("shard merge failed: {e} — parts kept; re-run to retry");
+        }
+    }
 }
 
 fn print_catalog(entries: &[CatalogItem]) {

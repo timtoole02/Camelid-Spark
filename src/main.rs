@@ -708,6 +708,31 @@ enum Command {
         #[arg(long, default_value_t = 24)]
         max_tokens: usize,
     },
+    /// Merge llama.cpp-style split GGUF shards (-00001-of-0000N.gguf) into one
+    /// single .gguf file that Camelid can load. Point it at ANY one shard; the
+    /// siblings are discovered next to it.
+    GgufMerge {
+        /// Any shard of the split set (e.g. model-00001-of-00002.gguf).
+        shard: PathBuf,
+        /// Output path (default: <stem>.gguf next to the shards).
+        #[arg(long)]
+        out: Option<PathBuf>,
+        /// Delete the shard files after a successful merge.
+        #[arg(long, default_value_t = false)]
+        delete_shards: bool,
+    },
+    /// Split a single GGUF v3 into N gguf-split-style shards (dev harness for
+    /// validating the merge round trip; the inverse of gguf-merge).
+    #[command(hide = true)]
+    GgufSplit {
+        path: PathBuf,
+        /// Number of shards to produce.
+        #[arg(long, default_value_t = 2)]
+        parts: usize,
+        /// Output directory (default: alongside the source file).
+        #[arg(long)]
+        out_dir: Option<PathBuf>,
+    },
     /// Dump focused tensor descriptor, raw block, and f32 dequantization diagnostics.
     #[command(hide = true)]
     TensorDump {
@@ -2051,6 +2076,60 @@ async fn main() -> anyhow::Result<()> {
             );
             eprintln!("[gemma4-master] token_ids: {ids:?}");
             println!("{prompt}{out}");
+        }
+        Command::GgufMerge {
+            shard,
+            out,
+            delete_shards,
+        } => {
+            let set = camelid::gguf::merge::discover_shard_set(&shard)?;
+            let out_path = out.unwrap_or_else(|| {
+                shard
+                    .parent()
+                    .unwrap_or_else(|| std::path::Path::new("."))
+                    .join(&set.merged_name)
+            });
+            println!(
+                "Merging {} shards into {} …",
+                set.paths.len(),
+                out_path.display()
+            );
+            let tmp = out_path.with_extension("gguf.merge-tmp");
+            let report = match camelid::gguf::merge::merge_shards(&set.paths, &tmp) {
+                Ok(report) => report,
+                Err(e) => {
+                    let _ = std::fs::remove_file(&tmp);
+                    return Err(e.into());
+                }
+            };
+            std::fs::rename(&tmp, &out_path)?;
+            println!(
+                "Merged {} tensors across {} shards ({} KVs kept, {} split keys dropped, {} bytes).",
+                report.tensors, report.shards, report.kv_kept, report.kv_dropped, report.bytes_written
+            );
+            if delete_shards {
+                for p in &set.paths {
+                    std::fs::remove_file(p)?;
+                }
+                println!("Deleted {} shard files.", set.paths.len());
+            }
+            println!("Ready: {}", out_path.display());
+        }
+        Command::GgufSplit {
+            path,
+            parts,
+            out_dir,
+        } => {
+            let dir = out_dir.unwrap_or_else(|| {
+                path.parent()
+                    .unwrap_or_else(|| std::path::Path::new("."))
+                    .to_path_buf()
+            });
+            std::fs::create_dir_all(&dir)?;
+            let shards = camelid::gguf::merge::split_gguf(&path, parts, &dir)?;
+            for s in &shards {
+                println!("wrote {}", s.display());
+            }
         }
         Command::TensorDump {
             path,

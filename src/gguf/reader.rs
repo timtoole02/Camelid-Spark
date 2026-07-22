@@ -98,6 +98,39 @@ impl GgufTensorType {
         }
     }
 
+    /// The on-wire GGML type id — the exact inverse of [`Self::from_id`].
+    /// Used by the split-GGUF merger to re-serialize tensor-table entries.
+    pub fn wire_id(self) -> i32 {
+        match self {
+            Self::F32 => 0,
+            Self::F16 => 1,
+            Self::Q4_0 => 2,
+            Self::Q4_1 => 3,
+            Self::Q5_0 => 6,
+            Self::Q5_1 => 7,
+            Self::Q8_0 => 8,
+            Self::Q8_1 => 9,
+            Self::Q2K => 10,
+            Self::Q3K => 11,
+            Self::Q4K => 12,
+            Self::Q5K => 13,
+            Self::Q6K => 14,
+            Self::Q8K => 15,
+            Self::IQ4NL => 20,
+            Self::IQ4XS => 23,
+            Self::Tq1_0 => 34,
+            Self::Tq2_0 => 35,
+            Self::I8 => 24,
+            Self::I16 => 25,
+            Self::I32 => 26,
+            Self::I64 => 27,
+            Self::F64 => 28,
+            Self::BF16 => 30,
+            Self::NVFP4 => 40,
+            Self::Unknown(other) => other,
+        }
+    }
+
     pub fn layout(self) -> Option<(u64, u64)> {
         // (block_size, type_size_bytes), matching common GGML storage sizes.
         match self {

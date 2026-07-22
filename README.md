@@ -85,12 +85,18 @@ at Q8_0** (~34 GB), with lots of headroom to spare.
   | Qwen3 14B | Q8_0 | 14.6 GB | qwen3 |
   | Gemma 3 27B-It | Q8_0 | 26.7 GB | gemma3 |
   | Qwen3 32B | Q8_0 | 32.4 GB | qwen3 |
-  | **Llama 3.3 70B Instruct** | Q4_K_M | **39.6 GB** | llama |
+  | Llama 3.3 70B Instruct | Q4_K_M | 39.6 GB | llama |
+  | **Llama 3.3 70B Instruct** | **Q8_0** | **~70 GB, 2-part** | llama |
 
   …alongside the small validated rows (Llama 3.2 1B/3B, Llama 3 8B, Qwen3 0.6–8B, Mistral 7B, Gemma, Phi-3).
 - **Validated vs experimental:** the ≤8B rows are **parity-anchored** exact rows (green *Supported*
   badge). The larger picks are **runnable but not parity-validated** — they load in the *Experimental*
   lane (functional, unverified). Perfect for "does a big model work here", not a correctness claim.
+- **Split models (the 70B Q8_0):** the Hub only ships 70B Q8_0 as two gguf-split shards. The
+  download pipeline handles that transparently — both parts are fetched (one progress row) and
+  **auto-merged** into a single loadable `.gguf`; the parts are deleted afterwards. Budget ~140 GB
+  of transient disk during the merge. Shards you copied by hand merge with
+  `camelid gguf-merge <any-shard>.gguf` (point it at any part; siblings are auto-discovered).
 - **Anything else:** searching the Models page browses live Hugging Face GGUFs (experimental), or load
   any file by path: `camelid serve --model /path/to/model.gguf`.
 - **CLI:** `camelid pull` lists the catalog; `camelid pull qwen3_32b_q8_0` (etc.) downloads one.
