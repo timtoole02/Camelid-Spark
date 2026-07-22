@@ -1,0 +1,63 @@
+name: FLINT CI (aarch64 Linux + CUDA)
+
+# The FLINT gate: does Camelid compile for the DGX Spark target
+# (aarch64-unknown-linux-gnu) with the CUDA backend enabled?
+#
+# cudarc is pinned with `fallback-dynamic-loading`, so it dlopen()s libcuda at
+# RUNTIME — no CUDA toolkit is needed to `cargo check --features cuda`. That makes
+# a plain arm64 Ubuntu runner (no GPU) a valid compile gate. It does NOT run the
+# tests (many need a GPU/model); the token-producing checks live in FLINT_HANDOFF.md
+# and run on the actual Spark.
+
+on:
+  push:
+    branches: [main, "flint/**"]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: flint-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    name: check + fmt (aarch64-linux, --features cuda)
+    runs-on: ubuntu-24.04-arm
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: System deps (openssl/curl build inputs)
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y cmake build-essential pkg-config libssl-dev libcurl4-openssl-dev
+
+      - name: Rust toolchain (pinned by rust-toolchain.toml)
+        run: |
+          rustup show active-toolchain || rustup toolchain install
+          rustup component add rustfmt clippy
+          rustc --version
+          # Host is aarch64-unknown-linux-gnu — the Spark target — so no cross target needed.
+          rustc -vV | grep host
+
+      - name: Cache cargo
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: flint-${{ runner.os }}-arm-${{ hashFiles('Cargo.lock') }}
+
+      - name: rustfmt --check
+        run: cargo fmt --all --check
+
+      - name: install.sh syntax
+        run: bash -n install.sh
+
+      - name: cargo check --all-targets --features cuda  (THE GATE)
+        run: cargo check --all-targets --features cuda
+
+      - name: cargo clippy (informational)
+        continue-on-error: true
+        run: cargo clippy --all-targets --features cuda
