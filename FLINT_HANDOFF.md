@@ -1,5 +1,9 @@
 # FLINT_HANDOFF.md — DGX Spark tester steps
 
+> **Returning for the speed receipts?** Pull latest `main`, rebuild, and run the one-command
+> packet: `bash scripts/spark-receipt-packet.sh` — details under **"THE RECEIPT PACKET"** below.
+> First visit: start at Part A.
+
 This is the **acceptance smoke** for the FLINT test build. Purely *"does it run"* — no comparison
 to any reference. The primary test is the **GUI**: open the chat UI, download a supported model,
 load it, and chat — the same flow as on Windows/macOS, now GPU-accelerated on the Spark.

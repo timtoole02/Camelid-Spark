@@ -27,10 +27,15 @@ run()  { local name=$1; shift; note "LEG $name: $*"; "$@" >"$OUT/$name.out" 2>"$
 have() { [ -f "$1" ] || { note "SKIP ($2): model not found at $1"; return 1; }; }
 
 note "packet start $(date -u); git $(git rev-parse --short HEAD 2>/dev/null || echo unknown)"
-note "env sanity (should be empty):"; env | grep -E '^CAMELID' | tee -a "$OUT/PACKET-LOG.txt" || true
+if env | grep -E '^CAMELID' | tee -a "$OUT/PACKET-LOG.txt" | grep -q .; then
+  note "WARNING: CAMELID_* vars set (above) — receipts may not reflect defaults"
+else
+  note "env sanity: clean (no CAMELID_* vars set)"
+fi
 
-# Leg 0 — hardware banner (expect: UNIFIED memory, and note the driver/CUDA versions).
+# Leg 0 — hardware banner (expect: UNIFIED memory) + driver/CUDA versions.
 run leg0-banner "$BIN" plan-offload --arch llama-8b --budget-mb 64
+nvidia-smi >"$OUT/leg0-nvidia-smi.txt" 2>&1 || note "nvidia-smi unavailable (noted, not fatal)"
 
 if have "$B70" "70B legs"; then
   # Leg 1 — THE headline: 70B under the default (hostreg register on unified).
