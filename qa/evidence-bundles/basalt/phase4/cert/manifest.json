@@ -1,0 +1,53 @@
+{
+  "schema": "camelid.basalt_phase4_cert_evidence.v1",
+  "generated_utc": "2026-07-17",
+  "git_head": "basalt/phase4-cuda-decode Phase 4b dp4a (re-measure atop G4 cert 8c2de5bb; kernel impl 892672ca)",
+  "campaign": "BASALT",
+  "phase": 4,
+  "gate": "G4",
+  "outcome": "CERT PASS; Option B executed (Phase 4b dp4a kernel upgrade landed)",
+  "note": "Phase 4 CERT (self-parity 6/9, all near-tie attributed) + G4 perf table + Phase 4b dp4a upgrade (measured this box). NVFP4 CUDA correct + VRAM-saving (2.08GB); v1 scalar kernel was compute-bound (13.3% roofline, 0.57x Q8_0), Phase 4b __byte_perm+__dp4a upgrade lifted it 14.64 -> 26.51 tok/s (+81%, 24.0% roofline) -> now FASTER than Q8_0 (1.03x), parity held 46/46 bit-identical. Gate summary + decision in BASALT_G4_SUMMARY.md; dp4a receipt in p4b_dp4a_perf_log.md. Placeholders <cam-basalt>/<camelid>/<pin-tools>/<home>.",
+  "hardware": "RTX 3060 Laptop GPU, sm_86, driver 576.83, CUDA 12.9, Windows 11",
+  "files": [
+    {
+      "file": "BASALT_G4_SUMMARY.md",
+      "sha256": "a9962334c6276f1ba5234cfd666082a2c695a513143360d7a9cbe2af0a9c42fc",
+      "size_bytes": 7327
+    },
+    {
+      "file": "G4_PERF.md",
+      "sha256": "64a3f66f2c1aa2a7e18d951c8273731bfee10a49b8c5f54fd88eaeb249093027",
+      "size_bytes": 6984
+    },
+    {
+      "file": "p4b_dp4a_perf_log.md",
+      "sha256": "8468fc37c4e5db1a0033f8f6da33fc542c4b8d7f14305542580b8a8abadc97fb",
+      "size_bytes": 3794
+    },
+    {
+      "file": "byte_accounting.json",
+      "sha256": "67c732aa2e5f22f3b3eb2e2b4057e93107f19246e2ecf7958c3c1f0c4381f28e",
+      "size_bytes": 1039
+    },
+    {
+      "file": "commands_log.txt",
+      "sha256": "e340f3f9b19093ca028644a2307099f8df0acb7b74230b7ee9eb3cc0569fdfe3",
+      "size_bytes": 9044
+    },
+    {
+      "file": "parity_cert.json",
+      "sha256": "d393a1b46208c43045976b09e57c1f2a7c8f3b40a2216edf904a7b2b2e71fdb9",
+      "size_bytes": 10542
+    },
+    {
+      "file": "perf_table.json",
+      "sha256": "a17c80bac1dcb078c662fd4da9ed452294528a2188169e78838c174656d1ae22",
+      "size_bytes": 8618
+    },
+    {
+      "file": "resource_log.csv",
+      "sha256": "82cb6a1b5ef543c98181492eaf22a32dc8cccce298f64b2ae105378273724af7",
+      "size_bytes": 7305
+    }
+  ]
+}

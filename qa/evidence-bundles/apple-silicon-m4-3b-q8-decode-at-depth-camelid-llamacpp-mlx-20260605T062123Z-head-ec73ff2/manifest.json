@@ -1,0 +1,20 @@
+{
+ "schema": "camelid.apple_silicon_m4_3b_q8_decode_at_depth.v1",
+ "captured_utc": "20260605T062123Z",
+ "head_commit": "ec73ff2",
+ "passed": true,
+ "claim_boundary": "Exact-row, same-host, bounded decode-at-depth snapshot for Llama 3.2 3B Instruct Q8_0 on one Apple M4 (16GB): 64 greedy tokens after ~1.5k and ~8k prompts, three same-session alternating rounds, after the split-K kv16 mirror change. Camelid reads PARITY-CLASS with llama.cpp at 8k (median 18.72 vs 18.92, overlapping round bands) and slightly below it at 1.5k (25.22 vs 25.69, llama.cpp above in every round); MLX-LM leads both runtimes at depth (26.51 / 21.84). No Camelid win is claimed on this lane.",
+ "host": {"machine": "Mac16,10 (Apple M4, 10-core GPU, 16GB unified memory)", "os": "macOS (Darwin 25.5.0)"},
+ "workload": {
+  "model_row": "Llama 3.2 3B Instruct Q8_0 (GGUF for camelid and llama.cpp; mlx-community 8-bit for MLX-LM)",
+  "depths": "~1500-token and ~8012-token prompts (same text files), 64 greedy tokens",
+  "camelid_command": "camelid bench-generate --max-tokens 64 --temperature 0 --warmup --iterations 3 --json",
+  "llamacpp_command": "llama-bench -p 0 -n 64 -d 1500,8012 -r 2 -o md",
+  "mlx_command": "mlx_lm.generate verbose, 64 tokens after the same prompt files"
+ },
+ "results": {
+  "decode_tokens_per_second_at_1500": {"camelid": {"round_medians": [25.24, 25.22, 24.15], "session_median": 25.22}, "llamacpp": {"rounds": [25.71, 25.61, 25.69], "session_median": 25.69}, "mlx_lm": {"rounds": [26.51, 26.51, 26.60], "session_median": 26.51}},
+  "decode_tokens_per_second_at_8k": {"camelid": {"round_medians": [18.72, 18.85, 18.70], "session_median": 18.72}, "llamacpp": {"rounds": [18.92, 18.73, 18.97], "session_median": 18.92}, "mlx_lm": {"rounds": [21.95, 21.84, 21.80], "session_median": 21.84}}
+ },
+ "notes": "Prior same-host session (bundle ...20260605T022916Z-head-d7c2940) read camelid 16.94 at 8k vs llama.cpp 19.14: the half-width KV mirrors closed the 8k gap to parity-class. Camelid greedy outputs were consistent across rounds and the anchored-recall continuation stayed intact at both depths."
+}

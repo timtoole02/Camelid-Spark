@@ -1,0 +1,62 @@
+{
+  "schema": "camelid.gemma4_exact_row_public_evidence.v1",
+  "generated_utc": "2026-06-11T09:31:21.099Z",
+  "git_head": "6482254fca12",
+  "checkout_clean": false,
+  "row_id": "26b_a4b_it_q4_0_distributed_serve",
+  "model": {
+    "filename": "gemma-4-26B_q4_0-it.gguf",
+    "size_bytes": 14439361440,
+    "sha256": "4c856523d61d77922dbc0b26753a6bf6208e5d69d80db0c04dcd776832d054c5",
+    "quantization": "Q8_0",
+    "architecture": "gemma4"
+  },
+  "oracle": {
+    "build": "llama.cpp 5d56eff (llama-server, CPU, temperature=0/top_k=1, cache_prompt=false)",
+    "prompt_pack": "qa/gemma4/prompt_packs/basic_v1.json",
+    "oracle_artifact": "qa/gemma4/oracle/gemma-4-26B_q4_0-it.basic_v1.json"
+  },
+  "logs": [
+    {
+      "name": "smoke-summary",
+      "file": "logs/smoke-summary.txt",
+      "sha256": "968782446b99184c792973903aaef45aff35625bcaccd8e6f57e28e9f9e3f704"
+    },
+    {
+      "name": "load-response",
+      "file": "logs/load-response.txt",
+      "sha256": "32c60df94dc7abb0479848002aadee05cab59bf1073d546b9532d0bfc248e1fd"
+    },
+    {
+      "name": "capabilities",
+      "file": "logs/capabilities.txt",
+      "sha256": "1bda064268891b3231b21ca3f9ca6d6ad961bc41847f00fb30054cd4472d4b96"
+    },
+    {
+      "name": "chat-response",
+      "file": "logs/chat-response.txt",
+      "sha256": "6ad69399b7ca1e1b01ce3bf43f508a7f99f46035d7e238d70518eec7f9b83437"
+    },
+    {
+      "name": "completion-response",
+      "file": "logs/completion-response.txt",
+      "sha256": "f43237bc554c95482620c2982fd40c91b1a48239479941e85899d404a0d3cd4b"
+    },
+    {
+      "name": "frontend-smoke-stdout",
+      "file": "logs/frontend-smoke-stdout.txt",
+      "sha256": "df2c1c32a90ac33fb0e4d54ee1fc07432b115fe6653f52285340efd493e81487"
+    },
+    {
+      "name": "frontend-summary",
+      "file": "logs/frontend-summary.txt",
+      "sha256": "3e295a976004343c8c112aabdf3d5ce383356c6aac195520cd5d5ef353cb66de"
+    }
+  ],
+  "fields": {
+    "lane": "two-Mac distributed layer-sharding SERVE (master 0..15 local 16GB M4, worker 15..30 + head on the second 16GB M4, wire over ssh-tunneled TCP)",
+    "results": "model-promotion-smoke-bundle passed=true end-to-end through the distributed lane: load (390s incl. 13.4GB receipt hash + master shard), /v1/completions, /v1/chat/completions, capabilities expectations (row gemma4_26b_a4b_it_q4_0, status supported_exact_row_smoke, contract_supported true, WebUI chat enabled), generation timings, frontend WebUI closure with 9 visible streaming updates",
+    "caveats": "A4B MoE QAT (Q4_0 experts + Q6_K head); two-Mac distributed lane ONLY (13.4GB memory-infeasible single-node on 16GB); validation cadence only, not a perf claim"
+  },
+  "claim_boundary": "Exact-row text-token generation within the checked basic_v1 prompt pack and API smoke envelope only. No bounded-context promotion, no performance claim beyond the raw logs, no multimodal input (fails closed with a typed error), no neighboring-row or Gemma-family support, no shared-memory claim (distributed mode is layer sharding)."
+}

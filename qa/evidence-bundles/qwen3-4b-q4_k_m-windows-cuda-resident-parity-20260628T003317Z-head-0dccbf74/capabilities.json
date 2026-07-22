@@ -1,0 +1,46 @@
+{
+  "note": "TWO views recorded. `execution_plan_static` is verbatim from camelid /api/capabilities for the loaded Qwen3-4B-Q4_K_M model. `runtime_observed` is what actually executed (directly measured). They DISAGREE on the decode backend: the static planner fails closed to a CPU label for the unrecognized Q4_K_M quant, but the resident GPU engine actually drove decode. The disagreement is a disclosure-labeling gap (follow-up), not a correctness issue — generated tokens are identical to llama.cpp.",
+  "execution_plan_static": {
+    "profile": "auto",
+    "operating_system": "windows",
+    "architecture": "x86_64",
+    "platform_label": "windows x86_64",
+    "cpu_features": ["avx2", "avx512f"],
+    "model_family": "qwen3",
+    "quant_type": "dense_or_other",
+    "exact_model_row": "Qwen3 4B Instruct Awq",
+    "support_level": "supported_exact_row_smoke_chatml",
+    "selected_backend": "cpu_reference",
+    "selected_q8_path": "safe_dense_or_q8_cpu",
+    "prefill_path": "safe_cpu_prefill",
+    "decode_path": "safe_cpu_decode",
+    "thread_count": 16,
+    "fallback_path": "safe_cpu_reference_path",
+    "cuda_resident_active": true,
+    "reasons": [
+      "profile=auto default",
+      "exact_model_row=Qwen3 4B Instruct Awq",
+      "support_level=supported_exact_row_smoke_chatml",
+      "quant_type=dense_or_other",
+      "non-validated row or quant; failing closed to safe path"
+    ]
+  },
+  "runtime_observed": {
+    "backend": "cuda_resident kquant engine",
+    "decode_kernels": ["q4k_gemv", "q6k_gemv"],
+    "layers_total": 36,
+    "layers_resident_in_vram": 36,
+    "layers_offloaded": 0,
+    "peak_memory_bytes": 4942036992,
+    "cuda_resident_active": true,
+    "evidence": [
+      "serve/bench-generate log: '[gpu] all 36 layers resident in VRAM (5122 MiB free) — full GPU speed'",
+      "coherent greedy output identical to llama.cpp at 1/5/50 tokens (see parity json)",
+      "CPU path (CUDA hidden) ERRORS with 'no-row-major-data ... data_len=0' on blk.0.attn_q.weight because K-quant tensors load wire-only — so the working run cannot have been on CPU"
+    ]
+  },
+  "followups": [
+    "Make the execution-plan classifier recognize Q4_K/Q6_K dense resident models and label decode_path/selected_backend as the kquant cuda resident lane (currently mislabeled cpu_reference/safe_cpu_decode).",
+    "Display name 'Qwen3 4B Instruct Awq' is a cosmetic name-inference quirk for file_type 15 (Q4_K_M); the quant is Q4_K_M, confirmed by bench-generate quantization field and gguf tensor-type histogram."
+  ]
+}

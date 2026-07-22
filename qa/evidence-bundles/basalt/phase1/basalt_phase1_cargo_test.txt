@@ -1,0 +1,1570 @@
+   Compiling camelid v0.3.1 (<cam-basalt>)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1m 51s
+     Running unittests src\lib.rs (target\debug\deps\camelid-f90af4c967075ab3.exe)
+
+running 852 tests
+test api::catalog_fit_tests::curated_footprint_is_exact_when_dims_known_else_approx ... ok
+test api::catalog_fit_tests::skip_fit_check_override_matches_only_the_exact_flag ... ok
+test api::catalog_fit_tests::preload_message_is_none_on_unprobed_host ... ok
+test api::catalog_fit_tests::preload_message_is_none_when_the_model_fits ... ok
+test api::catalog_fit_tests::preload_message_fires_from_an_exact_dims_footprint ... ok
+test api::catalog_fit_tests::best_fitting_suggestion_picks_something_on_a_big_host_and_never_panics_on_tiny ... ok
+test api::catalog_fit_tests::every_curated_row_is_tagged_within_the_allowed_set ... ok
+test api::catalog_fit_tests::preload_message_suggests_a_fitting_alternative_for_an_oversized_model ... ok
+test api::catalog_fit_tests::hf_row_gets_an_exact_fit_once_its_header_dims_are_cached ... ok
+test api::catalog_fit_tests::curated_huge_model_wont_fit_tiny_cpu_host ... ok
+test api::catalog_fit_tests::curated_view_carries_task_tags_and_a_verdict ... ok
+test api::catalog_fit_tests::experimental_from_hf_is_unknown_and_untagged ... ok
+test api::catalog_fit_tests::unknown_host_never_reports_wont_fit_for_any_curated_row ... ok
+test api::gemma4_template_tests::chat_prompt_uses_gemma4_turn_markers ... ok
+test api::gemma4_template_tests::phi3_prompt_renders_end_marked_turns_and_generation_prompt ... ok
+test api::gemma4_template_tests::qwen3_chatml_prompt_renders_thinking_disabled_generation_prompt ... ok
+test api::gemma4_template_tests::qwen3_chatml_prompt_renders_thinking_enabled_generation_prompt ... ok
+test api::gemma4_template_tests::qwen3_chatml_template_detected_and_no_generation_prompt_after_assistant_turn ... ok
+test api::gemma4_template_tests::completions_fail_closed_for_runnable_serve_archs ... ok
+test api::gemma4_template_tests::qwen3_chatml_prompt_with_tools_no_system_message ... ok
+test api::gemma4_template_tests::qwen3_chatml_prompt_with_tools_renders_tool_definitions_and_suppresses_thinking ... ok
+test api::gemma4_template_tests::streaming_channel_filter_suppresses_thinking_deltas ... ok
+test api::gemma4_template_tests::strip_channels_removes_thinking_spans ... ok
+test api::models_dir_resolution_tests::resolve_models_dir_is_absolute_for_default_and_relative_configs ... ok
+test api::tests::backend_error_code_is_stable_and_switchable ... ok
+test api::gemma4_template_tests::gemma3_chat_template_pack_locks_renderer ... ok
+test api::gemma4_template_tests::qwen3_chatml_thinking_template_pack_locks_renderer ... ok
+test api::gemma4_template_tests::phi3_chat_template_pack_locks_renderer ... ok
+test api::tests::binding_all_resident_quant_linears_rejects_non_quant_linears ... ok
+test api::tests::binding_all_resident_quant_linears_accepts_kquant_and_q8_dense ... ok
+test api::tests::capabilities_can_include_selected_execution_plan ... ok
+test api::tests::capabilities_describe_props_template_caps_without_broad_completion_claim ... ok
+test api::tests::build_logprobs_shapes_match_steps ... ok
+test api::tests::capabilities_report_current_rows_with_fail_closed_full_support_bar ... ok
+test api::tests::capabilities_report_exact_8b_1024_2048_after_current_head_alignment ... ok
+test api::tests::capabilities_report_llama32_context_pack_boundaries ... ok
+test api::download_cancel_tests::failed_download_removes_partial ... ok
+test api::tests::capabilities_report_next_family_rows_stay_planned_and_fail_closed ... ok
+test api::tests::capabilities_report_qwen3_chatml_supported_rows ... ok
+test api::download_cancel_tests::canceled_download_never_promotes_even_when_curl_succeeded ... ok
+test api::tests::classify_model_lane_separates_supported_experimental_and_unsupported ... ok
+test api::tests::chat_request_accepts_stream_options_without_marking_it_unsupported ... ok
+test api::tests::capabilities_support_statuses_stay_exact_row_allowlisted ... ok
+test api::tests::completion_receipt_stamp_records_prompt_endpoint_and_reproducibility ... ok
+test api::tests::constrained_output_is_never_reclassified_as_tool_call ... ok
+test api::download_cancel_tests::successful_tracked_download_promotes_part_to_dest ... ok
+test api::models_dir_resolution_tests::absolute_path_passes_through_even_when_missing ... ok
+test api::models_dir_resolution_tests::duplicated_models_component_is_stripped_against_the_models_dir ... ok
+test api::models_dir_resolution_tests::relative_path_falls_back_to_the_configured_models_dir ... ok
+test api::models_dir_resolution_tests::missing_everywhere_error_names_every_attempted_location ... ok
+test api::models_dir_resolution_tests::relative_path_that_exists_in_cwd_stays_as_given ... ok
+test api::engine::tests::full_queue_is_a_typed_error_and_depth_recovers ... ok
+test api::tests::can_opt_into_llama3_metadata_jinja_renderer_without_duplicate_bos ... ok
+test api::engine::tests::engine_executes_at_most_one_job_at_a_time ... ok
+test api::tests::dg_generation_lock_serializes_generations ... ok
+test api::download_cancel_tests::kill_download_process_terminates_a_live_child ... ok
+test api::tests::constrained_generation_does_not_store_prompt_prefix_cache ... ok
+test api::tests::constrained_generation_skips_prompt_prefix_cache_lookup ... ok
+test api::tests::cached_prompt_prefix_followed_by_longer_completion_keeps_generating ... ok
+test api::tests::cpu_weight_materialization_budget_allows_exact_limit ... ok
+test api::tests::cpu_weight_materialization_budget_blocks_unsafe_large_decode ... ok
+test api::tests::client_disconnect_must_not_orphan_decode ... ok
+test api::tests::cpu_weight_materialization_budget_bypassed_for_kquant_block_dot ... ok
+test api::tests::cpu_weight_materialization_budget_rejects_invalid_env_limit ... ok
+test api::tests::cpu_weight_materialization_estimate_can_count_q8_f32_when_lazy_disabled ... ok
+test api::tests::cpu_weight_materialization_estimate_counts_lazy_q8_linears_as_file_backed ... ok
+test api::tests::cpu_weight_materialization_estimate_counts_opt_in_q8_retained_blocks ... ok
+test api::tests::cpu_weight_materialization_estimate_defaults_q8_linears_to_file_backed ... ok
+test api::tests::cpu_weight_materialization_estimate_skips_tied_output_tensor ... ok
+test api::tests::exact_llama32_1b_required_metadata_jinja_renderer_does_not_silently_fallback ... ok
+test api::tests::health_backend_reports_the_effective_serving_lane ... ok
+test api::tests::exact_llama32_3b_row_executes_full_metadata_jinja_template_without_env_opt_in ... ok
+test api::tests::exact_llama32_1b_required_renderer_rejects_missing_template_metadata ... ok
+test api::tests::exact_llama32_1b_required_renderer_rejects_unrecognized_template_shape ... ok
+test api::tests::exact_llama32_1b_row_executes_full_metadata_jinja_template_without_env_opt_in ... ok
+test api::tests::llama_server_props_template_caps_expose_loaded_template_without_path ... ok
+test api::tests::llama_server_props_template_caps_fail_closed_without_loaded_template ... ok
+test api::tests::exact_llama32_1b_row_uses_metadata_jinja_renderer_without_env_opt_in_assistant_final ... ok
+test api::tests::exact_llama32_1b_row_uses_metadata_jinja_renderer_without_env_opt_in_multi_turn ... ok
+test api::tests::logprobs_request_validation ... ok
+test api::tests::exact_llama32_1b_row_uses_metadata_jinja_renderer_without_env_opt_in_system_user ... ok
+test api::tests::exact_llama32_1b_row_uses_metadata_jinja_renderer_without_env_opt_in_user_only ... ok
+test api::tests::metadata_jinja_renderer_handles_multi_turn_chat_template_parity_shape ... ok
+test api::tests::exact_llama32_3b_required_metadata_jinja_renderer_reports_undefined_variables ... ok
+test api::tests::exact_llama32_3b_required_renderer_rejects_missing_template_metadata ... ok
+test api::tests::exact_llama32_3b_required_renderer_rejects_unrecognized_template_shape ... ok
+test api::tests::exact_llama32_1b_required_metadata_jinja_renderer_reports_undefined_variables ... ok
+test api::tests::keeps_compact_llama3_renderer_by_default_for_metadata_templates ... ok
+test api::tests::min_p_and_repeat_penalty_are_typed_fields_not_unsupported ... ok
+test api::tests::llama32_1b_non_q8_model_id_keeps_compact_renderer_without_env_opt_in ... ok
+test api::tests::llama32_non_q8_or_untracked_row_keeps_compact_renderer_without_env_opt_in ... ok
+test api::tests::generation_timeout_must_not_orphan_decode ... ok
+test api::tests::metadata_jinja_renderer_executes_full_llama32_gguf_template_system_user ... ok
+test api::tests::n_choices_bounds_are_validated ... ok
+test api::tests::metadata_jinja_renderer_executes_simple_loop_templates ... ok
+test api::tests::mistral_instruct_with_tools_renders_tool_results ... ok
+test api::tests::exact_llama32_3b_required_metadata_jinja_renderer_does_not_silently_fallback ... ok
+test api::tests::metadata_jinja_renderer_honors_add_generation_prompt_after_assistant_turn ... ok
+test api::tests::parse_tool_calls_extracts_llama_format ... ok
+test api::tests::metadata_jinja_renderer_matches_llama3_gguf_template_shape ... ok
+test api::tests::parse_tool_calls_tolerates_python_tag_and_junk ... ok
+test api::tests::metadata_jinja_renderer_reports_raise_exception_as_unsupported ... ok
+test api::tests::metadata_jinja_renderer_reports_undefined_variables_as_unsupported ... ok
+test api::tests::metadata_jinja_renderer_reuses_compiled_template_environment ... ok
+test api::tests::receipt_stamp_records_response_format ... ok
+test api::tests::metadata_jinja_renderer_supports_dot_access_message_fields ... ok
+test api::tests::mistral_instruct_renderer_avoids_duplicate_bos_for_tokenization ... ok
+test api::tests::mistral_instruct_with_tools_injects_available_tools ... ok
+test api::tests::mistral_instruct_with_tools_omits_system_message ... ok
+test api::tests::model_drafter_self_draft_matches_vanilla_greedy_decode ... ok
+test api::tests::metadata_jinja_renderer_executes_templates_without_bos_token_expression ... ok
+test api::tests::selected_logit_diagnostics_include_rank_outside_top_count ... ok
+test api::tests::response_format_maps_to_constraint ... ok
+test api::tests::step_logprob_values_are_log_softmax ... ok
+test api::tests::step_logprob_values_top_is_argmax_and_normalized ... ok
+test api::tests::ngram_speculation_matches_vanilla_greedy_decode ... ok
+test api::tests::stream_options_include_usage_resolves_permissively ... ok
+test api::tests::non_streaming_generation_timeout_returns_scrubbed_trace ... ok
+test api::tests::stream_timing_diagnostics_json_sums_roles_and_scopes_q8_schedule ... ok
+test api::tests::prompt_prefix_cache_reuses_exact_prompt_and_invalidates_key_changes ... ok
+test api::tests::streaming_chunks_omit_camelid_diagnostics_by_default ... ok
+test api::tests::q8_runtime_health_reports_default_auto_retain_candidate_policy ... ok
+test api::tests::timeout_payload_is_scrubbed_and_records_trace_fields ... ok
+test api::tests::terminal_usage_chunk_has_empty_choices_array_and_usage ... ok
+test api::tests::tool_choice_none_suppresses_calls ... ok
+test catalog::tests::resolves_by_id_fragment_ignoring_separators ... ok
+test catalog::tests::resolves_by_name_fragment ... ok
+test catalog::tests::unknown_query_is_an_error ... ok
+test api::tests::tool_render_nested_vs_flat_diagnostic ... ok
+test cluster::tests::activation_packet_rejects_oversized_payload ... ok
+test cluster::tests::activation_packet_rejects_bad_magic ... ok
+test cluster::tests::activation_packet_round_trips_little_endian_payload ... ok
+test cluster::tests::token_feedback_rejects_bad_magic_and_invalid_bool ... ok
+test cuda::backend::tests::cuda_block_kernel_matches_cpu_reference_within_tolerance ... ignored, requires a CUDA device
+test cluster::tests::token_feedback_round_trips ... ok
+test cuda::backend::tests::cuda_q8_kernel_is_bit_identical_to_cpu_reference ... ignored, requires a CUDA device
+test cuda_parity::tests::bit_exact_allows_zero_divergences ... ok
+test cuda_parity::tests::first_divergence_is_reported ... ok
+test cuda_parity::tests::identical_streams_pass_bit_exact ... ok
+test cuda_parity::tests::json_schema_shape ... ok
+test cuda_parity::tests::length_mismatch_is_a_divergence ... ok
+test cuda_parity::tests::tokens_from_diag_reads_known_keys ... ok
+test cuda_resident::tests::argmax_matches_cpu ... ignored, requires a CUDA device
+test cuda_resident::tests::attention_decode_matches_cpu ... ignored, requires a CUDA device
+test cuda_resident::tests::attention_decode_sw_matches_cpu ... ignored, requires a CUDA device
+test cuda_resident::tests::deinterleave_qgate_matches_cpu ... ignored, requires a CUDA device
+test cuda_resident::tests::full_forward_token_matches_cpu ... ignored, requires a CUDA device
+test cuda_resident::tests::geglu_mul_matches_cpu ... ignored, requires a CUDA device
+test cuda_resident::tests::gemm_batched_matches_per_token ... ignored, requires a CUDA device
+test cuda_resident::tests::iq4xs_gemv_matches_oracle ... ignored, requires a CUDA device
+test cuda_resident::tests::prefill_then_decode_matches_sequential ... ignored, requires a CUDA device
+test cuda_resident::tests::q2k_gemv_matches_oracle ... ignored, requires a CUDA device
+test cuda_resident::tests::q3k_gemv_matches_oracle ... ignored, requires a CUDA device
+test cuda_resident::tests::q4_0_gemv_matches_oracle ... ignored, requires a CUDA device
+test cuda_resident::tests::device_embed_gather_allowlist_matches_the_gather_dispatch ... ok
+test cuda_resident::tests::q4_1_gemv_matches_oracle ... ignored, requires a CUDA device
+test cuda_resident::tests::q4k_gemv_matches_oracle ... ignored, requires a CUDA device
+test cuda_resident::tests::q5k_gemv_matches_oracle ... ignored, requires a CUDA device
+test cuda_resident::tests::q6k_gemv_matches_oracle ... ignored, requires a CUDA device
+test cuda_resident::tests::quantize_q8_0_matches_cpu ... ignored, requires a CUDA device
+test cuda_resident::tests::rms_norm_matches_cpu ... ignored, requires a CUDA device
+test cuda_resident::tests::rms_norm_per_head_parity ... ignored
+test cuda_resident::tests::rope_adjacent_parity ... ignored
+test cuda_resident::tests::rope_matches_cpu ... ignored, requires a CUDA device
+test cuda_resident::tests::rope_split_half_parity ... ignored
+test cuda_resident::tests::sigmoid_mul_matches_cpu ... ignored, requires a CUDA device
+test cuda_resident::tests::silu_mul_matches_cpu ... ignored, requires a CUDA device
+test cuda_resident::tests::soft_cap_matches_cpu ... ignored, requires a CUDA device
+test cuda_resident::tests::splitk_spec_verify_bit_identical ... ignored, requires a CUDA device
+test cuda_resident::tests::ssm_conv1d_matches_cpu ... ignored, requires a CUDA device
+test cuda_resident::tests::ssm_delta_rule_matches_cpu ... ignored, requires a CUDA device
+test cuda_resident::tests::ssm_gates_matches_cpu ... ignored, requires a CUDA device
+test cuda_resident::tests::ssm_l2_norm_per_head_matches_cpu ... ignored, requires a CUDA device
+test cuda_resident::tests::ssm_layer_chain_matches_cpu ... ignored, requires a CUDA device
+test cuda_resident::tests::tree_linear_matches_verify_batch ... ignored, requires a CUDA device
+test cuda_resident::tests::tree_verify_forced_compaction_lossless ... ignored, requires a CUDA device
+test cuda_resident::tests::tree_verify_multiround_lossless ... ignored, requires a CUDA device
+test cuda_resident::tests::verify_batch_matches_sequential ... ignored, requires a CUDA device
+test cuda_vram::tests::headroom_ok_when_enough_remains ... ok
+test cuda_vram::tests::median_and_variance_are_correct ... ok
+test cuda_vram::tests::min_headroom_default_and_override ... ok
+test cuda_vram::tests::refuses_and_flags_oom_when_model_exceeds_free ... ok
+test cuda_vram::tests::refuses_when_headroom_violated_naming_shortfall ... ok
+test cuda_vram::tests::summarize_classifies_clean_fail ... ok
+test diffusion_gemma::cuda::tests::expert_gemv_gpu_bit_identical_to_cpu ... ok
+test diffusion_gemma::cuda::fast_tests::fast_gemm_id_matches_cpu_dots ... ok
+test diffusion_gemma::reff16::tests::add_f16_matches_hardware ... ok
+test diffusion_gemma::reff16::tests::fma_f16_matches_hardware ... ok
+test diffusion_gemma::reff16::tests::vec_dot_f16_matches_hardware ... ok
+test diffusion_gemma::refmath::tests::q4_k_avx2_bit_identical_to_scalar ... ok
+test diffusion_gemma::reff16::tests::vec_dot_f16_fast_path_equals_emulation ... ok
+test diffusion_gemma::refmath::tests::q6_k_avx2_bit_identical_to_scalar ... ok
+test diffusion_gemma::refmath::tests::quantize_q8_0_arm_uses_nearest_even_and_f16_scale ... ok
+test diffusion_gemma::refmath::tests::rope_cumulative_theta_differs_from_powf_only_marginally ... ok
+test diffusion_gemma::refmath::tests::softmax_row_normalizes ... ok
+test diffusion_gemma::refmath::tests::v_expf_close_to_libm_in_normal_range ... ok
+test diffusion_gemma::refmath::tests::vec_dot_f32_tree_matches_naive_within_fp ... ok
+test diffusion_gemma::refmath::tests::vec_kernels_match_ggml_neon_across_lengths ... ok
+test diffusion_gemma::refrng::tests::eb_stream_matches_libcxx_ground_truth ... ok
+test diffusion_gemma::refrng::tests::uniform_int_power_of_two_range_is_single_masked_draw ... ok
+test diffusion_gemma::refrng::tests::mt19937_matches_standard_checkpoint ... ok
+test diffusion_gemma::refrng::tests::uniform_real_is_one_draw_div_2_32 ... ok
+test diffusion_gemma::tests::dg_argsort_orders_and_breaks_ties_by_index ... ok
+test diffusion_gemma::tests::dg_format_fails_closed_on_unproven_types ... ok
+test diffusion_gemma::tests::dg_gelu_mirrors_reference_table_semantics ... ok
+test diffusion_gemma::tests::dg_prompt_embedding_diag ... ok
+test execution_plan::tests::declared_file_type_names_tq_and_kquant_variants ... ok
+test execution_plan::tests::declared_q8_0_without_q8_0_tensors_is_refused ... ok
+test api::tests::q8_runtime_health_reports_eager_retained_duplicate_policy ... ok
+test api::tests::q8_runtime_health_reports_forced_lazy_before_retain ... ok
+test api::tests::renders_llama3_instruct_prompt_preserving_multiline_content ... ok
+test api::tests::prep_is_not_serialized_behind_a_running_decode ... ok
+test api::tests::renders_llama3_instruct_prompt_with_header_tokens_and_special_parsing ... ok
+test api::tests::renders_llama3_instruct_prompt_with_system_and_multi_turn_messages ... ok
+test api::tests::renders_llama3_instruct_prompt_without_generation_header_after_assistant_final ... ok
+test api::tests::renders_mistral_instruct_prompt_with_completed_assistant_turn ... ok
+test api::tests::renders_mistral_instruct_prompt_with_system_preamble ... ok
+test execution_plan::tests::junk_general_name_falls_back_to_recognizable_filename ... ok
+test execution_plan::tests::gpu_runnable_tier_admits_uncurated_q8_llama_by_default_optout_forces_cpu ... ok
+test api::tests::stream_job_timeout_reports_generated_count ... ok
+test api::tests::stream_timing_diagnostics_env_is_default_off_and_opt_in ... ok
+test api::tests::stream_disconnect_must_not_orphan_decode_step ... ok
+test api::tests::verify_chunk_rollback_restores_decode_state ... ok
+test execution_plan::tests::debug_profile_enables_diagnostics_without_changing_claims ... ok
+test execution_plan::tests::explicit_disable_override_falls_back_to_safe ... ok
+test api::tests::renders_tinyllama_marker_prompt_with_eos_newline_and_assistant_prefix ... ok
+test execution_plan::tests::invalid_x86_kernel_override_fails_closed ... ok
+test execution_plan::tests::gpu_runnable_tier_never_changes_a_curated_row ... ok
+test execution_plan::tests::junk_named_recognizable_8b_takes_gpu_lane_not_cpu ... ok
+test execution_plan::tests::mac_auto_explicit_matches_auto_default_plan ... ok
+test execution_plan::tests::mac_auto_selects_validated_mac_path ... ok
+test execution_plan::tests::kquant_plan_labels_resident_and_cpu_block_dot_not_cpu_reference ... ok
+test execution_plan::tests::mac_experimental_allows_packed_prefill_scheduler ... ok
+test execution_plan::tests::mac_ffn_decode_consumer_plan_gates_are_default_on_and_opt_out ... ok
+test execution_plan::tests::mac_metal_plan_requires_device_and_gate ... ok
+test execution_plan::tests::mac_metal_resident_plan_selected_when_device_and_gate_present ... ok
+test execution_plan::tests::mistral_row_selects_validated_q8_plan ... ok
+test execution_plan::tests::planner_env_apply_clears_stale_x86_q8_decode_consumer_flags ... ok
+test fit::tests::cpu_only_ok_when_no_gpu_and_fits_ram ... ok
+test fit::tests::cuda_flag_without_vram_is_not_a_usable_gpu ... ok
+test execution_plan::tests::planner_env_apply_does_not_restore_packed_rows4_matmul_chunk_groups_without_owner_gate ... ok
+test fit::tests::exact_footprint_is_weights_plus_kv_plus_margin ... ok
+test fit::tests::exact_kv_for_a_big_model_at_default_context_is_bounded ... ok
+test fit::tests::footprint_saturates_and_wont_fit_on_extreme_values ... ok
+test fit::tests::headroom_pushes_a_tight_fit_out_of_resident ... ok
+test fit::tests::kv_bytes_matches_runtime_vectors_at_one_token_f32 ... ok
+test execution_plan::tests::planner_env_apply_restores_owned_x86_q8_passthrough_knobs ... ok
+test fit::tests::kv_bytes_scales_linearly_with_context ... ok
+test fit::tests::kv_f16_is_exactly_half_of_f32 ... ok
+test fit::tests::model_dims_plausibility_bounds ... ok
+test fit::tests::offload_when_weights_exceed_vram_but_fit_vram_plus_ram ... ok
+test fit::tests::model_dims_serde_round_trips ... ok
+test fit::tests::resident_downgrades_to_unknown_when_host_ram_cannot_stage ... ok
+test execution_plan::tests::pure_q6k_reports_q6k_label_unknown_level_and_keeps_kquant_routing ... ok
+test fit::tests::resident_when_footprint_fits_vram_with_headroom ... ok
+test fit::tests::resident_when_gpu_and_host_ram_both_have_room ... ok
+test fit::tests::starved_host_wont_fit_despite_large_total_ram ... ok
+test fit::tests::unknown_when_gpu_overflows_and_ram_unprobed ... ok
+test fit::tests::unknown_when_ram_unprobed_and_no_gpu ... ok
+test fit::tests::verdict_labels_are_stable ... ok
+test fit::tests::verdict_serializes_to_snake_case ... ok
+test fit::tests::wont_fit_cpu_only_when_model_exceeds_ram_budget ... ok
+test fit::tests::wont_fit_when_footprint_exceeds_vram_plus_ram ... ok
+test fit_dims::tests::eviction_keeps_the_newest_entries ... ok
+test fit_dims::tests::header_fetch_reads_a_real_gguf_when_enabled ... ok
+test fit_dims::tests::in_flight_guard_releases_the_slot_on_drop ... ok
+test execution_plan::tests::qwen3_rows_select_validated_x86_q8_plan ... ok
+test fit_dims::tests::lookup_round_trips_via_the_test_injector ... ok
+test execution_plan::tests::safe_profile_fails_closed ... ok
+test fit_dims::tests::shard_filenames_are_detected ... ok
+test fit_dims::tests::unsafe_hf_components_are_rejected ... ok
+test execution_plan::tests::supported_q8_row_keeps_level_and_kquant_name_variant_reports_unknown ... ok
+test gait::calibrate::tests::clean_win_survives_significance ... ok
+test execution_plan::tests::ubuntu_auto_enables_x86_optimizations_by_default ... ok
+test gait::calibrate::tests::decode_weight_bytes_sums_matmul_weights_only ... ok
+test gait::calibrate::tests::default_margin_rejects_small_stable_win ... ok
+test gait::calibrate::tests::fails_closed_when_baseline_trial_fails ... ok
+test gait::calibrate::tests::fails_closed_when_nothing_beats_margin ... ok
+test execution_plan::tests::ubuntu_experimental_disabled_repack_fails_closed ... ok
+test gait::calibrate::tests::gpc_neighbors_are_bounded_distinct_and_positive ... ok
+test gait::calibrate::tests::inconsistent_parity_across_rounds_disqualifies ... ok
+test gait::calibrate::tests::median_rejects_single_round_outlier ... ok
+test gait::calibrate::tests::noisy_candidate_rejected_despite_high_median ... ok
+test execution_plan::tests::ubuntu_experimental_ffn_decode_chain_enables_required_gate_up_and_down_legs ... ok
+test gait::calibrate::tests::parity_gate_beats_raw_speed ... ok
+test gait::calibrate::tests::records_selected_substrate_dimension ... ok
+test gait::calibrate::tests::stage_shapes_are_matmul_only_and_deduped ... ok
+test gait::gait_safety::core_headroom ... ok
+test fit_dims::tests::dims_from_gguf_file_parses_a_minimal_llama_fixture ... ok
+test gait::gait_safety::ram_headroom ... ok
+test execution_plan::tests::ubuntu_experimental_preserves_explicit_x86_q8_gate_opt_ins ... ok
+test gait::oracle::tests::q4k_oracle_matches_direct_dequant_two_blocks ... ok
+test gait::oracle::tests::q6k_oracle_matches_direct_dequant ... ok
+test gait::oracle::tests::rejects_misaligned_width ... ok
+test gait::oracle::tests::rejects_short_byte_buffer ... ok
+test execution_plan::tests::ubuntu_experimental_validated_gates_select_rust_avx2_q8_path ... ok
+test fit_dims::tests::read_metadata_with_len_parses_a_header_prefix_without_the_body ... ok
+test execution_plan::tests::ubuntu_experimental_without_avx2_feature_fails_closed ... ok
+test gait::gait_safety::no_weight_locking ... ok
+test execution_plan::tests::unsupported_row_stays_safe ... ok
+test gait::substrate::tests::compute_pool_eco_qos_does_not_panic ... ok
+test gait::substrate::tests::eco_qos_round_trip_does_not_panic ... ok
+test gait::sentinel::tests::reconcile_is_clean_with_no_marker ... ok
+test execution_plan::tests::windows_cuda_resident_inactive_keeps_cpu_repack_plan ... ok
+test gait::sentinel::tests::disable_present_tracks_the_kill_file ... ok
+test gait::substrate::tests::thread_eco_qos_round_trip_does_not_panic ... ok
+test gait::tests::load_misses_on_empty_store ... ok
+test execution_plan::tests::windows_cuda_resident_plan_selected_when_engine_active ... ok
+test gait::tests::format_guid_matches_canonical ... ok
+test gait::tests::gait_key_combines_both_digests ... ok
+test gait::tests::machine_sig_topology_is_coherent ... ok
+test gait::tests::digests_are_deterministic_and_sensitive ... ok
+test gait::tests::model_sig_reads_geometry_and_quant_classes ... ok
+test gait::tests::machine_sig_detect_is_stable ... ok
+test gait::tests::power_plan_guid_is_well_formed_when_present ... ok
+test gait::tests::scheduling_attest_records_cap_and_constants ... ok
+test gait::tests::receipt_eco_opt_out_defaults_false_without_calibration ... ok
+test gemma4_runtime::cuda_parity_tests::gemma4_cuda_matches_cpu_greedy ... ignored, requires a CUDA device + the gemma4 E4B Q8_0 model
+test gemma4_runtime::q4_0_cpu_tests::cpu_loads_and_decodes_mixed_q4_0 ... ignored, set CAMELID_GEMMA4_Q4_GGUF to the mixed Q4_0 gemma4 gguf
+test gait::tests::receipt_eco_opt_out_reads_calibration_choice ... ok
+test grammar::tests::accepts_complete_objects ... ok
+test grammar::tests::accepts_masks_continuations_without_mutation ... ok
+test grammar::tests::advance_error_is_sticky_failed ... ok
+test grammar::tests::ambiguous_type_union_is_rejected ... ok
+test grammar::tests::compile_rejects_unsupported_shapes ... ok
+test grammar::tests::const_or_enum_with_conflicting_type_is_rejected ... ok
+test grammar::tests::constraint_spec_builds_and_validates ... ok
+test grammar::tests::constraint_state_json_delegates_to_json_state ... ok
+test grammar::tests::empty_object_schema_rejects_key_quote ... ok
+test grammar::tests::done_only_after_top_level_close ... ok
+test gait::sentinel::tests::strike_threshold_default_quarantines_on_first_unclean_exit ... ok
+test grammar::tests::multibyte_tokens_validated_whole ... ok
+test grammar::tests::exhausted_object_rejects_comma_and_key_quote ... ok
+test gait::tests::receipt_round_trips_through_the_store ... ok
+test grammar::tests::nested_objects_and_arrays ... ok
+test grammar::tests::non_ascii_enum_or_const_is_rejected ... ok
+test grammar::tests::object_key_trie_masking ... ok
+test grammar::tests::object_enforces_required_and_value_types ... ok
+test gait::gait_safety::disable_file_forces_baseline ... ok
+test grammar::tests::nullable_integer_and_object_unions ... ok
+test grammar::tests::nullable_type_union_accepts_value_or_null ... ok
+test grammar::tests::rejects_invalid_bytes ... ok
+test grammar::tests::partial_object_still_accepts_comma ... ok
+test grammar::tests::scalars_bool_null_number ... ok
+test grammar::tests::schema_masks_candidates_without_mutation ... ok
+test fit_dims::tests::negative_entries_serialize_compactly_and_round_trip ... ok
+test grammar::tests::string_enum_and_const ... ok
+test grammar::tests::tracks_prefix_validity ... ok
+test hf_browse::tests::extracts_cursor_from_query ... ok
+test hf_browse::tests::guesses_architecture_advisory ... ok
+test fit_dims::tests::expired_entries_are_dropped_on_load ... ok
+test hf_browse::tests::guesses_common_quants_longest_first ... ok
+test hf_browse::tests::parses_next_cursor_from_link_header ... ok
+test hf_browse::tests::urlencode_urldecode_roundtrip ... ok
+test inference::attn_f32_dot::tests::axpy_blocked_scalar_known_answers ... ok
+test gait::sentinel::tests::begin_apply_writes_a_parseable_marker ... ok
+test inference::attn_f32_dot::tests::dot_blocked_scalar_differs_from_legacy_dot_product ... ok
+test gait::gait_safety::safe_boot_quarantines_bad_gait ... ok
+test gait::tests::selector_is_none_when_gate_disabled ... ok
+test grammar::tests::schema_dimension_caps_reject_oversized_and_accept_at_cap ... ok
+test inference::decode_scratch::tests::take_matches_vec_zero_semantics ... ok
+test inference::draft_merge::tests::merges_disjoint_branches ... ok
+test gait::tests::receipt_with_memory_reseals_and_round_trips ... ok
+test fit_dims::tests::disk_cache_round_trips_and_tolerates_missing_corrupt_and_version ... ok
+test inference::draft_merge::tests::dedup_keys_on_path_not_bare_token ... ok
+test inference::draft_merge::tests::shallower_nodes_inserted_first ... ok
+test gait::tests::receipt_with_scheduling_and_host_safety_round_trips ... ok
+test inference::gemma4::tests::embedding_scale_matches_sqrt_hidden ... ok
+test inference::draft_merge::tests::respects_node_cap ... ok
+test inference::attn_f32_dot::tests::dot_blocked_scalar_known_answers ... ok
+test inference::decode_scratch::tests::recycled_buffers_are_reused_and_rezeroed ... ok
+test inference::gemma4::tests::geglu_combines_gate_and_up ... ok
+test inference::gemma4::tests::soft_cap_disabled_for_nonpositive_cap ... ok
+test inference::gemma4::tests::soft_cap_saturates_and_passes_small_values ... ok
+test inference::gemma4::tests::gelu_tanh_matches_reference_values ... ok
+test inference::kv_cache::tests::budget_excluded_from_state_equality ... ok
+test inference::kv_cache::tests::budget_floor_prevents_self_starvation_on_transient_low_available ... ok
+test inference::kv_cache::tests::budget_policy_env_override_wins_then_ram_fraction_then_unbounded ... ok
+test inference::kv_cache::tests::kv_bytes_per_token_counts_k_and_v_f32 ... ok
+test inference::kv_cache::tests::predict_and_abort_refuses_over_budget_before_allocating ... ok
+test inference::kv_cache::tests::unbounded_budget_allows_normal_growth ... ok
+test inference::spec_tree::tests::accept_longest_path_leaf_tracks_accepted_count ... ok
+test inference::kv_f16::tests::bulk_conversion_matches_reference ... ok
+test inference::spec_tree::tests::accept_longest_path_picks_matching_branch ... ok
+test inference::attn_f32_dot::tests::dispatch_matches_scalar_bitwise ... ok
+test inference::spec_tree::tests::accept_longest_path_reproduces_linear_accept ... ok
+test inference::spec_tree::tests::accept_longest_path_stops_when_no_branch_matches ... ok
+test inference::spec_tree::tests::ancestor_bitset_marks_path ... ok
+test inference::spec_tree::tests::ancestor_bitset_multiword_stride ... ok
+test inference::spec_tree::tests::linear_anchor_only ... ok
+test inference::spec_tree::tests::linear_layout_matches_chain ... ok
+test inference::spec_tree::tests::ngram_tree_drafter_is_degenerate_linear ... ok
+test inference::spec_tree::tests::node_depth_matches ... ok
+test inference::spec_tree_lossless::drafter_microbench_under_5us_per_token ... ignored, perf microbench: the per-node timing assertion is environment-dependent and flaky on shared/loaded CI runners (even at the debug ceiling); run on demand via --include-ignored
+test inference::spec_tree::tests::parent_before_child_bfs_invariant ... ok
+test inference::spec_tree::tests::node_kvslot_unique_from_base ... ok
+test inference::spec_tree::tests::path_to_walks_to_root ... ok
+test inference::spec_tree_lossless::suffix_decoding_lossless_under_oracle ... ok
+test inference::speculative::tests::accepted_prefix_counts_matches_until_first_divergence ... ok
+test inference::spec_tree_lossless::ngram_linear_tree_lossless_under_oracle ... ok
+test inference::spec_tree_lossless::tree_accept_equals_linear_accept_for_equivalent_inputs ... ok
+test inference::spec_tree_lossless::token_recycling_lossless_under_oracle ... ok
+test inference::speculative::tests::ngram_caps_at_requested_tokens ... ok
+test inference::speculative::tests::ngram_drafts_continuation_of_most_recent_match ... ok
+test inference::speculative::tests::ngram_prefers_longer_patterns_and_recent_matches ... ok
+test inference::speculative::tests::ngram_returns_empty_when_no_repeat_exists ... ok
+test inference::kv_f16::tests::f16_to_f32_matches_hardware_exhaustively_and_round_trips ... ok
+test inference::speculative::tests::spec_latch_exits_after_run_of_nonproductive_rounds ... ok
+test inference::speculative::tests::spec_latch_failed_reprobe_stays_off ... ok
+test inference::speculative::tests::spec_latch_productive_round_resets_the_run ... ok
+test inference::speculative::tests::spec_latch_reprobe_after_low_reprobe_skips_and_reenters ... ok
+test inference::suffix_decoding::tests::anchor_only_when_no_repeat ... ok
+test inference::speculative::tests::spec_latch_warmup_always_speculates ... ok
+test inference::suffix_decoding::tests::respects_node_and_depth_caps ... ok
+test inference::tests::applies_rope_to_each_attention_head ... ok
+test inference::suffix_decoding::tests::branching_expands_multiple_successors ... ok
+test inference::suffix_decoding::tests::drafts_most_frequent_continuation ... ok
+test inference::spec_tree_lossless::merged_drafters_lossless_under_oracle ... ok
+test inference::tests::attention_trace_samples_gqa_kv_group_anchors_and_tail_heads ... ok
+test inference::tests::apply_rope_uses_configured_frequency_base ... ok
+test inference::tests::attention_trace_samples_prompt_prefix_and_current_tail_positions ... ok
+test inference::tests::apply_rope_uses_gguf_rope_frequency_factors ... ok
+test inference::tests::apply_rope_uses_llama3_frequency_scaling_metadata ... ok
+test inference::tests::attention_score_scale_diagnostic_supports_default_and_unscaled_modes ... ok
+test inference::tests::attention_trace_reports_top_probability_positions_outside_edge_samples ... ok
+test inference::tests::batch_attention_parallel_context_matches_serial ... ok
+test inference::tests::batch_attention_parallel_context_respects_threshold_and_thread_count ... ok
+test inference::tests::batch_attention_rejects_reads_beyond_allocated_kv_cache ... ok
+test inference::tests::borrowed_q8_0_block_dot_matches_cloned_swapped_tensor_path ... ok
+test inference::tests::cuda_resident_accepts_qwen3_qk_norm ... ok
+test inference::tests::causal_attention_context_attends_over_prior_and_current_positions ... ok
+test inference::tests::causal_attention_context_repeats_grouped_kv_heads_across_positions ... ok
+test inference::tests::causal_attention_context_repeats_grouped_kv_heads_for_single_position ... ok
+test inference::tests::decode_linear_binder_matches_cascade_on_real_3b_weights ... ok
+test inference::attn_f32_dot::tests::dot_blocked_f16_scalar_equals_expand_then_blocked ... ok
+test inference::tests::final_norm_diagnostics_reconstruct_output_norm_values ... ok
+test inference::kv_f16::tests::f32_to_f16_matches_hardware_randomized_and_edges ... ok
+test inference::attn_f32_dot::tests::dot_blocked_avx2_matches_scalar_bitwise ... ok
+test gait::gait_safety::watchdog_survives_hung_candidate ... ok
+test inference::tests::gqa_head_mapping_supports_grouped_and_modulo_indexing ... ok
+test inference::tests::inverse_rope_direction_is_available_for_diagnostics ... ok
+test inference::attn_f32_dot::tests::dot_blocked_f16_avx2_matches_scalar_bitwise ... ok
+test inference::tests::iq4_xs_block_dot_matches_decode_on_real_model ... ok
+test inference::tests::iq4_xs_wire_dot_consistent_with_tensor_dequant ... ok
+test inference::tests::kv_cache_allocates_positions_lazily_without_losing_prior_layers ... ok
+test inference::tests::kv_cache_storage_matches_llama_cpp_f16_rounding ... ok
+test inference::attn_f32_dot::tests::axpy_blocked_f16_avx2_matches_scalar_bitwise ... ok
+test inference::tests::kv_cache_uses_paged_growth_for_model_sized_contexts ... ok
+test inference::tests::layer_memory_merge_accumulates_q8_file_reads ... ok
+test inference::tests::chunked_prefill_matches_sequential_prefill_outputs_and_cache ... ok
+test inference::tests::layer_memory_record_end_captures_tail_q8_file_read_phase ... ok
+test inference::attn_f32_dot::tests::axpy_blocked_avx2_matches_scalar_bitwise ... ok
+test inference::tests::decode_fails_closed_when_kv_budget_exceeded_mid_generation ... ok
+test inference::tests::experimental_q8_acceleration_gates_default_off_and_require_explicit_opt_in ... ok
+test inference::tests::gated_ffn_activation_matches_reference_for_wide_transposed_weights ... ok
+test inference::tests::ffn_gate_up_order_diagnostic_can_apply_silu_to_up_projection ... ok
+test inference::tests::gated_ffn_activation_matches_separate_linear_silu_mul_for_transposed_weights ... ok
+test inference::tests::gated_ffn_activation_uses_q8_0_descriptor_blocks_for_gate_and_up_when_opted_in ... ok
+test inference::tests::gated_ffn_activation_matches_separate_linear_silu_mul_for_direct_weights ... ok
+test inference::tests::linear_accumulation_precision_f64_reconstructs_descriptor_layout ... ok
+test inference::tests::linear_accumulation_precision_f64_reconstructs_transposed_layout ... ok
+test inference::tests::materialization_stats_quantify_lazy_q8_file_backing_tradeoff ... ok
+test inference::tests::memory_timing_merge_tracks_forward_passes_and_peak_rss ... ok
+test inference::tests::linear_projection_diagnostics_report_nonzero_reconstruction_delta ... ok
+test inference::tests::mac_q8_ffn_down_decode_consumer_alias_is_default_off_and_opt_in ... ok
+test inference::tests::mac_q8_ffn_down_single_projection_scheduler_counters_fail_closed_off_mac ... ok
+test inference::tests::mac_q8_ffn_gate_up_decode_consumer_alias_is_default_off_and_opt_in ... ok
+test inference::tests::linear_projection_diagnostics_reconstruct_descriptor_layout ... ok
+test inference::tests::linear_projection_diagnostics_reconstruct_transposed_layout ... ok
+test inference::tests::mixtral_moe_ffn_captures_router_logits_and_selected_experts ... ok
+test inference::tests::mixtral_moe_ffn_routes_top_k_experts ... ok
+test inference::tests::one_based_rope_position_mode_is_available_for_diagnostics ... ok
+test inference::tests::output_projection_defaults_to_token_major_runtime_layout ... ok
+test inference::tests::output_projection_diagnostics_support_loader_packed_and_retained_block_rows ... ok
+test inference::tests::output_projection_diagnostics_support_q8_0_file_backed_token_major_rows ... ok
+test inference::tests::output_projection_diagnostics_reconstruct_tied_output_rows ... ok
+test inference::tests::output_projection_diagnostics_reject_q8_0_file_backed_unaligned_rows_before_read ... ok
+test inference::tests::output_projection_diagnostics_reject_q8_0_file_backing_block_mismatch_before_read ... ok
+test inference::tests::output_projection_diagnostics_report_signed_component_extremes ... ok
+test inference::tests::output_projection_diagnostics_match_q8_0_file_backed_block_dot_probe ... ok
+test inference::tests::output_projection_diagnostics_reconstruct_selected_logits ... ok
+test inference::tests::perf_q4_q8_q6_dot ... ignored
+test inference::tests::prefill_layer_major_chunk_token_count_has_separate_headroom_default ... ok
+test inference::tests::prefill_layer_major_defaults_only_for_lazy_q8_backing ... ok
+test inference::tests::prefill_chunk_token_count_accepts_full_prompt_probe ... ok
+test inference::tests::prefill_fails_closed_when_kv_budget_exceeded ... ok
+test inference::tests::output_projection_runtime_ignores_diagnostic_layout_env_without_dense_collection ... ok
+test inference::tests::q4_k_owner_main_side_scalar_matches_avx2 ... ok
+test inference::tests::q4_0_wire_block_dequant_matches_nibble_layout ... ok
+test inference::tests::q4_0_wire_row_dot_scalar_matches_dequant_reference ... ok
+test inference::tests::q4_0_packed_gemv8_matches_scalar_bit_exact ... ok
+test inference::tests::q4_k_repack8_round_trip_matches_wire ... ok
+test inference::tests::q4_k_wire_dot_consistent_with_tensor_dequant ... ok
+test inference::tests::q5_0_wire_dot_consistent_with_tensor_dequant ... ok
+test inference::tests::q5_k_block_dot_matches_decode_on_real_model ... ok
+test inference::tests::q5_k_wire_dot_consistent_with_tensor_dequant ... ok
+test inference::tests::q6_k_owner_aux32_scalar_matches_avx2 ... ok
+test gait::tests::memory_measurement_is_sane ... ok
+test inference::tests::q6_k_wire_dot_consistent_with_dequant ... ok
+test inference::tests::q6_k_wire_row_dot_avx2_bit_identical ... ok
+test gait::calibrate::tests::calibrate_and_store_persists_a_readable_receipt ... ok
+test inference::tests::decode_attention_parallel_lane_is_bitwise_identical_to_serial has been running for over 60 seconds
+test inference::tests::iq4_xs_block_dot_core_matches_row_dot_oracle has been running for over 60 seconds
+test inference::tests::iq4_xs_decode_row_matches_block_dot_core has been running for over 60 seconds
+test inference::tests::kv_head_major_layout_is_bitwise_identical_to_position_major has been running for over 60 seconds
+test inference::tests::output_projection_diagnostics_support_runtime_packed_tied_output_rows has been running for over 60 seconds
+test inference::tests::output_projection_q8_0_descriptor_shape_uses_storage_token_rows has been running for over 60 seconds
+test inference::tests::parallel_linear_matches_serial_descriptor_transposed_and_q8_rows has been running for over 60 seconds
+test inference::tests::prefill_layer_major_q8_cache_uses_scoped_default_only_for_lazy_q8 has been running for over 60 seconds
+test inference::tests::prefill_layer_major_scoped_q8_cache_reuses_file_reads_across_chunks has been running for over 60 seconds
+test inference::tests::prefill_layer_rejects_misaligned_kv_cache_cursor has been running for over 60 seconds
+test inference::tests::q4_k_owner_prefill_bitwise_matches_block_dot_core has been running for over 60 seconds
+test inference::tests::q4_k_repack8_budget_zero_degrades_bit_identically has been running for over 60 seconds
+test inference::tests::q4_k_repack8_owner_bitwise_matches_block_dot_core has been running for over 60 seconds
+test inference::tests::q6_k_owner_prefill_bitwise_matches_block_dot_core has been running for over 60 seconds
+test inference::tests::q8_0_block_dot_env_flags_ignore_outer_whitespace has been running for over 60 seconds
+test inference::tests::q8_0_block_dot_reads_descriptor_shaped_blocks_as_transposed_rows_when_opted_in has been running for over 60 seconds
+test inference::tests::iq4_xs_block_dot_core_matches_row_dot_oracle ... ok
+test inference::tests::iq4_xs_decode_row_matches_block_dot_core ... ok
+test inference::tests::parallel_linear_matches_serial_descriptor_transposed_and_q8_rows ... ok
+test inference::tests::output_projection_diagnostics_support_runtime_packed_tied_output_rows ... ok
+test inference::tests::output_projection_q8_0_descriptor_shape_uses_storage_token_rows ... ok
+test inference::tests::prefill_layer_major_q8_cache_uses_scoped_default_only_for_lazy_q8 ... ok
+test inference::tests::prefill_layer_major_scoped_q8_cache_reuses_file_reads_across_chunks ... ok
+test inference::tests::prefill_layer_rejects_misaligned_kv_cache_cursor ... ok
+test inference::tests::q8_0_encoded_horizontal_sum_matches_linear_int_sum ... ok
+test inference::tests::q8_0_block_reader_smoke ... ok
+test inference::tests::q8_0_encoded_row_matches_decoded_scale_helper ... ok
+test inference::tests::q4_k_owner_prefill_bitwise_matches_block_dot_core ... ok
+test inference::tests::q4_k_repack8_budget_zero_degrades_bit_identically ... ok
+test inference::tests::q4_k_repack8_owner_bitwise_matches_block_dot_core ... ok
+test inference::tests::q6_k_owner_prefill_bitwise_matches_block_dot_core ... ok
+test inference::tests::q8_0_block_dot_env_flags_ignore_outer_whitespace ... ok
+test inference::tests::q8_0_block_dot_reads_descriptor_shaped_blocks_as_transposed_rows_when_opted_in ... ok
+test inference::tests::q8_0_block_dot_uses_quantized_fast_path_when_explicitly_enabled ... ok
+test inference::tests::q8_0_block_reader_linear_matches_existing_q8_path ... ok
+test inference::tests::q8_0_block_dot_uses_raw_weight_blocks_and_quantized_input_when_opted_in ... ok
+test inference::tests::q8_0_compute_gates_preserve_default_on_and_explicit_escape_hatches ... ok
+test inference::tests::q8_0_block_reader_linear_matches_q8_path_with_parallel_chunks ... ok
+test inference::tests::q8_0_file_reader_quantized_input_buffer_reuses_capacity ... ok
+test inference::tests::q8_0_file_backed_accumulate_can_use_quantized_input_block_dot ... ok
+test inference::tests::q8_0_horizontal_sum_matches_linear_int_sum ... ok
+test inference::tests::q8_0_file_backed_accumulate_matches_q8_block_dot_across_chunks ... ok
+test inference::tests::q8_0_input_quantization_uses_unrounded_scale_for_quants ... ok
+test inference::tests::q8_0_file_backed_accumulate_coalesces_exact_two_chunk_tensor_read ... ok
+test inference::tests::q8_0_file_backed_accumulate_rejects_unaligned_input_width ... ok
+test inference::tests::q8_0_residency_report_counts_resident_blocks_and_flags_file_backed ... ok
+test inference::tests::q8_0_file_backed_batch_matmul_can_use_quantized_input_block_dot ... ok
+test inference::tests::q8_0_file_backed_batch_matmul_reuses_cached_chunks_across_calls ... ok
+test inference::tests::q8_0_file_backed_batch_matmul_reuses_chunk_reads_across_input_rows ... ok
+test inference::tests::q8_0_file_backed_borrowed_batch_matmul_reuses_chunk_reads_across_input_rows ... ok
+test inference::tests::q8_0_file_backed_packed_rows4_dot_matches_retained_without_q8_blocks ... ok
+test inference::tests::q8_0_two_dot_rows_matches_individual_dot_rows ... ok
+test inference::tests::q8_0_file_backing_cache_reuses_exact_chunk_reads ... ok
+test inference::tests::q8_0_file_reader_parallel_respects_explicit_linear_off ... ok
+test inference::tests::q8_0_file_reader_parallel_uses_existing_linear_threshold_env ... ok
+test inference::tests::q8_0_file_reader_parallelizes_wide_outputs_by_default ... ok
+test inference::tests::q8_0_file_reader_scratch_retention_is_bounded ... ok
+test inference::tests::q8_0_hot_path_uses_resolved_plan_not_current_env ... ok
+test inference::tests::q8_0_packed_4x4_rows4_matches_retained_block_dot ... ok
+test inference::tests::q8_0_packed_4x8_rows4_matches_retained_block_dot ... ok
+test inference::tests::q8_0_runtime_packed_ffn_down_transposed_view_matches_retained_blocks ... ok
+test inference::tests::q8_0_runtime_packed_ffn_gate_transposed_view_matches_retained_blocks ... ok
+test inference::tests::q8_0_runtime_packed_ffn_gate_up_activation_matches_retained_blocks ... ok
+test inference::tests::q8_0_runtime_packed_ffn_transposed_f32_fallback_handles_empty_runtime_data ... ok
+test inference::tests::q8_0_runtime_packed_rows4_f32_fallback_handles_empty_runtime_data ... ok
+test inference::tests::q8_attention_output_consumer_is_separate_default_off_x86_gate ... ok
+test inference::tests::q8_attention_output_consumer_matches_runtime_packed_baseline ... ok
+test inference::tests::q8_attention_output_packed_rows4_matmul_is_plan_gated_and_shape_limited ... ok
+test inference::tests::q8_attention_output_packed_rows4_matmul_matches_runtime_packed_baseline_for_prefill ... ok
+test inference::tests::q8_attention_projection_consumer_is_plan_gated_and_role_limited ... ok
+test inference::tests::q8_attention_projection_consumer_matches_runtime_packed_baseline_for_qkv ... ok
+test inference::tests::q8_attention_qkv_consumer_is_default_off_and_requires_all_runtime_packed_inputs ... ok
+test inference::tests::q8_attention_qkv_consumer_quantizes_once_for_runtime_packed_qkv ... ok
+test inference::tests::q8_attention_qkv_decode_group_chunking_matches_unchunked_triplet_projection ... ok
+test inference::tests::q8_ffn_down_gemm4_row_group_threshold_benchmark ... ignored, manual x86 Q8 scheduler tracer bullet benchmark
+test inference::tests::q8_attention_qkv_gqa_parallel_decode_bitwise_matches_serial_triplet_projection ... ok
+test inference::tests::q8_attention_qkv_packed_rows4_matmul_is_plan_gated_and_prefill_limited ... ok
+test inference::tests::q8_attention_qkv_packed_rows4_matmul_matches_runtime_packed_baseline_for_prefill ... ok
+test inference::tests::q8_attention_qkv_prefill_consumer_gate_is_default_off ... ok
+test inference::tests::q8_attention_qkv_route_policy_records_denials ... ok
+test inference::tests::q8_attention_qkv_route_resolver_preserves_decode_and_prefill_guards ... ok
+test inference::tests::q8_ffn_down_consumer_fails_closed_for_non_runtime_or_mismatched_storage ... ok
+test inference::tests::q8_ffn_down_consumer_is_plan_gated_and_distinct_from_old_owner_gate ... ok
+test inference::tests::q8_ffn_down_consumer_matches_runtime_packed_baseline ... ok
+test inference::tests::q8_ffn_down_gemm4_avx2_matches_default_gemm4 ... ok
+test inference::tests::q8_ffn_down_gemm4_prefill_is_plan_gated_and_rows4_limited ... ok
+test inference::tests::q8_ffn_down_gemm4_prefill_matches_runtime_packed_matmul_with_tail ... ok
+test inference::tests::q8_ffn_down_gemm4_row_group_schedule_matches_default_gemm4 ... ok
+test inference::tests::q8_ffn_down_packed_rows4_matmul_is_plan_gated ... ok
+test inference::tests::q8_ffn_down_packed_rows4_matmul_matches_runtime_packed_baseline_for_prefill ... ok
+test inference::tests::q8_ffn_down_single_owner_is_plan_gated_and_role_limited ... ok
+test inference::tests::q8_ffn_down_single_owner_matches_decode_and_prefill_owners ... ok
+test inference::tests::q8_ffn_down_vnni_decode_falls_back_when_gate_off_or_pack_missing ... ok
+test inference::tests::q8_file_read_stats_merge_keeps_peak_cache_state ... ok
+test inference::tests::q8_ffn_down_vnni_decode_records_route_denials ... ok
+test inference::tests::q8_ffn_gate_up_consumer_is_plan_gated_and_requires_runtime_storage ... ok
+test inference::tests::q8_ffn_gate_up_consumer_matches_runtime_packed_baseline ... ok
+test inference::tests::q8_k_quantizer_mirrors_reference_semantics ... ok
+test inference::tests::q8_ffn_gate_up_decode_fused_activation_matches_pair_projection ... ok
+test inference::tests::q8_ffn_gate_up_decode_group_chunking_matches_unchunked_pair_projection ... ok
+test inference::tests::q8_ffn_gate_up_decode_paired_dot_matches_separate_fused_activation ... ok
+test inference::tests::q8_ffn_gate_up_packed_rows4_matmul_is_plan_gated_and_prefill_limited ... ok
+test inference::tests::q8_ffn_gate_up_packed_rows4_matmul_matches_runtime_packed_baseline_for_prefill ... ok
+test inference::tests::q8_ffn_gate_up_prefill_route_resolver_records_route_and_denials ... ok
+test inference::tests::q8_ffn_gate_up_single_owner_is_default_off_and_requires_runtime_storage ... ok
+test inference::tests::q8_vnni_avx2_pair_reducer_benchmark ... ignored, manual x86 Q8 VNNI AVX2 pair-reducer benchmark
+test inference::tests::q8_vnni_tile16_avx2_matches_scalar_for_extreme_i8_values ... ok
+test inference::tests::q8_ffn_gate_up_single_owner_matches_decode_and_prefill_owners ... ok
+test inference::tests::rectangular_linear_transposed_diagnostic_reinterprets_descriptor_weight ... ok
+test inference::tests::q8_file_backed_output_projection_empty_batch_skips_weight_reads ... ok
+test inference::tests::resident_parity_forbids_reflects_the_cached_verdict ... ok
+test inference::tests::resident_prefill_rope_tables_match_per_position_builder ... ok
+test inference::tests::residual_diagnostics_report_delta_scale_and_alignment ... ok
+test inference::tests::resolve_decode_thread_count_promotes_physical_default_with_kill_switch ... ok
+test inference::tests::q8_file_backed_output_projection_reuses_weight_read_across_batch_rows ... ok
+test inference::tests::resolve_prefill_thread_count_widens_only_on_measured_default ... ok
+test inference::tests::q8_file_reader_batch_chunk_rows_respect_output_scratch_budget ... ok
+test inference::tests::rms_norm_diagnostics_report_peak_window ... ok
+test inference::tests::q8_file_reader_default_coalesces_llama3_8b_ffn_q8_shapes ... ok
+test inference::tests::q8_file_reader_parallel_output_falls_back_when_default_scratch_fragments_full_tensor_read ... ok
+test inference::tests::softmax_top_k_breaks_router_ties_by_expert_id ... ok
+test inference::tests::q8_matmul_owner_default_scope_is_win_x86_64_only ... ok
+test inference::tests::softmax_top_k_renormalizes_selected_router_weights ... ok
+test inference::tests::split_half_rope_pairing_is_available_for_diagnostics ... ok
+test inference::tests::square_linear_transposed_diagnostic_reinterprets_ambiguous_square_weight ... ok
+test inference::tests::q8_packed_rows4_gate_up_fused_prefill_matches_separate_pair_activation ... ok
+test inference::tests::token_major_output_projection_diagnostic_reinterprets_descriptor_shape ... ok
+test inference::tests::q8_packed_rows4_matmul_projection_chunked_prefill_matches_manual_output ... ok
+test inference::tests::q8_packed_rows4_matmul_quantized_input_scratch_matches_owned_rows ... ok
+test inference::tests::q8_packed_rows4_parallel_input_quantize_matches_serial ... ok
+test inference::tests::q8_projection_route_telemetry_records_layer_route_bucket ... ok
+test inference::tests::q8_unified_owner_prefill_is_bit_identical_to_packed_matmul ... ok
+test inference::tests::rectangular_linear_role_override_reinterprets_only_named_projection ... ok
+test inference::tests::rectangular_shape_reinterpretation_preserves_q8_0_blocks_for_transposed_dot ... ok
+test inference::tests::resolved_runtime_plan_captures_q8_env_once ... ok
+test inference::tests::rope_diagnostics_reconstruct_reported_rotation ... ok
+test inference::tests::runtime_profile_defaults_keep_experimental_q8_gates_closed ... ok
+test inference::tests::single_token_forward_diagnostics_follow_llama_stage_order ... ok
+test inference::tests::test_row_dispatch_adversarial_parity ... ok
+test inference::tests::tied_output_projection_uses_token_major_embedding_layout ... ok
+test inference::tests::transposed_runtime_packed_attention_k_without_row_major_data_returns_error_instead_of_panicking ... ok
+test inference::tests::x86_q8_avx2_kernel_matches_scalar_dot ... ok
+test inference::tests::x86_q8_avx2_kernel_matches_scalar_dot_for_negative_128 ... ok
+test inference::tests::x86_q8_avx2_packed_rows4_decode_hoist_projection_matches_scalar_dot ... ok
+test inference::tests::x86_q8_avx2_packed_rows4_hoisted_matmul_matches_scalar_dot ... ok
+test inference::tests::x86_q8_avx512vnni_dpbusd_packed_rows4_i8_matches_scalar_dot ... ok
+test inference::tests::x86_q8_avx2_packed_rows4_i8_matches_scalar_dot ... ok
+test inference::tests::x86_q8_avx512vnni_dpwssd_packed_rows4_i8_matches_scalar_dot ... ok
+test inference::tests::x86_q8_ffn_gate_up_small_batch_owner_predicate_boundaries ... ok
+test inference::tests::zero_delta_selector_accepts_all_none_and_layer_lists ... ok
+test inference::token_recycling::tests::bounds_distinct_successors ... ok
+test inference::token_recycling::tests::branches_and_recurses ... ok
+test inference::token_recycling::tests::empty_adjacency_yields_anchor_only ... ok
+test inference::token_recycling::tests::learns_and_drafts_top_successor ... ok
+test inference::token_recycling::tests::respects_caps ... ok
+test metal::tests::metal_linear_row_stub_returns_false ... ok
+test model::gemma4_tests::layer_plan_resolves_dims_window_and_kv_sharing ... ok
+test model::gemma4_tests::sliding_schedule_is_5to1_with_full_final_layer ... ok
+test model::tests::implemented_architecture_set_is_exactly_the_from_gguf_accept_arm ... ok
+test model::tests::neox_rope_pairing_covers_exactly_the_proven_archs ... ok
+test model::tests::rejects_q8_output_projection_token_row_nbytes_mismatch ... ok
+test model::tests::rejects_q8_output_projection_token_rows_that_do_not_fill_blocks ... ok
+test model::tests::sub_row_descriptor_slices_q8_0_by_output_row ... ok
+test model::tests::validates_f16_output_projection_token_row_storage_math ... ok
+test model::tests::validates_q8_output_input_token_row_storage_math ... ok
+test model::tests::validates_q8_output_projection_token_row_storage_math ... ok
+test model_source::tests::decode_reads_the_correct_shard_slice_for_a_later_tensor ... ok
+test model_source::tests::decode_rejects_an_unsupported_dtype ... ok
+test model_source::tests::complete_hf_safetensors_directory_reports_readiness_but_not_generation ... ok
+test model_source::tests::decodes_bf16_tensor_bytes_into_cpu_tensor ... ok
+test model_source::tests::decodes_f32_tensor_bytes_into_cpu_tensor ... ok
+test model_source::tests::decodes_f16_tensor_bytes_into_cpu_tensor ... ok
+test model_source::tests::gguf_file_source_id_strips_only_gguf_extension ... ok
+test model_source::tests::invalid_config_json_has_sanitized_precise_blocker ... ok
+test model_source::tests::hf_directory_source_id_preserves_dotted_model_name ... ok
+test model_source::tests::invalid_hf_attention_geometry_blocks_metadata_readiness ... ok
+test inference::tests::x86_q8_ffn_decode_chain_is_default_off_and_matches_split_consumers ... ok
+test inference::tests::x86_q8_ffn_down_decode_group_chunking_is_default_off_and_matches_consumer ... ok
+test inference::tests::x86_q8_ffn_down_decode_uses_avx2_reference_gate ... ok
+test inference::tests::x86_q8_ffn_down_gemm4_row_group_schedule_respects_min_input_groups ... ok
+test inference::tests::x86_q8_ffn_down_packed_rows4_matmul_accepts_role_gate_and_legacy_alias ... ok
+test inference::tests::x86_q8_packed_rows4_matmul_chunk_groups_env_override ... ok
+test inference::tests::x86_q8_packed_rows4_serial_decode_gate_disables_decode_parallelism ... ok
+test inference::tests::x86_q8_output_decode_owner_path_uses_runtime_packed_storage ... ok
+test model_source::tests::resolve_hf_llama_tensor_roles_rejects_a_mis_shaped_tensor ... ok
+test inference::tests::x86_q8_output_packed_rows4_matmul_is_plan_gated_and_prefill_limited ... ok
+test model_source::tests::resolve_hf_llama_tensor_roles_rejects_untied_missing_lm_head ... ok
+test inference::tests::x86_q8_output_packed_rows4_matmul_matches_runtime_packed_baseline_for_prefill ... ok
+test model_source::tests::invalid_safetensors_header_blocks_weight_readiness ... ok
+test model_source::tests::resolve_hf_llama_tensor_roles_reports_the_missing_layer_tensor ... ok
+test model_source::tests::resolve_hf_llama_tensor_roles_resolves_complete_two_layer_model ... ok
+test model_source::tests::resolve_hf_llama_tensor_roles_ties_output_to_embedding_when_lm_head_absent ... ok
+test model_source::tests::missing_required_hf_config_field_blocks_metadata_readiness ... ok
+test model_source::tests::invalid_shard_index_has_precise_blocker ... ok
+test model_source::tests::safetensors_shape_dtype_offset_mismatch_blocks_weight_readiness ... ok
+test inference::tests::x86_q8_packed_rows4_decode_projection_matches_manual_wide_output ... ok
+test inference::tests::zero_prefill_chunk_env_falls_back_without_panicking ... ok
+test model_source::tests::to_llama_config_honors_explicit_head_dim ... ok
+test model_source::tests::to_llama_config_maps_dense_llama_fields ... ok
+test model_source::tests::rope_scaling_config_blocks_metadata_readiness_until_mapped ... ok
+test model_source::tests::missing_tokenizer_fixture_has_precise_blocker ... ok
+test offload::tests::parse_layer_index_handles_blk_and_ends ... ok
+test offload::tests::resident_status_reads_as_full_speed ... ok
+test model_source::tests::serialized_hf_inspection_does_not_expose_local_paths ... ok
+test offload::tests::offloaded_status_labels_capacity_mode_with_pcie ... ok
+test model_source::tests::unsupported_source_file_error_uses_public_label_without_parent_path ... ok
+test model_source::tests::sharded_weights_without_index_have_precise_blocker ... ok
+test model_source::tests::shard_index_path_values_have_sanitized_precise_blocker ... ok
+test model_source::tests::unsupported_config_fixture_has_precise_blocker ... ok
+test receipt::distributed::tests::build_seals_and_self_verifies ... ok
+test model_source::tests::shard_index_without_weight_map_has_precise_blocker ... ok
+test receipt::distributed::tests::first_divergence_is_reported_not_smoothed ... ok
+test model_source::tests::shard_index_tensor_missing_from_header_blocks_weight_readiness ... ok
+test model_source::tests::shard_index_invalid_entries_are_reported_in_stable_tensor_order ... ok
+test receipt::distributed::tests::identical_streams_have_no_divergence ... ok
+test model_source::tests::shard_index_referencing_missing_weight_file_has_precise_blocker ... ok
+test receipt::distributed::tests::round_trips_through_json ... ok
+test receipt::tests::canonical_json_sorts_nested_objects ... ok
+test receipt::tests::absent_execution_lane_is_omitted_and_keeps_digest_stable ... ok
+test receipt::tests::canonical_body_excludes_receipt_id_and_sorts_keys ... ok
+test receipt::distributed::tests::tamper_is_detected ... ok
+test receipt::distributed::tests::truncation_counts_as_divergence ... ok
+test model_source::tests::unsupported_safetensors_dtype_blocks_weight_readiness ... ok
+test receipt::tests::execution_trace_absent_keeps_receipt_byte_identical ... ok
+test receipt::tests::execution_trace_present_round_trips_and_enters_the_digest ... ok
+test receipt::tests::quality_tier_format_honesty_helpers ... ok
+test receipt::tests::lane_capture_uses_file_type_architecture_and_tokenizer_metadata ... ok
+test receipt::tests::quality_tier_present_round_trips_and_enters_the_digest ... ok
+test receipt::tests::not_compared_block_round_trips_with_null_match_fields ... ok
+test receipt::tests::lane_capture_without_tokenizer_metadata_yields_null_tokenizer_hash ... ok
+test receipt::tests::quality_tier_absent_keeps_receipt_byte_identical ... ok
+test receipt::tests::mutating_one_field_changes_digest_and_fails_verification ... ok
+test receipt::tests::seal_then_verify_self_digest_passes ... ok
+test receipt::tests::rfc3339_known_values ... ok
+test receipt::tests::receipt_round_trips_losslessly ... ok
+test receipt::tests::runnable_and_supported_digests_differ ... ok
+test receipt::tests::runnable_lane_serializes_and_is_digest_bound ... ok
+test receipt::tests::quantization_label_falls_back_to_dominant_tensor_type ... ok
+test receipt::tests::receipt_request_without_constraint_serializes_unchanged ... ok
+test receipt::verify::tests::format_honesty_passes_no_tier_and_headline ... ok
+test receipt::tests::sha256_matches_known_test_vector ... ok
+test receipt::verify::tests::format_honesty_rejects_cross_format_lossy ... ok
+test receipt::tests::signature_field_is_absent_when_none ... ok
+test receipt::verify::tests::first_divergent_index_matches_harness_semantics ... ok
+test receipt::verify::tests::format_honesty_accepts_same_format_lossy ... ok
+test receipt::verify::tests::parses_error_status_with_plain_body ... ok
+test receipt::verify::tests::rejects_malformed_chunked_body ... ok
+test receipt::verify::tests::lossy_attestation_exit_code_is_distinct ... ok
+test receipt::verify::tests::format_honesty_rejects_unknown_tier_schema ... ok
+test receipt::verify::tests::parses_chunked_response ... ok
+test receipt::verify::tests::parses_content_length_response ... ok
+test runnable::admit::tests::accepts_each_covered_architecture ... ok
+test runnable::admit::tests::accepts_bpe_tokenizer ... ok
+test runnable::admit::tests::accepts_covered_kquants ... ok
+test runnable::admit::tests::accepts_in_set_llama_spm_q8 ... ok
+test runnable::admit::tests::accepts_iq4_xs_quant ... ok
+test runnable::admit::tests::architecture_axis_checked_before_quant ... ok
+test runnable::admit::tests::reject_converts_to_backend_error ... ok
+test runnable::admit::tests::rejects_iquant_naming_tensor ... ok
+test runnable::admit::tests::reject_serializes_to_machine_readable_json ... ok
+test runnable::admit::tests::rejects_unknown_quant_naming_tensor ... ok
+test runnable::admit::tests::rejects_missing_tokenizer ... ok
+test runnable::admit::tests::rejects_unknown_architecture ... ok
+test runnable::admit::tests::rejects_unknown_tokenizer ... ok
+test runnable::model::gpu_ssm_layer_tests::qwen35_full_attn_layer_gpu_matches_cpu ... ignored, needs CAMELID_ORNITH_GGUF (Q8) + a CUDA device
+test runnable::admit::tests::rejects_missing_architecture ... ok
+test runnable::dequant::tests::f16_known_values ... ok
+test runnable::dequant::tests::f32_roundtrips_bit_exact ... ok
+test runnable::dequant::tests::uncovered_quant_refused ... ok
+test runnable::dequant::tests::wrong_length_fails_closed ... ok
+test runnable::model::gpu_ssm_layer_tests::qwen35_gpu_greedy_matches_cpu ... ignored, needs CAMELID_ORNITH_GGUF (point at Q4_K_M) + a CUDA device
+test runnable::model::gpu_ssm_layer_tests::qwen35_gpu_long_context_fits ... ignored, needs CAMELID_ORNITH_GGUF (point at Q4_K_M) + a CUDA device
+test runnable::model::gpu_ssm_layer_tests::qwen35_gpu_single_token_matches_cpu ... ignored, needs CAMELID_ORNITH_GGUF (Q8) + a CUDA device
+test runnable::model::gpu_ssm_layer_tests::qwen35_gpu_vs_cpu_tokps ... ignored, tok/s benchmark — needs CAMELID_ORNITH_GGUF (Q4_K_M) + a CUDA device
+test runnable::model::gpu_ssm_layer_tests::qwen35_ssm_layer_gpu_matches_cpu ... ignored, needs CAMELID_ORNITH_GGUF (Q8) + a CUDA device
+test runnable::smoke::tests::ornith_qwen35_argmax_stream ... ignored, needs CAMELID_ORNITH_GGUF + CAMELID_STREAM_FILE
+test runnable::smoke::tests::ornith_qwen35_coherence_bringup ... ignored, needs the ~9.5GB Ornith qwen35 Q8_0 GGUF; set CAMELID_ORNITH_GGUF
+test runnable::smoke::tests::ornith_qwen35_parity_gen ... ignored, needs CAMELID_ORNITH_GGUF + CAMELID_PARITY_TOKENS (run with oracle server OFF)
+test runnable::smoke::tests::ornith_qwen35_prompt_tokens ... ignored, needs the Ornith qwen35 GGUF metadata; set CAMELID_ORNITH_GGUF
+test runnable::smoke::tests::ornith_qwen35_tokenize_set ... ignored, needs CAMELID_ORNITH_GGUF (+ CAMELID_PARITY_PROMPTS)
+test runnable::smoke::tests::ornith_qwen35_verify_cost ... ignored, needs CAMELID_ORNITH_GGUF + CAMELID_STREAM_FILE
+test telemetry::tests::top_k_orders_by_probability ... ok
+test runnable::smoke::tests::healthy_generation_accepted ... ok
+test runnable::smoke::tests::oracle_qualified_gate ... ok
+test tensor::nvfp4_tests::negative_codes_times_zero_scale_decode_to_negative_zero ... ok
+test telemetry::tests::emit_without_subscribers_is_a_noop ... ok
+test runnable::smoke::tests::degenerate_low_distinct_rejected ... ok
+test telemetry::tests::subscriber_receives_lifecycle_events ... ok
+test runnable::smoke::tests::detects_repetition_loops ... ok
+test tensor::nvfp4_tests::encode_vectors_reproduce_pin_wire_bytes_and_dequant ... ok
+test tensor::nvfp4_tests::exact_midpoint_ties_resolve_to_first_lut_index ... ok
+test tensor::nvfp4_tests::fp32_to_ue4m3_semantics ... ok
+test tensor::tests::iq4_xs_block_dequant_matches_hand_computed_golden ... ok
+test tensor::nvfp4_tests::zero_block_round_trip_and_negative_zero_encode ... ok
+test tensor::tests::converts_f16_bits_to_f32 ... ok
+test tensor::tests::matmul_rhs_transposed_handles_rectangular_batches ... ok
+test tensor::tests::iq4_xs_block_dequant_matches_reference_over_deterministic_blocks ... ok
+test tensor::tests::matmul_rhs_transposed_handles_single_row_vectors ... ok
+test tensor::tests::f32_f16_roundtrip_matches_ieee_rne ... ok
+test tensor::tests::iq4_nl_and_iq4_xs_share_the_same_codebook ... ok
+test tensor::tests::iq4_xs_sub_block_scale_unpacks_low_high_and_minus32_bias ... ok
+test tensor::nvfp4_tests::scale_saturation_boundary_at_448_by_6 ... ok
+test tensor::tests::iq4_xs_tensor_decode_spans_multiple_blocks_and_rejects_misalignment ... ok
+test tensor::tests::q8_file_backing_rejects_nonempty_zero_block_reads_before_file_io ... ok
+test tensor::tests::q8_byte_count_env_parser_accepts_binary_suffixes ... ok
+test tensor::tests::q8_file_backing_rejects_reads_outside_declared_storage_before_file_io ... ok
+test tensor::tests::q8_file_backed_embedding_rejects_absolute_row_offset_overflow ... ok
+test tensor::tests::q8_0_vnni_pack_requires_raw_q8_bytes_for_scale_bits ... ok
+test tensor::tests::matmul_rhs_transposed_wide_output_matches_reference ... ok
+test tensor::tests::matmul_wide_output_matches_reference ... ok
+test tensor::tests::q8_block_backed_embedding_dequantizes_selected_rows ... ok
+test tensor::nvfp4_tests::representable_value_round_trip_all_scales_all_codes ... ok
+test tensor::tests::q8_file_cache_coalesces_overlapping_chunks_with_newest_bytes ... ok
+test tensor::tests::q8_file_cache_disabled_path_does_not_store_or_hit ... ok
+test tensor::tests::q8_file_cache_coalesces_adjacent_chunks_for_cross_boundary_reuse ... ok
+test tensor::tests::q8_file_cache_disabled_scale_read_decodes_from_direct_read ... ok
+test tensor::tests::q8_file_cache_reuses_decoded_scales_on_partial_block_hits ... ok
+test tensor::tests::q8_file_cache_scoped_capacity_override_is_bounded_and_restored ... ok
+test tensor::tests::q8_file_cache_file_read_reuses_partial_overlap_and_reads_gaps ... ok
+test tensor::tests::q8_file_cache_keeps_newest_bytes_for_conflicting_covered_subranges ... ok
+test tensor::tests::q8_file_cache_serves_matching_chunks_and_evicts_to_capacity ... ok
+test tensor::tests::q8_file_cache_serves_subranges_from_retained_chunks ... ok
+test tensor::tests::q8_runtime_repack_route_stays_default_off_and_family_scoped ... ok
+test tensor::tests::q8_file_cache_promotes_decoded_scales_after_byte_only_hit ... ok
+test tensor::tests::q8_file_cache_reports_miss_insert_merge_and_eviction_stats ... ok
+test tensor::tests::q8_file_cache_skips_reinserting_identical_fully_covered_subranges ... ok
+test tensor::tests::q8_x86_repack_family_includes_output_projection_only ... ok
+test tensor::tests::q8_file_cache_retains_decoded_scales_after_coalesced_trim ... ok
+test tensor::tests::q8_file_cache_reuses_decoded_scales_on_full_block_hits ... ok
+test tensor::tests::q8_file_cache_trims_coalesced_stream_to_newest_capacity_window ... ok
+test tensor::tests::q8_file_cache_zero_capacity_clears_retained_entries_on_use ... ok
+test tensor::tests::q8_packed_rows4_sidecars_stay_opt_in_per_layout ... ok
+test tensor::tests::q8_runtime_repack_linear_shape_preserves_token_major_output_route ... ok
+test tensor::tests::q8_x86_repack_includes_output_projection_runtime_storage ... ok
+test tokenizer::tests::bpe_registry_prefers_lowest_rank_over_leftmost_pair ... ok
+test tokenizer::tests::bpe_registry_uses_ranked_heap_priority_for_merges ... ok
+test tensor::tests::q8_x86_repack_materializes_tied_embedding_as_output_runtime_storage ... ok
+test tokenizer::tests::chat_control_markers_are_stripped_but_think_tags_are_kept ... ok
+test tensor::wire_dequant::tests::f32_lazy_roundtrips ... ok
+test tensor::wire_dequant::tests::q6_k_lazy_matches_block_decode ... ok
+test tensor::wire_dequant::tests::q4_k_lazy_matches_block_decode ... ok
+test tensor::tests::wire_pages_linear_carries_wire_bytes_and_file_backing ... ok
+test tokenizer::tests::llama_bpe_pretokenizer_matches_core_llama3_shapes ... ok
+test tokenizer::tests::llama_bpe_pretokenizer_matches_llama3_regex_edge_cases ... ok
+test tokenizer::tests::is_mark_matches_unicode_m_category_samples ... ok
+test tokenizer::tests::missing_pre_llama3_tokenizes_identically_to_reference ... ignored, needs real Llama-3 GGUFs; set CAMELID_LLAMA3_MISSING_PRE_GGUF and CAMELID_LLAMA3_REFERENCE_GGUF
+test tokenizer::tests::qwen2_pretokenizer_splits_digits_singly_but_matches_llama3_otherwise ... ok
+test tokenizer::tests::qwen35_pretokenizer_folds_combining_marks_into_letter_runs ... ok
+test tensor::wire_dequant::tests::unsupported_format_fails_closed ... ok
+test tensor::wire_dequant::tests::q8_0_lazy_matches_block_decode ... ok
+test web_ui::tests::detects_concrete_files_vs_client_routes ... ok
+test web_ui::tests::missing_static_file_is_not_masked ... ok
+test web_ui::tests::client_side_route_falls_back_to_the_shell ... ok
+test web_ui::tests::root_serves_the_app_shell ... ok
+test tensor::wire_dequant::tests::q5_0_lazy_matches_block_decode ... ok
+test tensor::wire_dequant::tests::out_of_range_block_read_fails ... ok
+test wire_mmap::tests::maps_and_reads_exact_file_bytes ... ok
+test wire_mmap::tests::wire_pages_are_page_aligned_and_match_file_bytes ... ok
+test wire_mmap::tests::rejects_range_larger_than_max_window ... ok
+test wire_mmap::tests::window_plan_covers_ranges_without_straddles ... ok
+test tokenizer::tests::resolve_gpt2_pre_tokenizer_gates_the_missing_pre_recovery ... ok
+test wire_mmap::tests::window_plan_splits_when_exceeding_max_window ... ok
+test tokenizer::tests::llama3_bpe_signature_matches_only_the_llama3_vocab ... ok
+test receipt::tests::sha256_file_streams_and_matches_buffer_hash ... ok
+test tensor::nvfp4_tests::random_blocks_encode_reproduces_pin_wire_bytes ... ok
+test inference::tests::kv_head_major_layout_is_bitwise_identical_to_position_major ... ok
+test inference::tests::decode_attention_parallel_lane_is_bitwise_identical_to_serial ... ok
+
+test result: ok. 796 passed; 0 failed; 56 ignored; 0 measured; 0 filtered out; finished in 150.43s
+
+     Running unittests src\main.rs (target\debug\deps\camelid-682d8dbd3d42995b.exe)
+
+running 115 tests
+test chat::agent::tests::auto_approve_refused_under_production ... ok
+test chat::agent::tests::no_progress_guard_is_result_aware ... ok
+test chat::agent_bench::tests::verdict_claims_only_the_workload_that_shows_a_speedup ... ok
+test chat::agent_eval::tests::check_requires_clean_read_and_correct_count ... ok
+test chat::agent_bench::tests::bench_receipt_seals_and_tampering_breaks ... ok
+test chat::agent_eval::tests::outcome_exit_codes_are_distinct ... ok
+test chat::agent_orchestration::tests::receipt_never_promotes_or_claims_speedup ... ok
+test chat::agent_syscap::tests::receipt_never_promotes ... ok
+test chat::agent_orchestration::tests::seal_then_verify_passes_and_tamper_breaks ... ok
+test chat::agent_syscap::tests::seal_then_verify_self_digest_passes ... ok
+test chat::audit::tests::digest_is_a_hash_not_the_raw_args ... ok
+test chat::agent_syscap::tests::tampering_breaks_the_digest ... ok
+test chat::audit::tests::noop_sink_emits_nothing_observable ... ok
+test chat::audit::tests::in_memory_sink_records_payload_shape ... ok
+test chat::banner::tests::camel_lines_has_no_placeholders ... ok
+test chat::client::tests::parse_chat_turn_reads_plain_content ... ok
+test chat::banner::tests::placeholders_are_substituted_and_camel_survives ... ok
+test chat::client::tests::parse_chat_turn_reads_structured_tool_calls ... ok
+test chat::client::tests::parses_content_length_and_chunked_bodies ... ok
+test chat::client::tests::sse_deltas_survive_arbitrary_chunk_splits ... ok
+test chat::agent::tests::auto_all_promotes_writes_but_never_run_shell ... ok
+test chat::clipboard::tests::base64_matches_known_vectors ... ok
+test chat::client::tests::supported_predicate_reads_the_ledger_status ... ok
+test chat::agent::tests::denied_tool_emits_no_audit_events ... ok
+test chat::agent::tests::write_requires_approval_and_denial_is_handled ... ok
+test chat::agent::tests::audit_sink_gets_one_call_and_one_result_per_executed_tool ... ok
+test chat::models::tests::picker_is_ledger_derived_supported_only_and_joins_catalog ... ok
+test chat::markdown::tests::inline_code_survives ... ok
+test chat::palette::tests::matches_prefix_ranks_first ... ok
+test chat::agent::tests::repeated_identical_call_breaks_the_loop ... ok
+test chat::agent::tests::yolo_promotes_exec_tools_too ... ok
+test chat::palette::tests::resolve_handles_aliases ... ok
+test chat::session::tests::build_request_includes_set_sampling_params ... ok
+test chat::markdown::tests::renders_without_panicking_and_wraps ... ok
+test chat::agent::tests::fooled_model_following_an_injection_is_still_gated ... ok
+test chat::agent::tests::auto_approve_still_enforces_sandbox ... ok
+test chat::session::tests::set_param_updates_and_validates ... ok
+test chat::shell_sandbox::tests::mode_parses_and_round_trips ... ok
+test chat::session::tests::thinking_flag_only_sent_when_opted_in ... ok
+test chat::agent::tests::deny_tier_blocks_without_prompting ... ok
+test chat::agent::tests::session_grant_promotes_tool_to_auto ... ok
+test chat::shell_sandbox::tests::unrestricted_reports_its_layers ... ok
+test chat::shell_sandbox::tests::sandboxed_is_windows_native_not_failed_closed ... ok
+test chat::shell_sandbox::tests::disabled_is_refused_at_configure ... ok
+test chat::subagent::tests::subtask_id_validation ... ok
+test chat::agent::tests::step_cap_is_enforced ... ok
+test chat::tool_parse::tests::function_envelope_is_unwrapped ... ok
+test chat::tool_parse::tests::double_encoded_args_string_is_normalized_to_object ... ok
+test chat::tool_parse::tests::malformed_json_is_clean_not_a_panic ... ok
+test chat::tool_parse::tests::mistral_falls_back_to_json_without_marker ... ok
+test chat::tool_parse::tests::mistral_parses_bare_multi_call_array ... ok
+test chat::tool_parse::tests::multiple_calls_in_one_turn ... ok
+test chat::tool_parse::tests::mistral_plain_answer_yields_no_calls ... ok
+test chat::subagent::tests::spawn_refused_when_unconfigured ... ok
+test chat::tool_parse::tests::mistral_parses_bare_array_without_marker ... ok
+test chat::tool_parse::tests::ornith_plain_answer_no_calls ... ok
+test chat::tool_parse::tests::parses_call_embedded_in_prose ... ok
+test chat::subagent::tests::subagent_denies_gated_actions ... ok
+test chat::tool_parse::tests::parses_hermes_qwen_tool_call_tags ... ok
+test chat::tool_parse::tests::parses_ornith_multi_param_and_json_value ... ok
+test chat::tool_parse::tests::parses_ornith_single_tool_call ... ok
+test chat::tool_parse::tests::parses_ornith_call_after_think_and_preamble ... ok
+test chat::tool_parse::tests::parses_ornith_two_calls ... ok
+test chat::tool_parse::tests::plain_answer_yields_no_calls ... ok
+test chat::tool_parse::tests::parses_mistral_tool_calls_marker ... ok
+test chat::tools::tests::clip_truncates_on_a_char_boundary_without_panicking ... ok
+test chat::tools::tests::disabled_shell_mode_unregisters_run_shell ... ok
+test chat::tool_parse::tests::parses_llama_json_with_parameters ... ok
+test chat::agent::tests::loop_threads_read_result_back_and_terminates ... ok
+test chat::tool_parse::tests::parses_mistral_multiple_tool_calls ... ok
+test chat::tools::tests::gui_tools_validate_as_gated_exec ... ok
+test chat::tool_parse::tests::schema_echo_parses_to_name_with_wrong_args_for_the_gate_to_reject ... ok
+test chat::tools::tests::edit_non_unique_is_a_clean_error ... ok
+test chat::tools::tests::http_fetch_offered_only_with_net ... ok
+test chat::tool_parse::tests::trailing_and_leading_prose_around_call ... ok
+test chat::tools::tests::fs_unrestricted_allows_writes_outside_the_root ... ok
+test chat::agent::tests::injection_in_tool_result_does_not_execute ... ok
+test chat::subagent::tests::status_rejects_traversal_id ... ok
+test chat::session::tests::save_then_load_round_trips_transcript_and_settings ... ok
+test chat::tools::tests::inspect_system_reads_and_rejects_bad_query ... ok
+test chat::subagent::tests::malformed_result_is_handled_not_crashed ... ok
+test chat::tools::tests::read_file_rejects_sandbox_escape ... ok
+test chat::tools::tests::read_file_happy_path ... ok
+test chat::tools::tests::run_windows_command_refused_when_shell_disabled ... ok
+test chat::tools::tests::windows_tools_registered_only_on_windows ... ok
+test chat::tools::tests::unknown_tool_and_bad_args_are_errors_not_panics ... ok
+test chat::win_input::tests::mouse_button_parses ... ok
+test chat::subagent::tests::list_summary_lists_finished_and_empty ... ok
+test chat::tools::tests::run_windows_command_cwd_escape_is_refused ... ok
+test chat::win_input::tests::parses_modifiers_and_keys ... ok
+test tensor_dump_tests::dump_descriptor_token_columns_samples_output_weight_descriptor_columns ... ok
+test tensor_dump_tests::dump_descriptor_token_columns_reports_strided_q8_value_checks ... ok
+test tensor_dump_tests::dump_logical_token_rows_rejects_out_of_range_tokens ... ok
+test tensor_dump_tests::dump_logical_token_rows_reports_q8_value_checks_for_token_major_output_rows ... ok
+test tensor_dump_tests::dump_logical_token_rows_samples_output_weight_token_vectors ... ok
+test tensor_dump_tests::dump_logical_token_rows_samples_prompt_embedding_rows ... ok
+test tensor_dump_tests::dump_rows_reports_q8_value_checks_for_contiguous_rows ... ok
+test tensor_dump_tests::logical_token_row_layout_reports_embedding_and_output_strides ... ok
+test tensor_dump_tests::serve_nocopy_default_only_with_active_wire_resident_stack ... ok
+test tensor_dump_tests::tensor_dump_layer_selection_extends_defaults_without_duplicates ... ok
+test tensor_dump_tests::tensor_dump_reports_gguf_and_runtime_strides ... ok
+test tensor_dump_tests::tensor_dump_layer_selection_extends_explicit_tensors ... ok
+test tensor_dump_tests::tensor_dump_reports_q8_0_storage_row_size_and_stride ... ok
+test chat::subagent::tests::worker_refuses_invalid_subtask_id_in_task_file ... ok
+test chat::tools::tests::write_then_edit_within_sandbox ... ok
+test chat::tools::tests::reading_a_lure_file_does_not_execute_it ... ok
+test chat::subagent::tests::worker_canned_roundtrip_writes_result_and_consumes_task ... ok
+test chat::tools::tests::run_shell_runs_in_root_and_captures ... ok
+test chat::tools::tests::sandboxed_run_shell_runs_native_on_windows ... ok
+test chat::tools::tests::multiline_command_survives_stdin ... ok
+test chat::tools::tests::large_output_is_truncated ... ok
+test chat::tools::tests::quoting_survives_stdin_transport ... ok
+test chat::tools::tests::large_output_beyond_pipe_buffer_is_captured_not_timed_out ... ok
+test chat::tools::tests::run_windows_command_is_exec_and_runs_under_sandboxed_mode ... ok
+test chat::tools::tests::timeout_hard_kills_a_hung_command ... ok
+
+test result: ok. 115 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 2.12s
+
+     Running unittests tools\repack_ghost.rs (target\debug\deps\repack_ghost-6cdb501a7ded10fd.exe)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests\api_vertical_slice.rs (target\debug\deps\api_vertical_slice-10eea0b51ead150b.exe)
+
+running 88 tests
+test chat_completion_rejects_empty_message_content_before_runtime ... ok
+test chat_completion_returns_typed_error_for_malformed_stop_payload ... ok
+test chat_completion_requires_loaded_model_after_valid_input ... ok
+test chat_completion_rejects_top_logprobs_above_cap_before_runtime ... ok
+test chat_completion_rejects_unsupported_response_format_before_runtime ... ok
+test chat_completion_rejects_json_schema_without_schema_payload ... ok
+test chat_completion_rejects_top_logprobs_without_logprobs_before_runtime ... ok
+test chat_completion_validates_generation_input_before_runtime ... ok
+test chat_completion_rejects_empty_message_role_before_runtime ... ok
+test chat_completion_rejects_logprobs_with_stream ... ok
+test chat_completion_rejects_n_above_cap_before_runtime ... ok
+test chat_completion_accepts_tools_but_rejects_other_tool_fields ... ok
+test capabilities_report_support_contract_and_planned_lanes ... ok
+test capabilities_public_contract_omits_local_private_paths ... ok
+test completion_rejects_invalid_stop_sequence_before_runtime ... ok
+test completion_accepts_prompt_token_ids_before_runtime ... ok
+test chat_completion_validates_logit_bias_token_ids_before_runtime ... ok
+test completion_rejects_empty_stop_string_before_runtime ... ok
+test completion_rejects_ambiguous_prompt_and_prompt_token_ids ... ok
+test chat_single_choice_defaults_preserve_loaded_model_preflight_order ... ok
+test completion_rejects_llama_server_sampler_fields_before_runtime ... ok
+test completion_rejects_invalid_zero_choice_fields_before_runtime ... ok
+test completion_rejects_logprobs_above_cap_before_runtime ... ok
+test completion_validates_logit_bias_values_before_runtime ... ok
+test completion_rejects_unsupported_best_of_before_runtime ... ok
+test completion_validates_presence_penalty_before_runtime ... ok
+test completion_returns_typed_error_for_malformed_logprobs_payload ... ok
+test completion_validates_stop_sequences_before_runtime ... ok
+test completion_validates_sampling_parameters_before_runtime ... ok
+test health_reports_not_generation_ready ... ok
+test llama_server_completion_rejects_cache_controls_before_runtime ... ok
+test llama_server_completion_maps_n_predict_before_runtime ... ok
+test llama_server_completion_accepts_token_id_prompt_arrays_before_runtime ... ok
+test llama_server_completion_rejects_empty_token_id_prompt_arrays_before_runtime ... ok
+test llama_server_completion_rejects_invalid_n_predict_before_runtime ... ok
+test llama_server_completion_rejects_streaming_shape_until_implemented ... ok
+test llama_server_models_load_alias_redacts_failed_local_path ... ok
+test llama_server_models_load_alias_rejects_router_mode_fields ... ok
+test llama_server_models_load_alias_redacts_relative_path_on_every_platform ... ok
+test llama_server_models_load_alias_rejects_ambiguous_model_and_path ... ok
+test llama_server_models_load_alias_requires_model_or_path ... ok
+test llama_server_tokenize_alias_rejects_unknown_fields_before_runtime ... ok
+test llama_server_tokenize_alias_requires_loaded_model_for_piece_metadata ... ok
+test llama_server_read_only_routes_reject_router_mode_query_params ... ok
+test load_model_rejects_truncated_weight_payload ... ok
+test models_reports_public_loaded_model_list_shape ... ok
+test native_compatibility_routes_fail_closed_with_typed_errors ... ok
+test props_reports_public_fail_closed_llama_server_shape ... ok
+test generation_session_endpoint_preflights_tokenizer_then_reports_missing_dense_model ... ok
+test load_model_reports_tokenizer_summary ... ok
+test llama_server_models_load_alias_loads_local_model_with_redacted_response ... ok
+test llama_server_tokenize_detokenize_aliases_use_loaded_tokenizer ... ok
+test llama_server_apply_template_renders_loaded_model_chat_prompt ... ok
+test completion_reports_missing_tokenizer_for_dense_model ... ok
+test slots_reports_public_fail_closed_llama_server_shape ... ok
+test generation_session_without_max_tokens_uses_remaining_context ... ok
+test single_choice_defaults_preserve_loaded_model_preflight_order ... ok
+test stream_true_with_json_object_is_rejected ... ok
+test stream_true_with_json_schema_is_rejected ... ok
+test streaming_chat_completion_validates_input_before_runtime ... ok
+test streaming_chat_completion_validates_frequency_penalty_before_runtime ... ok
+test chat_completion_streams_openai_compatible_sse_chunks ... ok
+test llama_server_completion_generates_non_streaming_text ... ok
+test completion_endpoint_streams_openai_compatible_sse_chunks ... ok
+test completion_endpoint_generates_multiple_greedy_tokens ... ok
+test completion_endpoint_honors_stop_sequence ... ok
+test completion_endpoint_truncates_stop_sequence_after_partial_text ... ok
+test tokenizer_encode_requires_loaded_model ... ok
+test completion_clamps_over_limit_max_tokens_to_context ... ok
+test streaming_completion_rejects_unsupported_multiple_choices_before_runtime ... ok
+test streaming_completion_validates_top_p_before_runtime ... ok
+test tokenizer_endpoints_return_typed_malformed_request_errors ... ok
+test tokenizer_endpoint_requires_loaded_model ... ok
+test streaming_completion_accepts_advanced_sampling_controls ... ok
+test v1_model_retrieve_rejects_unloaded_or_unknown_model ... ok
+test streaming_completion_honors_stop_sequence_finish_reason ... ok
+test valid_advanced_sampling_fields_preserve_loaded_model_preflight_order ... ok
+test tokenizer_decode_reports_out_of_range_token_ids ... ok
+test tokenizer_endpoint_returns_current_model_tokenizer_summary ... ok
+test chat_completion_generates_one_decoded_token_from_loaded_dense_model ... ok
+test tokenizer_encode_decode_endpoints_use_loaded_tokenizer ... ok
+test tokenizer_decode_reports_unsupported_tokenizer ... ok
+test v1_models_supports_openai_style_model_retrieve ... ok
+test v1_model_retrieve_reports_loaded_dense_model_shape ... ok
+test tokenizer_endpoint_reports_unsupported_tokenizer_honestly ... ok
+test public_completion_without_max_tokens_uses_remaining_context_when_below_demo_cap ... ok
+test streaming_completion_rejects_when_prompt_fills_context_before_loading_weights ... ok
+test public_chat_completion_without_max_tokens_uses_demo_safe_default_cap ... ok
+
+test result: ok. 88 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.49s
+
+     Running tests\cuda_contention.rs (target\debug\deps\cuda_contention-6814017a6899bc7e.exe)
+
+running 1 test
+test contention_primary_then_second_alloc ... ignored, requires a CUDA device; run with --ignored on a CUDA host
+
+test result: ok. 0 passed; 0 failed; 1 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests\cuda_cpu_parity.rs (target\debug\deps\cuda_cpu_parity-d762b681e65c5f77.exe)
+
+running 1 test
+test cpu_cuda_greedy_parity ... ignored, needs CPU and CUDA token streams over the frozen fixtures; run on a CUDA host
+
+test result: ok. 0 passed; 0 failed; 1 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests\deterministic_forward.rs (target\debug\deps\deterministic_forward-3ec149e83b4cc1d2.exe)
+
+running 1 test
+test tinyllama_q8_deterministic_mode_is_bit_exact_and_pinned ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests\dg_block1_logit_ladder.rs (target\debug\deps\dg_block1_logit_ladder-3fd96fae090ab600.exe)
+
+running 1 test
+test dg_block1_logit_ladder ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests\dg_block1_step3_probe.rs (target\debug\deps\dg_block1_step3_probe-daca110494def415.exe)
+
+running 1 test
+test dg_block1_step3_probe ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests\dg_chat_parity.rs (target\debug\deps\dg_chat_parity-abd7918c0830bf91.exe)
+
+running 1 test
+test dg_chat_wrapper_matches_pinned_llamacpp ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests\dg_decode_parity.rs (target\debug\deps\dg_decode_parity-496329578b23da80.exe)
+
+running 1 test
+test dg_single_denoise_step_matches_pinned_llamacpp ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests\dg_eb_loop_parity.rs (target\debug\deps\dg_eb_loop_parity-ed923c3f7379b00a.exe)
+
+running 1 test
+test dg_eb_loop_matches_pinned_llamacpp ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests\dg_encoder_parity.rs (target\debug\deps\dg_encoder_parity-8f7fccce1736731c.exe)
+
+running 1 test
+test dg_encoder_prefill_matches_pinned_llamacpp ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests\dg_mc_block0_diag.rs (target\debug\deps\dg_mc_block0_diag-35868511abe7bb1f.exe)
+
+running 1 test
+test dg_mc_block0_step0_ladder ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests\dg_mc_loop_parity.rs (target\debug\deps\dg_mc_loop_parity-e9e270d4c001e42f.exe)
+
+running 1 test
+test dg_multi_canvas_loop_matches_pinned_llamacpp ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests\dg_quant_parity.rs (target\debug\deps\dg_quant_parity-dc234a9a63459cf7.exe)
+
+running 1 test
+test dg_lazy_wire_dequant_matches_pinned_llamacpp ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests\dg_tokenizer_parity.rs (target\debug\deps\dg_tokenizer_parity-90c31b2210f028ae.exe)
+
+running 1 test
+test dg_tokenizer_matches_pinned_llamacpp ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests\distributed_llama_loopback_parity.rs (target\debug\deps\distributed_llama_loopback_parity-0c507430eb77f0ae.exe)
+
+running 1 test
+test loopback_two_shard_is_token_identical_with_receipt ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests\distributed_llama_parity.rs (target\debug\deps\distributed_llama_parity-80dc536e0d798ad7.exe)
+
+running 1 test
+test inprocess_chained_partition_matches_full_stack_bitwise ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests\distributed_tests.rs (target\debug\deps\distributed_tests-a75d2995a26f4374.exe)
+
+running 3 tests
+test pipeline_load_puts_output_weights_on_last_node ... ok
+test test_network_benchmark ... ok
+test test_distributed_pipeline_parallel_inference ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.53s
+
+     Running tests\execution_trace.rs (target\debug\deps\execution_trace-5469803911a8a099.exe)
+
+running 1 test
+test tinyllama_q8_execution_trace_rollup_is_stable_and_pinned ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests\execution_trace_receipt.rs (target\debug\deps\execution_trace_receipt-0c8434a6be112318.exe)
+
+running 1 test
+test execution_trace_round_trips_through_replay ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests\gemma4_api_smoke.rs (target\debug\deps\gemma4_api_smoke-eab0cb03254c257c.exe)
+
+running 6 tests
+test live_gemma4_distributed_chat_serve_smoke ... ok
+test live_gemma4_chat_serve_smoke ... ok
+test multimodal_image_part_fails_closed_with_typed_error ... ok
+test text_only_content_parts_array_is_accepted_as_text ... ok
+test gemma4_request_without_runtime_fails_clearly ... ok
+test multimodal_audio_and_video_parts_fail_closed ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests\gemma4_binding.rs (target\debug\deps\gemma4_binding-59a8cab2c02594d0.exe)
+
+running 4 tests
+test per_layer_type_map_binds_dense ... ok
+test wrong_per_layer_ffn_width_fails_with_typed_shape_error ... ok
+test per_layer_type_map_binds_with_ple ... ok
+test wrong_per_layer_kv_width_fails_with_typed_shape_error ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests\gemma4_capabilities.rs (target\debug\deps\gemma4_capabilities-6a6fed5114481516.exe)
+
+running 4 tests
+test gemma4_e2b_row_records_pack_parity_oracle ... ok
+test gemma4_supported_rows_are_exactly_the_committed_set ... ok
+test gemma4_rows_scope_stays_exact_row_and_text_only ... ok
+test gemma4_models_catalog_lists_both_exact_rows ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.13s
+
+     Running tests\gemma4_distributed_parity.rs (target\debug\deps\gemma4_distributed_parity-9334b3777d9fcb55.exe)
+
+running 4 tests
+test distributed_split_through_shared_kv_block_fails_closed ... ok
+test distributed_serve_runtime_streaming_matches_oracle ... ok
+test distributed_wire_version_mismatch_fails_closed ... ok
+test distributed_greedy_matches_single_node_and_oracle ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests\gemma4_forward.rs (target\debug\deps\gemma4_forward-0d4918e3d0198848.exe)
+
+running 1 test
+test gemma4_prefill_matches_oracle ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests\gemma4_generation_parity.rs (target\debug\deps\gemma4_generation_parity-f92724d4b232f74a.exe)
+
+running 1 test
+test gemma4_greedy_generation_matches_llama_cpp_oracle ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests\gemma4_load.rs (target\debug\deps\gemma4_load-f897e8e87f1fa307.exe)
+
+running 1 test
+test gemma4_load_stages ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests\gemma4_logit_probe.rs (target\debug\deps\gemma4_logit_probe-63dd5cdefe655bec.exe)
+
+running 1 test
+test gemma4_teacher_forced_top2_logits ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests\gemma4_metadata.rs (target\debug\deps\gemma4_metadata-9e7b2c6d8a4c4ca3.exe)
+
+running 10 tests
+test dump_q4_0_tensor_types ... ignored, set CAMELID_GEMMA4_Q4_GGUF to the mixed Q4_0 gemma4 gguf
+test real_row_metadata_snapshot_matches ... ok
+test gemma4_assistant_mtp_architecture_fails_closed ... ok
+test sliding_window_pattern_array_is_authoritative ... ok
+test sliding_window_pattern_wrong_length_falls_back_to_formula ... ok
+test per_layer_feed_forward_length_array_parses ... ok
+test per_layer_head_count_kv_array_parses ... ok
+test diffusiongemma_architecture_fails_closed ... ok
+test gemma4_moe_tensors_without_metadata_fail_closed ... ok
+test gemma4_moe_row_fails_closed_with_typed_blocker ... ok
+
+test result: ok. 9 passed; 0 failed; 1 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests\gemma4_spec_decode_parity.rs (target\debug\deps\gemma4_spec_decode_parity-5a5d9f5d66c5c17a.exe)
+
+running 1 test
+test gemma4_speculative_decode_matches_greedy_token_for_token ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests\gemma4_template_shapes.rs (target\debug\deps\gemma4_template_shapes-663f4c2dea188336.exe)
+
+running 2 tests
+test rendered_prompts_tokenize_to_reference_ids ... ok
+test renderer_matches_reference_strings_for_all_shapes ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests\gemma4_vless_gpu.rs (target\debug\deps\gemma4_vless_gpu-f172853f631ebc7a.exe)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests\gguf_metadata.rs (target\debug\deps\gguf_metadata-659c3429c32fac8e.exe)
+
+running 4 tests
+test rejects_bad_magic ... ok
+test rejects_non_contiguous_tensor_offsets ... ok
+test parses_minimal_gguf_metadata_and_tensor_directory ... ok
+test rejects_duplicate_metadata_keys ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.04s
+
+     Running tests\inference_session.rs (target\debug\deps\inference_session-fad17b57cc26e081.exe)
+
+running 30 tests
+test plans_llama_kv_cache_shape ... ok
+test greedy_sampler_selects_highest_logit_and_lowest_tie ... ok
+test logit_bias_adjusts_greedy_selection_deterministically ... ok
+test rejects_invalid_sampling_config ... ok
+test rejects_loaded_layer_count_mismatch_before_forward ... ok
+test rejects_attention_head_configuration_that_cannot_share_kv_heads ... ok
+test penalties_apply_to_seen_tokens_before_sampling ... ok
+test min_p_zero_is_a_noop ... ok
+test min_p_one_keeps_only_argmax ... ok
+test rejects_logit_bias_outside_vocabulary ... ok
+test rejects_loaded_weight_shape_before_forward ... ok
+test rejects_min_p_out_of_range ... ok
+test rejects_empty_prompt_for_next_token_generation ... ok
+test rejects_invalid_sampling_config_before_cache_advance ... ok
+test rejects_non_finite_sampler_logits ... ok
+test rejects_non_positive_repeat_penalty ... ok
+test repeat_penalty_demotes_a_repeated_token ... ok
+test repeat_penalty_one_is_a_noop ... ok
+test temperature_zero_sampling_preserves_greedy_tie_breaking ... ok
+test top_k_one_is_argmax_regardless_of_seed ... ok
+test seeded_sampling_advances_per_decode_step ... ok
+test seeded_temperature_sampling_honors_top_k_and_top_p_filters ... ok
+test generates_next_token_after_prompt_prefill_with_greedy_sampling ... ok
+test prompt_prefill_writes_every_layer_at_each_token_position ... ok
+test rejects_invalid_rope_dimension_before_cache_advance ... ok
+test rejects_token_past_context_length ... ok
+test rejects_generation_prompt_that_exceeds_remaining_context_before_cache_advance ... ok
+test writes_all_layers_to_same_token_position_before_advancing_cache ... ok
+test runs_single_token_dense_llama_forward_skeleton ... ok
+test applies_rope_before_writing_current_key_to_cache ... ok
+
+test result: ok. 30 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.23s
+
+     Running tests\model_binding.rs (target\debug\deps\model_binding-04d67399612ddf4a.exe)
+
+running 16 tests
+test accepts_llama3_style_gqa_metadata_and_rope_theta ... ok
+test binds_mixtral_moe_metadata_and_expert_tensors ... ok
+test llama_family_with_unexpected_qk_norm_fails_closed ... ok
+test defaults_missing_kv_heads_to_attention_heads_for_tinyllama_style_metadata ... ok
+test rejects_descriptor_shape_that_cannot_feed_dense_path ... ok
+test binds_required_llama_tensors ... ok
+test falls_back_to_tied_output_embedding_when_output_weight_is_absent ... ok
+test extracts_dense_llama_model_config ... ok
+test qwen3_explicit_head_dim_binds_wide_q_projection ... ok
+test infers_vocab_size_from_real_gguf_token_embedding_shape_when_metadata_is_absent ... ok
+test rejects_dense_config_when_vocab_size_is_missing ... ok
+test qwen3_binds_per_head_qk_norm_tensors ... ok
+test reports_missing_required_tensor_by_name ... ok
+test qwen3_without_qk_norm_fails_closed ... ok
+test rejects_dense_config_when_attention_heads_do_not_divide_embedding ... ok
+test accepts_mistral_metadata_on_llama_dense_runtime ... ok
+
+test result: ok. 16 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.04s
+
+     Running tests\nvfp4_format.rs (target\debug\deps\nvfp4_format-a81a263ac985a9eb.exe)
+
+running 9 tests
+test nan_scale_scanner_ignores_qs_bytes_and_reports_first_block ... ok
+test decode_nvfp4_tensor_refuses_non_multiple_of_64_elements ... ok
+test decode_nvfp4_tensor_refuses_wrong_byte_length ... ok
+test decode_nvfp4_tensor_refuses_nan_sentinel_scales_but_block_dequant_stays_pin_bitwise ... ok
+test ue4m3_table_bit_exact_vs_pin ... ok
+test decode_table_nibble_probes_lock_packing_order ... ok
+test decode_table_all_4096_scale_code_pairs_bit_exact ... ok
+test real_gguf_blocks_bit_exact_through_both_paths ... ok
+test random_blocks_bit_exact_through_both_paths ... ok
+
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.28s
+
+     Running tests\phi3_smoke.rs (target\debug\deps\phi3_smoke-eee3bf3c5f9a7c1a.exe)
+
+running 1 test
+test phi3_greedy_is_coherent ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests\receipt_lane.rs (target\debug\deps\receipt_lane-7319a75ce63d55d2.exe)
+
+running 1 test
+test loading_a_gguf_yields_a_lane_identity_with_the_files_sha256 ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests\runnable_admission.rs (target\debug\deps\runnable_admission-b095d4e1489bed70.exe)
+
+running 4 tests
+test tinyllama_q8_parses_dumps_and_admits ... ok
+test qwen3_q8_admits_as_bpe ... ok
+test llama32_1b_q8_admits ... ok
+test diffusiongemma_real_file_is_refused ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests\runnable_dequant.rs (target\debug\deps\runnable_dequant-e24e3eece3109654.exe)
+
+running 1 test
+test dequant_matches_ggml_reference ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests\runnable_forward.rs (target\debug\deps\runnable_forward-ed08e6ac15dc8e04.exe)
+
+running 2 tests
+test produces_logits_and_greedy_tokens_end_to_end ... ok
+test forward_is_bit_exact_deterministic ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests\runnable_parity.rs (target\debug\deps\runnable_parity-0ee9c05a0728b861.exe)
+
+running 4 tests
+test qwen3_matches_hf_transformers_greedy ... ok
+test gemma3_matches_hf_transformers_greedy ... ok
+test phi3_matches_hf_transformers_greedy ... ok
+test llama_matches_hf_transformers_greedy ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests\runnable_smoke.rs (target\debug\deps\runnable_smoke-3116b6eb9fc66124.exe)
+
+running 2 tests
+test smoke_admits_tinyllama ... ok
+test smoke_admits_qwen3 ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests\runnable_tokenizer.rs (target\debug\deps\runnable_tokenizer-d73f02a3419ad29b.exe)
+
+running 2 tests
+test spm_tokenizer_matches_hf ... ok
+test bpe_tokenizer_matches_hf ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests\tensor_primitives.rs (target\debug\deps\tensor_primitives-0f3a5b413f105ac7.exe)
+
+running 10 tests
+test embedding_lookup_returns_expected_rows ... ok
+test rms_norm_known_vector ... ok
+test silu_known_values ... ok
+test silu_mul_fuses_activation_and_multiply ... ok
+test add_and_mul_same_shape ... ok
+test matmul_handles_rectangular_batches ... ok
+test matmul_2x2 ... ok
+test softmax_is_stable_for_large_logits ... ok
+test matmul_rhs_transposed_matches_explicit_transpose ... ok
+test transpose_2d ... ok
+
+test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests\tensor_store.rs (target\debug\deps\tensor_store-05a1505022ddf7fc.exe)
+
+running 29 tests
+test loads_q8_0_tensor_payload_as_f32 ... ok
+test adapts_q8_0_all_row_dot_to_single_row_linear_output_shape ... ok
+test dots_all_q8_0_rows_into_f32_tensor_without_full_materialization ... ok
+test dots_q8_0_rows_against_f32_input_without_full_materialization ... ok
+test dequantizes_q8_0_block_ranges_without_full_materialization ... ok
+test dots_all_q8_0_block_aligned_rows_without_per_element_row_fallback ... ok
+test loads_f32_tensor_payload ... ok
+test loads_f16_tensor_payload_as_f32 ... ok
+test loads_q8_0_file_backed_linear_without_f32_materialization ... ok
+test loads_q8_0_blocks_without_f32_materialization ... ok
+test loads_q8_0_block_backed_linear_without_f32_materialization ... ok
+test dequantizes_q8_0_rows_without_full_materialization ... ok
+test loads_bf16_tensor_payload_as_f32 ... ok
+test q8_0_block_backed_embedding_lookup_dequantizes_requested_rows ... ok
+test rejects_non_q8_0_block_only_loads ... ok
+test q8_0_file_backed_embedding_lookup_reads_only_requested_rows ... ok
+test rejects_q8_0_tensor_with_non_block_aligned_first_dimension ... ok
+test reports_missing_tensor_by_name ... ok
+test mac_q8_repack_loads_attention_kvo_as_packed_runtime_without_row_major_duplicate ... ok
+test lower_bit_quant_tensors_decode_to_reference_f32_loads ... ok
+test mac_q8_repack_loads_attn_q_as_packed_runtime_without_row_major_duplicate ... ok
+test mac_q8_repack_loads_ffn_down_as_transposed_packed_runtime_without_row_major_duplicate ... ok
+test mac_q8_repack_loads_ffn_gate_as_transposed_packed_runtime_without_row_major_duplicate ... ok
+test mac_q8_repack_loads_output_projection_as_token_major_packed_runtime ... ok
+test x86_q8_repack_loads_attention_qkv_as_output_row_packed_runtime ... ok
+test x86_q8_repack_loads_attn_q_as_packed_runtime_without_row_major_duplicate ... ok
+test x86_q8_repack_loads_dense_attention_family_as_packed_runtime ... ok
+test x86_q8_repack_loads_dense_ffn_family_as_transposed_packed_runtime ... ok
+test x86_q8_repack_loads_output_projection_as_token_major_packed_runtime ... ok
+
+test result: ok. 29 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.16s
+
+     Running tests\tokenizer.rs (target\debug\deps\tokenizer-31bfca22a1173086.exe)
+
+running 27 tests
+test encodes_mistral_real_prompts_like_llama_cpp_when_available ... ok
+test encodes_llama3_real_prompts_like_llama_cpp_when_available ... ok
+test encodes_mixtral_real_prompts_like_llama_cpp_when_available ... ok
+test llama3_reference_fixture_records_llama_cpp_token_ids ... ok
+test encodes_tinyllama_edge_reference_pack_like_llama_cpp_when_available ... ok
+test mistral_reference_pack_records_required_prompt_shapes_and_tokens ... ok
+test mixtral_reference_pack_records_required_prompt_shapes_and_tokens ... ok
+test encodes_empty_with_bos_when_special_enabled ... ok
+test loads_llama_spm_tokenizer_metadata ... ok
+test accepts_qwen2_gpt2_bpe_pre_tokenizer ... ok
+test does_not_duplicate_dummy_prefix_after_control_token_before_space ... ok
+test encodes_known_piece_with_space_prefix ... ok
+test verifies_llama3_real_vocab_ids_match_gguf_metadata_when_available ... ok
+test loads_gpt2_bpe_tokenizer_metadata_and_specials ... ok
+test tinyllama_edge_reference_pack_records_required_prompt_shapes_and_tokens ... ok
+test encodes_and_decodes_minimal_gpt2_bpe_fixture ... ok
+test decodes_byte_tokens_and_sentencepiece_space ... ok
+test parse_special_spm_uses_vocab_piece_after_control_dummy_prefix ... ok
+test rejects_special_token_id_outside_vocab ... ok
+test applies_tokenizer_merges_when_present ... ok
+test adds_dummy_prefix_after_control_token_before_newline ... ok
+test preserves_chat_template_metadata_when_present ... ok
+test falls_back_to_byte_tokens ... ok
+test rejects_gpt2_bpe_without_supported_pre_tokenizer ... ok
+test rejects_unsupported_tokenizer_model ... ok
+test rejects_score_array_shorter_than_tokens ... ok
+test rejects_unknown_token_type_value ... ok
+
+test result: ok. 27 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.05s
+
+   Doc-tests camelid
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

@@ -1,0 +1,199 @@
+{
+  "schema": "camelid.capability-manifest/v1",
+  "row": "tinyllama-1.1b-chat-q8_0",
+  "model_label": "TinyLlama 1.1B Chat Q8_0",
+  "generated": "2026-06-25",
+  "phase0_complete": true,
+  "artifact": {
+    "present": true,
+    "gguf_path": "models/tinyllama-1.1b-chat-v1.0.Q8_0.gguf",
+    "gguf_filename": "tinyllama-1.1b-chat-v1.0.Q8_0.gguf",
+    "gguf_sha256": "a4c9bb1dbaa372f6381a035fa5c02ef087aaa1ff1f843a56a22328114f03fc59",
+    "size_bytes": 1170781568,
+    "note": "hash-anchored to the on-disk GGUF"
+  },
+  "platform": {
+    "os": "windows",
+    "target": "x86_64-pc-windows-msvc",
+    "execution_backends_in_scope": [
+      "cpu",
+      "cuda"
+    ],
+    "discovery_tool": "camelid inspect (target/release/camelid.exe, built 2026-06-23)",
+    "oracle": "llama.cpp acd79d6 (MSVC, Windows AMD64) — llama.cpp/build/bin/llama-{cli,server}.exe"
+  },
+  "arch": {
+    "architecture": "llama",
+    "trained_context_length": 2048,
+    "rope_freq_base": 10000,
+    "rope_scaling_type": null,
+    "rope_scaling_factor": null,
+    "bos_token_id": 1,
+    "eos_token_ids": [
+      2
+    ],
+    "special_tokens": [
+      "<|system|>",
+      "<|user|>",
+      "<|assistant|>",
+      "<s>",
+      "</s>"
+    ]
+  },
+  "chat_template_excerpt": "{% for message in messages %}{% if message['role'] == 'user' %}<|user|>\\n{content}+eos_token{% elif message['role'] == 'system' %}<|system|>\\n{content}+eos_token{% elif message['role'] == 'assistant' %}<|assistant|>\\n{content}+eos_token{% endif %}{% if loop.last and add_generation_prompt %}<|assistant|>{% endif %}{% endfor %}  (Zephyr/TinyLlama-style; eos_token=</s> id2; system+user+assistant branches, no tool branch)",
+  "claimed_envelope": [
+    {
+      "id": "gen.n_choices",
+      "capability": "Multi-choice n>1 independent generations (decoder/API)",
+      "verdict": "capable",
+      "oracle_class": "C",
+      "matrix_cell": "done",
+      "camelid_state": "typed_error_stub",
+      "receipt_present": true,
+      "receipt": "receipts/capability-receipt.gen.n_choices.tinyllama-1.1b-chat-q8_0.json",
+      "model_evidence": "Model-agnostic decoder/API: n>1 independent generations served by sampler loop; OpenAI-shape contract, arch=llama imposes no limit."
+    },
+    {
+      "id": "gen.stream_usage",
+      "capability": "OpenAI stream_options.include_usage terminal usage chunk (API)",
+      "verdict": "capable",
+      "oracle_class": "C",
+      "matrix_cell": "done",
+      "camelid_state": "drives",
+      "receipt_present": true,
+      "receipt": "receipts/capability-receipt.gen.stream_usage.tinyllama-1.1b-chat-q8_0.json",
+      "model_evidence": "stream_options.include_usage terminal chunk is an API-shape concern, independent of arch=llama; usage accounting available for any causal LM."
+    },
+    {
+      "id": "gen.length_stop",
+      "capability": "max_tokens, stop sequences, EOS stop behavior",
+      "verdict": "capable",
+      "oracle_class": "D/C",
+      "matrix_cell": "done",
+      "camelid_state": "drives",
+      "receipt_present": true,
+      "receipt": "receipts/capability-receipt.gen.length_stop.tinyllama-1.1b-chat-q8_0.json",
+      "model_evidence": "EOS stop well-defined: tokenizer.ggml.eos_token_id=2 (verified in metadata); max_tokens/stop-sequences are decoder-side contract behaviors."
+    },
+    {
+      "id": "sampling.full_set",
+      "capability": "top_p,top_k,min_p,temperature,repetition/frequency/presence_penalty,seed,logit_bias",
+      "verdict": "capable",
+      "oracle_class": "I",
+      "matrix_cell": "done",
+      "camelid_state": "partial",
+      "receipt_present": true,
+      "receipt": "receipts/capability-receipt.sampling.full_set.tinyllama-1.1b-chat-q8_0.json",
+      "model_evidence": "top_p/top_k/min_p/temperature/penalties/logit_bias are sampler invariants over the logit vector, model-agnostic for any causal LM."
+    },
+    {
+      "id": "sampling.seed_determinism",
+      "capability": "fixed seed reproduces token-for-token across runs",
+      "verdict": "capable",
+      "oracle_class": "I",
+      "matrix_cell": "done",
+      "camelid_state": "drives",
+      "receipt_present": true,
+      "receipt": "receipts/capability-receipt.sampling.seed_determinism.tinyllama-1.1b-chat-q8_0.json",
+      "model_evidence": "Fixed-seed token-for-token reproducibility is an RNG invariant of the sampler; holds for arch=llama Q8_0 deterministic decode."
+    },
+    {
+      "id": "logprobs.top_logprobs",
+      "capability": "logprobs/top_logprobs at temp=0 (any causal LM)",
+      "verdict": "capable",
+      "oracle_class": "D",
+      "matrix_cell": "done",
+      "camelid_state": "drives",
+      "receipt_present": true,
+      "receipt": "receipts/capability-receipt.logprobs.top_logprobs.tinyllama-1.1b-chat-q8_0.json",
+      "model_evidence": "Logits exposed by the causal LM head; top_logprobs at temp=0 deterministically parity-checkable for arch=llama."
+    },
+    {
+      "id": "chat.system_multiturn",
+      "capability": "system role + multi-turn template fidelity (per THIS template)",
+      "verdict": "capable",
+      "oracle_class": "D",
+      "matrix_cell": "wip",
+      "camelid_state": "drives",
+      "receipt_present": false,
+      "receipt": null,
+      "model_evidence": "VERIFIED in tokenizer.chat_template metadata: explicit `{% elif message['role'] == 'system' %}` -> '<|system|>\\n'+content+eos_token branch, plus user '<|user|>' and assistant '<|assistant|>' branches, plus `loop.last and add_generation_prompt` -> '<|assistant|>'. Multi-turn supported (for-loop over all messages)."
+    },
+    {
+      "id": "tools.function_calling",
+      "capability": "native tool/function calling — REQUIRES tool-call branch or tool/ipython control tokens in THIS model template",
+      "verdict": "incapable",
+      "oracle_class": "none",
+      "matrix_cell": "n/a",
+      "camelid_state": "drives",
+      "receipt_present": false,
+      "receipt": null,
+      "model_evidence": "VERIFIED: chat_template has ONLY user/system/assistant role branches; no tool/tool_calls branch, and tokenizer has no tool/ipython/function control tokens. True n/a, not a gap."
+    },
+    {
+      "id": "structured.json_grammar",
+      "capability": "JSON mode + GBNF grammar-constrained decode (decoder-side, model-agnostic)",
+      "verdict": "capable",
+      "oracle_class": "B",
+      "matrix_cell": "done",
+      "camelid_state": "drives",
+      "receipt_present": true,
+      "receipt": "receipts/capability-receipt.structured.json_grammar.tinyllama-1.1b-chat-q8_0.json",
+      "model_evidence": "JSON mode + GBNF grammar-constrained decode is decoder-side (logit masking), model-agnostic; arch=llama imposes no constraint."
+    },
+    {
+      "id": "context.full_length",
+      "capability": "full TRAINED context length, exact value from metadata",
+      "verdict": "capable",
+      "oracle_class": "D",
+      "matrix_cell": "wip",
+      "camelid_state": "drives",
+      "receipt_present": false,
+      "receipt": null,
+      "model_evidence": "VERIFIED: llama.context_length=2048 read directly from GGUF metadata (exact trained length)."
+    },
+    {
+      "id": "context.rope_scaling",
+      "capability": "RoPE scaling/extension — REQUIRES a rope scaling type/factor declared in metadata",
+      "verdict": "incapable",
+      "oracle_class": "none",
+      "matrix_cell": "n/a",
+      "camelid_state": "drives",
+      "receipt_present": false,
+      "receipt": null,
+      "model_evidence": "VERIFIED across all 23 metadata keys: only llama.rope.freq_base=10000.0 + llama.rope.dimension_count=64 present; NO rope.scaling.type/factor/original_context_length keys. RoPE scaling ABSENT -> correct n/a."
+    },
+    {
+      "id": "observ.usage_timing",
+      "capability": "prompt/completion/total token accounting + optional timing fields",
+      "verdict": "capable",
+      "oracle_class": "C",
+      "matrix_cell": "done",
+      "camelid_state": "drives",
+      "receipt_present": true,
+      "receipt": "receipts/capability-receipt.observ.usage_timing.tinyllama-1.1b-chat-q8_0.json",
+      "model_evidence": "prompt/completion/total token counts + optional timing are API-shape accounting, independent of arch=llama."
+    },
+    {
+      "id": "load.quant_breadth",
+      "capability": "(SECONDARY) loadability across additional quants beyond Q8_0",
+      "verdict": "capable",
+      "oracle_class": "D",
+      "matrix_cell": "wip",
+      "camelid_state": "partial",
+      "receipt_present": false,
+      "receipt": null,
+      "model_evidence": "SECONDARY (loader fact, no behavioral oracle): general.file_type=7 (Q8_0); any llama GGUF supports other quants — widens the load matrix, not the behavioral envelope. capable+none is an intentional secondary annotation, not a behavioral parity claim."
+    }
+  ],
+  "overclaim_flags": [
+    "NO VERDICT FLIPS REQUIRED — adversarial re-inspect confirms the draft. All three especially-flagged caps verified against live GGUF metadata.",
+    "VERIFIED chat.system_multiturn=capable: tokenizer.chat_template metadata contains explicit system branch (message['role']=='system' -> <|system|>) alongside user/assistant branches and add_generation_prompt -> <|assistant|>. Specific template branch present, so capable holds (not flipped).",
+    "VERIFIED tools.function_calling=incapable: re-read chat_template has only user/system/assistant branches; no tool/tool_calls branch and no tool/ipython/function control token in tokenizer.ggml.tokens. Stricter verdict (incapable/none) is correct as a true n/a, not an underclaim.",
+    "VERIFIED context.rope_scaling=incapable: enumerated all 23 metadata keys — only llama.rope.freq_base=10000.0 and llama.rope.dimension_count=64 exist; rope.scaling.type/factor and original_context_length are absent. Scaling genuinely absent -> incapable correct (no underclaim; runtime extension is not a model-declared capability).",
+    "VERIFIED context.full_length=2048: llama.context_length re-read = 2048 (exact trained length from metadata).",
+    "NOTE (no change): load.quant_breadth carries verdict=capable with oracle_class=none, which is internally unusual; left unchanged because it is explicitly a SECONDARY loader-matrix fact with no behavioral oracle, consistent with the conductor table.",
+    "NOTE (no change): arch.special_tokens lists <|system|>/<|user|>/<|assistant|> which are template control STRINGS (tokenized as ordinary sub-tokens), plus real bos/eos <s>/</s>. Kept as the chat-protocol control markers; only <s> (id1) and </s> (id2) are true vocab special tokens."
+  ],
+  "phase0_notes": "Adversarial Phase 0 re-verification of tinyllama-1.1b-chat-q8_0 via `camelid inspect` (CUDA_VISIBLE_DEVICES=-1). Ground truth is GGUF metadata only (23 keys total). Confirmed: general.architecture=llama; general.file_type=7 (Q8_0); block_count=22; head_count=32, head_count_kv=4 (GQA 8:1); embedding_length=2048; feed_forward_length=5632; layer_norm_rms_epsilon=1e-5. Context: llama.context_length=2048 EXACT. RoPE: freq_base=10000.0, dimension_count=64 (=2048/32 head_dim); NO scaling keys among the 23 -> context.rope_scaling incapable is CORRECT. Tokens: bos=1, eos=2, pad=2, unk=0. chat_template = TinyLlama/Zephyr style with system+user+assistant branches and add_generation_prompt -> <|assistant|>; NO tool/function branch or tool/ipython tokens -> tools.function_calling incapable is CORRECT (true n/a). chat.system_multiturn capable is CORRECT (explicit system branch present). Result of adversarial pass: the draft envelope is accurate; zero overclaims and zero underclaims found; no verdicts flipped. Two no-change annotations recorded (load.quant_breadth capable+none secondary pairing; special_tokens control-string vs true-special-token distinction)."
+}

@@ -1,0 +1,400 @@
+{
+  "schema": "camelid.gemma3.chat_oracle.v1",
+  "comparator": "llama.cpp 9632 (acd79d603) CPU (llama-server /completion, -ngl 0 -ctk f32 -ctv f32 -fa off --no-repack)",
+  "llama_base": "http://127.0.0.1:8090",
+  "token_counts": [
+    1,
+    5,
+    50
+  ],
+  "prompts": [
+    "What is the capital of France?",
+    "Say hello in one short sentence.",
+    "Name the largest ocean on Earth.",
+    "What color is the sky on a clear day?",
+    "Count from one to five in words."
+  ],
+  "captured": [
+    {
+      "prompt": "What is the capital of France?",
+      "rendered": "<start_of_turn>user\nWhat is the capital of France?<end_of_turn>\n<start_of_turn>model\n",
+      "reference_prompt_tokens": [
+        2,
+        105,
+        2364,
+        107,
+        3689,
+        563,
+        506,
+        5279,
+        529,
+        7001,
+        236881,
+        106,
+        107,
+        105,
+        4368,
+        107
+      ],
+      "generations": {
+        "1": {
+          "reference_text": "The",
+          "reference_tokens": [
+            818
+          ]
+        },
+        "5": {
+          "reference_text": "The capital of France is",
+          "reference_tokens": [
+            818,
+            5279,
+            529,
+            7001,
+            563
+          ]
+        },
+        "50": {
+          "reference_text": "The capital of France is **Paris**. \n\nIt’s a common misconception that Paris is the *only* capital, but it’s the official and most widely recognized one.",
+          "reference_tokens": [
+            818,
+            5279,
+            529,
+            7001,
+            563,
+            5213,
+            50429,
+            84750,
+            236743,
+            108,
+            1509,
+            236858,
+            236751,
+            496,
+            3364,
+            121756,
+            600,
+            9079,
+            563,
+            506,
+            808,
+            8960,
+            236829,
+            5279,
+            236764,
+            840,
+            625,
+            236858,
+            236751,
+            506,
+            5125,
+            532,
+            1346,
+            12865,
+            12659,
+            886,
+            236761,
+            106
+          ]
+        }
+      }
+    },
+    {
+      "prompt": "Say hello in one short sentence.",
+      "rendered": "<start_of_turn>user\nSay hello in one short sentence.<end_of_turn>\n<start_of_turn>model\n",
+      "reference_prompt_tokens": [
+        2,
+        105,
+        2364,
+        107,
+        37889,
+        29104,
+        528,
+        886,
+        2822,
+        13315,
+        236761,
+        106,
+        107,
+        105,
+        4368,
+        107
+      ],
+      "generations": {
+        "1": {
+          "reference_text": "Hello",
+          "reference_tokens": [
+            9259
+          ]
+        },
+        "5": {
+          "reference_text": "Hello there!",
+          "reference_tokens": [
+            9259,
+            993,
+            236888,
+            106
+          ]
+        },
+        "50": {
+          "reference_text": "Hello there!",
+          "reference_tokens": [
+            9259,
+            993,
+            236888,
+            106
+          ]
+        }
+      }
+    },
+    {
+      "prompt": "Name the largest ocean on Earth.",
+      "rendered": "<start_of_turn>user\nName the largest ocean on Earth.<end_of_turn>\n<start_of_turn>model\n",
+      "reference_prompt_tokens": [
+        2,
+        105,
+        2364,
+        107,
+        1567,
+        506,
+        7488,
+        12461,
+        580,
+        10824,
+        236761,
+        106,
+        107,
+        105,
+        4368,
+        107
+      ],
+      "generations": {
+        "1": {
+          "reference_text": "The",
+          "reference_tokens": [
+            818
+          ]
+        },
+        "5": {
+          "reference_text": "The largest ocean on Earth",
+          "reference_tokens": [
+            818,
+            7488,
+            12461,
+            580,
+            10824
+          ]
+        },
+        "50": {
+          "reference_text": "The largest ocean on Earth is the **Pacific Ocean**. \n\nIt covers approximately 63 million square miles (165.25 million square kilometers) and is the deepest and most diverse ocean.",
+          "reference_tokens": [
+            818,
+            7488,
+            12461,
+            580,
+            10824,
+            563,
+            506,
+            5213,
+            47204,
+            18414,
+            84750,
+            236743,
+            108,
+            1509,
+            13526,
+            8296,
+            236743,
+            236825,
+            236800,
+            3625,
+            6281,
+            7635,
+            568,
+            236770,
+            236825,
+            236810,
+            236761,
+            236778,
+            236810,
+            3625,
+            6281,
+            35769,
+            236768,
+            532,
+            563,
+            506,
+            58825,
+            532,
+            1346,
+            12801,
+            12461,
+            236761,
+            106
+          ]
+        }
+      }
+    },
+    {
+      "prompt": "What color is the sky on a clear day?",
+      "rendered": "<start_of_turn>user\nWhat color is the sky on a clear day?<end_of_turn>\n<start_of_turn>model\n",
+      "reference_prompt_tokens": [
+        2,
+        105,
+        2364,
+        107,
+        3689,
+        2258,
+        563,
+        506,
+        7217,
+        580,
+        496,
+        3582,
+        1719,
+        236881,
+        106,
+        107,
+        105,
+        4368,
+        107
+      ],
+      "generations": {
+        "1": {
+          "reference_text": "This",
+          "reference_tokens": [
+            2094
+          ]
+        },
+        "5": {
+          "reference_text": "This is a classic question",
+          "reference_tokens": [
+            2094,
+            563,
+            496,
+            9760,
+            2934
+          ]
+        },
+        "50": {
+          "reference_text": "This is a classic question! The color of the sky on a clear day is **blue**.\n\nHowever, it's a bit more complex than just that! Here's a breakdown of why:\n\n* **Rayleigh Scattering:** The primary",
+          "reference_tokens": [
+            2094,
+            563,
+            496,
+            9760,
+            2934,
+            236888,
+            669,
+            2258,
+            529,
+            506,
+            7217,
+            580,
+            496,
+            3582,
+            1719,
+            563,
+            5213,
+            9503,
+            84750,
+            108,
+            9675,
+            236764,
+            625,
+            236789,
+            236751,
+            496,
+            3103,
+            919,
+            3996,
+            1082,
+            1164,
+            600,
+            236888,
+            5715,
+            236789,
+            236751,
+            496,
+            25890,
+            529,
+            3217,
+            236787,
+            108,
+            236829,
+            5213,
+            30958,
+            53700,
+            178868,
+            53121,
+            669,
+            5905
+          ]
+        }
+      }
+    },
+    {
+      "prompt": "Count from one to five in words.",
+      "rendered": "<start_of_turn>user\nCount from one to five in words.<end_of_turn>\n<start_of_turn>model\n",
+      "reference_prompt_tokens": [
+        2,
+        105,
+        2364,
+        107,
+        4377,
+        699,
+        886,
+        531,
+        3493,
+        528,
+        4171,
+        236761,
+        106,
+        107,
+        105,
+        4368,
+        107
+      ],
+      "generations": {
+        "1": {
+          "reference_text": "Okay",
+          "reference_tokens": [
+            19058
+          ]
+        },
+        "5": {
+          "reference_text": "Okay, here we go",
+          "reference_tokens": [
+            19058,
+            236764,
+            1590,
+            692,
+            817
+          ]
+        },
+        "50": {
+          "reference_text": "Okay, here we go!\n\nOne, two, three, four, five!",
+          "reference_tokens": [
+            19058,
+            236764,
+            1590,
+            692,
+            817,
+            236888,
+            108,
+            4906,
+            236764,
+            1156,
+            236764,
+            1806,
+            236764,
+            2390,
+            236764,
+            3493,
+            236888,
+            106
+          ]
+        }
+      }
+    }
+  ]
+}

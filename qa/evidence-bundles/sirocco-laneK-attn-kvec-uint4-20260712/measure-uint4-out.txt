@@ -1,0 +1,10 @@
+### ctx~0 NO-REGRESSION (uint4 default) — expect ~126-128 ###
+ctx~0: 131.76  131.06
+### ctx~300 attention_decode (uint4) default vs coalesced=1 (both bit paths at <512 use attention_decode; coalesced no-op here) ###
+r1 ctx300 uint4=127.79  c(=1)=126.86
+r2 ctx300 uint4=127.37  c(=1)=127.28
+### ctx~1542 split-K: uint4(bit-identical,default) vs coalesced(token-parity,=1) ###
+r1 ctx1542 uint4=94.70  coalesced=90.23
+r2 ctx1542 uint4=93.93  coalesced=88.04
+r3 ctx1542 uint4=91.62  coalesced=83.46
+(baseline scalar attn_sk_scores at ctx~1542 measured earlier this session: ~84-86 tok/s)

@@ -1,0 +1,13 @@
+{
+  "command": [
+    "node",
+    "<repo>\\scripts\\summarize-generation-timings.mjs",
+    "--out",
+    "<repo>\\target\\muster-ma1-20260716\\api-webui\\generation-timings.summary.json",
+    "<repo>\\target\\muster-ma1-20260716\\api-webui\\completion.response.json",
+    "<repo>\\target\\muster-ma1-20260716\\api-webui\\chat.response.json"
+  ],
+  "exit_code": 1,
+  "summary_path": "<repo>\\target\\muster-ma1-20260716\\api-webui\\generation-timings.summary.json",
+  "__error": "generation timing summary exited 1"
+}

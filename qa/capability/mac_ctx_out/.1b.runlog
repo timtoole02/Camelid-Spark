@@ -1,0 +1,5 @@
+row=llama-3.2-1b-instruct-q8_0 target_tokens=8400 kv/token=65536B projected_KV=0.51 GiB safe_budget=3.50 GiB
+actual_prompt_tokens=5813 positions_exceed_8192=false llama_ctx=8704
+generation_parity_pass=true  (PASS reference-rerun: generated tokens (8) and text match llama.cpp (first_divergent_token_index=-1))
+receipt=/Volumes/Untitled/Camelid-w2m-p2/qa/capability/mac_ctx_out/llama-3.2-1b/parity-receipt.json
+OK

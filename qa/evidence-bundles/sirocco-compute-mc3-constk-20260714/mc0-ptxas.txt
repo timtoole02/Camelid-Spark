@@ -1,0 +1,10 @@
+SIROCCO Compute M-C0: ptxas -v (nvcc -arch=sm_86 --fmad=false) on the flash scores kernel.
+The runtime k_tokens loop bound blocks unrolling -> per-row dot[]/local_max[] arrays land in LOCAL
+memory; a compile-time k==8 unroll (#pragma unroll) promotes them to REGISTERS.
+
+  scores_runtime (shipped M1, runtime k_tokens):  128 bytes stack frame, 40 registers
+  scores_k8      (compile-time KT=8, #pragma unroll):  0 bytes stack frame, 48 registers
+
+=> local-memory-bound confirmed at compile time. (Corroborated by M2b: FLASH_MAX_BQ 16->32 regressed
+even k=8 -- array size gates occupancy.) Tensor cores REFUTED by the design roofline: M1 flash
+attention runs at ~1% of the 3060's FP32 peak, so the FLOP ceiling addresses <0.2% of the wall.

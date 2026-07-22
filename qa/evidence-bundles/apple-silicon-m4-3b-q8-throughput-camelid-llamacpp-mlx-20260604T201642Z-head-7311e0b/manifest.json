@@ -1,0 +1,56 @@
+{
+ "schema": "camelid.apple_silicon_m4_3b_q8_three_runtime_throughput.v1",
+ "captured_utc": "20260604T201642Z",
+ "head_commit": "7311e0b",
+ "passed": true,
+ "claim_boundary": "Exact-row, same-host, bounded throughput snapshot for Llama 3.2 3B Instruct Q8_0 on one Apple M4 (16GB) host. Camelid prefill reads above both llama.cpp and MLX-LM in every round of this session (camelid 576.7/583.3/586.8 vs MLX-LM 575.5/575.4/579.9), with a +1.4% session-median margin that exceeds neither runtime's observed inter-round spread by a wide factor; the table claims a narrow same-session win, not a durable or general one. Not a model-family, context-sweep, or production-load claim.",
+ "host": {
+  "machine": "Mac16,10 (Apple M4, 10-core GPU, 16GB unified memory)",
+  "os": "macOS (Darwin 25.5.0)",
+  "thermal_note": "warm host; rounds alternate runtime order to bound order/thermal bias"
+ },
+ "workload": {
+  "model_row": "Llama 3.2 3B Instruct Q8_0 (GGUF for camelid and llama.cpp; mlx-community Llama-3.2-3B-Instruct-8bit for MLX-LM)",
+  "prompt": "601-token repeated-sentence prompt (' '.join(['The quick brown fox jumps over the lazy dog.'] * 60))",
+  "sampling": "greedy (temperature 0)",
+  "camelid_command": "camelid bench-generate <model> --prompt-file <601-token prompt> --max-tokens 16 --temperature 0 --warmup --iterations 5 --json (default CLI fast stack)",
+  "llamacpp_command": "llama-bench -m <model> -p 601 -n 0 -r 3 -o md (brew llama.cpp, Metal)",
+  "mlx_command": "mlx_lm.generate two-point decode + 601-token verbose prompt pass (mlx-lm, see mlx-version.txt)"
+ },
+ "method": "Three same-session rounds with alternating runtime order (llama.cpp first in round 2, camelid first in rounds 1 and 3). Per-runtime result is the median across rounds; camelid per-round value is the median of 5 measured iterations (1 unmeasured warmup). Per-round detail retained in raw logs in this bundle.",
+ "results": {
+  "prefill_601_tokens_per_second": {
+   "camelid": {
+    "round_medians": [576.7, 583.3, 586.8],
+    "session_median": 583.3,
+    "best_iteration": 588.4
+   },
+   "llamacpp": {
+    "round_means": [543.5, 540.5, 543.9],
+    "session_median": 543.5
+   },
+   "mlx_lm": {
+    "rounds": [575.5, 575.4, 579.9],
+    "session_median": 575.5
+   }
+  },
+  "ttft_601_ms": {
+   "camelid": {
+    "session_median": 1076
+   }
+  },
+  "decode_short_context_tokens_per_second": {
+   "mlx_lm": {
+    "rounds": [28.56, 28.68, 29.05],
+    "session_median": 28.68,
+    "note": "two-point decode from the same mlx bench passes; camelid and llama.cpp decode were not re-measured in this session"
+   }
+  }
+ },
+ "parity": "Camelid greedy 16-token continuation matches the CPU reference path token-for-token on the bench prompt in every iteration of every round (output_token_ids in the camelid jsonl logs).",
+ "files": {
+  "camelid": ["camelid-prefill601-r1.jsonl", "camelid-prefill601-r2.jsonl", "camelid-prefill601-r3.jsonl"],
+  "llamacpp": ["llama-bench-r1.md.txt", "llama-bench-r2.md.txt", "llama-bench-r3.md.txt", "llama-bench-version.txt"],
+  "mlx": ["mlx-bench-r1.txt", "mlx-bench-r2.txt", "mlx-bench-r3.txt", "mlx-version.txt"]
+ }
+}

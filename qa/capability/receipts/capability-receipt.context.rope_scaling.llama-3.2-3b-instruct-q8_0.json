@@ -1,0 +1,31 @@
+{
+  "schema": "camelid.capability-receipt/v1",
+  "capability_id": "context.rope_scaling",
+  "capability": "RoPE scaling/extension at positions beyond the original context (llama3 baked rope_freqs)",
+  "row": "llama-3.2-3b-instruct-q8_0",
+  "model_label": "Llama 3.2 3B Instruct Q8_0",
+  "oracle_class": "D",
+  "verdict": "validated",
+  "generated": "2026-06-25",
+  "platform": {
+    "os": "windows",
+    "target": "x86_64-pc-windows-msvc",
+    "backend": "cpu",
+    "oracle": "llama.cpp acd79d6 (MSVC, Windows AMD64)"
+  },
+  "gguf": {
+    "filename": "Llama-3.2-3B-Instruct-Q8_0.gguf",
+    "sha256": "f34112a11b7dad74ab517dedf6dcf00d624c9adac2dc0c72c719ca0478554ef2"
+  },
+  "harness": {
+    "repo_head": "bde66bc7d5d6867124631487c6ebb4e674ba177a",
+    "branch": "feat/capability-context-chat",
+    "working_tree": "Produced with the context lane diff UNCOMMITTED on a branch based on bde66bc7 (main). Re-seal against the commit once landed.",
+    "binary": "target/release/camelid.exe",
+    "e2e_harness": "qa/capability/context_parity.mjs (Windows CPU, CUDA_VISIBLE_DEVICES=-1)"
+  },
+  "evidence": {
+    "kind": "oracle_token_parity",
+    "summary": "e2e (qa/capability/context_parity.mjs, Windows CPU): an 8304-token prompt — positions 0..8303, EXCEEDING the model's original 8192-token context — is decoded greedily (temperature=0), exercising the llama3 RoPE extension at extended positions. Camelid emits a server-sealed camelid.parity-receipt/v1 recording its actual generated tokens; `camelid verify-receipt --reference-only` feeds Camelid's exact 8304 prompt token ids to llama.cpp acd79d6 /completion — the continuation matches BIT-EXACT (generated tokens (8) and text identical, first_divergent_token_index=-1; digest + lane-identity + llama.cpp reference-rerun all PASS). reference-only (the in-process Camelid self-replay was skipped to bound the cost of a ~8.3k-token 3B CPU prefill; Camelid greedy determinism is independently established on the companion full self+reference runs — TinyLlama/1B system_multiturn and the 1B rope run). Because positions exceed 8192, a bit-exact match confirms Camelid applies the model's rope extension identically to llama.cpp in the scaled regime (and KV-cache correctness across all 8304 positions). MECHANISM: same as the 1B row — the Llama 3.2 3B GGUF declares no llama.rope.scaling.* metadata; the llama3 scaling is baked into a rope_freqs.weight tensor that both engines read identically (Camelid: effective_base = rope_freq_base / rope_freqs[pair], src/inference/rope.rs:499-500, under the RopeScalingKind::None arm, not the dormant rope.rs:507 metadata branch). KV projection: 8304 tokens x 229376 B/token = 1.9 GiB f32 CPU KV (within the harness's predict-and-abort budget). Non-streaming, single-choice, greedy. (The full trained 131072 context is host-limited on this box — 28 GiB KV; see qa/validation-notes/2026-06-25-capability-context-host-limits.md.)"
+  }
+}

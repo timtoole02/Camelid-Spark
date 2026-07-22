@@ -1,0 +1,33 @@
+{
+  "object": "list",
+  "data": [
+    {
+      "id": "gemma_3_1b_it_q8_0",
+      "object": "model",
+      "created": 0,
+      "owned_by": "camelid",
+      "meta": {
+        "n_vocab": 262144,
+        "n_ctx_train": 32768,
+        "n_embd": 1152,
+        "n_params": 999885952,
+        "size": 1069306368,
+        "file_type": 7
+      }
+    },
+    {
+      "id": "Llama 3.2 1B Instruct",
+      "object": "model",
+      "created": 0,
+      "owned_by": "camelid",
+      "meta": {
+        "n_vocab": 128256,
+        "n_ctx_train": 131072,
+        "n_embd": 2048,
+        "n_params": 1235814432,
+        "size": 807693984,
+        "file_type": 15
+      }
+    }
+  ]
+}

@@ -1,0 +1,230 @@
+{
+  "hardware": "RTX 3060 Laptop GPU, sm_86, driver 576.83, CUDA 12.9, Windows 11",
+  "theoretical_dram_bw_GBs": 336,
+  "theoretical_bw_source": "RTX 3060 Laptop GPU 6GB: 192-bit GDDR6 @ 14 Gbps = 14*192/8 = 336.0 GB/s (NVIDIA published spec)",
+  "method": "median of 5 warm runs (run 1 discarded), fixed prompt \"The water cycle works as follows:\", 128 greedy tokens, decode tok/s. GB/s = per-token GPU weight read bytes (actual GGUF tensor sizes) x decode tok/s.",
+  "branch_head": "892672ca",
+  "bundle": "qa/evidence-bundles/basalt/phase4/cert",
+  "rows": {
+    "Q8_0_cuda": {
+      "lane": "Camelid CUDA-resident (baseline shipping lane)",
+      "model": "gemma-4-E4B-it-Q8_0.gguf a2232a64",
+      "decode_tok_s_median": 25.8,
+      "decode_tok_s_steady_2ndhalf": 25.44,
+      "per_token_read_GB": 5.182,
+      "achieved_GBs": 133.7,
+      "pct_of_theoretical": 39.8,
+      "peak_vram_mib": 5559,
+      "runs": [
+        {
+          "run": 1,
+          "decode_all": 25.88,
+          "decode_steady": 25.56,
+          "overall": 24.19,
+          "load_s": 8.4,
+          "n_tokens": 128
+        },
+        {
+          "run": 2,
+          "decode_all": 25.78,
+          "decode_steady": 25.4,
+          "overall": 24.04,
+          "load_s": 8.4,
+          "n_tokens": 128
+        },
+        {
+          "run": 3,
+          "decode_all": 25.87,
+          "decode_steady": 25.46,
+          "overall": 24.09,
+          "load_s": 9.6,
+          "n_tokens": 128
+        },
+        {
+          "run": 4,
+          "decode_all": 25.8,
+          "decode_steady": 25.44,
+          "overall": 24.14,
+          "load_s": 9.2,
+          "n_tokens": 128
+        },
+        {
+          "run": 5,
+          "decode_all": 25.78,
+          "decode_steady": 25.44,
+          "overall": 24.08,
+          "load_s": 9.3,
+          "n_tokens": 128
+        }
+      ]
+    },
+    "NVFP4mm_cuda": {
+      "lane": "Camelid CUDA-resident (NEW Phase 4 nvfp4_gemv lane) — THE campaign number",
+      "model": "gemma-4-E4B-it-NVFP4-mm.gguf eb293344",
+      "decode_tok_s_median": 14.64,
+      "decode_tok_s_steady_2ndhalf": 14.57,
+      "per_token_read_GB": 3.048,
+      "achieved_GBs": 44.6,
+      "pct_of_theoretical": 13.3,
+      "peak_vram_mib": 3479,
+      "runs": [
+        {
+          "run": 1,
+          "decode_all": 14.79,
+          "decode_steady": 14.71,
+          "overall": 13.9,
+          "load_s": 6.4,
+          "n_tokens": 128
+        },
+        {
+          "run": 2,
+          "decode_all": 14.78,
+          "decode_steady": 14.79,
+          "overall": 13.87,
+          "load_s": 6.6,
+          "n_tokens": 128
+        },
+        {
+          "run": 3,
+          "decode_all": 14.64,
+          "decode_steady": 14.57,
+          "overall": 13.76,
+          "load_s": 6.9,
+          "n_tokens": 128
+        },
+        {
+          "run": 4,
+          "decode_all": 14.59,
+          "decode_steady": 14.53,
+          "overall": 13.71,
+          "load_s": 6.8,
+          "n_tokens": 128
+        },
+        {
+          "run": 5,
+          "decode_all": 14.31,
+          "decode_steady": 14.08,
+          "overall": 13.46,
+          "load_s": 6.6,
+          "n_tokens": 128
+        }
+      ]
+    },
+    "NVFP4mm_cuda_dp4a": {
+      "lane": "Camelid CUDA-resident (Phase 4b: nvfp4_gemv __byte_perm + __dp4a inner loop) — Option B executed",
+      "model": "gemma-4-E4B-it-NVFP4-mm.gguf eb293344",
+      "engine": "basalt/phase4-cuda-decode Phase 4b dp4a kernel (parity-neutral upgrade of v1 NVFP4mm_cuda); nvfp4_gemv_matches_oracle still 46/46 bit-identical, worst rel diff 0.000e0",
+      "decode_tok_s_median": 26.51,
+      "decode_tok_s_steady_2ndhalf": 26.13,
+      "per_token_read_GB": 3.048,
+      "achieved_GBs": 80.8,
+      "pct_of_theoretical": 24.0,
+      "peak_vram_mib": 3479,
+      "vs_v1": "14.64 -> 26.51 tok/s (+81.1%, 1.81x); dp4a replaced the scalar KV-LUT nibble dot with the pin get_int_from_table_16 __byte_perm expansion + __dp4a, identical i32 sumi (parity-neutral by construction)",
+      "vs_q8_0": "26.51 vs 25.80 tok/s -> NVFP4-mm CUDA is now FASTER than Q8_0 (1.03x) while reading 1.70x fewer bytes/token and using 2.08 GB less VRAM",
+      "note": "byte_accounting unchanged (dp4a does not alter the weight read set); peak VRAM identical to v1 (3479 MiB) across all 5 runs; did NOT reach the memory roofline (24.0% vs Q8_0 39.8%) but the ~1.8x throughput lift overtakes Q8_0 because NVFP4 moves fewer bytes. Warm-up run (discarded) = 26.63 decode_all.",
+      "runs": [
+        {
+          "run": 1,
+          "decode_all": 26.86,
+          "decode_steady": 26.5,
+          "overall": 24.94,
+          "load_s": 6.7,
+          "peak_vram_mib": 3479,
+          "n_tokens": 128
+        },
+        {
+          "run": 2,
+          "decode_all": 26.74,
+          "decode_steady": 26.35,
+          "overall": 24.97,
+          "load_s": 6.6,
+          "peak_vram_mib": 3479,
+          "n_tokens": 128
+        },
+        {
+          "run": 3,
+          "decode_all": 26.51,
+          "decode_steady": 26.12,
+          "overall": 24.76,
+          "load_s": 6.5,
+          "peak_vram_mib": 3479,
+          "n_tokens": 128
+        },
+        {
+          "run": 4,
+          "decode_all": 26.49,
+          "decode_steady": 26.13,
+          "overall": 24.74,
+          "load_s": 6.7,
+          "peak_vram_mib": 3479,
+          "n_tokens": 128
+        },
+        {
+          "run": 5,
+          "decode_all": 26.41,
+          "decode_steady": 26.01,
+          "overall": 24.58,
+          "load_s": 6.7,
+          "peak_vram_mib": 3479,
+          "n_tokens": 128
+        }
+      ]
+    },
+    "NVFP4mm_cpu": {
+      "lane": "Camelid CPU wire lane (Phase 3 reference / self-parity anchor)",
+      "model": "gemma-4-E4B-it-NVFP4-mm.gguf eb293344",
+      "decode_tok_s_median": 1.57,
+      "note": "overall tok/s incl. prefill; prefill of a ~7-token prompt is <1% of a 128-token wall. GB/s vs GPU DRAM bandwidth N/A (host DDR memory).",
+      "runs": [
+        {
+          "run": 1,
+          "overall": 1.56,
+          "gen_s": 81.9,
+          "load_s": 5.3,
+          "n_tokens": 128
+        },
+        {
+          "run": 2,
+          "overall": 1.56,
+          "gen_s": 81.9,
+          "load_s": 5.2,
+          "n_tokens": 128
+        },
+        {
+          "run": 3,
+          "overall": 1.57,
+          "gen_s": 81.3,
+          "load_s": 4.8,
+          "n_tokens": 128
+        },
+        {
+          "run": 4,
+          "overall": 1.58,
+          "gen_s": 80.9,
+          "load_s": 5.1,
+          "n_tokens": 128
+        },
+        {
+          "run": 5,
+          "overall": 1.58,
+          "gen_s": 80.8,
+          "load_s": 5,
+          "n_tokens": 128
+        }
+      ]
+    },
+    "pin_gpu": "SKIPPED (memory-safety, documented): a full -ngl 99 offload of the 6.06 GB NVFP4-mm model on this 6144 MiB card is not comfortable headroom. The pin (llama-completion) does not use Camelid file-backed embeddings, so it would attempt ~6 GB of resident weights (matmuls + token_embd + per_layer_token_embd) + KV/context => OOM/WDDM-hang risk. Optional 4th GPU path skipped per the P4 brief \"else skip-with-note\" clause + the memory-safety override. The Camelid NVFP4-vs-Q8_0 GPU comparison stands on its own."
+  },
+  "per_token_byte_reduction_measured_q8_over_nvfp4": 1.7002,
+  "matmul_only_shrink": 1.8889,
+  "headline": {
+    "nvfp4_cuda_v1_tok_s": 14.64,
+    "nvfp4_cuda_dp4a_tok_s": 26.51,
+    "q8_cuda_tok_s": 25.8,
+    "nvfp4_dp4a_vs_v1_ratio": 1.811,
+    "nvfp4_dp4a_vs_q8_speed_ratio": 1.028,
+    "v1_finding": "NVFP4-mm CUDA v1 was CORRECT (CERT pass) and read 1.70x fewer bytes/token, but decoded SLOWER than Q8_0 (0.57x) because the v1 scalar-LUT dequant kernel was COMPUTE-bound (13.3% of DRAM roofline vs Q8_0 39.8%) — the byte reduction was unrealized. This answered recon §5 Q1: the dp4a/byte-perm inner-loop upgrade was warranted.",
+    "dp4a_finding": "Phase 4b (Option B) executed the pre-registered upgrade: nvfp4_gemv's per-sub-block integer dot now uses the pin's get_int_from_table_16 __byte_perm codebook expansion + __dp4a, parity-neutral (nvfp4_gemv_matches_oracle still 46/46 bit-identical, worst rel diff 0.000e0). NVFP4-mm CUDA decode rose 14.64 -> 26.51 tok/s (+81.1%, 1.81x), moving 13.3% -> 24.0% of the 336 GB/s roofline. It did NOT reach the roofline (still below Q8_0's 39.8%, so the kernel is not yet fully memory-bound), but the ~1.8x throughput lift was enough to OVERTAKE Q8_0 (26.51 vs 25.80 tok/s, 1.03x) because NVFP4 reads 1.70x fewer bytes/token. Option-B result: NVFP4-mm on this box is now BOTH faster than Q8_0 AND 2.08 GB lighter in VRAM (peak 3479 vs 5559 MiB)."
+  }
+}

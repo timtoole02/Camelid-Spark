@@ -1,0 +1,33 @@
+{
+  "schema": "camelid.speed-receipt.v1",
+  "row_id": "qwen3_4b_instruct_q4_k_m",
+  "generated_utc": "20260628T003317Z",
+  "host": "i7-11800H (16T) / RTX 3060 Laptop 6 GiB / Win11 / driver 576.83",
+  "model_sha256": "7485fe6f11af29433bc51cab58009521f205840f5b4ae3a32fa7f92e8534fdf5",
+  "measurements": {
+    "camelid_q4_k_m_gpu_resident_decode": {
+      "engine": "camelid cuda_resident (q4k_gemv/q6k_gemv), all 36 layers VRAM-resident",
+      "prompt": "Write a short paragraph about the ocean.",
+      "max_tokens": 128,
+      "iterations": 3,
+      "warmup": true,
+      "tokens_per_second_per_iter": [19.60, 19.44, 19.39],
+      "tokens_per_second_median": 19.44,
+      "peak_memory_bytes": 4942036992,
+      "note": "Decode-only tok/s. Resident at ~4.92 GB peak in 6 GiB."
+    },
+    "llamacpp_q4_k_m_cpu": {
+      "engine": "llama.cpp 9632 (acd79d603), CPU backend (ggml-cpu-icelake), 8 threads",
+      "command": "llama-bench -m Qwen3-4B-Q4_K_M.gguf -ngl 0 -p 512 -n 128 -r 3",
+      "pp512_tps": "66.87 ± 6.29",
+      "tg128_tps": "12.35 ± 0.10",
+      "note": "CPU-ONLY. This box's llama.cpp build has no ggml-cuda.dll, so a GPU-vs-GPU comparison is not possible here."
+    }
+  },
+  "honest_framing": {
+    "head_to_head": "NONE — camelid number is GPU-resident, the only local llama.cpp number is CPU. Different backends; do not read 19.44 vs 12.35 as a speedup ratio.",
+    "gpu_vs_gpu_blocked": "Requires a CUDA-enabled llama.cpp build (absent). Deferred.",
+    "q8_vs_q4km_same_model_blocked": "Qwen3-4B-Q8_0 is not on disk (only Llama-3.2-3B-Q8_0). The byte-ratio prize (Q4_K_M ~2.5 GB vs Q8_0 ~4.3 GB) is most visible on CPU decode (Phase 2) and as VRAM footprint on GPU; a same-model Q8 vs Q4_K_M GPU tok/s comparison is deferred to a Q8_0 download.",
+    "gpu_prize_realized_now": "VRAM footprint: 4.92 GB resident peak lets the full 4B model run GPU-resident in 6 GiB with headroom; the Q8_0 4B is tighter. The decode-speed prize is bandwidth-bound and lands on the CPU lane in Phase 2."
+  }
+}

@@ -1,0 +1,83 @@
+{
+  "schema": "camelid.qwen3_1p7b_q8_context_sweep_public_evidence.v1",
+  "generated_utc": "2026-07-08T02:51:28.713Z",
+  "git_head": "bf802df44ecd",
+  "row_id": "qwen3_1_7b_instruct_q8_0",
+  "model": {
+    "filename": "Qwen3-1.7B-Q8_0.gguf",
+    "size_bytes": 1834426016,
+    "sha256": "061b54daade076b5d3362dac252678d17da8c68f07560be70818cace6590cb1a",
+    "quantization": "Q8_0",
+    "architecture": "qwen3"
+  },
+  "comparator": "llama.cpp acd79d603 (Windows CPU-only build) /completion, greedy (temp 0/top_k 1/seed 0), -ngl 0 -ctk f32 -ctv f32 -fa off --no-repack -c 8704",
+  "camelid_backend": "q8_0 runtime, RTX 3060 Laptop 6 GiB: ALL five buckets fully GPU-resident — the 1.7B weights (1845 MiB) leave a large VRAM-sized resident KV cap (25266 positions) covering every bucket's last KV position (max 8303). No CPU-fallback.",
+  "execution_note": "Single-model runs only: the llama.cpp oracle was captured alone and its server killed before camelid was started (engines never co-resident), to stay within host RAM.",
+  "resident_cap_positions": 25266,
+  "promoted_windows": [
+    512,
+    1024,
+    2048,
+    4096
+  ],
+  "sweep_all_pass": false,
+  "token_counts": [
+    50
+  ],
+  "buckets": [
+    {
+      "target_window": 512,
+      "actual_qwen3_tokens": 446,
+      "decode_path": "fully_gpu_resident",
+      "token_and_text_identical": true,
+      "promoted": true,
+      "note": "promoted: strict token+text identity"
+    },
+    {
+      "target_window": 1024,
+      "actual_qwen3_tokens": 968,
+      "decode_path": "fully_gpu_resident",
+      "token_and_text_identical": true,
+      "promoted": true,
+      "note": "promoted: strict token+text identity"
+    },
+    {
+      "target_window": 2048,
+      "actual_qwen3_tokens": 2013,
+      "decode_path": "fully_gpu_resident",
+      "token_and_text_identical": true,
+      "promoted": true,
+      "note": "promoted: strict token+text identity"
+    },
+    {
+      "target_window": 4096,
+      "actual_qwen3_tokens": 4088,
+      "decode_path": "fully_gpu_resident",
+      "token_and_text_identical": true,
+      "promoted": true,
+      "note": "promoted: strict token+text identity"
+    },
+    {
+      "target_window": 8192,
+      "actual_qwen3_tokens": 8253,
+      "decode_path": "fully_gpu_resident",
+      "token_and_text_identical": false,
+      "promoted": false,
+      "note": "NOT identical — benign greedy near-tie divergence (see near_tie); not claimed"
+    }
+  ],
+  "near_tie": {
+    "bucket": 8192,
+    "divergent_generation_index": 16,
+    "camelid_pick": {
+      "token": 279,
+      "piece": " the"
+    },
+    "oracle_pick": {
+      "token": 356,
+      "piece": "CMLD"
+    },
+    "description": "At generation index 16 the oracle emits 'CMLD' (→ '...fact 397 is CMLD-8192.') while camelid emits ' the' (→ '...fact 397 is the answer. The answer is CMLD-8192.'). BOTH engines produce the correct hidden code CMLD-8192; camelid simply phrases the answer one token longer. A benign greedy near-tie at the longest (8253-token) context on the smaller 1.7B model (the 4B-Q8_0 sibling is token-identical at this bucket). Not a camelid decode error, but not token-identical to the oracle, so the 8192 bucket is NOT promoted."
+  },
+  "claim_boundary": "PROMOTED: bounded 512/1024/2048/4096-context (446/968/2013/4088 Qwen3 tokens) raw-decode greedy parity for the exact Qwen3-1.7B-Q8_0 row ONLY — camelid fully-GPU-resident CUDA decode is token-AND-text-identical to the pinned llama.cpp acd79d603 oracle at 50 generated tokens on all four buckets (a contiguous strict-identity prefix). NOT PROMOTED: the 8192 bucket (8253 tokens) diverges at a documented benign greedy near-tie where both engines reach the correct code CMLD-8192 but camelid phrases it one token longer (see near_tie). NOT claimed: the 8192 bucket, model-native/larger context beyond 4096, other Qwen3 sizes/quants, thinking-mode, or throughput."
+}

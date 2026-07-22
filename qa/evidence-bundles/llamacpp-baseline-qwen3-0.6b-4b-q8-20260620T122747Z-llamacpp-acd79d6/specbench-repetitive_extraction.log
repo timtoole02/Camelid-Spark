@@ -1,0 +1,62 @@
+﻿
+
+Extract every email address from the log below, one per line, in the order they appear. Output only the addresses:
+
+[INFO] user a@x.com logged in
+[INFO] user b@x.com logged in
+[WARN] user c@x.com failed auth
+[INFO] user d@x.com logged in
+[INFO] user e@x.com logged in
+[WARN] user f@x.com failed auth
+[INFO] user g@x.com logged in
+
+Addresses: a@x.com
+b@x.com
+c@x.com
+d@x.com
+e@x.com
+f@x.com
+g@x.com
+
+Wait, but the user mentioned that the output should only include the email addresses, one per line, in the order they appear. The example output shows that even the failed auth entries are included. So the answer is correct. But the user might have a different intention. Let me check the original problem again.
+
+The original problem says: "extract every email address from the log below, one per line, in the order they appear. Output only the addresses". So the answer
+
+
+
+
+0.00.021.685 I common_init_result: fitting params to device memory ...
+0.00.021.690 I common_init_result: (for bugs during this step try to reproduce them with -fit off, or provide --verbose logs if the bug only occurs with -fit on)
+0.00.696.431 W common_fit_params: failed to fit params to free device memory: n_gpu_layers already set by user to 99, abort
+0.01.033.941 W load: control-looking token: 128247 '</s>' was not control-type; this is probably a bug in the model. its type will be overridden
+0.03.291.547 W llama_context: n_ctx_seq (2048) < n_ctx_train (40960) -- the full capacity of the model will not be utilized
+0.03.308.188 I common_init_from_params: warming up the model with an empty run - please wait ... (--no-warmup to disable)
+0.03.361.955 I common_init_result: fitting params to device memory ...
+0.03.361.966 I common_init_result: (for bugs during this step try to reproduce them with -fit off, or provide --verbose logs if the bug only occurs with -fit on)
+0.03.712.792 W common_fit_params: failed to fit params to free device memory: n_gpu_layers already set by user to 99, abort
+0.03.951.008 W load: control-looking token: 128247 '</s>' was not control-type; this is probably a bug in the model. its type will be overridden
+0.04.318.654 W llama_context: n_ctx_seq (2048) < n_ctx_train (40960) -- the full capacity of the model will not be utilized
+0.04.335.283 I common_init_from_params: warming up the model with an empty run - please wait ... (--no-warmup to disable)
+0.06.813.068 I encoded  103 tokens in    0.086 seconds, speed: 1193.539 t/s
+0.06.813.069 I decoded  130 tokens in    2.367 seconds, speed:   54.915 t/s
+0.06.813.069 I 
+0.06.813.069 I n_draft   = 8
+0.06.813.069 I n_predict = 130
+0.06.813.070 I n_drafted = 288
+0.06.813.070 I n_accept  = 93
+0.06.813.070 I accept    = 32.292%
+0.06.813.071 I 
+0.06.813.071 I draft:
+
+0.06.813.076 I 
+0.06.813.076 I target:
+
+0.06.813.077 I common_perf_print:    sampling time =      31.48 ms
+0.06.813.078 I common_perf_print:    samplers time =      12.67 ms /   130 tokens
+0.06.813.079 I common_perf_print:        load time =    2444.16 ms
+0.06.813.080 I common_perf_print: prompt eval time =    1066.90 ms /   427 tokens (    2.50 ms per token,   400.22 tokens per second)
+0.06.813.081 I common_perf_print:        eval time =       0.00 ms /     1 runs   (    0.00 ms per token,      inf tokens per second)
+0.06.813.082 I common_perf_print:       total time =     434.79 ms /   428 tokens
+0.06.813.083 I common_perf_print: unaccounted time =    -663.59 ms / -152.6 %      (total - sampling - prompt eval - eval) / (total)
+0.06.813.083 I common_perf_print:    graphs reused =         35
+

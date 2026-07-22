@@ -1,0 +1,88 @@
+{
+  "schema": "camelid.chat_template_shape_pack/v1",
+  "pack_id": "phi3-chat-template-shapes-v1",
+  "purpose": "Byte-locks render_phi3_prompt (MUSTER M-A2) against the Phi-3-mini-4k-instruct GGUF tokenizer.chat_template as rendered by the pinned oracle. expected_prompt strings captured from llama.cpp llama-server --jinja /apply-template (version 9632, acd79d603, add_generation_prompt=true) on the exact row GGUF (sha256 0ac8ee48aeebf7d1b354691fd1e29e91c32ad88bbad10ad45ac880dcd4372a47), solo session, 2026-07-16. Committed BEFORE any parity run per MUSTER_CONDUCTOR.md 6.1.",
+  "oracle": "llama.cpp 9632 (acd79d603) /apply-template --jinja",
+  "shapes": [
+    {
+      "id": "user-only",
+      "messages": [
+        {
+          "role": "user",
+          "content": "What is the capital of France?"
+        }
+      ],
+      "expected_prompt": "<|user|>\nWhat is the capital of France?<|end|>\n<|assistant|>\n"
+    },
+    {
+      "id": "system-fold",
+      "messages": [
+        {
+          "role": "system",
+          "content": "You are a concise assistant."
+        },
+        {
+          "role": "user",
+          "content": "Name the largest ocean."
+        }
+      ],
+      "expected_prompt": "<|user|>\nYou are a concise assistant.<|end|>\n<|assistant|>\n<|user|>\nName the largest ocean.<|end|>\n<|assistant|>\n"
+    },
+    {
+      "id": "multi-turn",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Hi there."
+        },
+        {
+          "role": "assistant",
+          "content": "Hello! How can I help?"
+        },
+        {
+          "role": "user",
+          "content": "Say hello again."
+        }
+      ],
+      "expected_prompt": "<|user|>\nHi there.<|end|>\n<|assistant|>\nHello! How can I help?<|end|>\n<|user|>\nSay hello again.<|end|>\n<|assistant|>\n"
+    },
+    {
+      "id": "trailing-assistant",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Say hi."
+        },
+        {
+          "role": "assistant",
+          "content": "Hi!"
+        }
+      ],
+      "expected_prompt": "<|user|>\nSay hi.<|end|>\n<|assistant|>\nHi!"
+    },
+    {
+      "id": "whitespace-content",
+      "messages": [
+        {
+          "role": "user",
+          "content": "  What is 2+2?  \n"
+        }
+      ],
+      "expected_prompt": "<|user|>\n  What is 2+2?  \n<|end|>\n<|assistant|>\n"
+    },
+    {
+      "id": "system-only-then-user-later",
+      "messages": [
+        {
+          "role": "system",
+          "content": "Answer briefly.\n"
+        },
+        {
+          "role": "user",
+          "content": "Define gravity."
+        }
+      ],
+      "expected_prompt": "<|user|>\nAnswer briefly.\n<|end|>\n<|assistant|>\n<|user|>\nDefine gravity.<|end|>\n<|assistant|>\n"
+    }
+  ]
+}

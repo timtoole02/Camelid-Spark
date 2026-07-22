@@ -1,0 +1,31 @@
+{
+  "schema": "camelid.capability-receipt/v1",
+  "capability_id": "logprobs.top_logprobs",
+  "capability": "logprobs/top_logprobs at temp=0 (any causal LM)",
+  "row": "llama-3.2-3b-instruct-q8_0",
+  "model_label": "Llama 3.2 3B Instruct Q8_0",
+  "oracle_class": "D",
+  "verdict": "validated",
+  "generated": "2026-06-26",
+  "platform": {
+    "os": "macos",
+    "target": "aarch64-apple-darwin",
+    "backend": "metal",
+    "oracle": "llama.cpp 9632 (acd79d603, Metal, Apple M4)"
+  },
+  "gguf": {
+    "filename": "Llama-3.2-3B-Instruct-Q8_0.gguf",
+    "sha256": "b5607b5090a8280063fff2d706bb3408ca6542341b06aab39c3eca0a28575921"
+  },
+  "harness": {
+    "repo_head": "e1458a9ba2fdf5dbf3c1b3bcdd8f170aff8e9b86",
+    "branch": "win2metal/phase2-capability",
+    "working_tree": "WIN2METAL Phase 2 (Bucket A) validation on Apple M4 16GB. Binary is the FROZEN base build /Volumes/Untitled/camelid-base-28f224b (camelid v0.1.7-92-g28f224b, commit 28f224b); no src changes in this branch. Outputs salvaged under qa/capability/mac_*_out/<row>/.",
+    "binary": "/Volumes/Untitled/camelid-base-28f224b (camelid v0.1.7-92-g28f224b)",
+    "e2e_harness": "qa/capability/* Metal harness; outputs under qa/capability/mac_*_out/llama-3.2-3b"
+  },
+  "evidence": {
+    "kind": "contract_e2e + watch_item",
+    "summary": "e2e on Metal (Apple M4, GPU-resident decode active — qa/capability/mac_logprobs_out/llama-3.2-3b/serve.log shows [resident-dispatch] metal_enabled=true and per-step [resident] gpu_busy lines). WATCH ITEM RESOLVED PASS: with logprobs requested, the engine materializes FULL-VOCAB logits (the LogitsStage / ResidentTokenOut::Data path) and does NOT take the GPU-sample shortcut (ResidentTokenOut::Sampled, token-id only) — proven by the response carrying real ranked alternatives. chat: logprobs.content[] has 3 entries each with token, logprob and 5 top_logprobs; the temp=0 greedy invariant holds on Metal (chosen token == top_logprobs[0] every step, all logprobs <= 0, top sorted descending; e0 token 'Red' logprob -0.4972279). completions: logprobs.{tokens,token_logprobs,top_logprobs,text_offset} present and aligned (4 tokens, top alternative ' Paris'). Fail-closed posture preserved: logprobs+stream -> typed HTTP 400, logprobs+n>1 -> fail-closed (no choices). Values not asserted bit-exact vs the oracle (cross-impl f32 reduction-order envelope, the documented frontier). Evidence: qa/capability/mac_logprobs_out/llama-3.2-3b/chat_logprobs.json, comp_logprobs.json, lp_stream.json, lp_n.json, serve.log."
+  }
+}

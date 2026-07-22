@@ -1,0 +1,11 @@
+# Canonical Ubuntu validation connection command intentionally omitted from public evidence.
+# Remote gate payload used after fresh canonical SSH succeeded:
+set -euo pipefail
+export PATH="$HOME/.cargo/bin:$PATH"
+cd <ubuntu-worktree>
+rustc --version
+cargo --version
+cargo fmt --check
+cargo check --all-targets --all-features
+cargo clippy --all-targets --all-features -- -D warnings
+cargo test --all-targets --all-features

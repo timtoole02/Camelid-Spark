@@ -1,0 +1,28 @@
+{
+ "schema": "camelid.gemma4.prompt-pack.v1",
+ "pack_id": "gemma4-deep-v1",
+ "description": "Deeper greedy-decode parity pack: 50-token budgets over confident continuations. Raw completion prompts (BOS + plain text).",
+ "decode": "greedy",
+ "prompts": [
+  {
+   "id": "primary-colors",
+   "text": "The three primary colors are",
+   "max_new_tokens": 50
+  },
+  {
+   "id": "village-story",
+   "text": "Once upon a time, in a quiet village by the sea,",
+   "max_new_tokens": 50
+  },
+  {
+   "id": "water-cycle",
+   "text": "The water cycle works as follows:",
+   "max_new_tokens": 50
+  },
+  {
+   "id": "pancake-recipe",
+   "text": "Here is a simple recipe for pancakes:\n",
+   "max_new_tokens": 50
+  }
+ ]
+}

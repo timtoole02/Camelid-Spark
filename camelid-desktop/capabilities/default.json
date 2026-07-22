@@ -1,0 +1,7 @@
+{
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "identifier": "default",
+  "description": "Core permissions for the Camelid Desktop main window. The window only displays a splash and is then navigated by the Rust side to the loopback sidecar UI; the embedded UI is a plain same-origin web app and needs no Tauri IPC, so no broad capabilities are granted.",
+  "windows": ["main"],
+  "permissions": ["core:default"]
+}

@@ -1,0 +1,43 @@
+{
+  "schema": "camelid.kquant_parity_analysis.v1",
+  "row_id": "llama_3_2_3b_instruct_q4_k_m",
+  "summary": "5/8 probes token-identical at 1/5/50; 3/8 diverge at a benign greedy f32 near-tie (coherent camelid output).",
+  "confident_probes_all_pass": true,
+  "confident_probes_token_identical": [
+    "The capital of France is",
+    "Complete this Python module. Write a class `LRUCac",
+    "Extract every email address from the log below, on",
+    "Generate a sequence of 60 unrelated, unpredictable",
+    "Entry 1: the lighthouse keeper recorded the tide, "
+  ],
+  "near_tie_probes": [
+    {
+      "prompt": "Convert the following into a single JSON object with keys na",
+      "first_divergence_token_index": 0,
+      "ref_token": 14196,
+      "cam_token": 517
+    },
+    {
+      "prompt": "Explain in a few clear sentences what the difference is betw",
+      "first_divergence_token_index": 26,
+      "ref_token": 994,
+      "cam_token": 311
+    },
+    {
+      "prompt": "Write an original short paragraph describing a thunderstorm ",
+      "first_divergence_token_index": 38,
+      "ref_token": 67443,
+      "cam_token": 22843
+    }
+  ],
+  "near_tie_measurement": {
+    "json_prompt_token0": {
+      "llama_top_token": " (14196) logprob -0.7715",
+      "camelid_token": "{\n (517) logprob -0.9547",
+      "logprob_gap": 0.183,
+      "verdict": "tight benign near-tie (smaller than the 0.34-logit Q8_0 primary-color near-tie); camelid bare-{ is MORE compliant with the no-prose JSON instruction"
+    },
+    "note": "process/thread diverges at token 26, thunderstorm at token 38 \u2014 both deep-generation near-ties with coherent output. These are the documented f32 reduction-order frontier, identical in nature to the Qwen3 thinking-mode leading-trace frontier and the Q8_0 4B primary-color probe."
+  },
+  "methodology": "Matches the Q8_0 exact-row bar: token-identical on confident/structured probes; open-ended near-tie probes documented (not a kernel defect). The structured probes here include long-context (lighthouse logbook ~3.5k-token prompt) and code completion at depth 50 \u2014 both token-identical."
+}

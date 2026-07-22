@@ -1,0 +1,12 @@
+{
+  "row": "llama-3.2-3b-instruct-q8_0",
+  "label": "Llama 3.2 3B Instruct Q8_0",
+  "gguf": "/Volumes/Untitled/models/Llama-3.2-3B-Instruct-Q8_0.gguf",
+  "target_tokens": 8400,
+  "actual_prompt_tokens": 5813,
+  "positions_exceed_8192": false,
+  "projected_kv_bytes": 1926758400,
+  "generation_parity_pass": true,
+  "evidence": "PASS reference-rerun: generated tokens (8) and text match llama.cpp (first_divergent_token_index=-1)",
+  "generated_text": "\nI see you've copied and past"
+}

@@ -1,0 +1,30 @@
+{
+  "note": "Same TWO-view record as the Qwen3-4B-Q4_K_M bundle. The static planner mislabels the K-quant resident lane; the runtime ran GPU-resident. Disagreement is a disclosure-labeling gap (follow-up), not a correctness issue.",
+  "execution_plan_static": {
+    "model_family": "llama",
+    "quant_type": "dense_or_other",
+    "exact_model_row": "Llama 3.2 3B Instruct",
+    "support_level": "supported_exact_row_smoke_chatml",
+    "selected_backend": "cpu_reference",
+    "decode_path": "safe_cpu_decode",
+    "cuda_resident_active": true,
+    "reasons": ["non-validated row or quant; failing closed to safe path"]
+  },
+  "runtime_observed": {
+    "backend": "cuda_resident kquant engine",
+    "decode_kernels": ["q4k_gemv", "q6k_gemv"],
+    "layers_total": 28,
+    "layers_resident_in_vram": 28,
+    "peak_memory_bytes": 4510000000,
+    "cuda_resident_active": true,
+    "evidence": [
+      "bench-generate: layers_resident=28/28, 26.60 tok/s, peak 4.51 GB",
+      "raw-prompt token+text parity identical to llama.cpp on 5/8 confident probes at 1/5/50 tokens (see parity + near-tie analysis)",
+      "BOS-aligned: both engines emit identical text on the France probe"
+    ]
+  },
+  "followups": [
+    "Teach the execution-plan classifier to recognize Q4_K/Q6_K dense resident models (shared with the Qwen3-4B-Q4_K_M follow-up).",
+    "Optional: same-model camelid GPU Q8_0-vs-Q4_K_M speed comparison (Q8_0 GGUF is on disk)."
+  ]
+}

@@ -1,0 +1,14 @@
+SIROCCO Compute M-C3 gate log. flash_pref_scores_k8 + flash_pref_partial_k8 = byte-identical const-k=8
+twins of the flash kernels (FLASH_KT8 + #pragma unroll -> registers, not local mem); dispatched by
+launch_attention_flash_prefill only when k_tokens==8.
+
+BIT-EXACT vs M1: CAMELID_FLASH_PREFILL=1, ctx 8802, 48 greedy tokens -- M-C3 == M1, 48/48 identical
+  (same ops in the same order; register-vs-local-mem does not change the result).
+DEFAULT PATH unchanged (device parity tests, flash off): splitk_spec_verify_bit_identical,
+  prefill_then_decode_matches_sequential, verify_batch_matches_sequential -- all pass.
+Flash oracle: covered transitively -- M-C3 is bit-identical to M1, which passed the 6-prompt token
+  oracle; identical output => identical tokens.
+
+PERF (flash-on, M-C3 vs shipped M1, interleaved): 1.09x@4k, 1.11x@6.6k, 1.18x@8.8k -- byte-identical,
+grows with ctx. Recovers ~18% of the prefill wall at 8.8k by promoting the local-mem accumulators to
+registers. Composes with M1: vs the original baseline @8.8k, 133s -> M1 43s -> M-C3 40s.

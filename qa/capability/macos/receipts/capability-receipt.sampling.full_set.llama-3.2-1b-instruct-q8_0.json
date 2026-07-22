@@ -1,0 +1,31 @@
+{
+  "schema": "camelid.capability-receipt/v1",
+  "capability_id": "sampling.full_set",
+  "capability": "top_p,top_k,min_p,temperature,repetition/frequency/presence_penalty,seed,logit_bias",
+  "row": "llama-3.2-1b-instruct-q8_0",
+  "model_label": "Llama 3.2 1B Instruct Q8_0",
+  "oracle_class": "I",
+  "verdict": "validated",
+  "generated": "2026-06-26",
+  "platform": {
+    "os": "macos",
+    "target": "aarch64-apple-darwin",
+    "backend": "metal",
+    "oracle": "llama.cpp 9632 (acd79d603, Metal, Apple M4)"
+  },
+  "gguf": {
+    "filename": "Llama-3.2-1B-Instruct-Q8_0.gguf",
+    "sha256": "432f310a77f4650a88d0fd59ecdd7cebed8d684bafea53cbff0473542964f0c3"
+  },
+  "harness": {
+    "repo_head": "e1458a9ba2fdf5dbf3c1b3bcdd8f170aff8e9b86",
+    "branch": "win2metal/phase2-capability",
+    "working_tree": "WIN2METAL Phase 2 (Bucket A) validation on Apple M4 16GB. Binary is the FROZEN base build /Volumes/Untitled/camelid-base-28f224b (camelid v0.1.7-92-g28f224b, commit 28f224b); no src changes in this branch. Outputs salvaged under qa/capability/mac_*_out/<row>/.",
+    "binary": "/Volumes/Untitled/camelid-base-28f224b (camelid v0.1.7-92-g28f224b)",
+    "e2e_harness": "qa/capability/* Metal harness; outputs under qa/capability/mac_*_out/llama-3.2-1b"
+  },
+  "evidence": {
+    "kind": "contract_e2e",
+    "summary": "e2e on Metal (qa/capability/smoke.sh, Apple M4): min_p=0.05 + repeat_penalty=1.3 accepted (HTTP 200, content \"Blue!\"), out-of-range min_p=1.5 rejected with a typed HTTP 400 (\"min_p must be finite and in [0, 1], got 1.5\", type invalid_request). Sampler-invariant fields drive correctly on the Metal sampling path. Evidence: qa/capability/mac_smoke_out/llama-3.2-1b/samplers.json, bad_minp.json."
+  }
+}

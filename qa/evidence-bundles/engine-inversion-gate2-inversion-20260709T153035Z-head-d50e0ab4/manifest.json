@@ -1,0 +1,29 @@
+{
+  "bundle": "engine-inversion-gate2-inversion",
+  "generated_utc": "2026-07-09T15:30:35Z",
+  "candidate_head": "d50e0ab4",
+  "phase_commits": ["93dc20c3 (2a: engine worker, non-streaming)", "d50e0ab4 (2b: streaming events, lock deleted)"],
+  "base_pin": "ffada00f",
+  "branch": "feat/engine-inversion",
+  "mission": "docs/recon/ENGINE_INVERSION_CONDUCTOR.md",
+  "gate": "GATE 2",
+  "verdict": "PASS",
+  "criteria": {
+    "suite": "677 passed / 0 failed; fmt+clippy -D warnings clean",
+    "invariant_tests": "single-job-at-a-time, D3 prep-not-serialized, typed queue-full, stream-timeout payload",
+    "parity_full_matrix": "byte-identical baseline vs candidate: greedy+sampled(seeded), stream+nonstream, cache hit+miss, resident-CUDA + deterministic-CPU lanes, TinyLlama + Llama-3.2-1B (parity/)",
+    "soak_600s": "0 garbled / 0 panics / 0 unexpected 5xx / RSS 1386->1388MB / 3492 disconnects survived / 4129 typed queue-full 503s (soak/)",
+    "ttft_under_load": "12.4ms median (candidate) vs 2892ms (baseline) — ~233x"
+  },
+  "gate3_prepayment": "SSE golden-transcript matrix captured and identical at this head (parity/ stream sections)",
+  "toolchain": "rustc 1.95.0, release profile (fat LTO), windows x86_64",
+  "artifacts": [
+    "README.md",
+    "parity/engine-inversion-parity.mjs",
+    "parity/baseline-tinyllama-full.json", "parity/phase2b-tinyllama-full.json",
+    "parity/baseline-tinyllama-cpu.json", "parity/phase2b-tinyllama-cpu.json",
+    "parity/phase2b-tinyllama.json", "parity/phase2b-llama1b.json",
+    "soak/engine-inversion-soak.mjs",
+    "soak/soak-baseline-60s.json", "soak/soak-phase2b-600s.json"
+  ]
+}

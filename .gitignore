@@ -1,0 +1,21 @@
+/target/
+frontend/node_modules/
+frontend/dist/
+/models/
+.env
+*.log
+.DS_Store
+
+# Internal/local harness command scratchpads
+*-harness-commands.md
+# Local agent scratch dir — measurement logs etc. carry host paths; never commit.
+/scratchpad/
+
+# Raw evidence bundle staging copies may contain private host/path details; publish only the sanitized *-public-* variants.
+qa/evidence-bundles/four-row-20260503T024119Z/
+qa/evidence-bundles/four-row-20260503T024327Z/
+qa/evidence-bundles/four-row-perf-portability-20260503T025639Z/
+
+# Large regenerable HF parity fixtures (rebuild via scripts/gen-hf-parity-fixtures.py;
+# the passing evidence is committed under qa/runnable/*-parity.json)
+tests/fixtures/hf_parity/

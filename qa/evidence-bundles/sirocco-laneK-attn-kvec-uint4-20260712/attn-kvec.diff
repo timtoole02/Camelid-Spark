@@ -1,0 +1,84 @@
+diff --git a/src/cuda_resident.rs b/src/cuda_resident.rs
+index c70b6f9e..87e2c46e 100644
+--- a/src/cuda_resident.rs
++++ b/src/cuda_resident.rs
+@@ -1394,11 +1394,29 @@ extern "C" __global__ void attention_decode(
+     for (int d = tid; d < head_dim; d += blockDim.x) qsh[d] = qh[d];
+     __syncthreads();
+ 
+-    // scores
++    // scores. SIROCCO Lane K: widen the f16 K read to uint4 (128-bit = 8 keys/load) when the
++    // per-position row is 16B-aligned (head_dim % 8 == 0 => kp = kbase + p*head_dim is aligned
++    // for all p). The dot is accumulated in the SAME d-order as the scalar loop, so the f32 sum
++    // is BYTE-IDENTICAL — decode stays bit-exact vs the spec-verify kernels (attention_batched/
++    // tree) and the splitk_spec_verify_bit_identical gate. Non-8 head_dim falls back to scalar.
++    int kd8 = ((head_dim & 7) == 0) ? head_dim : 0;
+     for (int p = tid; p < position_count; p += blockDim.x) {
+         const unsigned short* kp = kbase + (long)p * head_dim;
+         float dot = 0.0f;
+-        for (int d = 0; d < head_dim; d++) dot += qsh[d] * f16_bits_to_f32(kp[d]);
++        int d = 0;
++        for (; d < kd8; d += 8) {
++            uint4 kv = *reinterpret_cast<const uint4*>(kp + d);
++            const unsigned short* k8 = reinterpret_cast<const unsigned short*>(&kv);
++            dot += qsh[d + 0] * f16_bits_to_f32(k8[0]);
++            dot += qsh[d + 1] * f16_bits_to_f32(k8[1]);
++            dot += qsh[d + 2] * f16_bits_to_f32(k8[2]);
++            dot += qsh[d + 3] * f16_bits_to_f32(k8[3]);
++            dot += qsh[d + 4] * f16_bits_to_f32(k8[4]);
++            dot += qsh[d + 5] * f16_bits_to_f32(k8[5]);
++            dot += qsh[d + 6] * f16_bits_to_f32(k8[6]);
++            dot += qsh[d + 7] * f16_bits_to_f32(k8[7]);
++        }
++        for (; d < head_dim; d++) dot += qsh[d] * f16_bits_to_f32(kp[d]);
+         scores[p] = dot * scale;
+     }
+     __syncthreads();
+@@ -1480,10 +1498,20 @@ extern "C" __global__ void attention_decode_sw(
+     for (int d = tid; d < head_dim; d += blockDim.x) qsh[d] = qh[d];
+     __syncthreads();
+ 
++    int kd8 = ((head_dim & 7) == 0) ? head_dim : 0;  // uint4 K-read when row is 16B-aligned
+     for (int p = start + tid; p < position_count; p += blockDim.x) {
+         const unsigned short* kp = kbase + (long)p * head_dim;
+         float dot = 0.0f;
+-        for (int d = 0; d < head_dim; d++) dot += qsh[d] * f16_bits_to_f32(kp[d]);
++        int d = 0;
++        for (; d < kd8; d += 8) {
++            uint4 kv = *reinterpret_cast<const uint4*>(kp + d);
++            const unsigned short* k8 = reinterpret_cast<const unsigned short*>(&kv);
++            dot += qsh[d + 0] * f16_bits_to_f32(k8[0]); dot += qsh[d + 1] * f16_bits_to_f32(k8[1]);
++            dot += qsh[d + 2] * f16_bits_to_f32(k8[2]); dot += qsh[d + 3] * f16_bits_to_f32(k8[3]);
++            dot += qsh[d + 4] * f16_bits_to_f32(k8[4]); dot += qsh[d + 5] * f16_bits_to_f32(k8[5]);
++            dot += qsh[d + 6] * f16_bits_to_f32(k8[6]); dot += qsh[d + 7] * f16_bits_to_f32(k8[7]);
++        }
++        for (; d < head_dim; d++) dot += qsh[d] * f16_bits_to_f32(kp[d]);
+         scores[p] = dot * scale;
+     }
+     __syncthreads();
+@@ -2080,11 +2108,24 @@ extern "C" __global__ void attn_sk_scores(
+     for (int d = tid; d < head_dim; d += blockDim.x) qsh[d] = qh[d];
+     __syncthreads();
+ 
++    // SIROCCO Lane K: uint4 (128-bit, 8 keys/load) f16 K read, same d-order accumulation ->
++    // BYTE-IDENTICAL (fmad=false), so the split-K bit-identity vs spec-verify (attention_batched/
++    // tree) and splitk_spec_verify_bit_identical gate are preserved. Non-8 head_dim -> scalar.
++    int kd8 = ((head_dim & 7) == 0) ? head_dim : 0;
+     float local_max = -3.4e38f;
+     for (int p = p_lo + tid; p < p_hi; p += blockDim.x) {
+         const unsigned short* kp = kbase + (long)p * head_dim;
+         float dot = 0.0f;
+-        for (int d = 0; d < head_dim; d++) dot += qsh[d] * f16_bits_to_f32(kp[d]);
++        int d = 0;
++        for (; d < kd8; d += 8) {
++            uint4 kv = *reinterpret_cast<const uint4*>(kp + d);
++            const unsigned short* k8 = reinterpret_cast<const unsigned short*>(&kv);
++            dot += qsh[d + 0] * f16_bits_to_f32(k8[0]); dot += qsh[d + 1] * f16_bits_to_f32(k8[1]);
++            dot += qsh[d + 2] * f16_bits_to_f32(k8[2]); dot += qsh[d + 3] * f16_bits_to_f32(k8[3]);
++            dot += qsh[d + 4] * f16_bits_to_f32(k8[4]); dot += qsh[d + 5] * f16_bits_to_f32(k8[5]);
++            dot += qsh[d + 6] * f16_bits_to_f32(k8[6]); dot += qsh[d + 7] * f16_bits_to_f32(k8[7]);
++        }
++        for (; d < head_dim; d++) dot += qsh[d] * f16_bits_to_f32(kp[d]);
+         float sc = dot * scale;
+         scores_buf[(long)head * max_pos + p] = sc;
+         local_max = fmaxf(local_max, sc);

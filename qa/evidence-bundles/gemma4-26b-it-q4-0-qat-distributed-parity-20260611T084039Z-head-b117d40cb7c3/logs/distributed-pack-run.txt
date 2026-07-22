@@ -1,0 +1,26 @@
+===== PHASE 1: reference oracle (llama-server, 26B) =====
+waiting for reference load...
+reference ready; capturing 5 prompts...
+# ref capital-france: 24 tok ' Paris.\n<|channel>3/14/2024 12'
+# ref count-primes: 24 tok ' thethought first five prime n'
+# ref haiku-sea: 24 tok '<|channel>thought\n<channel|>Bl'
+# ref rust-fn: 24 tok '\n    a + b\n}\n\nfn main() {\n    '
+# ref translate-de: 16 tok ' Guten Morgen\nGerman: Guten Mo'
+oracle captured.
+===== PHASE 2: two-Mac distributed pack =====
+worker-started
+Connection to 127.0.0.1 port 15005 [tcp/*] succeeded!
+worker+tunnel up; running distributed prompts...
+# dist capital-france: [9079, 236761, 107, 100, 236800, 236786, 236778, 236786, 236778, 236771, 236778, 236810, 236743, 236800, 236786, 236778, 236786, 236778, 236771, 236778, 236810, 236743, 236800, 236786]
+# dist count-primes: [506, 45518, 1171, 3493, 8355, 4945, 659, 506, 236787, 107, 236770, 236761, 236743, 236778, 107, 236778, 236761, 236743, 236800, 107, 236800, 236761, 236743, 236812]
+# dist haiku-sea: [100, 45518, 107, 101, 16520, 11707, 20568, 506, 20015, 236764, 107, 7315, 1933, 101853, 12847, 528, 506, 3768, 236764, 107, 39300, 9551, 26460, 236761]
+# dist rust-fn: [107, 140, 236746, 900, 518, 107, 236783, 108, 15059, 1689, 825, 642, 107, 140, 1184, 5333, 1123, 578, 236743, 236810, 236793, 107, 140, 1184]
+# dist translate-de: [154016, 112657, 107, 51423, 236787, 154016, 112657, 107, 51423, 236787, 1535, 5597, 107, 15466, 5597, 107]
+===== PHASE 3: compare distributed vs reference =====
+  capital-france: DIVERGE at idx 6  dist[6:]=[236778, 236786, 236778] oracle[6:]=[236770, 236812, 236786] (lens d=24 o=24)
+  count-primes: PASS (24 tokens identical)
+  haiku-sea: DIVERGE at idx 11  dist[11:]=[7315, 1933, 101853] oracle[11:]=[236774, 1949, 12847] (lens d=24 o=24)
+  rust-fn: DIVERGE at idx 15  dist[15:]=[5333, 1123, 578] oracle[15:]=[1354, 578, 1138] (lens d=24 o=24)
+  translate-de: PASS (16 tokens identical)
+RESULT: DIVERGENCES (classify near-ties via logit probe)
+done

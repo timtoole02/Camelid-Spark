@@ -1,0 +1,104 @@
+{
+  "schema": "ghost-perf-receipt/v1",
+  "runtime": "camelid",
+  "campaign": "WRAITH (ghost-mode velocity)",
+  "commit": "wraith/phase0 @ base a72f9c7c + uncommitted working tree (ghost split-timer, Windows NO_BUFFERING cold-read, stage-split pipeline, ghost spec-decode)",
+  "gguf": "Llama-3.2-1B-Instruct-Q8_0.gguf",
+  "gguf_sha256": "3f87a880027e7b9ea8e0da9e4009584336f352af444a0e6e5c20721ac4c7ffd1",
+  "cghost": "Llama-3.2-1B-Instruct-Q8_0.cghost",
+  "cghost_sha256": "36e7bf548c8476fb2f36916fb8d21d2553c51656666e9cfbf5de6c6c20d5ee38",
+  "host": {
+    "os": "Windows 11 (26100)",
+    "cpu": "16 logical cores, AVX-512 (avx2+avx512f+fma)",
+    "gpu": "RTX 3060 Laptop 6GB (UNUSED — all runs CPU, CUDA_VISIBLE_DEVICES=-1)",
+    "ram_total_gib": 15.7,
+    "storage_tier": "internal-nvme",
+    "drive_model": "NVMe PC711 NVMe SK hynix 1TB (BusType RAID)"
+  },
+  "model": {
+    "block_count": 16,
+    "streaming_window_mib": 61.6,
+    "cghost_payload_gib": 1.22,
+    "bytes_streamed_per_token_gib": 0.96,
+    "tied_output": true
+  },
+  "note_regime": "This box holds the 1.22 GiB .cghost fully in 16 GiB RAM, so ghost reads are WARM (page cache) unless --evict-page-cache forces cold device reads via the NEW Windows FILE_FLAG_NO_BUFFERING path. The disk-bound regime ghost targets (over-RAM models) is not natively reachable here; cold-read mode measures true device streaming cost. Every tok/s below is metric=latency (single-user), NOT throughput.",
+  "speed": {
+    "metric": "latency",
+    "unit": "tok/s",
+    "prompt": "The three primary colors are / repetitive-text A/B",
+    "max_tokens": 48,
+    "ghost_variants_repetitive_warm": {
+      "ghost_no_opt_prefetched": 1.642,
+      "stage_split": 2.069,
+      "spec": 2.330,
+      "stage_split_plus_spec": 3.226
+    },
+    "ghost_variants_cold_device": {
+      "ghost_no_opt_prefetched": 1.540,
+      "stage_split": 2.292
+    },
+    "resident_baseline_tok_s": 18.749,
+    "llamacpp_baseline_tok_s": 22.68,
+    "llamacpp_build": "b9632-acd79d603",
+    "llamacpp_pin": "acd79d6",
+    "triple_baseline_complete": true
+  },
+  "levers": {
+    "windows_cold_read_no_buffering": {
+      "effect": "makes cold disk-bound streaming MEASURABLE on Windows (was a macOS-only no-op)",
+      "warm_read_gib_s": 2.7,
+      "cold_device_read_gib_s": 2.0,
+      "parity": "byte-identical warm vs cold"
+    },
+    "stage_split": {
+      "flag": "--stage-split",
+      "warm_gain_pct": 46,
+      "cold_gain_pct": 49,
+      "ceiling_delta_gib": 0.11,
+      "scope": "unconditional",
+      "parity": "byte-identical across 4 prompts x warm+cold"
+    },
+    "spec_decode_ngram": {
+      "flag": "--spec (draft_len 5)",
+      "repetitive_gain_pct_range": [69, 90],
+      "novel_text": "~0% acceptance -> ~-8% bounded by EMA auto-disable",
+      "lossless": true,
+      "parity": "byte-identical vs non-spec across 0%/partial/100% acceptance"
+    },
+    "combined_stage_split_plus_spec": {
+      "repetitive_gain_pct": 96,
+      "novel_floor": "~stage-split alone (+46-49%)"
+    }
+  },
+  "memory": {
+    "ghost_no_opt_peak_rss_gib": 0.94,
+    "ghost_stage_split_peak_rss_gib": 1.05,
+    "resident_peak_rss_gib": 1.72,
+    "ceiling_respected": true,
+    "note": "ghost trades ~10x throughput (18.75 -> ~1.9 tok/s) for a ~0.8 GiB ceiling saving that a 1B model does not need on a 16 GiB box — the honest 'wrong regime here for 1B' result. Ghost's value is over-RAM models."
+  },
+  "parity": {
+    "ghost_internal": {
+      "result": "pass",
+      "detail": "greedy output BYTE-IDENTICAL across sync / prefetched / stage-split / spec / stage-split+spec, over >=5 diverse prompts (code, prose, factual, repetitive) x warm+cold",
+      "first_divergence": null
+    },
+    "spec_rejected_kv_isolation": {
+      "result": "pass",
+      "detail": "names prompt: rejected-tail rounds = 4 (drafted 5, accepted 1) yet byte-identical to non-spec — rejected KV never read. Safe by single causal position cursor; rollback_to_position() only, no buffer truncation.",
+      "proof": "empirical (rejected_rounds>0 + byte-identical) + code (single kv_cache.position bounds writes and causal reads)"
+    },
+    "ghost_vs_resident": {
+      "result": "by-construction + corroborated",
+      "detail": "ghost uses byte-identical .cghost re-layout of the GGUF (write_cghost copies tensor bytes verbatim; documented design invariant) + identical tokenizer (6 tokens for the test prompt: [128000,791,2380,6156,8146,527]), kernels (ghost_forward_one_layer -> forward_prefill_layer_chunk), and sampler (LlamaSampler::Greedy). Resident lane itself parity-gated vs llama.cpp acd79d6 in the repo test suite. Direct ghost-vs-resident-text token diff pending the matched-tokenizer harness (a manual llama-completion run mis-tokenized the prompt to 15 tokens vs ghost's correct 6, demonstrating why the matched harness is required).",
+      "first_divergence": null
+    }
+  },
+  "claims_ladder": {
+    "rung_0": "PASS — instrumented read:decode:compute split captured on internal-nvme, triple baseline present",
+    "rung_1": "PASS — stage-split (+46/49%) and spec (+69-90% repetitive) are parity-exact latency wins, ceiling respected",
+    "rung_2": "PENDING — third-party clean-checkout reproduction of the headline receipt"
+  },
+  "repro": "camelid ghost-run <gguf> --cghost <cghost> --prompt '<...>' --max-tokens 48 [--stage-split] [--spec] [--evict-page-cache]  (build from wraith/phase0 working tree; CUDA_VISIBLE_DEVICES=-1)"
+}

@@ -1,0 +1,17 @@
+{
+  "schema": "camelid.qwen3_0p6b_q8_1024_near_tie_logprobs.v1",
+  "source": "camelid /v1/completions (logprobs=5) on the exact 1024-bucket prompt (Qwen3-0.6B-Q8_0, fully-GPU-resident CUDA decode, temp 0/top_k 1/seed 0) — same runtime that produced context-parity-sweep-512-8192.json. Captured to make the ~0.10-nat near-tie magnitude reader-verifiable rather than manifest-asserted (matching the qwen3-4b-q4km near-tie-2048-logprobs.json precedent).",
+  "prompt_bucket": 1024,
+  "divergent_generation_index": 12,
+  "camelid_top5_logprobs_at_index_12": {
+    "The": -1.4014734,
+    "Answer": -1.5040334,
+    "Context": -2.1993783,
+    "**": -2.9002163,
+    "block": -2.9726174
+  },
+  "camelid_pick": {"token_id": 785, "piece": "The", "logprob": -1.4014734},
+  "oracle_pick": {"token_id": 16141, "piece": "Answer", "logprob_in_camelid_dist": -1.5040334},
+  "gap_nats": 0.10256,
+  "interpretation": "At generation index 12 (both engines already inside the tiny 0.6B's degenerate repetition loop) camelid's top token is 'The' (-1.40) and the llama.cpp oracle's pick 'Answer' is camelid's #2 by only ~0.10 nat. A benign greedy coin-flip between two degenerate continuations, not a camelid decode error; the adjacent longer buckets 2048/4096/8192 are token-identical, so this is an isolated flip, not a context-length failure. Because the token stream is not identical, the 1024 bucket is NOT promoted."
+}

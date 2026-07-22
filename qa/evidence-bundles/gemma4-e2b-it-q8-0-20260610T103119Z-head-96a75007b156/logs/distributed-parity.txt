@@ -1,0 +1,29 @@
+   Compiling camelid v0.1.0 (<local>/Camelid-push)
+warning: function `f32_to_f16_bits` is never used
+    --> src/tensor/mod.rs:3476:15
+     |
+3476 | pub(crate) fn f32_to_f16_bits(value: f32) -> u16 {
+     |               ^^^^^^^^^^^^^^^
+     |
+     = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: `camelid` (lib) generated 1 warning
+    Finished `release` profile [optimized] target(s) in 19.11s
+     Running tests/gemma4_distributed_parity.rs (<local>/gemma4_distributed_parity-9767f5f4670c2082)
+
+running 3 tests
+test distributed_greedy_matches_single_node_and_oracle ... row gemma-4-E2B-it-Q8_0: 35 layers, split at 13
+[gemma4-worker] serving layers 13..35 of 35 on 127.0.0.1:39411
+[gemma4-worker] session ended: invalid model metadata: gemma4 distributed hello read: failed to fill whole buffer
+[gemma4-worker] session from 127.0.0.1:63745 (return_logits=false)
+distributed: " Paris." ids [9079, 236761]
+stats: {"prompt_tokens":6,"generated_tokens":2,"activation_payload_bytes_per_step":6168,"ttft_ms":284.821875,"decode_tokens_per_s":24.906018695080284,"total_wire_round_trips":8,"local_step_ms_avg":12.078400874999998,"wire_step_ms_avg":33.561494624999995}
+ok
+test distributed_split_through_shared_kv_block_fails_closed ... ok
+test distributed_wire_version_mismatch_fails_closed ... [gemma4-worker] serving layers 13..35 of 35 on 127.0.0.1:39412
+[gemma4-worker] session ended: invalid model metadata: gemma4 distributed hello read: failed to fill whole buffer
+[gemma4-worker] session ended: invalid model metadata: handshake mismatch: master sent Gemma4Handshake { wire_version: 2, block_count: 35, hidden: 1536, worker_first_layer: 13, worker_last_layer: 35, model_file_len: 5048350848, return_logits: false }, worker expects Gemma4Handshake { wire_version: 1, block_count: 35, hidden: 1536, worker_first_layer: 13, worker_last_layer: 35, model_file_len: 5048350848, return_logits: false }
+ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 7.52s
+

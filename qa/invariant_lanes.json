@@ -1,0 +1,471 @@
+{
+  "matrix_version": "camelid.invariant-lanes/v1",
+  "provenance": {
+    "campaign": "BASALT",
+    "amendment": "Amendment 3 §2 (S2)",
+    "source_head": "eeb83563 (parent of the S2 commit; the commit adding this file is the SHA_E engine freeze)",
+    "note": "Columns EXTRACTED from DECISIONS.md D17 + addenda + micro-decisions, BASALT_CONDUCTOR.md §8 (sharp edges), basalt_eval_protocol.md, and qa/evidence-bundles/basalt/phase2/BASALT_G2_SUMMARY.md §6/§9. Enforced by tests/invariant_matrix_binding.rs (§2.4 mechanism: include_str! file binding + test-fn name assertion + fixture tripping — see DECISIONS.md D17 micro-decisions §2.4). Human-readable twin: BASALT_RECON.md §13. HONEST CELLS ONLY: cells record what a test actually proves today, not what a phase promises."
+  },
+  "columns": [
+    {
+      "id": "I-unknown-type",
+      "invariant": "An unknown or lane-uncovered tensor type produces a NAMED, typed refusal — never a silent fall-through, never a panic.",
+      "sources": [
+        "BASALT_CONDUCTOR.md §3.4 (Unknown(i32) fail-closed baseline; §8 Unknown ordering/serde edge)",
+        "RUNNABLE_LANE_SPEC.md principle #2 via src/runnable/admit.rs module doc (machine-readable refusals)",
+        "BASALT_G2_SUMMARY.md §6 (refusal-point move: parse-level Unknown(40) refusal became the lane refusals)"
+      ]
+    },
+    {
+      "id": "I-nan-scale",
+      "invariant": "A NaN-sentinel UE4M3 scale byte (raw 0x7F or 0xFF) in an NVFP4 file refuses at load; decode itself stays pin-CPU-bitwise (0x7F flushes to 0.0, 0xFF decodes 240.0) per D17 addendum. Zero scales admit.",
+      "sources": [
+        "DECISIONS.md D17 T5 + G1 addendum (pin backends disagree on 0xFF; admission refuses both sentinels)",
+        "BASALT_CONDUCTOR.md §3.2/§8 (NaN scale bytes -> load error, fail closed; the zero-scale half of §3.2 was superseded by signed T5: zero scales admit — see BASALT_RECON.md §13 reconciliation note)"
+      ]
+    },
+    {
+      "id": "I-sidecar",
+      "invariant": "D-B2: an NVFP4 GGUF carrying `.scale`/`.input_scale` sidecar tensors (ModelOpt convention) refuses whole-file — silently ignoring sidecar scales would compute wrong logits.",
+      "sources": [
+        "DECISIONS.md D17 D-B2 + addendum 2 (enforced in BOTH lanes)",
+        "BASALT_G2_SUMMARY.md §6 (admission wiring) / §7 (wild-file: coverage stays synthetic-fixture)"
+      ]
+    },
+    {
+      "id": "I-scale-once",
+      "invariant": "Per-tensor scale applied exactly once, never dropped or doubled. v1 posture (pin truth): NO out-of-block per-tensor scale exists on the wire — refusal of sidecar-bearing files IS the exactly-once enforcement; the four in-block UE4M3 sub-scales' single application is pinned bit-exact by the golden decode fixtures.",
+      "sources": [
+        "BASALT_CONDUCTOR.md §3.3 + §8 (dropped/doubled scale = the campaign's most likely functional bug)",
+        "DECISIONS.md D17 D-B2 (reframed by pin truth: in-block sub-scales only; fail closed on sidecars)"
+      ]
+    },
+    {
+      "id": "I-k-div",
+      "invariant": "NVFP4 wire-length divisibility: element counts not divisible by the 64-element superblock refuse — never a silent pad. (Conductor §8 states K%16 as quantizer keep-list guidance; the consume-side wire unit is the 64-element superblock, so enforcement is %64 — reconciled in BASALT_RECON.md §13.)",
+      "sources": [
+        "BASALT_CONDUCTOR.md §8 (K%16 != 0: keep source precision, never pad silently)",
+        "DECISIONS.md D17 D-B1 (64-element/36-byte superblock is the wire unit)"
+      ]
+    },
+    {
+      "id": "I-carveout",
+      "invariant": "D-B3 boundary: everything OUTSIDE the gemma4+NVFP4 pilot carve-out keeps its pre-BASALT behavior — gemma4 files without NVFP4 and all other architectures keep their refusals byte-for-byte; formats a lane already served keep loading.",
+      "sources": [
+        "DECISIONS.md D17 addendum 2 (architecture-axis carve-out, signed at G2)",
+        "BASALT_G2_SUMMARY.md §6/§9 (refusal-move receipts; the S1 review fix's byte-identical-message pin is superseded by DECISIONS.md D-B6, which lists BF16 in the covered set — a sanctioned covered-set widening, IQ4_XS precedent)"
+      ]
+    },
+    {
+      "id": "I-cache-quant",
+      "invariant": "Warm/cached serve state must key on (or be structurally unable to survive) a change of quant identity — an NVFP4 load must never reuse Q8-era cached state (the PR #419 warm-hit-bypass lesson).",
+      "sources": [
+        "BASALT_CONDUCTOR.md §8 (prompt-prefix cache / cached-state must key on tensor type/quant identity; PR #419 lesson verbatim)"
+      ]
+    },
+    {
+      "id": "I-plat",
+      "invariant": "Amendment 3 §9 (GABBRO M2 narrowing): NVFP4 admission is allowed on Windows and macOS and refuses on every other platform with the named TK2 error ('NVFP4 is Windows/macOS-only in this release; see SUPPORT_MATRIX') — a runtime gate inside ordinary code, not a #[cfg] wall; fires AFTER the D-B3/D-B2 checks so signed postures stay platform-independent. macOS joined the admit set once its CPU wire-lane decode was proven bit-exact (Gate G-M1, qa/evidence-bundles/gabbro/phase1/).",
+      "sources": [
+        "DECISIONS.md D17 micro-decisions §9.1"
+      ]
+    }
+  ],
+  "lanes": [
+    {
+      "id": "L1-runnable",
+      "name": "Runnable lane (admission, dequant, smoke)",
+      "sources": ["src/runnable/admit.rs", "src/runnable/dequant.rs", "src/runnable/smoke.rs"]
+    },
+    {
+      "id": "L2-gemma4-wire",
+      "name": "Gemma4 wire lane (CPU; the NVFP4-executing lane in this release)",
+      "sources": ["src/gemma4_runtime.rs", "src/inference.rs", "src/tensor/mod.rs (decode_nvfp4_tensor, nvfp4_find_nan_scale)"]
+    },
+    {
+      "id": "L3-cuda-resident",
+      "name": "CUDA-resident lane (Gemma4CudaResident; NVFP4 residency is Phase 4)",
+      "sources": ["src/cuda_resident.rs", "src/gemma4_runtime.rs (Gemma4CudaResident, nvfp4_cuda_lane_check)"]
+    },
+    {
+      "id": "L4-metal",
+      "name": "Metal lane (Gemma4GpuRuntime, macOS; NVFP4 layer projections wired per GABBRO M3)",
+      "sources": ["src/gemma4_runtime.rs (Gemma4GpuRuntime::load, gemma4_metal_layer_fmt, nvfp4_metal_sentinel_check)"]
+    },
+    {
+      "id": "L5-native-quantizer",
+      "name": "Native quantizer (Phase 2b — never scheduled; D-B5 pin-tool-only)",
+      "sources": []
+    }
+  ],
+  "cells": {
+    "L1-runnable": {
+      "I-unknown-type": {
+        "status": "enforced",
+        "test_file": "src/runnable/admit.rs",
+        "test_fn": "rejects_unknown_quant_naming_tensor",
+        "source": "src/runnable/admit.rs",
+        "companion_tests": [
+          { "file": "src/runnable/admit.rs", "fn": "rejects_iquant_naming_tensor" },
+          { "file": "src/gguf/reader.rs", "fn": "nvfp4_id_and_layout_are_pinned" }
+        ],
+        "fixture": "nvfp4_unknown_type_trip.gguf",
+        "fixture_trip": "tests/invariant_matrix_binding.rs::unknown_type_fixture_trips_parse_refusal",
+        "note": "Defense in depth: the file boundary refuses FIRST at parse (src/gguf/reader.rs tensor_nbytes -> 'unknown or removed GGML type', tripped by the fixture), so admission's uncovered-type reject is the metadata-level backstop for types that parse but have no dequant."
+      },
+      "I-nan-scale": {
+        "status": "enforced",
+        "test_file": "src/runnable/dequant.rs",
+        "test_fn": "nvfp4_nan_sentinel_refused_at_decode",
+        "source": "src/tensor/mod.rs",
+        "companion_tests": [
+          { "file": "tests/nvfp4_format.rs", "fn": "decode_nvfp4_tensor_refuses_nan_sentinel_scales_but_block_dequant_stays_pin_bitwise" },
+          { "file": "tests/nvfp4_format.rs", "fn": "nan_scale_scanner_ignores_qs_bytes_and_reports_first_block" }
+        ],
+        "fixture": "nvfp4_nan_sentinel_trip.gguf",
+        "fixture_trip": "tests/nvfp4_wire_lane_refusals.rs::nan_sentinel_fixture_trips_the_scan_seam",
+        "note": "Seam split is deliberate and documented in src/runnable/dequant.rs: admission is metadata-only (never sees wire bytes), so the sentinel refusal fires in decode_nvfp4_tensor via runnable::dequant. The fixture trip drives decode_nvfp4_tensor — this lane's consumer — on the fixture's real on-disk wire bytes."
+      },
+      "I-sidecar": {
+        "status": "enforced",
+        "test_file": "src/runnable/admit.rs",
+        "test_fn": "rejects_nvfp4_sidecar_scale_tensor",
+        "source": "src/runnable/admit.rs",
+        "companion_tests": [
+          { "file": "src/runnable/admit.rs", "fn": "rejects_nvfp4_sidecar_input_scale_tensor" },
+          { "file": "src/runnable/admit.rs", "fn": "sidecar_names_without_nvfp4_admit" },
+          { "file": "src/runnable/admit.rs", "fn": "pilot_layer_output_scale_weight_is_not_a_sidecar" }
+        ],
+        "fixture": "nvfp4_sidecar_admit_trip.gguf",
+        "fixture_trip": "tests/invariant_matrix_binding.rs::sidecar_admit_fixture_trips_d_b2_at_admission",
+        "note": "The S2 fixture carries tokenizer.ggml.model so admission's fixed axis order reaches the quant axis and the D-B2 reject fires end-to-end from file bytes on every platform (the sidecar check precedes the §9 platform gate by design)."
+      },
+      "I-scale-once": {
+        "status": "enforced",
+        "test_file": "src/runnable/admit.rs",
+        "test_fn": "rejects_nvfp4_sidecar_input_scale_tensor",
+        "source": "src/runnable/admit.rs",
+        "companion_tests": [
+          { "file": "src/runnable/admit.rs", "fn": "rejects_nvfp4_sidecar_scale_tensor" },
+          { "file": "tests/nvfp4_format.rs", "fn": "decode_table_all_4096_scale_code_pairs_bit_exact" }
+        ],
+        "fixture": "seam:v1 posture (D-B2, pin truth) — no out-of-block per-tensor scale exists on the wire, so there is no apply-twice/apply-zero path to trip from a file; refusal of sidecar-bearing files IS the exactly-once enforcement (see I-sidecar fixture), and the in-block sub-scales' single application is pinned bit-exact by the golden decode fixtures",
+        "note": "If a future phase lands sidecar application, this cell must be re-signed with dropped/doubled failure-mode tests per BASALT_CONDUCTOR.md §3.3."
+      },
+      "I-k-div": {
+        "status": "enforced",
+        "test_file": "tests/nvfp4_format.rs",
+        "test_fn": "decode_nvfp4_tensor_refuses_non_multiple_of_64_elements",
+        "source": "src/tensor/mod.rs",
+        "companion_tests": [
+          { "file": "tests/nvfp4_format.rs", "fn": "decode_nvfp4_tensor_refuses_wrong_byte_length" }
+        ],
+        "fixture": "nvfp4_k_div_trip.gguf",
+        "fixture_trip": "tests/invariant_matrix_binding.rs::k_div_fixture_trips_parse_refusal",
+        "note": "The file boundary refuses at parse (src/gguf/reader.rs tensor_nbytes: first dim not divisible by block size 64); decode_nvfp4_tensor's %64 and byte-length refusals are the in-lane backstop for non-file callers."
+      },
+      "I-carveout": {
+        "status": "enforced",
+        "test_file": "src/runnable/admit.rs",
+        "test_fn": "rejects_nvfp4_outside_pilot_arch",
+        "source": "src/runnable/admit.rs",
+        "companion_tests": [
+          { "file": "src/runnable/admit.rs", "fn": "rejects_gemma4_without_nvfp4" },
+          { "file": "src/runnable/admit.rs", "fn": "gemma4_nvfp4_with_bf16_admits_fully_after_d_b6" },
+          { "file": "src/runnable/smoke.rs", "fn": "gemma4_nvfp4_smoke_refusal_is_not_yet_anchored" }
+        ],
+        "note": "The three admit tests pin the boundary in all directions (non-gemma4+NVFP4 refuses with the D-B3 scope message; gemma4-without-NVFP4 keeps the architecture refusal; the real pilot shape now ADMITS FULLY after BASALT D-B6 added BF16 to the covered set — the off-Windows twin gemma4_nvfp4_with_bf16_refuses_off_windows_platform_gate keeps the §9 gate, and the SHA_E byte-identical-message pin is retired since the covered set now lists BF16, a sanctioned widening per the IQ4_XS precedent). The smoke test pins admit-then-fail exclusion: the pilot stays oracle-refused until G3."
+      },
+      "I-cache-quant": {
+        "status": "na",
+        "reason": "Structural — no warm state exists on this lane to key: the runnable serve bridge routes only qwen35/gemma3 (src/api/mod.rs fn is_runnable_serve_arch), so a gemma4+NVFP4 pilot file never gets a RunnableServeRuntime; RunnableServeRuntime generation is &self-immutable with no cross-request decode cache (src/api/mod.rs struct RunnableServeRuntime); runnable smoke is one-shot and stays oracle-refused for the pilot until G3 (src/runnable/smoke.rs); the Llama-path prompt-prefix cache is unreachable from this lane (its payload is a LlamaInferenceSession). The meta-test asserts these structural anchors still exist in the bound sources."
+      },
+      "I-plat": {
+        "status": "enforced",
+        "test_file": "src/runnable/admit.rs",
+        "test_fn": "gemma4_nvfp4_pilot_refuses_off_windows_with_platform_gate",
+        "source": "src/runnable/admit.rs",
+        "companion_tests": [
+          { "file": "src/runnable/admit.rs", "fn": "admits_gemma4_nvfp4_pilot" },
+          { "file": "src/runnable/admit.rs", "fn": "pilot_layer_output_scale_weight_is_not_a_sidecar_off_windows" }
+        ],
+        "fixture": "nvfp4_pilot_admit.gguf",
+        "fixture_trip": "tests/invariant_matrix_binding.rs::pilot_admit_fixture_is_the_platform_gate_twin",
+        "note": "cfg-twinned per §9.1: the refusal leg runs on the ubuntu/macos CI legs; the Windows leg proves the same fixture ADMITS (positive control that the gate does not misfire where NVFP4 is supported, and the first file-boundary admission proof of the D-B3 carve-out)."
+      }
+    },
+    "L2-gemma4-wire": {
+      "I-unknown-type": {
+        "status": "enforced",
+        "test_file": "src/gemma4_runtime.rs",
+        "test_fn": "wire_quant_new_admits_nvfp4_and_still_refuses_uncovered",
+        "source": "src/gemma4_runtime.rs",
+        "companion_tests": [
+          { "file": "src/gemma4_runtime.rs", "fn": "kquant_projection_dispatch_matches_top_level_matvec_bitwise" },
+          { "file": "src/gemma4_runtime.rs", "fn": "q5k_matvec_roles_refuse_typed_at_load" },
+          { "file": "src/gemma4_runtime.rs", "fn": "q4_1_gather_refuses_typed_instead_of_panicking" }
+        ],
+        "fixture": "nvfp4_unknown_type_trip.gguf",
+        "fixture_trip": "tests/invariant_matrix_binding.rs::unknown_type_fixture_trips_parse_refusal",
+        "note": "This lane's file boundary is read_metadata (Gemma4Runtime::load's first act), so the parse-level unknown-type refusal tripped by the fixture guards it; WireQuant::new's typed UnsupportedTensorType arm is the in-lane refusal for types that parse but are not wire-covered (driven directly in the named test — a tiny full file cannot reach WireQuant, config parsing fails first). SHA_E3 correction (same honesty pattern as the L3 SHA_E review correction at commit 0e2f7f95): the cell previously covered only load-time type admission, and the column's 'never a panic' clause was NOT true forward of load — a latent pre-BASALT gap let lane-COVERED K-quant types (Q4_K/Q6_K) load as LAYER-PROJECTION weights and hit matvec_q's K-quant unreachable! at forward time (the per-layer/batched projection call sites bypassed the top-level matvec's family routing; first reachable via the campaign's Q4K-mm/Q4_K_M rows, probe-proven by the S3 legs). Fixed under the Amendment 3 §3 freeze-move as a crash fix: projections now dispatch per activation family (Q8_K for K-quants, mirroring top-level matvec), Q5_K — gather-only in this lane — refuses TYPED at load in every matvec role (require_matvec_capable), and the Q4_1 gather arm became a typed error; the companion tests pin the routing bit-equal to the pre-existing correct route and the two typed refusals."
+      },
+      "I-nan-scale": {
+        "status": "enforced",
+        "test_file": "src/gemma4_runtime.rs",
+        "test_fn": "wire_quant_new_refuses_nan_sentinel_scale_bytes",
+        "source": "src/gemma4_runtime.rs",
+        "fixture": "seam:full-file trip not reachable — LlamaModelConfig::from_gguf runs before any WireQuant::new sentinel scan and fails first on a tiny fixture's missing gemma4 config KVs; tests/nvfp4_wire_lane_refusals.rs::nan_sentinel_fixture_trips_the_scan_seam drives the SAME nvfp4_find_nan_scale seam on nvfp4_nan_sentinel_trip.gguf's real on-disk wire bytes and ASSERTS the non-reachability (S1 precedent)",
+        "note": "Zero scales admit (T5 boundary), asserted in the same test. Decode stays pin-CPU-bitwise per D17 addendum (0xFF -> 240.0), pinned by the golden decode-table suite."
+      },
+      "I-sidecar": {
+        "status": "enforced",
+        "test_file": "tests/nvfp4_wire_lane_refusals.rs",
+        "test_fn": "sidecar_fixture_trips_d_b2_end_to_end",
+        "source": "src/gemma4_runtime.rs",
+        "companion_tests": [
+          { "file": "src/gemma4_runtime.rs", "fn": "sidecar_check_refuses_nvfp4_with_scale_tensors" },
+          { "file": "src/gemma4_runtime.rs", "fn": "sidecar_check_admits_pilot_shapes" }
+        ],
+        "fixture": "nvfp4_sidecar_trip.gguf",
+        "fixture_trip": "tests/nvfp4_wire_lane_refusals.rs::sidecar_fixture_trips_d_b2_end_to_end",
+        "note": "END-TO-END through Gemma4Runtime::load — nvfp4_sidecar_check fires immediately after read_metadata, before config parsing and before the §9 platform gate, so the trip proves the D-B2 posture on every platform."
+      },
+      "I-scale-once": {
+        "status": "enforced",
+        "test_file": "src/gemma4_runtime.rs",
+        "test_fn": "sidecar_check_refuses_nvfp4_with_scale_tensors",
+        "source": "src/gemma4_runtime.rs",
+        "companion_tests": [
+          { "file": "src/gemma4_runtime.rs", "fn": "nvfp4_matvec_and_matmul_match_row_dot" },
+          { "file": "tests/nvfp4_format.rs", "fn": "real_gguf_blocks_bit_exact_through_both_paths" }
+        ],
+        "fixture": "seam:v1 posture (D-B2, pin truth) — no out-of-block per-tensor scale exists on the wire; the sidecar refusal (see I-sidecar, end-to-end fixture) IS the exactly-once enforcement, and the in-block sub-scales' single application through matvec/matmul/row-dot is bitwise-pinned against the decode paths and the pin-extracted E4B spot-check fixture",
+        "note": "The P4 CUDA path must re-sign this cell at its own seam (kernel epilogue vs host-side row scale — BASALT_CONDUCTOR.md §5 Phase 4)."
+      },
+      "I-k-div": {
+        "status": "enforced",
+        "test_file": "tests/invariant_matrix_binding.rs",
+        "test_fn": "k_div_fixture_trips_parse_refusal",
+        "source": "src/gguf/reader.rs",
+        "companion_tests": [
+          { "file": "src/gemma4_runtime.rs", "fn": "wire_format_nvfp4_constants" }
+        ],
+        "fixture": "nvfp4_k_div_trip.gguf",
+        "fixture_trip": "tests/invariant_matrix_binding.rs::k_div_fixture_trips_parse_refusal",
+        "note": "HONEST scope: the parse boundary (tensor_nbytes, first dim % 64) is this lane's enforcement for files — WireQuant::new's own block-alignment and byte-size re-checks are defense-in-depth that no GGUF-parsed NVFP4 tensor can reach (parse guarantees first-dim divisibility), so they carry no lane-native NVFP4 tripping test."
+      },
+      "I-carveout": {
+        "status": "na",
+        "reason": "Structural — D-B3's carve-out is a runnable-admission architecture-axis construct; this lane has no architecture axis to carve: Gemma4Runtime::load serves gemma4 only by construction (LlamaModelConfig::from_gguf must yield a gemma4 config or load fails with 'not a gemma4 model', src/gemma4_runtime.rs), NVFP4 joined the wire-covered set outright, and outside-the-set refusal continuity is this lane's I-unknown-type cell. Sanctioned-row byte-identity after the S1 closure is CERT-receipted (qa/evidence-bundles/basalt/phase3/row_rehash_post_closure.txt), not lane-testable."
+      },
+      "I-cache-quant": {
+        "status": "na",
+        "reason": "Structural — cached state cannot survive onto an NVFP4 load: (1) NVFP4 executes only via Gemma4ServeRuntime, resolved per model id from AppState::gemma4_runtimes (src/api/mod.rs fn resolve_gemma4_runtime_for_model) — entries are replaced wholesale on reload and cleared on unload; a gemma4 model without its runtime gets a typed model_not_ready 503, never a silent fall-through to the Llama path; (2) the Llama prompt-prefix cache's payload is a LlamaInferenceSession with ZERO call sites in gemma4_runtime.rs (fn lookup_prompt_prefix_cache / fn store_prompt_prefix_cache live in src/api/mod.rs and are reached only by the Llama handlers); (3) that cache's key already includes model_id AND model_path — distinct quant rows are distinct files (G2 §1 receipts) — and the single slot is cleared on every active-model switch and on unload (fn clear_prompt_prefix_cache call sites in load/unload). Key-miss on model change is additionally pinned by the Llama-lane test prompt_prefix_cache_reuses_exact_prompt_and_invalidates_key_changes (src/api/mod.rs). The meta-test asserts these structural anchors still exist in the bound source."
+      },
+      "I-plat": {
+        "status": "enforced",
+        "test_file": "src/gemma4_runtime.rs",
+        "test_fn": "windows_only_check_refuses_nvfp4_off_windows",
+        "source": "src/gemma4_runtime.rs",
+        "companion_tests": [
+          { "file": "src/gemma4_runtime.rs", "fn": "windows_only_check_admits_nvfp4_on_windows" },
+          { "file": "src/gemma4_runtime.rs", "fn": "windows_only_check_ignores_files_without_nvfp4" }
+        ],
+        "fixture": "nvfp4_nan_sentinel_trip.gguf",
+        "fixture_trip": "tests/nvfp4_wire_lane_refusals.rs::nan_sentinel_fixture_trips_the_scan_seam",
+        "note": "cfg-twinned per §9.1. File-boundary coverage rides the S1 NaN fixture's load leg: on unvalidated platforms (non-Windows, non-macOS), Gemma4Runtime::load on that fixture is asserted to fail with the named TK2 message (the §9 gate fires before config parsing there), executed on the ubuntu/linux CI leg. On the Windows and macOS admit legs (GABBRO M2) the load instead dies in gemma4 config parsing, before the sentinel scan."
+      }
+    },
+    "L3-cuda-resident": {
+      "I-unknown-type": {
+        "status": "enforced",
+        "test_file": "src/gemma4_runtime.rs",
+        "test_fn": "cuda_lane_check_refuses_every_lane_uncovered_format_typed",
+        "companion_tests": [
+          { "file": "src/gemma4_runtime.rs", "fn": "cuda_lane_check_admits_nvfp4_after_the_phase4_lift" },
+          { "file": "src/gemma4_runtime.rs", "fn": "cuda_lane_check_admits_the_supported_projection_formats" }
+        ],
+        "source": "src/gemma4_runtime.rs",
+        "fixture": "seam:Gemma4CudaResident::load requires a bindable real gemma4 model plus a CUDA device — not constructible under the <4KB synthetic-fixture rule; nvfp4_cuda_lane_check is cfg-independent and driven directly on every WireFormat outside the lane's covered set",
+        "note": "Phase 4 (G4) lift: the lane's covered set is now Q8_0/Q4_0/Q4_1/NVFP4 (nvfp4_gemv shipped), so the check ADMITS NVFP4 (positive control cuda_lane_check_admits_nvfp4_after_the_phase4_lift, inverting the pre-Phase-4 refusal — ratchet R3) and still refuses EVERY remaining uncovered format typed and named — the K-quants the CPU wire lane serves (Q4K/Q5K/Q6K, incl. the campaign's own Q4K-mm and Q4_K_M rows, which would otherwise reach the from_wire repack panic under CAMELID_GEMMA4_CUDA=1)."
+      },
+      "I-nan-scale": {
+        "status": "enforced",
+        "test_file": "src/cuda_resident/tests.rs",
+        "test_fn": "nvfp4_gemv_decodes_ue4m3_sentinels_pin_cpu_bitwise",
+        "source": "src/cuda_resident.rs",
+        "companion_tests": [
+          { "file": "src/gemma4_runtime.rs", "fn": "wire_quant_new_refuses_nan_sentinel_scale_bytes" },
+          { "file": "tests/nvfp4_wire_lane_refusals.rs", "fn": "nan_sentinel_fixture_trips_the_scan_seam" }
+        ],
+        "fixture": "seam:the load-time sentinel REFUSAL is inherited — Gemma4CudaResident::load's first act is Gemma4Runtime::load, whose WireQuant::new nvfp4_find_nan_scale runs before any CUDA work; a CUDA-bound full-file trip needs a real gemma4 model + a CUDA device (not constructible under the <4KB fixture rule), so the S1 fixture trips the shared scan seam and the lane-native test proves the below-the-seam DECODE semantics on the kernel itself",
+        "note": "P4 earns this lane-natively two ways: (1) the inherited load-time refusal (companion wire_quant_new_refuses_nan_sentinel_scale_bytes drives the same WireQuant seam the CUDA entry shares; the S1 fixture trip is the on-disk leg); (2) the NEW kernel test feeds crafted 0x7F/0xFF scale blocks through nvfp4_gemv BELOW the refusal seam and bit-matches nvfp4_wire_row_dot, proving pin-CPU-bitwise decode (0x7F->0.0, 0xFF->240.0 — deliberately NOT the pin CUDA-intrinsic double-flush; D17 addendum/T5)."
+      },
+      "I-sidecar": {
+        "status": "enforced",
+        "test_file": "src/gemma4_runtime.rs",
+        "test_fn": "cuda_resident_load_inherits_shared_sidecar_refusal",
+        "source": "src/gemma4_runtime.rs",
+        "companion_tests": [
+          { "file": "tests/nvfp4_wire_lane_refusals.rs", "fn": "sidecar_fixture_trips_d_b2_end_to_end" },
+          { "file": "src/gemma4_runtime.rs", "fn": "sidecar_check_admits_pilot_shapes" }
+        ],
+        "fixture": "seam:Gemma4CudaResident::load's first act is Gemma4Runtime::load, whose nvfp4_sidecar_check (D-B2) fires before any CUDA work — so the CUDA lane cannot bind a sidecar-bearing NVFP4 file; a CUDA-bound full-file trip is not constructible under the <4KB fixture rule, so the shared helper is unit-driven here and the end-to-end file trip on the same seam is the L2 cell's nvfp4_sidecar_trip.gguf",
+        "note": "The lane-native test drives the exact shared guard the CUDA entry inherits (sidecar refuses D-B2, pilot admits), and the end-to-end companion trips Gemma4Runtime::load — the CUDA lane's first act — on the on-disk sidecar fixture. No sidecar application exists on the v1 wire (I-scale-once), so this refusal IS the enforcement."
+      },
+      "I-scale-once": {
+        "status": "enforced",
+        "test_file": "src/cuda_resident/tests.rs",
+        "test_fn": "nvfp4_gemv_matches_oracle",
+        "source": "src/cuda_resident.rs",
+        "companion_tests": [
+          { "file": "src/gemma4_runtime.rs", "fn": "cuda_resident_load_inherits_shared_sidecar_refusal" }
+        ],
+        "fixture": "seam:v1 posture (D-B2, pin truth) — the P4 D-B2 seam (BASALT_CONDUCTOR.md §5 Phase 4: kernel epilogue vs host-side row scale) resolves as NEITHER EXISTS: there is no out-of-block per-tensor scale on the wire, and the four in-block UE4M3 sub-scales are applied exactly once inside the per-sub-block term (nvfp4_gemv), the same place the CPU oracle applies them",
+        "note": "Bit-parity on random + crafted blocks (nvfp4_gemv_matches_oracle, 100% bit-identical vs nvfp4_wire_row_dot) is the dropped/doubled-sub-scale killer — a scale applied zero or twice cannot survive same-bytes bit-comparison across the shapes; the sidecar-refusal companion enforces the whole-file half. If a future phase lands sidecar application, re-sign per BASALT_CONDUCTOR.md §3.3."
+      },
+      "I-k-div": {
+        "status": "enforced",
+        "test_file": "src/cuda_resident/tests.rs",
+        "test_fn": "nvfp4_gemv_requires_even_q8_blocks",
+        "source": "src/cuda_resident.rs",
+        "companion_tests": [
+          { "file": "src/cuda_resident/tests.rs", "fn": "nvfp4_gemv_matches_oracle" }
+        ],
+        "fixture": "nvfp4_k_div_trip.gguf",
+        "fixture_trip": "tests/invariant_matrix_binding.rs::k_div_fixture_trips_parse_refusal",
+        "note": "The file-parse boundary (tensor_nbytes, first dim % 64) still refuses non-%64 NVFP4 tensors before load (fixture trip). The P4 kernel earns its OWN divisibility proof lane-natively: launch_nvfp4_gemv refuses an odd Q8_0-block count typed (Nvfp4LaunchError::OddBlocksPerRow — one 64-value superblock spans two 32-value activation blocks), and nvfp4_gemv_matches_oracle exercises the 64-element indexing at 1 and many superblocks (n_sb 1/2/40/160)."
+      },
+      "I-carveout": {
+        "status": "enforced",
+        "test_file": "src/gemma4_runtime.rs",
+        "test_fn": "cuda_lane_check_admits_the_supported_projection_formats",
+        "source": "src/gemma4_runtime.rs",
+        "note": "Boundary-preservation direction: the K-quant refusal must not bleed onto the formats this lane serves — Q8_0/Q4_0/Q4_1 (pre-BASALT) AND NVFP4 (Phase 4) projections, plus the no-projection case, keep loading. Post-Phase-4 the covered set grew by NVFP4 only; every K-quant stays typed-refused (I-unknown-type)."
+      },
+      "I-cache-quant": {
+        "status": "na",
+        "reason": "Structural — NVFP4 residency adds NO new cross-instance warm state: the resident KV caches, the captured decode CUDA graph (SendGraph), the cached_tokens prefix, and the gpu_head buffers are all per-Gemma4CudaResident fields; instances are keyed by model id in AppState::gemma4_runtimes (src/api/mod.rs fn resolve_gemma4_runtime_for_model), replaced wholesale on reload and cleared on unload, and distinct quant rows are distinct files (G2 §1). The P4 NVFP4 upload path is upw raw-wire passthrough into fresh per-instance CudaSlices — it introduces no new cache to key. The Llama prompt-prefix cache (LlamaInferenceSession payload) has zero call sites in gemma4_runtime.rs, asserted by the meta-test's na-anchor check. Per orchestrator decision (recon §5 Q3) this closes na-with-structural-reasons; no behavioral reload test is pre-committed."
+      },
+      "I-plat": {
+        "status": "enforced",
+        "test_file": "src/gemma4_runtime.rs",
+        "test_fn": "cuda_resident_platform_gate_fronts_the_cuda_lane_entry",
+        "source": "src/gemma4_runtime.rs",
+        "companion_tests": [
+          { "file": "src/gemma4_runtime.rs", "fn": "windows_only_check_refuses_nvfp4_off_windows" },
+          { "file": "tests/nvfp4_wire_lane_refusals.rs", "fn": "nan_sentinel_fixture_trips_the_scan_seam" }
+        ],
+        "fixture": "seam:Gemma4CudaResident::load requires a real gemma4 model + a CUDA device — not constructible under the <4KB fixture rule; the §9 gate (nvfp4_windows_only_check) fires inside Gemma4Runtime::load, the CUDA lane's FIRST act, BEFORE any CUDA initialization, so the cfg-twin observes the refusal with no GPU, and the shared load-leg file trip is the L2 cell's nvfp4_nan_sentinel_trip.gguf",
+        "note": "cfg-twinned per §9.1 (its own named L3 test, not an inheritance note): off-Windows legs assert the CUDA lane's shared entry gate yields the named TK2 refusal before any CUDA init; the Windows leg asserts the pilot shape admits so the CUDA lane can bind (D-B3). The companion off-Windows refusal + the S1 fixture's load leg (Gemma4Runtime::load, the CUDA entry's first act) are the file-boundary coverage."
+      }
+    },
+    "L4-metal": {
+      "I-unknown-type": {
+        "status": "enforced",
+        "test_file": "src/gemma4_runtime.rs",
+        "test_fn": "metal_layer_fmt_covers_q8_q4_nvfp4_refuses_others",
+        "source": "src/gemma4_runtime.rs",
+        "note": "GABBRO M3-followup: the Metal resident lane now COVERS Q8_0/Q4_0/NVFP4 layer projections (gemma4_metal_layer_fmt); every other format refuses TYPED and NAMED at load rather than mis-binding. The prior blanket 'NVFP4 is not wired to the Metal lane' refusal was replaced by this covered-set gate once the NVFP4 GEMV kernel (GABBRO M3) landed."
+      },
+      "I-nan-scale": {
+        "status": "enforced",
+        "test_file": "src/gemma4_runtime.rs",
+        "test_fn": "metal_sentinel_check_refuses_nan_sentinel_nvfp4",
+        "source": "src/gemma4_runtime.rs",
+        "note": "GABBRO M3-followup FLIP (was na): NVFP4 now RUNS on this lane, which reads its wire RAW via WirePages — bypassing WireQuant::new's scan — so nvfp4_metal_sentinel_check scans every NVFP4 tensor's UE4M3 scale bytes at load and refuses 0x7F/0xFF (D17/T5), matching the CPU wire lane. Zero scales admit."
+      },
+      "I-sidecar": {
+        "status": "enforced",
+        "test_file": "src/gemma4_runtime.rs",
+        "test_fn": "sidecar_check_refuses_nvfp4_with_scale_tensors",
+        "source": "src/gemma4_runtime.rs",
+        "fixture": "seam:the Metal load path is cfg(target_os = \"macos\") + real-model-bound; the shared nvfp4_sidecar_check helper (called at Gemma4GpuRuntime::load, up top before binding) is unit-driven on every host, and its end-to-end file trip is the L2 cell's nvfp4_sidecar_trip.gguf",
+        "note": "D-B2 sidecar refusal runs in the Metal load path (nvfp4_sidecar_check), so a sidecar-bearing file cannot slip past the signed posture via macOS — unchanged by the M3-followup lift, which only lifted the blanket NVFP4 refusal."
+      },
+      "I-scale-once": {
+        "status": "na",
+        "reason": "GABBRO M3-followup: NVFP4 now executes on this lane, but v1 NVFP4 carries NO per-tensor scale to apply once or twice — the only in-block factors are the four UE4M3 sub-scales (applied once in the kernel), and any per-tensor sidecar scale is refused at load (I-sidecar, D-B2). There is no scale-once/twice ambiguity to guard."
+      },
+      "I-k-div": {
+        "status": "na",
+        "reason": "GABBRO M3-followup: NVFP4 wire is now consumed on this lane, but K%64 divisibility is guarded lane-independently at parse (src/gguf/reader.rs tensor_nbytes, tripped by nvfp4_k_div_trip.gguf) — a non-multiple-of-64 first dim never reaches the resident load."
+      },
+      "I-carveout": {
+        "status": "enforced",
+        "test_file": "src/gemma4_runtime.rs",
+        "test_fn": "metal_sentinel_check_admits_clean_nvfp4_and_non_nvfp4",
+        "source": "src/gemma4_runtime.rs",
+        "note": "Boundary-preservation: files without NVFP4 keep loading on the Metal lane exactly as pre-BASALT (the sentinel scan is a no-op for them), and clean NVFP4 now admits (GABBRO M3-followup)."
+      },
+      "I-cache-quant": {
+        "status": "na",
+        "reason": "GABBRO M3-followup: NVFP4 now runs on this lane, but it adds no cross-instance warm state — the resident model is per-Gemma4GpuRuntime, keyed by model id and replaced wholesale on reload, and distinct quant rows are distinct files, so no cached state with NVFP4 provenance is ever mis-reused (same structural na as the other resident lanes)."
+      },
+      "I-plat": {
+        "status": "enforced",
+        "test_file": "src/gemma4_runtime.rs",
+        "test_fn": "metal_layer_fmt_covers_q8_q4_nvfp4_refuses_others",
+        "source": "src/gemma4_runtime.rs",
+        "companion_tests": [
+          { "file": "src/gemma4_runtime.rs", "fn": "windows_only_check_admits_nvfp4_on_macos" }
+        ],
+        "note": "GABBRO M3-followup: the Metal (macOS) lane now ADMITS and RUNS NVFP4 layer projections (gemma4_metal_layer_fmt covers NVFP4), consistent with the §9 platform gate admitting NVFP4 on macOS (windows_only_check_admits_nvfp4_on_macos). The prior 'Metal GPU refuses NVFP4' posture is lifted; the T5 sentinel guard (I-nan-scale) is the remaining fail-closed on this lane."
+      }
+    },
+    "L5-native-quantizer": {
+      "I-unknown-type": {
+        "status": "na",
+        "reason": "Phase 2b never scheduled — D-B5 pin-tool-only (DECISIONS.md D17): no native quantizer lane exists; the in-tree encode_nvfp4_block is TEST-ANCHORING ONLY (src/tensor/mod.rs) and is not an admission/load surface."
+      },
+      "I-nan-scale": {
+        "status": "na",
+        "reason": "Phase 2b never scheduled — D-B5 pin-tool-only (DECISIONS.md D17): no native quantizer emits scale bytes; the test-anchoring encoder's outputs are golden-pinned against the pin's quantize_row_nvfp4_ref, which never emits sentinel scales for finite input."
+      },
+      "I-sidecar": {
+        "status": "na",
+        "reason": "Phase 2b never scheduled — D-B5 pin-tool-only (DECISIONS.md D17): no Camelid tool writes NVFP4 GGUFs, so no producer-side sidecar policy exists to enforce; consume-side D-B2 is L1/L2's cells."
+      },
+      "I-scale-once": {
+        "status": "na",
+        "reason": "Phase 2b never scheduled — D-B5 pin-tool-only (DECISIONS.md D17): no producer-side scale computation exists; the pin's llama-quantize is the sole producer (deterministic, receipted at G2)."
+      },
+      "I-k-div": {
+        "status": "na",
+        "reason": "Phase 2b never scheduled — D-B5 pin-tool-only (DECISIONS.md D17): keep-list/divisibility decisions belong to the pin tool's per-tensor override path (the G2 receipts pin exactly which 294 tensors were converted)."
+      },
+      "I-carveout": {
+        "status": "na",
+        "reason": "Phase 2b never scheduled — D-B5 pin-tool-only (DECISIONS.md D17): no lane surface exists on which a D-B3 boundary could be preserved or violated."
+      },
+      "I-cache-quant": {
+        "status": "na",
+        "reason": "Phase 2b never scheduled — D-B5 pin-tool-only (DECISIONS.md D17): no serve/warm state of any kind."
+      },
+      "I-plat": {
+        "status": "na",
+        "reason": "Phase 2b never scheduled — D-B5 pin-tool-only (DECISIONS.md D17): no admission surface for the §9 gate to guard."
+      }
+    }
+  },
+  "ratchet": {
+    "rules": [
+      {
+        "id": "R1",
+        "rule": "Lane-adding PRs add a ROW: any PR that gives NVFP4 a new execution or admission surface (a new backend lane, a serve bridge, a quantizer) must add its lane to `lanes` and fill all 8 cells honestly in the same PR — the meta-test's full-population assertion makes a missing cell a test failure."
+      },
+      {
+        "id": "R2",
+        "rule": "Invariant-signing PRs add a COLUMN: any PR that signs a new NVFP4 invariant (a DECISIONS.md D17 addendum, a new conductor sharp edge with refusal semantics) must add its column to `columns` (with the source cited) and fill it for all lanes in the same PR."
+      },
+      {
+        "id": "R3",
+        "rule": "Gate G4 closes open:P4 — the P4 (CUDA-resident NVFP4) PR must flip every open:P4 cell to enforced (with lane-native tests) or na (with structural reasons); the meta-test rejects open cells whose phase has landed, so merging P4 without closing them fails CI."
+      },
+      {
+        "id": "R4",
+        "rule": "Scheduling Phase 2b (native quantizer) re-opens the L5 row: its na cells must be re-signed as enforced/open in the P2b PR, same mechanics as R3."
+      }
+    ]
+  }
+}

@@ -1,0 +1,17 @@
+# BASALT Amendment 3 §1.3 — sanctioned-row re-hash at Phase-2 closure acceptance
+#
+# Date: 2026-07-16 (Amendment 3 signed; closure accepted against the §1 bar).
+# Host: the Phase 2/3 Windows production box. Method: SHA-256 over the full file
+# (PowerShell Get-FileHash) + on-disk byte length. HASHING ONLY — no model loads.
+# Row locations: <camelid>/models/ (the serving checkout's models dir).
+#
+# Verdict: ALL FOUR ROWS BYTE-UNCHANGED vs the Gate G2 receipts
+# (qa/evidence-bundles/basalt/phase2/BASALT_G2_SUMMARY.md §1 — sha256 AND size
+# both re-verified; G2 sizes 6,058,607,776 / 6,058,607,776 / 6,180,443,296 /
+# 6,180,443,296 B).
+#
+# sha256 (measured)                                                 bytes       row file                        matches G2
+eb293344972e2b292a043b8e7649b9788dca915b034e5c2721cfc531cf9863d9  6058607776  gemma-4-E4B-it-NVFP4-mm.gguf    YES (eb293344…)
+d306fa7753ec80eda4ab389f1b3a06273cc2291ebe977993a767587c055b2031  6058607776  gemma-4-E4B-it-Q4K-mm.gguf      YES (d306fa77…)
+4f7f288ad56b9c64ddab0bdb25af1b14757f9470181252885f496ebbf18b25b5  6180443296  gemma-4-E4B-it-Q4_K_M-df.gguf   YES (4f7f288a…)
+3f5a71ecf3bbd5ca7c7d6ee318208fe0ffd743935a2e3ad71b933afe809fde53  6180443296  gemma-4-E4B-it-Q4_K_M-im.gguf   YES (3f5a71ec…)

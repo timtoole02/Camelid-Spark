@@ -1,0 +1,39 @@
+{
+  "schema": "camelid.agent-orchestration-receipt/v1",
+  "receipt_id": "3e5b574e2a52b78b50883690771f57d74120c2e6937cb693e7d3dacc07082e0a",
+  "created_unix": 1782697968,
+  "feature": "subagent-orchestration: a REAL model drives spawn_subagent + check_subagent_status (subagent task canned for determinism)",
+  "rung": 3,
+  "model_id": "Llama 3.2 3B Instruct",
+  "outcome": "FAIL",
+  "host": {
+    "os": "windows",
+    "arch": "x86_64",
+    "hostname": "DESKTOP-RLET2RK"
+  },
+  "cases": [
+    {
+      "name": "model_emitted_spawn_subagent",
+      "observed": "calls=[\"spawn_subagent(counter)\", \"check_subagent_status(counter)\", \"check_subagent_status(counter)\", \"check_subagent_status(counter)\"]",
+      "verdict": "PASS"
+    },
+    {
+      "name": "model_emitted_check_subagent_status",
+      "observed": "calls=[\"spawn_subagent(counter)\", \"check_subagent_status(counter)\", \"check_subagent_status(counter)\", \"check_subagent_status(counter)\"]",
+      "verdict": "PASS"
+    },
+    {
+      "name": "subagent_round_trip_completed",
+      "observed": "status: completed | note: loop ended: Answered | tool_calls: list_dir(.) | answer: | notes.txt has 3 lines",
+      "verdict": "PASS"
+    },
+    {
+      "name": "final_answer_reports_count",
+      "observed": "loop=Repeated elapsed=69.2s answer=",
+      "verdict": "FAIL"
+    }
+  ],
+  "note": "3/4 rung-3 checks passed — real model Llama 3.2 3B Instruct driving orchestration",
+  "promotes_capability": false,
+  "claims_speedup": false
+}

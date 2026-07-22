@@ -1,0 +1,79 @@
+{
+  "schema": "camelid.gemma4_exact_row_public_evidence.v1",
+  "generated_utc": "2026-06-10T10:42:40.854Z",
+  "git_head": "96a75007b156",
+  "checkout_clean": false,
+  "row_id": "gemma4_12b_it_q8_0_two_mac",
+  "model": {
+    "filename": "gemma-4-12b-it-Q8_0.gguf",
+    "size_bytes": 12669646240,
+    "sha256": "74d2d4f0b5b08ca8589d1a5f50e689c0984469f3cedbdc7d67458c6e9e35496a",
+    "quantization": "Q8_0",
+    "architecture": "gemma4"
+  },
+  "oracle": {
+    "build": "llama.cpp 5d56eff (llama-server, CPU, temperature=0/top_k=1, cache_prompt=false)",
+    "prompt_pack": "qa/gemma4/prompt_packs/basic_v1.json",
+    "oracle_artifact": "qa/gemma4/oracle/gemma-4-12b-it-Q8_0.basic_v1.json"
+  },
+  "logs": [
+    {
+      "name": "single-node-parity-mini2",
+      "file": "logs/single-node-parity-mini2.txt",
+      "sha256": "c1e52c173b7a22d6873683500b22470560387353c7ddc30f24c63fcde2bd4099"
+    },
+    {
+      "name": "two-mac-capital-france",
+      "file": "logs/two-mac-capital-france.txt",
+      "sha256": "d865a28afbcd491d5e63363131078e72026cd462a81399713ac0ac97914598eb"
+    },
+    {
+      "name": "two-mac-count-primes",
+      "file": "logs/two-mac-count-primes.txt",
+      "sha256": "e9fc2d5cd580bce19b9db1391698f0bf6c1ea23bab22e8503c550c54bcae016a"
+    },
+    {
+      "name": "two-mac-haiku-sea",
+      "file": "logs/two-mac-haiku-sea.txt",
+      "sha256": "af624778c8abbe1781b6ce13712d453edeb1c613161e76b67a9cfcd5bc218f3c"
+    },
+    {
+      "name": "two-mac-rust-fn",
+      "file": "logs/two-mac-rust-fn.txt",
+      "sha256": "7f154c157bdbe4f191578336a3623e7cbd078c0d8135901cf8e792d747a655d2"
+    },
+    {
+      "name": "two-mac-translate-de",
+      "file": "logs/two-mac-translate-de.txt",
+      "sha256": "a4b344890a9923a39096e4a80e01d094e6922efc54eebc08d5bda4d09c91950f"
+    },
+    {
+      "name": "two-mac-summary",
+      "file": "logs/two-mac-summary.txt",
+      "sha256": "8ac9d9b7d7b8958d78fb330ef881252db1225d917c156acf8487a39a68c0bef8"
+    },
+    {
+      "name": "worker-rss",
+      "file": "logs/worker-rss.txt",
+      "sha256": "d2b21c7808f3408d0c6a05f7b08b8852fbde53f316f0a4adf0d498be9da3607e"
+    },
+    {
+      "name": "metadata-load",
+      "file": "logs/metadata-load.txt",
+      "sha256": "4275293e67fc550965ee9e4d65c61ab97689e76e7655c355016ab34152d885b9"
+    },
+    {
+      "name": "single-node-blocker-primary-host",
+      "file": "logs/single-node-blocker-primary-host.txt",
+      "sha256": "de97e91a6712f3f854e59e14d93db887ec22356a7c8aa64c4e00ddb38302ae60"
+    }
+  ],
+  "fields": {
+    "two_mac_result": "5/5 basic_v1 prompts: distributed greedy output token-identical to single-node camelid (master layers 0..24 on the primary M4 16GB, worker layers 24..48 + output head on the second M4 16GB). 3/5 prompts additionally match the pinned llama.cpp comparator full-budget; haiku-sea and rust-fn carry recorded reference-comparator frontiers (no sound bit-exact comparator mode exists for this row \u2014 the reference's -ub 1 GEMV path miscomputes the V-less architecture and its batched-prefill GEMM wobbles knife-edges; bisected and quoted in the oracle artifact)",
+    "two_mac_stats": "decode 6.17-6.75 tok/s across the pair; activation payload 15384 B/step; wire 79.8-119.7 ms/step avg; TTFT 157-161s (one-time cold mmap faults on the USB-SSD master shard); master RSS 6.4-6.8GB, worker RSS 6.7-8.0GB \u2014 both within budget for a 12.67GB row that is memory-infeasible single-node on the primary host (raw abort log included)",
+    "network": "master->worker over LAN (gigabit/WiFi mix; the Thunderbolt-class link-local route measured 0.78ms vs 17ms LAN but flapped under sustained load; connect retries recorded)",
+    "claim": "distributed layer sharding for memory headroom \u2014 NOT shared memory, NOT a throughput claim",
+    "host": "primary: Mac mini M4 16GB (model on USB SSD); worker: Mac mini M4 16GB (model on internal NVMe)"
+  },
+  "claim_boundary": "Exact-row text-token generation within the checked basic_v1 prompt pack and API smoke envelope only. No bounded-context promotion, no performance claim beyond the raw logs, no multimodal input (fails closed with a typed error), no neighboring-row or Gemma-family support, no shared-memory claim (distributed mode is layer sharding)."
+}

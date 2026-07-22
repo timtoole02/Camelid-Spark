@@ -1,0 +1,2 @@
+PASS (exit 0) — 13/13 — cargo test -p camelid --test nvfp4_format --test nvfp4_e4b_spotcheck --test nvfp4_wire_lane_refusals @ 510fa51 on Apple M4
+SCOPE: decode/format/refusal tests only; cargo-test-all NOT run this phase.

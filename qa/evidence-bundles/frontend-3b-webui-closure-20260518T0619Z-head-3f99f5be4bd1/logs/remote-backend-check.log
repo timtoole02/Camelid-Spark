@@ -1,0 +1,4 @@
+ssh <canonical-ubuntu-host> 'curl -fsS http://127.0.0.1:8181/v1/health; curl -fsS http://127.0.0.1:8181/api/capabilities'
+Mon May 18 06:19:34 UTC 2026
+<canonical-ubuntu-host>
+curl: (7) Failed to connect to 127.0.0.1 port 8181 after 0 ms: Couldn't connect to server

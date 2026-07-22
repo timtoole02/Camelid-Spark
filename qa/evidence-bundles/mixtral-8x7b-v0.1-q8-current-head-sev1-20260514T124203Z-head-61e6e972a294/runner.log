@@ -1,0 +1,461 @@
+== host readiness ==
+version: 8999 (b97ebdc98)
+built with GNU 13.3.0 for Linux x86_64
+2026-05-14T12:42:03+00:00
+canonical-private-ubuntu-validation-host
+Linux canonical-private-ubuntu-validation-host 6.17.0-1013-aws #13~24.04.1-Ubuntu SMP Fri Apr 24 21:50:45 UTC 2026 x86_64 x86_64 x86_64 GNU/Linux
+head=61e6e972a294
+Filesystem      Size  Used Avail Use% Mounted on
+/dev/root       193G  106G   88G  55% /
+/dev/root       193G  106G   88G  55% /
+/dev/root       193G  106G   88G  55% /
+Filesystem     Inodes IUsed IFree IUse% Mounted on
+/dev/root         25M  242K   25M    1% /
+/dev/root         25M  242K   25M    1% /
+/dev/root         25M  242K   25M    1% /
+               total        used        free      shared  buff/cache   available
+Mem:           123Gi       2.1Gi        50Gi       2.9Mi        72Gi       121Gi
+Swap:             0B          0B          0B
+rust/cargo:
+rustc 1.87.0 (17067e9ac 2025-05-09)
+cargo 1.87.0 (99624be96 2025-05-06)
+node/npm:
+v18.19.1
+9.2.0
+llama.cpp:
+b97ebdc98f6053604a19d861c08d8087601b96e0
+== model checksum ==
+cdca4a8c09dfd722702f781d479695cda0d45e1bd1cd602ba1b6085ad921fc5f  <validation-host-home>/models/mixtral/mixtral-8x7b-instruct-v0.1.Q8_0.gguf
+== inspect metadata ==
+{
+  "schema": "camelid.mixtral_current_head.metadata_summary.v1",
+  "architecture": "llama",
+  "name": "mistralai_mixtral-8x7b-instruct-v0.1",
+  "file_type": 7,
+  "tensor_count": 995,
+  "metadata_count": 26,
+  "llama_block_count": 32,
+  "llama_embedding_length": 4096,
+  "llama_context_length": 32768,
+  "llama_feed_forward_length": 14336,
+  "llama_expert_count": 8,
+  "llama_expert_used_count": 2,
+  "tokenizer_model": "llama",
+  "bos_token_id": 1,
+  "eos_token_id": 2,
+  "add_bos": true,
+  "add_eos": false,
+  "chat_template_prefix": "{{ bos_token }}{% for message in messages %}{% if (message['role'] == 'user') != (loop.index0 % 2 == 0) %}{{ raise_exception('Conversation roles must alternate user/assistant/user/assistant/...') }}{% endif %}{% if messa",
+  "selected_expert_tensors": [
+    {
+      "name": "blk.0.ffn_gate.0.weight",
+      "dimensions": [
+        4096,
+        14336
+      ],
+      "tensor_type": "Q8_0",
+      "relative_offset": 139264000,
+      "absolute_offset": 140044224,
+      "n_bytes": 62390272
+    },
+    {
+      "name": "blk.0.ffn_down.0.weight",
+      "dimensions": [
+        14336,
+        4096
+      ],
+      "tensor_type": "Q8_0",
+      "relative_offset": 201654272,
+      "absolute_offset": 202434496,
+      "n_bytes": 62390272
+    },
+    {
+      "name": "blk.0.ffn_up.0.weight",
+      "dimensions": [
+        4096,
+        14336
+      ],
+      "tensor_type": "Q8_0",
+      "relative_offset": 264044544,
+      "absolute_offset": 264824768,
+      "n_bytes": 62390272
+    },
+    {
+      "name": "blk.0.ffn_gate_inp.weight",
+      "dimensions": [
+        4096,
+        8
+      ],
+      "tensor_type": "F16",
+      "relative_offset": 1636630528,
+      "absolute_offset": 1637410752,
+      "n_bytes": 65536
+    },
+    {
+      "name": "blk.31.ffn_gate.7.weight",
+      "dimensions": [
+        4096,
+        14336
+      ],
+      "tensor_type": "Q8_0",
+      "relative_offset": 49391632384,
+      "absolute_offset": 49392412608,
+      "n_bytes": 62390272
+    },
+    {
+      "name": "blk.31.ffn_down.7.weight",
+      "dimensions": [
+        14336,
+        4096
+      ],
+      "tensor_type": "Q8_0",
+      "relative_offset": 49454022656,
+      "absolute_offset": 49454802880,
+      "n_bytes": 62390272
+    },
+    {
+      "name": "blk.31.ffn_up.7.weight",
+      "dimensions": [
+        4096,
+        14336
+      ],
+      "tensor_type": "Q8_0",
+      "relative_offset": 49516412928,
+      "absolute_offset": 49517193152,
+      "n_bytes": 62390272
+    },
+    {
+      "name": "blk.31.ffn_gate_inp.weight",
+      "dimensions": [
+        4096,
+        8
+      ],
+      "tensor_type": "F16",
+      "relative_offset": 49578803200,
+      "absolute_offset": 49579583424,
+      "n_bytes": 65536
+    }
+  ]
+}== tokenizer/template verification ==
+[1, 28705, 733, 16289, 28793, 22557, 733, 28748, 16289, 28793]
+-- tests/tokenizer-reference-pack
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.05s
+     Running tests/tokenizer.rs (target/debug/deps/tokenizer-9632e8184f7c3482)
+
+running 1 test
+test mixtral_reference_pack_records_required_prompt_shapes_and_tokens ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 23 filtered out; finished in 0.00s
+
+-- tests/tokenizer-real-llama-cpp
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.05s
+     Running tests/tokenizer.rs (target/debug/deps/tokenizer-9632e8184f7c3482)
+
+running 1 test
+
+thread 'encodes_mixtral_real_prompts_like_llama_cpp_when_available' panicked at tests/tokenizer.rs:278:9:
+assertion `left == right` failed: Mixtral tokenizer parity failed for raw_hello; expected IDs are from llama.cpp llama-tokenize against the exact Mixtral-8x7B-Instruct-v0.1.Q8_0 GGUF metadata
+  left: [1, 22557]
+ right: [1, 16230]
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+test encodes_mixtral_real_prompts_like_llama_cpp_when_available ... FAILED
+
+failures:
+
+failures:
+    encodes_mixtral_real_prompts_like_llama_cpp_when_available
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 23 filtered out; finished in 0.07s
+
+error: test failed, to rerun pass `--test tokenizer`
+== MoE/router/expert tests ==
+-- tests/router-softmax
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.05s
+     Running unittests src/lib.rs (target/debug/deps/camelid-7505f416842590af)
+
+running 1 test
+test inference::tests::softmax_top_k_preserves_full_router_softmax_weights ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 198 filtered out; finished in 0.00s
+
+-- tests/moe-route
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.05s
+     Running unittests src/lib.rs (target/debug/deps/camelid-7505f416842590af)
+
+running 1 test
+test inference::tests::mixtral_moe_ffn_routes_top_k_experts ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 198 filtered out; finished in 0.00s
+
+-- tests/expert-binding
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.05s
+     Running tests/model_binding.rs (target/debug/deps/model_binding-2301a178f1fa1271)
+
+running 1 test
+test binds_mixtral_moe_metadata_and_expert_tensors ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 11 filtered out; finished in 0.00s
+
+== frontend static readiness checks ==
+-- frontend/npm-ci
+npm WARN EBADENGINE Unsupported engine {
+npm WARN EBADENGINE   package: '@vitejs/plugin-react@6.0.1',
+npm WARN EBADENGINE   required: { node: '^20.19.0 || >=22.12.0' },
+npm WARN EBADENGINE   current: { node: 'v18.19.1', npm: '9.2.0' }
+npm WARN EBADENGINE }
+npm WARN EBADENGINE Unsupported engine {
+npm WARN EBADENGINE   package: 'rolldown@1.0.0-rc.17',
+npm WARN EBADENGINE   required: { node: '^20.19.0 || >=22.12.0' },
+npm WARN EBADENGINE   current: { node: 'v18.19.1', npm: '9.2.0' }
+npm WARN EBADENGINE }
+npm WARN EBADENGINE Unsupported engine {
+npm WARN EBADENGINE   package: 'vite@8.0.10',
+npm WARN EBADENGINE   required: { node: '^20.19.0 || >=22.12.0' },
+npm WARN EBADENGINE   current: { node: 'v18.19.1', npm: '9.2.0' }
+npm WARN EBADENGINE }
+
+added 20 packages, and audited 21 packages in 411ms
+
+9 packages are looking for funding
+  run `npm fund` for details
+
+found 0 vulnerabilities
+-- frontend/npm-run-build
+
+> camelid-frontend@0.1.0 build
+> vite build
+
+You are using Node.js 18.19.1. Vite requires Node.js version 20.19+ or 22.12+. Please upgrade your Node.js version.
+file://<validation-host-home>/work/camelid-mixtral-sev1-20260514T123044Z-head-61e6e972a294/frontend/node_modules/vite/dist/node/cli.js:534
+				this.dispatchEvent(new CustomEvent(`command:${commandName}`, { detail: command }));
+				                       ^
+
+ReferenceError: CustomEvent is not defined
+    at CAC.parse (file://<validation-host-home>/work/camelid-mixtral-sev1-20260514T123044Z-head-61e6e972a294/frontend/node_modules/vite/dist/node/cli.js:534:28)
+    at file://<validation-host-home>/work/camelid-mixtral-sev1-20260514T123044Z-head-61e6e972a294/frontend/node_modules/vite/dist/node/cli.js:835:5
+    at ModuleJob.run (node:internal/modules/esm/module_job:195:25)
+    at async ModuleLoader.import (node:internal/modules/esm/loader:336:24)
+
+Node.js v18.19.1
+-- frontend/model-state-smoke
+✓ model-state smoke passed
+-- frontend/frontend-integration-smoke
+file://<validation-host-home>/work/camelid-mixtral-sev1-20260514T123044Z-head-61e6e972a294/frontend/node_modules/rolldown/dist/shared/rolldown-build-DSxL8qiP.mjs:9
+import { formatWithOptions, styleText } from "node:util";
+                            ^^^^^^^^^
+SyntaxError: The requested module 'node:util' does not provide an export named 'styleText'
+    at ModuleJob._instantiate (node:internal/modules/esm/module_job:123:21)
+    at async ModuleJob.run (node:internal/modules/esm/module_job:191:5)
+    at async ModuleLoader.import (node:internal/modules/esm/loader:336:24)
+    at async loadESM (node:internal/process/esm_loader:34:7)
+    at async handleMainPromise (node:internal/modules/run_main:106:12)
+
+Node.js v18.19.1
+== start server ==
+== load model ==
+-- api completion_smoke_16 max_time=600
+-- api chat_short_16 max_time=600
+-- api chat_medium_64 max_time=900
+-- api chat_long_128 max_time=1200
+== llama.cpp references ==
+-- llama llama_chat_short_16 n=16
+-- llama llama_chat_medium_64 n=64
+== summarize ==
+{
+  "schema": "camelid.mixtral_current_head_sev1.summary.v1",
+  "created_utc": "2026-05-14T12:49:22+00:00",
+  "head": "61e6e972a294",
+  "model": "Mixtral-8x7B-Instruct-v0.1.Q8_0.gguf",
+  "scope": "current-head exact-row validation lane only; no broad Mixtral support claim",
+  "host_readiness": "disk/memory/inode readiness captured in host-readiness.txt",
+  "tokenizer_template": "cargo real Mixtral tokenizer/reference-pack tests plus llama-tokenize single-user-turn IDs",
+  "moe_router_and_experts": "router softmax, top-k MoE unit, and real GGUF expert binding tests captured under tests/",
+  "test_exit_codes": {
+    "tokenizer-reference-pack": 0,
+    "tokenizer-real-llama-cpp": 101,
+    "moe-route": 0,
+    "router-softmax": 0,
+    "expert-binding": 0,
+    "frontend/model-state-smoke": 0,
+    "frontend/npm-ci": 0,
+    "frontend/npm-run-build": 1,
+    "frontend/frontend-integration-smoke": 1
+  },
+  "api_generation_runs": [
+    {
+      "name": "completion_smoke_16",
+      "curl_exit": 0,
+      "http_code": 200,
+      "time_total_s": 49.73236,
+      "body_sha256": "fbeba815c8679a7264fcbb6596d9f6a09b84964c68e5c9a4c0988248a711431d",
+      "body_bytes": 38367,
+      "json_ok": true,
+      "usage": {
+        "prompt_tokens": 2,
+        "completion_tokens": 16,
+        "total_tokens": 18
+      },
+      "finish_reason": "length",
+      "generated_token_count": 16,
+      "generated_token_ids_first_32": [
+        28725,
+        13,
+        13,
+        28737,
+        837,
+        2942,
+        298,
+        938,
+        272,
+        1552,
+        527,
+        28730,
+        1056,
+        28832,
+        908,
+        477
+      ],
+      "generated_token_ids_last_16": [
+        28725,
+        13,
+        13,
+        28737,
+        837,
+        2942,
+        298,
+        938,
+        272,
+        1552,
+        527,
+        28730,
+        1056,
+        28832,
+        908,
+        477
+      ],
+      "generated_token_sha256": "e627ba687a8b3015442670bf6be20edcc00f52b91f40143c90f6f5ed06f321f6",
+      "prompt_token_ids": [
+        1,
+        22557
+      ],
+      "text_chars": 50,
+      "text_prefix": ",\n\nI am trying to use the `get_data` function from",
+      "text_sha256": "78bfb2a18ee72846908a231251513afa2cea5d7cd3d8ce814b8112e0b72b7b88",
+      "timings_ms": {
+        "tokenize": 0,
+        "weight_load": 4,
+        "weight_cache_hit": false,
+        "prompt_cache_hit": false,
+        "session_create": 0,
+        "generate": 49720,
+        "generation": {
+          "forward_total": 49685.588,
+          "embedding": 0.167,
+          "layers_total": 49243.302,
+          "final_norm": 0.125,
+          "logits": 441.942,
+          "sample": 1.68
+        },
+        "prompt_evaluation": {
+          "prompt_token_count": 2,
+          "prefill_token_count": 1,
+          "first_token_evaluated": true,
+          "prefill": {
+            "forward_total": 2943.317,
+            "embedding": 0.026,
+            "layers_total": 2943.289,
+            "final_norm": 0.0,
+            "logits": 0.0,
+            "sample": 0.0
+          },
+          "first_token": {
+            "forward_total": 2907.861,
+            "embedding": 0.008,
+            "layers_total": 2880.354,
+            "final_norm": 0.008,
+            "logits": 27.488,
+            "sample": 0.167
+          },
+          "prefill_layers": [
+            {
+              "layer_index": 0,
+              "total": 142.301,
+              "attention_norm": 0.012,
+              "attention_q": 11.364,
+              "attention_k": 1.324,
+              "attention_v": 1.35,
+              "attention_rope": 0.052,
+              "kv_cache_write": 24.791,
+              "attention_context": 0.009,
+              "attention_output": 4.484,
+              "attention_residual": 0.005,
+              "ffn_norm": 0.023,
+              "ffn_gate": 46.91,
+              "ffn_up": 26.083,
+              "ffn_activation": 0.116,
+              "ffn_down": 25.684,
+              "ffn_residual": 0.004
+            },
+            {
+              "layer_index": 1,
+              "total": 88.168,
+              "attention_norm": 0.007,
+              "attention_q": 3.783,
+              "attention_k": 1.16,
+              "attention_v": 1.22,
+              "attention_rope": 0.048,
+              "kv_cache_write": 0.018,
+              "attention_context": 0.006,
+              "attention_output": 4.25,
+              "attention_residual": 0.004,
+              "ffn_norm": 0.007,
+              "ffn_gate": 27.076,
+              "ffn_up": 25.162,
+              "ffn_activation": 0.114,
+              "ffn_down": 25.241,
+              "ffn_residual": 0.004
+            },
+            {
+              "layer_index": 2,
+              "total": 88.883,
+              "attention_norm": 0.006,
+              "attention_q": 3.724,
+              "attention_k": 1.259,
+              "attention_v": 1.235,
+              "attention_rope": 0.046,
+              "kv_cache_write": 0.019,
+              "attention_context": 0.005,
+              "attention_output": 4.297,
+              "attention_residual": 0.003,
+              "ffn_norm": 0.007,
+              "ffn_gate": 27.189,
+              "ffn_up": 25.247,
+              "ffn_activation": 0.112,
+              "ffn_down": 25.664,
+              "ffn_residual": 0.004
+            },
+            {
+              "layer_index": 3,
+              "total": 88.548,
+              "attention_norm": 0.007,
+              "attention_q": 3.817,
+              "attention_k": 1.234,
+              "attention_v": 1.162,
+              "attention_rope": 0.046,
+              "kv_cache_write": 0.018,
+              "attention_context": 0.004,
+              "attention_output": 4.14,
+              "attention_residual": 0.003,
+              "ffn_norm": 0.008,
+              "ffn_gate": 27.535,
+              "ffn_up": 25.258,
+              "ffn_activation": 0.116,
+              "ffn_down": 25.135,
+              "ffn_residual": 0.004
+            },
+            {
+              "layer_index": 4,
+              "total": 91.608,
+  
+== checksums ==
+qa/evidence-bundles/mixtral-8x7b-v0.1-q8-current-head-sev1-20260514T124203Z-head-61e6e972a294

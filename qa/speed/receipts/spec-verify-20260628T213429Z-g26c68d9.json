@@ -1,0 +1,433 @@
+{
+  "schema": "camelid.spec-verify/v1",
+  "generated_at": "2026-06-28T21:34:29.357Z",
+  "lane": "metal-resident-speculative-verify",
+  "host": "tims-mac-mini (arm64, Darwin 25.5.0)",
+  "binary_version": "camelid v0.1.7-101-g26c68d9-dirty",
+  "binary_path": "/Volumes/Untitled/camelid-target/release/camelid",
+  "binary_short_sha": "26c68d9",
+  "model": {
+    "id": "Llama 3.2 1B Instruct",
+    "file": "Llama-3.2-1B-Instruct-Q8_0.gguf",
+    "path": "/Volumes/Untitled/models/Llama-3.2-1B-Instruct-Q8_0.gguf"
+  },
+  "serve": {
+    "addr": "127.0.0.1:18100",
+    "drafter": "ngram",
+    "spec_env": {
+      "CAMELID_SPEC_DECODE": "ngram",
+      "CAMELID_SPEC_GPU": "1",
+      "CAMELID_SPEC_VERIFY_TRACE": "1",
+      "CAMELID_METAL_RESIDENT_DECODE": "1",
+      "CAMELID_METAL_WIRE": "1",
+      "CAMELID_METAL_WIRE_NSG8": "1",
+      "CAMELID_METAL_F32Y": "1",
+      "CAMELID_METAL_NOCOPY": "1"
+    },
+    "baseline_request": "default greedy, speculation OFF",
+    "spec_request": "default greedy (no sampling params), speculation ON",
+    "baseline_server_verify_traces": 0
+  },
+  "overall_verdict": "LOSSLESS",
+  "gate": {
+    "verdict": "LOSSLESS",
+    "all_columns_lossless": true,
+    "all_columns_verify_fired": true,
+    "total_verify_rounds": 42,
+    "columns": 4
+  },
+  "tree": {
+    "status": "gating",
+    "gating": true,
+    "verdict": "LOSSLESS",
+    "reachability": "verify_tree_gpu is NOT reachable from `serve`: the server speculative loop (api/mod.rs) only calls the LINEAR verify_drafts_gpu, and CAMELID_SPEC_TREE is consulted only by `bench-speculative` (main.rs generate_run_speculative). This lane therefore drives bench-speculative with CAMELID_SPEC_TREE=1 (CAMELID_SPEC_TREE_GATE=0, full tree every round) + the resident fast stack; bench-speculative computes the lossless verdict against this build's own plain greedy stream.",
+    "spec_env": {
+      "CAMELID_SPEC_TREE": "1",
+      "CAMELID_SPEC_TREE_GATE": "0",
+      "CAMELID_SPEC_GPU": "(n/a — bench-speculative engages the resident path directly)",
+      "CAMELID_METAL_RESIDENT_DECODE": "1",
+      "CAMELID_METAL_WIRE": "1",
+      "CAMELID_METAL_WIRE_NSG8": "1",
+      "CAMELID_METAL_F32Y": "1",
+      "CAMELID_METAL_NOCOPY": "1"
+    },
+    "all_columns_lossless": true,
+    "all_columns_gpu_tree_verify_fired": true,
+    "max_tree_fanout_observed": 2,
+    "multi_branch_fanout_fired": true,
+    "columns": [
+      {
+        "id": "repetitive_extraction",
+        "verdict": "LOSSLESS",
+        "lossless": true,
+        "first_divergent_index": -1,
+        "gpu_verify_rounds": 8,
+        "cpu_verify_rounds": 0,
+        "max_tree_fanout": 2,
+        "tree_verify_traces": 16,
+        "gpu_tree_verify_fired": true,
+        "multi_branch_fanout": true,
+        "gate_pass": true
+      },
+      {
+        "id": "code_completion",
+        "verdict": "LOSSLESS",
+        "lossless": true,
+        "first_divergent_index": -1,
+        "gpu_verify_rounds": 22,
+        "cpu_verify_rounds": 0,
+        "max_tree_fanout": 2,
+        "tree_verify_traces": 44,
+        "gpu_tree_verify_fired": true,
+        "multi_branch_fanout": true,
+        "gate_pass": true
+      },
+      {
+        "id": "structured_json",
+        "verdict": "LOSSLESS",
+        "lossless": true,
+        "first_divergent_index": -1,
+        "gpu_verify_rounds": 18,
+        "cpu_verify_rounds": 0,
+        "max_tree_fanout": 2,
+        "tree_verify_traces": 36,
+        "gpu_tree_verify_fired": true,
+        "multi_branch_fanout": true,
+        "gate_pass": true
+      }
+    ]
+  },
+  "columns": [
+    {
+      "id": "code_completion",
+      "n_gen": 128,
+      "spec_token_count": 128,
+      "baseline_token_count": 128,
+      "spec_tokens_sha256": "8e2eb64379937a0861776e95332fb7a52ace8b5af1f5f5a68ea6fbe7f3fdb3f8",
+      "baseline_tokens_sha256": "8e2eb64379937a0861776e95332fb7a52ace8b5af1f5f5a68ea6fbe7f3fdb3f8",
+      "spec_text_sha256": "cda37b359e84e3d19351e60f683c2efdd0609d84f011e64f50d5e66d72148df6",
+      "baseline_text_sha256": "cda37b359e84e3d19351e60f683c2efdd0609d84f011e64f50d5e66d72148df6",
+      "lossless": true,
+      "bit_identical": true,
+      "verify_batch_fired": true,
+      "verify_rounds": 12,
+      "drafts_accepted_total": 15,
+      "max_k": 6,
+      "rounds": [
+        {
+          "base_position": 69,
+          "k": 6,
+          "accepted": 2,
+          "emitted_len": 3
+        },
+        {
+          "base_position": 90,
+          "k": 6,
+          "accepted": 0,
+          "emitted_len": 1
+        },
+        {
+          "base_position": 128,
+          "k": 6,
+          "accepted": 0,
+          "emitted_len": 1
+        },
+        {
+          "base_position": 129,
+          "k": 6,
+          "accepted": 1,
+          "emitted_len": 2
+        },
+        {
+          "base_position": 133,
+          "k": 6,
+          "accepted": 5,
+          "emitted_len": 6
+        },
+        {
+          "base_position": 139,
+          "k": 6,
+          "accepted": 0,
+          "emitted_len": 1
+        },
+        {
+          "base_position": 141,
+          "k": 6,
+          "accepted": 0,
+          "emitted_len": 1
+        },
+        {
+          "base_position": 142,
+          "k": 6,
+          "accepted": 2,
+          "emitted_len": 3
+        },
+        {
+          "base_position": 156,
+          "k": 6,
+          "accepted": 2,
+          "emitted_len": 3
+        },
+        {
+          "base_position": 165,
+          "k": 6,
+          "accepted": 0,
+          "emitted_len": 1
+        },
+        {
+          "base_position": 166,
+          "k": 6,
+          "accepted": 3,
+          "emitted_len": 4
+        },
+        {
+          "base_position": 179,
+          "k": 6,
+          "accepted": 0,
+          "emitted_len": 1
+        }
+      ],
+      "gate_pass": true
+    },
+    {
+      "id": "structured_json",
+      "n_gen": 128,
+      "spec_token_count": 86,
+      "baseline_token_count": 86,
+      "spec_tokens_sha256": "cdf89e2dad45f4f86754cfc9773e04bb20271578640f1f96a3e0bc63290debf6",
+      "baseline_tokens_sha256": "cdf89e2dad45f4f86754cfc9773e04bb20271578640f1f96a3e0bc63290debf6",
+      "spec_text_sha256": "970386b38513047c3c4619f0e89eaef1a66274a4fff5c65bad501a4ed485cd32",
+      "baseline_text_sha256": "970386b38513047c3c4619f0e89eaef1a66274a4fff5c65bad501a4ed485cd32",
+      "lossless": true,
+      "bit_identical": true,
+      "verify_batch_fired": true,
+      "verify_rounds": 8,
+      "drafts_accepted_total": 1,
+      "max_k": 6,
+      "rounds": [
+        {
+          "base_position": 95,
+          "k": 6,
+          "accepted": 0,
+          "emitted_len": 1
+        },
+        {
+          "base_position": 112,
+          "k": 6,
+          "accepted": 1,
+          "emitted_len": 2
+        },
+        {
+          "base_position": 116,
+          "k": 6,
+          "accepted": 0,
+          "emitted_len": 1
+        },
+        {
+          "base_position": 123,
+          "k": 6,
+          "accepted": 0,
+          "emitted_len": 1
+        },
+        {
+          "base_position": 131,
+          "k": 6,
+          "accepted": 0,
+          "emitted_len": 1
+        },
+        {
+          "base_position": 140,
+          "k": 6,
+          "accepted": 0,
+          "emitted_len": 1
+        },
+        {
+          "base_position": 156,
+          "k": 6,
+          "accepted": 0,
+          "emitted_len": 1
+        },
+        {
+          "base_position": 161,
+          "k": 6,
+          "accepted": 0,
+          "emitted_len": 1
+        }
+      ],
+      "gate_pass": true
+    },
+    {
+      "id": "repetitive_extraction",
+      "n_gen": 128,
+      "spec_token_count": 51,
+      "baseline_token_count": 51,
+      "spec_tokens_sha256": "8fbc03d94464fcf9dbfc61104a540b628847a72d7a91ede4fcadb53355853a23",
+      "baseline_tokens_sha256": "8fbc03d94464fcf9dbfc61104a540b628847a72d7a91ede4fcadb53355853a23",
+      "spec_text_sha256": "432ac90e0ac52d3895dce331938ccf84ac8cefa0973d780efb89e12f1e380d8c",
+      "baseline_text_sha256": "432ac90e0ac52d3895dce331938ccf84ac8cefa0973d780efb89e12f1e380d8c",
+      "lossless": true,
+      "bit_identical": true,
+      "verify_batch_fired": true,
+      "verify_rounds": 6,
+      "drafts_accepted_total": 4,
+      "max_k": 6,
+      "rounds": [
+        {
+          "base_position": 107,
+          "k": 6,
+          "accepted": 0,
+          "emitted_len": 1
+        },
+        {
+          "base_position": 112,
+          "k": 6,
+          "accepted": 1,
+          "emitted_len": 2
+        },
+        {
+          "base_position": 117,
+          "k": 6,
+          "accepted": 1,
+          "emitted_len": 2
+        },
+        {
+          "base_position": 122,
+          "k": 6,
+          "accepted": 1,
+          "emitted_len": 2
+        },
+        {
+          "base_position": 127,
+          "k": 6,
+          "accepted": 1,
+          "emitted_len": 2
+        },
+        {
+          "base_position": 132,
+          "k": 6,
+          "accepted": 0,
+          "emitted_len": 1
+        }
+      ],
+      "gate_pass": true
+    },
+    {
+      "id": "longctx_splitk",
+      "n_gen": 96,
+      "spec_token_count": 96,
+      "baseline_token_count": 96,
+      "spec_tokens_sha256": "732fc23c890e16edfb709d44fa6db39ea0d674e0b1e367a71a016582428a6861",
+      "baseline_tokens_sha256": "732fc23c890e16edfb709d44fa6db39ea0d674e0b1e367a71a016582428a6861",
+      "spec_text_sha256": "10ec8851f7dff722fd1b0d5df05232abe0eca5fc88d33234aa0fe049ce0c3cdf",
+      "baseline_text_sha256": "10ec8851f7dff722fd1b0d5df05232abe0eca5fc88d33234aa0fe049ce0c3cdf",
+      "lossless": true,
+      "bit_identical": true,
+      "verify_batch_fired": true,
+      "verify_rounds": 16,
+      "drafts_accepted_total": 72,
+      "max_k": 6,
+      "rounds": [
+        {
+          "base_position": 1868,
+          "k": 6,
+          "accepted": 5,
+          "emitted_len": 6
+        },
+        {
+          "base_position": 1874,
+          "k": 6,
+          "accepted": 5,
+          "emitted_len": 6
+        },
+        {
+          "base_position": 1880,
+          "k": 6,
+          "accepted": 5,
+          "emitted_len": 6
+        },
+        {
+          "base_position": 1886,
+          "k": 6,
+          "accepted": 5,
+          "emitted_len": 6
+        },
+        {
+          "base_position": 1892,
+          "k": 6,
+          "accepted": 5,
+          "emitted_len": 6
+        },
+        {
+          "base_position": 1898,
+          "k": 6,
+          "accepted": 4,
+          "emitted_len": 5
+        },
+        {
+          "base_position": 1903,
+          "k": 6,
+          "accepted": 2,
+          "emitted_len": 3
+        },
+        {
+          "base_position": 1909,
+          "k": 6,
+          "accepted": 5,
+          "emitted_len": 6
+        },
+        {
+          "base_position": 1915,
+          "k": 6,
+          "accepted": 5,
+          "emitted_len": 6
+        },
+        {
+          "base_position": 1921,
+          "k": 6,
+          "accepted": 5,
+          "emitted_len": 6
+        },
+        {
+          "base_position": 1927,
+          "k": 6,
+          "accepted": 5,
+          "emitted_len": 6
+        },
+        {
+          "base_position": 1933,
+          "k": 6,
+          "accepted": 5,
+          "emitted_len": 6
+        },
+        {
+          "base_position": 1939,
+          "k": 6,
+          "accepted": 5,
+          "emitted_len": 6
+        },
+        {
+          "base_position": 1945,
+          "k": 6,
+          "accepted": 1,
+          "emitted_len": 2
+        },
+        {
+          "base_position": 1950,
+          "k": 6,
+          "accepted": 5,
+          "emitted_len": 6
+        },
+        {
+          "base_position": 1956,
+          "k": 6,
+          "accepted": 5,
+          "emitted_len": 6
+        }
+      ],
+      "gate_pass": true
+    }
+  ],
+  "cpu_fallback_bench": {
+    "status": "skipped"
+  }
+}

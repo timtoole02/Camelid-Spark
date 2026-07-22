@@ -1,0 +1,5 @@
+  pair 1: OLD=45.417  NEW=48.420  delta=+6.61%
+  pair 2: OLD=46.823  NEW=49.305  delta=+5.30%
+  pair 3: OLD=46.096  NEW=50.842  delta=+10.30%
+  pair 4: OLD=46.746  NEW=48.554  delta=+3.87%
+MEDIAN pair-delta = +5.955%

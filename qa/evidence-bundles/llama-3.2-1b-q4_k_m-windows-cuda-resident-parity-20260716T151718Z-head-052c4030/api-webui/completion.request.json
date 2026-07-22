@@ -1,0 +1,7 @@
+{
+  "model": "llama_3_2_1b_instruct_q4_k_m",
+  "prompt": "hello",
+  "max_tokens": 1,
+  "stream": false,
+  "temperature": 0
+}

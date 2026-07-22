@@ -1,0 +1,172 @@
+warning: function `f32_to_f16_bits` is never used
+    --> src/tensor/mod.rs:3476:15
+     |
+3476 | pub(crate) fn f32_to_f16_bits(value: f32) -> u16 {
+     |               ^^^^^^^^^^^^^^^
+     |
+     = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: `camelid` (lib) generated 1 warning
+   Compiling camelid v0.1.0 (<local>/Camelid-push)
+    Finished `release` profile [optimized] target(s) in 1.39s
+     Running tests/gemma4_load.rs (<local>/gemma4_load-e03ea6980e8dc629)
+
+running 1 test
+== reading metadata: <local>/gemma-4-E2B-it-Q8_0.gguf ==
+general.architecture = Some("gemma4")
+== stage 1: LlamaModelConfig::from_gguf ==
+  blocks=35 emb=1536 heads=8 kv_heads=1 ffn=12288 ctx=131072 rms_eps=0.000001
+  gemma4 = Gemma4Metadata {
+    head_dim_sliding: 256,
+    head_dim_global: 512,
+    rope_freq_base_global: 1000000.0,
+    rope_freq_base_sliding: 10000.0,
+    rope_dim_global: 512,
+    rope_dim_sliding: 256,
+    sliding_window: 512,
+    num_kv_shared_layers: 20,
+    per_layer_input_dim: 256,
+    final_logit_softcapping: Some(
+        30.0,
+    ),
+    layer_is_sliding: [
+        true,
+        true,
+        true,
+        true,
+        false,
+        true,
+        true,
+        true,
+        true,
+        false,
+        true,
+        true,
+        true,
+        true,
+        false,
+        true,
+        true,
+        true,
+        true,
+        false,
+        true,
+        true,
+        true,
+        true,
+        false,
+        true,
+        true,
+        true,
+        true,
+        false,
+        true,
+        true,
+        true,
+        true,
+        false,
+    ],
+    ffn_lengths: [
+        6144,
+        6144,
+        6144,
+        6144,
+        6144,
+        6144,
+        6144,
+        6144,
+        6144,
+        6144,
+        6144,
+        6144,
+        6144,
+        6144,
+        6144,
+        12288,
+        12288,
+        12288,
+        12288,
+        12288,
+        12288,
+        12288,
+        12288,
+        12288,
+        12288,
+        12288,
+        12288,
+        12288,
+        12288,
+        12288,
+        12288,
+        12288,
+        12288,
+        12288,
+        12288,
+    ],
+    kv_heads_per_layer: [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+    ],
+}
+== stage 2: Tokenizer::from_gguf + parity vs llama.cpp ==
+  tokenizer: OK
+  encode -> [2, 818, 5279, 529, 7001, 563]
+  oracle -> [2, 818, 5279, 529, 7001, 563]
+  tokenizer parity: MATCH ✅
+== stage 3: LlamaTensorBinding::bind ==
+  bind: ERR -> invalid model metadata: layer 0 ffn gate tensor blk.0.ffn_gate.weight expected descriptor shape [1536, 12288] or [12288, 1536], got [1536, 6144]
+== stage 4: Gemma4Binding::bind (full gemma4 weight set) ==
+  gemma4 bind: OK (35 layers, tied_output=true, per_layer_embeddings=true, has_post_norm=true)
+== done ==
+test gemma4_load_stages ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.76s
+
+     Running tests/gemma4_metadata.rs (<local>/gemma4_metadata-37fb518b6e8e6344)
+
+running 8 tests
+test gemma4_assistant_mtp_architecture_fails_closed ... ok
+test sliding_window_pattern_wrong_length_falls_back_to_formula ... ok
+test gemma4_moe_tensors_without_metadata_fail_closed ... ok
+test per_layer_feed_forward_length_array_parses ... ok
+test sliding_window_pattern_array_is_authoritative ... ok
+test gemma4_moe_row_fails_closed_with_typed_blocker ... ok
+test per_layer_head_count_kv_array_parses ... ok
+row identified: gemma-4-E2B-it-Q8_0
+test real_row_metadata_snapshot_matches ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.62s
+

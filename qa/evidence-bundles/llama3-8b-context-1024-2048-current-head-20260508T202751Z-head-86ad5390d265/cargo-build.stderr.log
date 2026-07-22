@@ -1,0 +1,7 @@
+   Compiling async-stream-impl v0.3.6
+   Compiling async-stream v0.3.6
+   Compiling camelid v0.1.0 (${CANONICAL_WORK}/cron-4c8a77cc-86ad539-20260508T202749Z/repo)
+    Finished `release` profile [optimized] target(s) in 10.57s
+real 10.60
+user 42.33
+sys 1.03

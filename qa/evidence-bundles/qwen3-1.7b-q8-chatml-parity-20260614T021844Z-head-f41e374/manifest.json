@@ -1,0 +1,44 @@
+{
+  "schema": "camelid.qwen3.chatml_parity_bundle.v1",
+  "generated_utc": "2026-06-14T02:18:44Z",
+  "bundle_head": "f41e3741d38442598ecfcf89ec09a7469a4f69bb",
+  "row_id": "qwen3_1_7b_instruct_q8_0",
+  "display_name": "Qwen3 1.7B Instruct Q8_0",
+  "exact_support_status": "chatml_thinking_disabled_chat_parity_proven",
+  "model": {
+    "id": "Qwen3 1.7B Instruct",
+    "source": "Qwen/Qwen3-1.7B-GGUF/Qwen3-1.7B-Q8_0.gguf",
+    "sha256": "061b54daade076b5d3362dac252678d17da8c68f07560be70818cace6590cb1a",
+    "arch": "qwen3",
+    "quant": "Q8_0",
+    "n_layer": 28,
+    "n_head": 16,
+    "n_head_kv": 8,
+    "head_dim": 128,
+    "embedding_length": 2048,
+    "tied_embeddings": true,
+    "rope_freq_base": 1000000.0,
+    "rms_norm_eps": 1e-06,
+    "qk_norm": true
+  },
+  "comparator": {
+    "engine": "llama.cpp",
+    "version": "1 (5d56eff)",
+    "built": "2025-04-28",
+    "flags": "-ngl 0 -ctk f32 -ctv f32 -fa off --no-repack",
+    "note": "pinned f32/no-flash-attn/no-repack reference matching camelid's pure-f32 CPU path"
+  },
+  "camelid": {
+    "backend": "cpu_reference",
+    "decode_path": "safe_cpu_decode",
+    "server_rss_mb_after_generation": 212,
+    "rope_pairing": "split_half (NEOX) — qwen3 GGUF is unpermuted",
+    "qk_norm_applied": "per-head RMSNorm on Q/K after projection, before RoPE",
+    "chat_template": "hardcoded ChatML renderer, thinking disabled"
+  },
+  "mode": "chatml_thinking_disabled_greedy",
+  "all_pass": true,
+  "artifacts": [
+    "qwen3-chatml-chat-parity.json"
+  ]
+}

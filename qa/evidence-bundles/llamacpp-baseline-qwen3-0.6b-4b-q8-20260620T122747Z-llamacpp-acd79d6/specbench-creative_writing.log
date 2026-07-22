@@ -1,0 +1,42 @@
+﻿
+
+Write an original short paragraph describing a thunderstorm rolling over an empty coastal town at dusk. Use vivid, unhurried, non-repetitive language. Use at least three different types of sensory details (sight, sound, touch, taste, or smell). Use at least three different types of figurative language (simile, metaphor, personification, hyperbole, or allusion). Use at least three different types of sentence structure (simple, compound, complex). Use at least three different types of vocabulary (nouns, verbs, adjectives, adverbs, prepositions, conjunctions, etc.). Use at least three different types of punctuation (commas, semicolons, colons, etc.). Use at least three different types of capitalization (proper nouns, titles, etc.). Use at least
+
+
+
+
+0.00.024.752 I common_init_result: fitting params to device memory ...
+0.00.024.762 I common_init_result: (for bugs during this step try to reproduce them with -fit off, or provide --verbose logs if the bug only occurs with -fit on)
+0.00.730.545 W common_fit_params: failed to fit params to free device memory: n_gpu_layers already set by user to 99, abort
+0.01.078.509 W load: control-looking token: 128247 '</s>' was not control-type; this is probably a bug in the model. its type will be overridden
+0.03.361.428 W llama_context: n_ctx_seq (2048) < n_ctx_train (40960) -- the full capacity of the model will not be utilized
+0.03.380.425 I common_init_from_params: warming up the model with an empty run - please wait ... (--no-warmup to disable)
+0.03.438.778 I common_init_result: fitting params to device memory ...
+0.03.438.787 I common_init_result: (for bugs during this step try to reproduce them with -fit off, or provide --verbose logs if the bug only occurs with -fit on)
+0.03.766.928 W common_fit_params: failed to fit params to free device memory: n_gpu_layers already set by user to 99, abort
+0.04.039.976 W load: control-looking token: 128247 '</s>' was not control-type; this is probably a bug in the model. its type will be overridden
+0.04.417.987 W llama_context: n_ctx_seq (2048) < n_ctx_train (40960) -- the full capacity of the model will not be utilized
+0.04.433.770 I common_init_from_params: warming up the model with an empty run - please wait ... (--no-warmup to disable)
+0.06.365.838 I encoded   31 tokens in    0.067 seconds, speed:  460.967 t/s
+0.06.365.840 I decoded  133 tokens in    1.842 seconds, speed:   72.213 t/s
+0.06.365.840 I 
+0.06.365.841 I n_draft   = 8
+0.06.365.841 I n_predict = 133
+0.06.365.842 I n_drafted = 224
+0.06.365.842 I n_accept  = 104
+0.06.365.843 I accept    = 46.429%
+0.06.365.843 I 
+0.06.365.844 I draft:
+
+0.06.365.850 I 
+0.06.365.851 I target:
+
+0.06.365.852 I common_perf_print:    sampling time =      32.65 ms
+0.06.365.861 I common_perf_print:    samplers time =      13.04 ms /   133 tokens
+0.06.365.862 I common_perf_print:        load time =    2503.08 ms
+0.06.365.864 I common_perf_print: prompt eval time =     825.14 ms /   283 tokens (    2.92 ms per token,   342.97 tokens per second)
+0.06.365.866 I common_perf_print:        eval time =       0.00 ms /     1 runs   (    0.00 ms per token,      inf tokens per second)
+0.06.365.867 I common_perf_print:       total time =    -109.28 ms /   284 tokens
+0.06.365.868 I common_perf_print: unaccounted time =    -967.07 ms / 885.0 %      (total - sampling - prompt eval - eval) / (total)
+0.06.365.869 I common_perf_print:    graphs reused =         27
+

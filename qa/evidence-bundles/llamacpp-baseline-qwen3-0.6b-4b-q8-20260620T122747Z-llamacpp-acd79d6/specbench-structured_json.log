@@ -1,0 +1,48 @@
+﻿
+
+Convert the following into a single JSON object with keys name, age, email, city, country, occupation, and skills (an array). Output only valid JSON, no prose:
+
+Name: Ada Lovelace. Age: 36. Email: ada@analytical.engine. Lives in London, United Kingdom. Works as a mathematician. Skills: analytical engines, algorithms, mathematics, writing.
+
+JSON: { "name": "Ada Lovelace", "age": 36, "email": "ada@analytical.engine", "city": "London", "country": "United Kingdom", "occupation": "mathematician", "skills": ["analytical engines", "algorithms", "mathematics", "writing"] }
+
+That's correct. But I want to make sure that the JSON is valid. Let me check again. The keys are all there. The age is a number, not a string. The email is correct. The city and country are strings. The occupation is a string. The skills are an array of
+
+
+
+
+0.00.020.745 I common_init_result: fitting params to device memory ...
+0.00.020.750 I common_init_result: (for bugs during this step try to reproduce them with -fit off, or provide --verbose logs if the bug only occurs with -fit on)
+0.00.759.428 W common_fit_params: failed to fit params to free device memory: n_gpu_layers already set by user to 99, abort
+0.01.076.001 W load: control-looking token: 128247 '</s>' was not control-type; this is probably a bug in the model. its type will be overridden
+0.03.365.379 W llama_context: n_ctx_seq (2048) < n_ctx_train (40960) -- the full capacity of the model will not be utilized
+0.03.383.637 I common_init_from_params: warming up the model with an empty run - please wait ... (--no-warmup to disable)
+0.03.450.993 I common_init_result: fitting params to device memory ...
+0.03.450.998 I common_init_result: (for bugs during this step try to reproduce them with -fit off, or provide --verbose logs if the bug only occurs with -fit on)
+0.03.754.180 W common_fit_params: failed to fit params to free device memory: n_gpu_layers already set by user to 99, abort
+0.03.963.038 W load: control-looking token: 128247 '</s>' was not control-type; this is probably a bug in the model. its type will be overridden
+0.04.297.003 W llama_context: n_ctx_seq (2048) < n_ctx_train (40960) -- the full capacity of the model will not be utilized
+0.04.313.470 I common_init_from_params: warming up the model with an empty run - please wait ... (--no-warmup to disable)
+0.06.074.733 I encoded   83 tokens in    0.090 seconds, speed:  917.350 t/s
+0.06.074.734 I decoded  129 tokens in    1.646 seconds, speed:   78.369 t/s
+0.06.074.734 I 
+0.06.074.735 I n_draft   = 8
+0.06.074.735 I n_predict = 129
+0.06.074.735 I n_drafted = 200
+0.06.074.735 I n_accept  = 103
+0.06.074.736 I accept    = 51.500%
+0.06.074.736 I 
+0.06.074.736 I draft:
+
+0.06.074.741 I 
+0.06.074.741 I target:
+
+0.06.074.742 I common_perf_print:    sampling time =      25.74 ms
+0.06.074.743 I common_perf_print:    samplers time =       9.33 ms /   129 tokens
+0.06.074.743 I common_perf_print:        load time =    2476.59 ms
+0.06.074.744 I common_perf_print: prompt eval time =     764.68 ms /   308 tokens (    2.48 ms per token,   402.78 tokens per second)
+0.06.074.746 I common_perf_print:        eval time =       0.00 ms /     1 runs   (    0.00 ms per token,      inf tokens per second)
+0.06.074.746 I common_perf_print:       total time =    -370.97 ms /   309 tokens
+0.06.074.747 I common_perf_print: unaccounted time =   -1161.39 ms / 313.1 %      (total - sampling - prompt eval - eval) / (total)
+0.06.074.747 I common_perf_print:    graphs reused =         24
+

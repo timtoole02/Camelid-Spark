@@ -1,0 +1,12 @@
+   Compiling camelid v0.2.6 (<home>\Camelid)
+    Finished `release` profile [optimized] target(s) in 4m 37s
+     Running tests\gemma4_generation_parity.rs (target\release\deps\gemma4_generation_parity-8072d6457aa9da4b.exe)
+
+running 1 test
+row gemma-4-E2B-it-Q8_0: 1 prompts, runtime = cpu
+test gemma4_greedy_generation_matches_llama_cpp_oracle has been running for over 60 seconds
+  recall-512 OK (3 tokens): "512"
+test gemma4_greedy_generation_matches_llama_cpp_oracle ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 78.16s
+

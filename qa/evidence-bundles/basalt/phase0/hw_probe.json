@@ -1,0 +1,23 @@
+{
+  "probe_date": "2026-07-16",
+  "host": "Windows 11 Home build 26220.8764",
+  "gpus": [
+    {
+      "name": "NVIDIA GeForce RTX 3060 Laptop GPU",
+      "vram_mib": 6144,
+      "driver": "576.83",
+      "compute_cap": "8.6",
+      "sm_arch": "sm_86 (Ampere)"
+    }
+  ],
+  "cuda_toolkit": "12.9 (V12.9.86)",
+  "nvrtc": "nvrtc64_120_0.dll (CUDA v12.9, C:/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v12.9/bin)",
+  "blackwell_present": false,
+  "phase5_verdict": "BLOCKED-HW",
+  "raw_command_outputs": {
+    "nvidia_smi_query": "name, driver_version, memory.total [MiB], compute_cap\nNVIDIA GeForce RTX 3060 Laptop GPU, 576.83, 6144 MiB, 8.6",
+    "nvcc_version": "nvcc: NVIDIA (R) Cuda compiler driver\nCopyright (c) 2005-2025 NVIDIA Corporation\nBuilt on Tue_May_27_02:24:01_Pacific_Daylight_Time_2025\nCuda compilation tools, release 12.9, V12.9.86\nBuild cuda_12.9.r12.9/compiler.36037853_0",
+    "cmd_ver": "Microsoft Windows [Version 10.0.26220.8764]",
+    "nvrtc_dlls": "C:/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v12.9/bin/nvrtc64_120_0.alt.dll\nC:/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v12.9/bin/nvrtc64_120_0.dll"
+  }
+}

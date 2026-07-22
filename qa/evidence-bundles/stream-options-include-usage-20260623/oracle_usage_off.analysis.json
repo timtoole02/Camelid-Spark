@@ -1,0 +1,13 @@
+{
+  "file": "ref_usage_off.sse",
+  "total_data_frames": 17,
+  "chunk_count_excluding_done": 16,
+  "done_seen": true,
+  "done_is_last_frame": true,
+  "content_chunks_all_omit_usage": true,
+  "usage_chunk_count": 0,
+  "terminal_usage_chunk": null,
+  "empty_choice_chunk_count": 0,
+  "usage_after_finish_reason": false,
+  "usage_before_done": null
+}

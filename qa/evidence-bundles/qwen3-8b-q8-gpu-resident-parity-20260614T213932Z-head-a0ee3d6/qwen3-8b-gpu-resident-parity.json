@@ -1,0 +1,80 @@
+{
+  "schema": "camelid.qwen3.gpu_resident_parity_bundle.v1",
+  "row_id": "qwen3_8b_instruct_q8_0",
+  "display_name": "Qwen3 8B Instruct Q8_0 — GPU-resident path",
+  "mode": "chatml_thinking_disabled_greedy",
+  "proves": [
+    "GPU-resident decode+prefill applies per-head QK-norm and (with untied output embeddings) is token+text identical to the pinned llama.cpp reference on the exact 3-prompt / 1,5,50-token support bar — the same bar the 8B row was promoted on."
+  ],
+  "support_bar_vs_llama_cpp": {
+    "note": "Resident 8B (CAMELID_METAL_RESIDENT_DECODE/PREFILL=1) chat generations vs the recorded llama.cpp reference_content_tokens from the merged qwen3-8b chatml-parity bundle (identical GGUF, sha256 408b9555...). 3 fixed ChatML thinking-disabled prompts at 1/5/50 tokens. Captured on mini2 (clean 16GB Mac mini M4).",
+    "all_pass": true,
+    "rows": [
+      {
+        "prompt": "What is the capital of France?",
+        "n": 1,
+        "token_match": true,
+        "text_match": true
+      },
+      {
+        "prompt": "What is the capital of France?",
+        "n": 5,
+        "token_match": true,
+        "text_match": true
+      },
+      {
+        "prompt": "What is the capital of France?",
+        "n": 50,
+        "token_match": true,
+        "text_match": true
+      },
+      {
+        "prompt": "Name a primary color.",
+        "n": 1,
+        "token_match": true,
+        "text_match": true
+      },
+      {
+        "prompt": "Name a primary color.",
+        "n": 5,
+        "token_match": true,
+        "text_match": true
+      },
+      {
+        "prompt": "Name a primary color.",
+        "n": 50,
+        "token_match": true,
+        "text_match": true
+      },
+      {
+        "prompt": "Say hello.",
+        "n": 1,
+        "token_match": true,
+        "text_match": true
+      },
+      {
+        "prompt": "Say hello.",
+        "n": 5,
+        "token_match": true,
+        "text_match": true
+      },
+      {
+        "prompt": "Say hello.",
+        "n": 50,
+        "token_match": true,
+        "text_match": true
+      }
+    ]
+  },
+  "large_context_engagement": {
+    "claim": "demonstrative_not_token_parity",
+    "note": "A single user turn whose rendered ChatML prompt tokenizes to 7,982 tokens runs end-to-end on the resident path and produces coherent output. The resident decode trace confirms single-shot prefill: positions 0..7,980 filled in one pass, decode begins at pos 7,981 (no per-token seeding below the prompt length). A token-parity reference at 8B big-context is omitted because the f32 CPU reference prefill for an 8B model is ~8 min per 1k tokens (impractical on this hardware); the resident prefill *kernel* itself is proven bit-exact vs llama.cpp at 15,373 tokens on Qwen3-1.7B (sibling bundle), exercising the same code path, and the 8B-specific dims + untied embeddings are covered by the support-bar parity above.",
+    "prompt_tokens": 7982,
+    "resident_text": "The recurring theme of the observations is the gradual, meticulous documentation of natural processes shaping the land over time through patient and persistent",
+    "resident_prefill_engaged": true,
+    "single_shot_prefill_ceiling_tokens": 16384,
+    "kv_context_ceiling_tokens": 40960
+  },
+  "ran_on": "Mac mini M4 16GB (mini2), fast internal SSD",
+  "all_pass": true
+}

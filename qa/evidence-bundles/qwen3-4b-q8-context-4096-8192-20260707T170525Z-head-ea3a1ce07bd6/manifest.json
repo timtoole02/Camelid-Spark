@@ -1,0 +1,37 @@
+{
+  "schema": "camelid.qwen3_4b_q8_context_4096_8192_public_evidence.v1",
+  "generated_utc": "2026-07-07T17:05:26.105Z",
+  "git_head": "ea3a1ce07bd6",
+  "row_id": "qwen3_4b_instruct_q8_0",
+  "model": {
+    "filename": "Qwen3-4B-Q8_0.gguf",
+    "size_bytes": 4280404704,
+    "sha256": "8c2f07f26af9747e41988551106f149b03eb9b5cb6df636027b6bf6278473300",
+    "quantization": "Q8_0",
+    "architecture": "qwen3"
+  },
+  "comparator": "llama.cpp acd79d603 (Windows CPU-only build) /completion, greedy (temp 0/top_k 1/seed 0), -ngl 0 -ctk f32 -ctv f32 -fa off --no-repack -c 8704",
+  "camelid_backend": "q8_0 runtime, RTX 3060 Laptop 6 GiB: GPU-resident decode for positions < 2090 (the VRAM-sized KV cap on this card, reported by build_resident_cuda_engine: weights 4315 MiB + 512 MiB headroom -> fits 2090 pos), CPU-fallback decode for positions >= 2090. Both buckets exceed 2090, so their tails are CPU-fallback decoded.",
+  "execution_note": "Single-model runs only: the llama.cpp oracle was captured alone and its server killed before camelid was started (engines never co-resident), to stay within host RAM.",
+  "buckets": [
+    {
+      "target_window": 4096,
+      "actual_qwen3_tokens": 4088,
+      "resident_positions": 2090,
+      "cpu_fallback_positions": 2048,
+      "prompt_text_source": "qa/gemma4/prompt_packs/context_4096_v1.json (recall text reused)"
+    },
+    {
+      "target_window": 8192,
+      "actual_qwen3_tokens": 8253,
+      "resident_positions": 2090,
+      "cpu_fallback_positions": 6213,
+      "prompt_text_source": "qa/gemma4/prompt_packs/context_8192_v1.json (recall text reused)"
+    }
+  ],
+  "all_pass": true,
+  "token_counts": [
+    50
+  ],
+  "claim_boundary": "Bounded 4096/8192-context (4088/8253 Qwen3 tokens) raw-decode greedy parity for the exact Qwen3-4B-Q8_0 row ONLY: camelid is token-AND-text-identical to the pinned llama.cpp acd79d603 oracle at 50 generated tokens on both buckets. On this 6 GiB card the decode path is GPU-resident for positions < 2090 and camelid CPU-fallback for positions >= 2090 (both buckets exceed the cap) — a bigger card would run these fully resident; the token stream is identical either way. NOT claimed: GPU-resident decode of these buckets on this card, model-native/larger context beyond 8192, other Qwen3 sizes/quants, or throughput. Complements the 512/1024/2048 bundle (fully GPU-resident) at qa/evidence-bundles/qwen3-4b-q8-context-512-2048-20260706T233000Z-head-eabe9dac74fa."
+}

@@ -1,0 +1,61 @@
+{
+  "schema": "camelid.basalt_phase0_evidence.v1",
+  "generated_utc": "2026-07-16T22:07:17.570Z",
+  "git_head": "4f9603f0 (branch basalt/phase0-recon)",
+  "campaign": "BASALT",
+  "phase": 0,
+  "gate": "G0",
+  "note": "Phase 0 recon evidence: pin extraction, Camelid touchpoints, hardware probe, pilot tensor inventory + NVFP4 size projection, baseline refusal receipt, incident record. Consolidated in BASALT_RECON.md (repo root); eval pre-registration in basalt_eval_protocol.md (repo root). Host paths sanitized to placeholders: <camelid>=the Camelid checkout, <cam-basalt>=this worktree, <llama.cpp>=pinned llama.cpp source/build (acd79d603), <pin-tools>=the pinned CPU tool dir, <scratchpad>=session temp dir, <home>=user home.",
+  "files": [
+    {
+      "file": "camelid_touchpoints.md",
+      "sha256": "d4202a8bc2bc879e6833c00349849113c7b22d547ed09fe088a5e142e548edcb",
+      "size_bytes": 34086
+    },
+    {
+      "file": "hw_probe.json",
+      "sha256": "e14416862c76356805216a2ff46401607d0a0f66bd17fdd13f269989f455126d",
+      "size_bytes": 1150
+    },
+    {
+      "file": "incident-20260716-hard-hang.md",
+      "sha256": "6c0ad784160b2d41b812300cb5cf6006627fa77abb4db302d2ee874442ef153b",
+      "size_bytes": 3615
+    },
+    {
+      "file": "pin_extraction_receipts.md",
+      "sha256": "8d60c78390f1a09290dd0a44881ad20c4ba759a46edc5c1f2636a442e008381a",
+      "size_bytes": 26817
+    },
+    {
+      "file": "pin_sanity_excerpt.txt",
+      "sha256": "c07748500d4983e08bfd9532bc2ef60c5567f3207f116991e6438b3db522f451",
+      "size_bytes": 1695
+    },
+    {
+      "file": "quantize_nvfp4.txt",
+      "sha256": "1355bd1ec96e0106e1118d3742d7571b4e61fbd5aa0543081a59e17eeff0de33",
+      "size_bytes": 68908
+    },
+    {
+      "file": "refusal_receipt.md",
+      "sha256": "ee687b0afde9bb0fc81ed7d230acb650d9663ed2f27498681884f2e504b51837",
+      "size_bytes": 10693
+    },
+    {
+      "file": "tensor_inventory.json",
+      "sha256": "fcdbbdf8b2ad333f50e83874f0141ee16365845b016f81c78957eb0352d21461",
+      "size_bytes": 303093
+    },
+    {
+      "file": "tensor_inventory_raw.json",
+      "sha256": "d1bcbd2d34a72d89eeaea4bb37af72449da9d217e953c52bfd84b3f150c4c5f7",
+      "size_bytes": 192762
+    },
+    {
+      "file": "tools/gguf_header_inventory.mjs",
+      "sha256": "9b919d931b64214f3303858ba3d7c080ad7d094e07d9f3fe0c714595437adbfb",
+      "size_bytes": 9046
+    }
+  ]
+}

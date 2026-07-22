@@ -1,0 +1,661 @@
+{
+    "schema":  "camelid.speed-baseline-bundle/v1",
+    "campaign":  "SPEED_CAMPAIGN.md Phase 1 - llama.cpp honest baseline",
+    "generated_utc":  "20260620T122747Z",
+    "engine":  "llama.cpp",
+    "llamacpp_commit":  "acd79d603cb2e1c84c0886137b80f1ad649b6857",
+    "model_pair":  "qwen3-0.6b-q8 (draft) -\u003e qwen3-4b-q8 (target)",
+    "machine":  {
+                    "gpu_name":  "NVIDIA GeForce RTX 3060 Laptop GPU",
+                    "driver":  "576.83",
+                    "vram_total_mib":  "6144",
+                    "clocks_max_sm_mhz":  "2100",
+                    "clocks_cur_sm_mhz":  "210",
+                    "power_limit_w":  "[N/A]",
+                    "cpu":  "11th Gen Intel(R) Core(TM) i7-11800H @ 2.30GHz",
+                    "logical_cpus":  16,
+                    "host_ram_gb":  15.7,
+                    "nvcc":  "Cuda compilation tools, release 12.9, V12.9.86",
+                    "os":  "windows 10.0.26220.0",
+                    "sm_clock_policy":  "free (laptop boost; per-cell pre/post clock bracket recorded)",
+                    "ggml_cuda_force_mmq":  "unset (default heuristic)",
+                    "ggml_cuda_force_cublas":  "unset (default heuristic)",
+                    "llamacpp_commit":  "acd79d603cb2e1c84c0886137b80f1ad649b6857",
+                    "llamacpp_build_flags":  "-DGGML_CUDA=ON -DCMAKE_CUDA_ARCHITECTURES=86 -DGGML_NATIVE=ON -DCMAKE_BUILD_TYPE=Release (Ninja, VS2022 BuildTools 14.44, CUDA 12.9)"
+                },
+    "cell_count":  10,
+    "cells":  [
+                  {
+                      "schema":  "camelid.speed-receipt/v1",
+                      "lane":  "raw",
+                      "config":  "llamacpp_normal_decode",
+                      "workload":  "prefill_pp",
+                      "generated_utc":  "20260620T122747Z",
+                      "machine":  {
+                                      "gpu_name":  "NVIDIA GeForce RTX 3060 Laptop GPU",
+                                      "driver":  "576.83",
+                                      "vram_total_mib":  "6144",
+                                      "clocks_max_sm_mhz":  "2100",
+                                      "clocks_cur_sm_mhz":  "210",
+                                      "power_limit_w":  "[N/A]",
+                                      "cpu":  "11th Gen Intel(R) Core(TM) i7-11800H @ 2.30GHz",
+                                      "logical_cpus":  16,
+                                      "host_ram_gb":  15.7,
+                                      "nvcc":  "Cuda compilation tools, release 12.9, V12.9.86",
+                                      "os":  "windows 10.0.26220.0",
+                                      "sm_clock_policy":  "free (laptop boost; per-cell pre/post clock bracket recorded)",
+                                      "ggml_cuda_force_mmq":  "unset (default heuristic)",
+                                      "ggml_cuda_force_cublas":  "unset (default heuristic)",
+                                      "llamacpp_commit":  "acd79d603cb2e1c84c0886137b80f1ad649b6857",
+                                      "llamacpp_build_flags":  "-DGGML_CUDA=ON -DCMAKE_CUDA_ARCHITECTURES=86 -DGGML_NATIVE=ON -DCMAKE_BUILD_TYPE=Release (Ninja, VS2022 BuildTools 14.44, CUDA 12.9)"
+                                  },
+                      "model":  {
+                                    "id":  "qwen3-4b",
+                                    "path":  "<HOME>\\models\\Qwen3-4B-Q8_0.gguf",
+                                    "sha256":  "8c2f07f26af9747e41988551106f149b03eb9b5cb6df636027b6bf6278473300",
+                                    "quant":  "Q8_0",
+                                    "arch":  "qwen3"
+                                },
+                      "engine":  "llama.cpp",
+                      "llamacpp_commit":  "acd79d603cb2e1c84c0886137b80f1ad649b6857",
+                      "repetitions":  5,
+                      "warmup_discarded":  true,
+                      "n_prompt":  512,
+                      "n_gen":  0,
+                      "avg_tps":  2620.785,
+                      "stddev_tps":  94.261,
+                      "samples_tps":  [
+                                          2486.17,
+                                          2696.44,
+                                          2682.05,
+                                          2682.64,
+                                          2556.62
+                                      ],
+                      "flash_attn":  1,
+                      "n_gpu_layers":  99,
+                      "gpu_clock_bracket_mhz":  [
+                                                    210,
+                                                    1755
+                                                ],
+                      "sm_clock_policy":  "free (laptop boost; per-cell pre/post clock bracket recorded)",
+                      "cmd":  "<HOME>\\llama.cpp\\build\\bin\\llama-bench.exe -m <HOME>\\models\\Qwen3-4B-Q8_0.gguf -p 512 -n 128 -fa 1 -ngl 99 -r 5 -o json",
+                      "lossless_note":  "llama.cpp greedy raw decode; its own non-spec reference (D1)."
+                  },
+                  {
+                      "schema":  "camelid.speed-receipt/v1",
+                      "lane":  "raw",
+                      "config":  "llamacpp_normal_decode",
+                      "workload":  "decode_tg",
+                      "generated_utc":  "20260620T122747Z",
+                      "machine":  {
+                                      "gpu_name":  "NVIDIA GeForce RTX 3060 Laptop GPU",
+                                      "driver":  "576.83",
+                                      "vram_total_mib":  "6144",
+                                      "clocks_max_sm_mhz":  "2100",
+                                      "clocks_cur_sm_mhz":  "210",
+                                      "power_limit_w":  "[N/A]",
+                                      "cpu":  "11th Gen Intel(R) Core(TM) i7-11800H @ 2.30GHz",
+                                      "logical_cpus":  16,
+                                      "host_ram_gb":  15.7,
+                                      "nvcc":  "Cuda compilation tools, release 12.9, V12.9.86",
+                                      "os":  "windows 10.0.26220.0",
+                                      "sm_clock_policy":  "free (laptop boost; per-cell pre/post clock bracket recorded)",
+                                      "ggml_cuda_force_mmq":  "unset (default heuristic)",
+                                      "ggml_cuda_force_cublas":  "unset (default heuristic)",
+                                      "llamacpp_commit":  "acd79d603cb2e1c84c0886137b80f1ad649b6857",
+                                      "llamacpp_build_flags":  "-DGGML_CUDA=ON -DCMAKE_CUDA_ARCHITECTURES=86 -DGGML_NATIVE=ON -DCMAKE_BUILD_TYPE=Release (Ninja, VS2022 BuildTools 14.44, CUDA 12.9)"
+                                  },
+                      "model":  {
+                                    "id":  "qwen3-4b",
+                                    "path":  "<HOME>\\models\\Qwen3-4B-Q8_0.gguf",
+                                    "sha256":  "8c2f07f26af9747e41988551106f149b03eb9b5cb6df636027b6bf6278473300",
+                                    "quant":  "Q8_0",
+                                    "arch":  "qwen3"
+                                },
+                      "engine":  "llama.cpp",
+                      "llamacpp_commit":  "acd79d603cb2e1c84c0886137b80f1ad649b6857",
+                      "repetitions":  5,
+                      "warmup_discarded":  true,
+                      "n_prompt":  0,
+                      "n_gen":  128,
+                      "avg_tps":  54.506,
+                      "stddev_tps":  0.343,
+                      "samples_tps":  [
+                                          53.9874,
+                                          54.3424,
+                                          54.8288,
+                                          54.7448,
+                                          54.6256
+                                      ],
+                      "flash_attn":  1,
+                      "n_gpu_layers":  99,
+                      "gpu_clock_bracket_mhz":  [
+                                                    210,
+                                                    1755
+                                                ],
+                      "sm_clock_policy":  "free (laptop boost; per-cell pre/post clock bracket recorded)",
+                      "cmd":  "<HOME>\\llama.cpp\\build\\bin\\llama-bench.exe -m <HOME>\\models\\Qwen3-4B-Q8_0.gguf -p 512 -n 128 -fa 1 -ngl 99 -r 5 -o json",
+                      "lossless_note":  "llama.cpp greedy raw decode; its own non-spec reference (D1)."
+                  },
+                  {
+                      "schema":  "camelid.speed-receipt/v1",
+                      "lane":  "raw",
+                      "config":  "llamacpp_normal_decode",
+                      "workload":  "prefill_pp",
+                      "generated_utc":  "20260620T122747Z",
+                      "machine":  {
+                                      "gpu_name":  "NVIDIA GeForce RTX 3060 Laptop GPU",
+                                      "driver":  "576.83",
+                                      "vram_total_mib":  "6144",
+                                      "clocks_max_sm_mhz":  "2100",
+                                      "clocks_cur_sm_mhz":  "210",
+                                      "power_limit_w":  "[N/A]",
+                                      "cpu":  "11th Gen Intel(R) Core(TM) i7-11800H @ 2.30GHz",
+                                      "logical_cpus":  16,
+                                      "host_ram_gb":  15.7,
+                                      "nvcc":  "Cuda compilation tools, release 12.9, V12.9.86",
+                                      "os":  "windows 10.0.26220.0",
+                                      "sm_clock_policy":  "free (laptop boost; per-cell pre/post clock bracket recorded)",
+                                      "ggml_cuda_force_mmq":  "unset (default heuristic)",
+                                      "ggml_cuda_force_cublas":  "unset (default heuristic)",
+                                      "llamacpp_commit":  "acd79d603cb2e1c84c0886137b80f1ad649b6857",
+                                      "llamacpp_build_flags":  "-DGGML_CUDA=ON -DCMAKE_CUDA_ARCHITECTURES=86 -DGGML_NATIVE=ON -DCMAKE_BUILD_TYPE=Release (Ninja, VS2022 BuildTools 14.44, CUDA 12.9)"
+                                  },
+                      "model":  {
+                                    "id":  "qwen3-0.6b",
+                                    "path":  "<HOME>\\camelid-dltest\\models\\Qwen3-0.6B-Q8_0.gguf",
+                                    "sha256":  "9465e63a22add5354d9bb4b99e90117043c7124007664907259bd16d043bb031",
+                                    "quant":  "Q8_0",
+                                    "arch":  "qwen3"
+                                },
+                      "engine":  "llama.cpp",
+                      "llamacpp_commit":  "acd79d603cb2e1c84c0886137b80f1ad649b6857",
+                      "repetitions":  5,
+                      "warmup_discarded":  true,
+                      "n_prompt":  512,
+                      "n_gen":  0,
+                      "avg_tps":  11890.398,
+                      "stddev_tps":  768.008,
+                      "samples_tps":  [
+                                          10532.2,
+                                          12038.3,
+                                          12300.5,
+                                          12243,
+                                          12338
+                                      ],
+                      "flash_attn":  1,
+                      "n_gpu_layers":  99,
+                      "gpu_clock_bracket_mhz":  [
+                                                    1755,
+                                                    1755
+                                                ],
+                      "sm_clock_policy":  "free (laptop boost; per-cell pre/post clock bracket recorded)",
+                      "cmd":  "<HOME>\\llama.cpp\\build\\bin\\llama-bench.exe -m <HOME>\\camelid-dltest\\models\\Qwen3-0.6B-Q8_0.gguf -p 512 -n 128 -fa 1 -ngl 99 -r 5 -o json",
+                      "lossless_note":  "llama.cpp greedy raw decode; its own non-spec reference (D1)."
+                  },
+                  {
+                      "schema":  "camelid.speed-receipt/v1",
+                      "lane":  "raw",
+                      "config":  "llamacpp_normal_decode",
+                      "workload":  "decode_tg",
+                      "generated_utc":  "20260620T122747Z",
+                      "machine":  {
+                                      "gpu_name":  "NVIDIA GeForce RTX 3060 Laptop GPU",
+                                      "driver":  "576.83",
+                                      "vram_total_mib":  "6144",
+                                      "clocks_max_sm_mhz":  "2100",
+                                      "clocks_cur_sm_mhz":  "210",
+                                      "power_limit_w":  "[N/A]",
+                                      "cpu":  "11th Gen Intel(R) Core(TM) i7-11800H @ 2.30GHz",
+                                      "logical_cpus":  16,
+                                      "host_ram_gb":  15.7,
+                                      "nvcc":  "Cuda compilation tools, release 12.9, V12.9.86",
+                                      "os":  "windows 10.0.26220.0",
+                                      "sm_clock_policy":  "free (laptop boost; per-cell pre/post clock bracket recorded)",
+                                      "ggml_cuda_force_mmq":  "unset (default heuristic)",
+                                      "ggml_cuda_force_cublas":  "unset (default heuristic)",
+                                      "llamacpp_commit":  "acd79d603cb2e1c84c0886137b80f1ad649b6857",
+                                      "llamacpp_build_flags":  "-DGGML_CUDA=ON -DCMAKE_CUDA_ARCHITECTURES=86 -DGGML_NATIVE=ON -DCMAKE_BUILD_TYPE=Release (Ninja, VS2022 BuildTools 14.44, CUDA 12.9)"
+                                  },
+                      "model":  {
+                                    "id":  "qwen3-0.6b",
+                                    "path":  "<HOME>\\camelid-dltest\\models\\Qwen3-0.6B-Q8_0.gguf",
+                                    "sha256":  "9465e63a22add5354d9bb4b99e90117043c7124007664907259bd16d043bb031",
+                                    "quant":  "Q8_0",
+                                    "arch":  "qwen3"
+                                },
+                      "engine":  "llama.cpp",
+                      "llamacpp_commit":  "acd79d603cb2e1c84c0886137b80f1ad649b6857",
+                      "repetitions":  5,
+                      "warmup_discarded":  true,
+                      "n_prompt":  0,
+                      "n_gen":  128,
+                      "avg_tps":  243.830,
+                      "stddev_tps":  2.325,
+                      "samples_tps":  [
+                                          245.754,
+                                          240.483,
+                                          244.083,
+                                          242.687,
+                                          246.142
+                                      ],
+                      "flash_attn":  1,
+                      "n_gpu_layers":  99,
+                      "gpu_clock_bracket_mhz":  [
+                                                    1755,
+                                                    1755
+                                                ],
+                      "sm_clock_policy":  "free (laptop boost; per-cell pre/post clock bracket recorded)",
+                      "cmd":  "<HOME>\\llama.cpp\\build\\bin\\llama-bench.exe -m <HOME>\\camelid-dltest\\models\\Qwen3-0.6B-Q8_0.gguf -p 512 -n 128 -fa 1 -ngl 99 -r 5 -o json",
+                      "lossless_note":  "llama.cpp greedy raw decode; its own non-spec reference (D1)."
+                  },
+                  {
+                      "schema":  "camelid.speed-receipt/v1",
+                      "lane":  "spec",
+                      "config":  "llamacpp_speculative_decode",
+                      "workload":  "code_completion",
+                      "generated_utc":  "20260620T122747Z",
+                      "machine":  {
+                                      "gpu_name":  "NVIDIA GeForce RTX 3060 Laptop GPU",
+                                      "driver":  "576.83",
+                                      "vram_total_mib":  "6144",
+                                      "clocks_max_sm_mhz":  "2100",
+                                      "clocks_cur_sm_mhz":  "210",
+                                      "power_limit_w":  "[N/A]",
+                                      "cpu":  "11th Gen Intel(R) Core(TM) i7-11800H @ 2.30GHz",
+                                      "logical_cpus":  16,
+                                      "host_ram_gb":  15.7,
+                                      "nvcc":  "Cuda compilation tools, release 12.9, V12.9.86",
+                                      "os":  "windows 10.0.26220.0",
+                                      "sm_clock_policy":  "free (laptop boost; per-cell pre/post clock bracket recorded)",
+                                      "ggml_cuda_force_mmq":  "unset (default heuristic)",
+                                      "ggml_cuda_force_cublas":  "unset (default heuristic)",
+                                      "llamacpp_commit":  "acd79d603cb2e1c84c0886137b80f1ad649b6857",
+                                      "llamacpp_build_flags":  "-DGGML_CUDA=ON -DCMAKE_CUDA_ARCHITECTURES=86 -DGGML_NATIVE=ON -DCMAKE_BUILD_TYPE=Release (Ninja, VS2022 BuildTools 14.44, CUDA 12.9)"
+                                  },
+                      "model":  {
+                                    "target":  {
+                                                   "id":  "qwen3-4b",
+                                                   "path":  "<HOME>\\models\\Qwen3-4B-Q8_0.gguf",
+                                                   "sha256":  "8c2f07f26af9747e41988551106f149b03eb9b5cb6df636027b6bf6278473300",
+                                                   "quant":  "Q8_0"
+                                               },
+                                    "draft":  {
+                                                  "id":  "qwen3-0.6b",
+                                                  "path":  "<HOME>\\camelid-dltest\\models\\Qwen3-0.6B-Q8_0.gguf",
+                                                  "sha256":  "9465e63a22add5354d9bb4b99e90117043c7124007664907259bd16d043bb031",
+                                                  "quant":  "Q8_0"
+                                              }
+                                },
+                      "engine":  "llama.cpp",
+                      "llamacpp_commit":  "acd79d603cb2e1c84c0886137b80f1ad649b6857",
+                      "repetitions":  5,
+                      "warmup_discarded":  true,
+                      "n_gen":  128,
+                      "spec_draft_n_max":  8,
+                      "spec_draft_n_min":  1,
+                      "accept_rate_pct":  49.038,
+                      "n_drafted":  208,
+                      "n_accept":  102,
+                      "decode_tps_median":  74.79,
+                      "decode_tps_stddev":  0.489,
+                      "decode_tps_samples":  [
+                                                 75.482,
+                                                 75.417,
+                                                 74.473,
+                                                 74.79,
+                                                 74.5
+                                             ],
+                      "prefill_tps":  810.06,
+                      "sampling":  "greedy (top-k 1, temp 0) - lossless vs llama.cpp own greedy (D1)",
+                      "sampling_order":  "interleaved across 5 reps (thermal-position fair)",
+                      "gpu_clock_bracket_mhz":  [
+                                                    435,
+                                                    1747
+                                                ],
+                      "sm_clock_policy":  "free (laptop boost; per-cell pre/post clock bracket recorded)",
+                      "cmd":  "<HOME>\\llama.cpp\\build\\bin\\llama-speculative.exe -m <HOME>\\models\\Qwen3-4B-Q8_0.gguf -md <HOME>\\camelid-dltest\\models\\Qwen3-0.6B-Q8_0.gguf -f <HOME>\\AppData\\Local\\Temp\\specprompt_code_completion.txt -n 128 --spec-draft-n-max 8 --spec-draft-n-min 1 -ngl 99 -ngld 99 --top-k 1 --temp 0 -c 2048",
+                      "raw_stats_log":  "specbench-code_completion.log"
+                  },
+                  {
+                      "schema":  "camelid.speed-receipt/v1",
+                      "lane":  "spec",
+                      "config":  "llamacpp_speculative_decode",
+                      "workload":  "structured_json",
+                      "generated_utc":  "20260620T122747Z",
+                      "machine":  {
+                                      "gpu_name":  "NVIDIA GeForce RTX 3060 Laptop GPU",
+                                      "driver":  "576.83",
+                                      "vram_total_mib":  "6144",
+                                      "clocks_max_sm_mhz":  "2100",
+                                      "clocks_cur_sm_mhz":  "210",
+                                      "power_limit_w":  "[N/A]",
+                                      "cpu":  "11th Gen Intel(R) Core(TM) i7-11800H @ 2.30GHz",
+                                      "logical_cpus":  16,
+                                      "host_ram_gb":  15.7,
+                                      "nvcc":  "Cuda compilation tools, release 12.9, V12.9.86",
+                                      "os":  "windows 10.0.26220.0",
+                                      "sm_clock_policy":  "free (laptop boost; per-cell pre/post clock bracket recorded)",
+                                      "ggml_cuda_force_mmq":  "unset (default heuristic)",
+                                      "ggml_cuda_force_cublas":  "unset (default heuristic)",
+                                      "llamacpp_commit":  "acd79d603cb2e1c84c0886137b80f1ad649b6857",
+                                      "llamacpp_build_flags":  "-DGGML_CUDA=ON -DCMAKE_CUDA_ARCHITECTURES=86 -DGGML_NATIVE=ON -DCMAKE_BUILD_TYPE=Release (Ninja, VS2022 BuildTools 14.44, CUDA 12.9)"
+                                  },
+                      "model":  {
+                                    "target":  {
+                                                   "id":  "qwen3-4b",
+                                                   "path":  "<HOME>\\models\\Qwen3-4B-Q8_0.gguf",
+                                                   "sha256":  "8c2f07f26af9747e41988551106f149b03eb9b5cb6df636027b6bf6278473300",
+                                                   "quant":  "Q8_0"
+                                               },
+                                    "draft":  {
+                                                  "id":  "qwen3-0.6b",
+                                                  "path":  "<HOME>\\camelid-dltest\\models\\Qwen3-0.6B-Q8_0.gguf",
+                                                  "sha256":  "9465e63a22add5354d9bb4b99e90117043c7124007664907259bd16d043bb031",
+                                                  "quant":  "Q8_0"
+                                              }
+                                },
+                      "engine":  "llama.cpp",
+                      "llamacpp_commit":  "acd79d603cb2e1c84c0886137b80f1ad649b6857",
+                      "repetitions":  5,
+                      "warmup_discarded":  true,
+                      "n_gen":  128,
+                      "spec_draft_n_max":  8,
+                      "spec_draft_n_min":  1,
+                      "accept_rate_pct":  51.5,
+                      "n_drafted":  200,
+                      "n_accept":  103,
+                      "decode_tps_median":  77.175,
+                      "decode_tps_stddev":  0.555,
+                      "decode_tps_samples":  [
+                                                 78.369,
+                                                 77.186,
+                                                 77.077,
+                                                 77.175,
+                                                 77.095
+                                             ],
+                      "prefill_tps":  917.35,
+                      "sampling":  "greedy (top-k 1, temp 0) - lossless vs llama.cpp own greedy (D1)",
+                      "sampling_order":  "interleaved across 5 reps (thermal-position fair)",
+                      "gpu_clock_bracket_mhz":  [
+                                                    1695,
+                                                    1747
+                                                ],
+                      "sm_clock_policy":  "free (laptop boost; per-cell pre/post clock bracket recorded)",
+                      "cmd":  "<HOME>\\llama.cpp\\build\\bin\\llama-speculative.exe -m <HOME>\\models\\Qwen3-4B-Q8_0.gguf -md <HOME>\\camelid-dltest\\models\\Qwen3-0.6B-Q8_0.gguf -f <HOME>\\AppData\\Local\\Temp\\specprompt_structured_json.txt -n 128 --spec-draft-n-max 8 --spec-draft-n-min 1 -ngl 99 -ngld 99 --top-k 1 --temp 0 -c 2048",
+                      "raw_stats_log":  "specbench-structured_json.log"
+                  },
+                  {
+                      "schema":  "camelid.speed-receipt/v1",
+                      "lane":  "spec",
+                      "config":  "llamacpp_speculative_decode",
+                      "workload":  "repetitive_extraction",
+                      "generated_utc":  "20260620T122747Z",
+                      "machine":  {
+                                      "gpu_name":  "NVIDIA GeForce RTX 3060 Laptop GPU",
+                                      "driver":  "576.83",
+                                      "vram_total_mib":  "6144",
+                                      "clocks_max_sm_mhz":  "2100",
+                                      "clocks_cur_sm_mhz":  "210",
+                                      "power_limit_w":  "[N/A]",
+                                      "cpu":  "11th Gen Intel(R) Core(TM) i7-11800H @ 2.30GHz",
+                                      "logical_cpus":  16,
+                                      "host_ram_gb":  15.7,
+                                      "nvcc":  "Cuda compilation tools, release 12.9, V12.9.86",
+                                      "os":  "windows 10.0.26220.0",
+                                      "sm_clock_policy":  "free (laptop boost; per-cell pre/post clock bracket recorded)",
+                                      "ggml_cuda_force_mmq":  "unset (default heuristic)",
+                                      "ggml_cuda_force_cublas":  "unset (default heuristic)",
+                                      "llamacpp_commit":  "acd79d603cb2e1c84c0886137b80f1ad649b6857",
+                                      "llamacpp_build_flags":  "-DGGML_CUDA=ON -DCMAKE_CUDA_ARCHITECTURES=86 -DGGML_NATIVE=ON -DCMAKE_BUILD_TYPE=Release (Ninja, VS2022 BuildTools 14.44, CUDA 12.9)"
+                                  },
+                      "model":  {
+                                    "target":  {
+                                                   "id":  "qwen3-4b",
+                                                   "path":  "<HOME>\\models\\Qwen3-4B-Q8_0.gguf",
+                                                   "sha256":  "8c2f07f26af9747e41988551106f149b03eb9b5cb6df636027b6bf6278473300",
+                                                   "quant":  "Q8_0"
+                                               },
+                                    "draft":  {
+                                                  "id":  "qwen3-0.6b",
+                                                  "path":  "<HOME>\\camelid-dltest\\models\\Qwen3-0.6B-Q8_0.gguf",
+                                                  "sha256":  "9465e63a22add5354d9bb4b99e90117043c7124007664907259bd16d043bb031",
+                                                  "quant":  "Q8_0"
+                                              }
+                                },
+                      "engine":  "llama.cpp",
+                      "llamacpp_commit":  "acd79d603cb2e1c84c0886137b80f1ad649b6857",
+                      "repetitions":  5,
+                      "warmup_discarded":  true,
+                      "n_gen":  128,
+                      "spec_draft_n_max":  8,
+                      "spec_draft_n_min":  1,
+                      "accept_rate_pct":  32.292,
+                      "n_drafted":  288,
+                      "n_accept":  93,
+                      "decode_tps_median":  54.607,
+                      "decode_tps_stddev":  0.195,
+                      "decode_tps_samples":  [
+                                                 54.915,
+                                                 54.62,
+                                                 54.436,
+                                                 54.439,
+                                                 54.607
+                                             ],
+                      "prefill_tps":  1193.539,
+                      "sampling":  "greedy (top-k 1, temp 0) - lossless vs llama.cpp own greedy (D1)",
+                      "sampling_order":  "interleaved across 5 reps (thermal-position fair)",
+                      "gpu_clock_bracket_mhz":  [
+                                                    1710,
+                                                    1747
+                                                ],
+                      "sm_clock_policy":  "free (laptop boost; per-cell pre/post clock bracket recorded)",
+                      "cmd":  "<HOME>\\llama.cpp\\build\\bin\\llama-speculative.exe -m <HOME>\\models\\Qwen3-4B-Q8_0.gguf -md <HOME>\\camelid-dltest\\models\\Qwen3-0.6B-Q8_0.gguf -f <HOME>\\AppData\\Local\\Temp\\specprompt_repetitive_extraction.txt -n 128 --spec-draft-n-max 8 --spec-draft-n-min 1 -ngl 99 -ngld 99 --top-k 1 --temp 0 -c 2048",
+                      "raw_stats_log":  "specbench-repetitive_extraction.log"
+                  },
+                  {
+                      "schema":  "camelid.speed-receipt/v1",
+                      "lane":  "spec",
+                      "config":  "llamacpp_speculative_decode",
+                      "workload":  "normal_chat",
+                      "generated_utc":  "20260620T122747Z",
+                      "machine":  {
+                                      "gpu_name":  "NVIDIA GeForce RTX 3060 Laptop GPU",
+                                      "driver":  "576.83",
+                                      "vram_total_mib":  "6144",
+                                      "clocks_max_sm_mhz":  "2100",
+                                      "clocks_cur_sm_mhz":  "210",
+                                      "power_limit_w":  "[N/A]",
+                                      "cpu":  "11th Gen Intel(R) Core(TM) i7-11800H @ 2.30GHz",
+                                      "logical_cpus":  16,
+                                      "host_ram_gb":  15.7,
+                                      "nvcc":  "Cuda compilation tools, release 12.9, V12.9.86",
+                                      "os":  "windows 10.0.26220.0",
+                                      "sm_clock_policy":  "free (laptop boost; per-cell pre/post clock bracket recorded)",
+                                      "ggml_cuda_force_mmq":  "unset (default heuristic)",
+                                      "ggml_cuda_force_cublas":  "unset (default heuristic)",
+                                      "llamacpp_commit":  "acd79d603cb2e1c84c0886137b80f1ad649b6857",
+                                      "llamacpp_build_flags":  "-DGGML_CUDA=ON -DCMAKE_CUDA_ARCHITECTURES=86 -DGGML_NATIVE=ON -DCMAKE_BUILD_TYPE=Release (Ninja, VS2022 BuildTools 14.44, CUDA 12.9)"
+                                  },
+                      "model":  {
+                                    "target":  {
+                                                   "id":  "qwen3-4b",
+                                                   "path":  "<HOME>\\models\\Qwen3-4B-Q8_0.gguf",
+                                                   "sha256":  "8c2f07f26af9747e41988551106f149b03eb9b5cb6df636027b6bf6278473300",
+                                                   "quant":  "Q8_0"
+                                               },
+                                    "draft":  {
+                                                  "id":  "qwen3-0.6b",
+                                                  "path":  "<HOME>\\camelid-dltest\\models\\Qwen3-0.6B-Q8_0.gguf",
+                                                  "sha256":  "9465e63a22add5354d9bb4b99e90117043c7124007664907259bd16d043bb031",
+                                                  "quant":  "Q8_0"
+                                              }
+                                },
+                      "engine":  "llama.cpp",
+                      "llamacpp_commit":  "acd79d603cb2e1c84c0886137b80f1ad649b6857",
+                      "repetitions":  5,
+                      "warmup_discarded":  true,
+                      "n_gen":  128,
+                      "spec_draft_n_max":  8,
+                      "spec_draft_n_min":  1,
+                      "accept_rate_pct":  28.438,
+                      "n_drafted":  320,
+                      "n_accept":  91,
+                      "decode_tps_median":  50.171,
+                      "decode_tps_stddev":  0.295,
+                      "decode_tps_samples":  [
+                                                 50.73,
+                                                 50.239,
+                                                 50.006,
+                                                 50.021,
+                                                 50.171
+                                             ],
+                      "prefill_tps":  387.86,
+                      "sampling":  "greedy (top-k 1, temp 0) - lossless vs llama.cpp own greedy (D1)",
+                      "sampling_order":  "interleaved across 5 reps (thermal-position fair)",
+                      "gpu_clock_bracket_mhz":  [
+                                                    1710,
+                                                    1747
+                                                ],
+                      "sm_clock_policy":  "free (laptop boost; per-cell pre/post clock bracket recorded)",
+                      "cmd":  "<HOME>\\llama.cpp\\build\\bin\\llama-speculative.exe -m <HOME>\\models\\Qwen3-4B-Q8_0.gguf -md <HOME>\\camelid-dltest\\models\\Qwen3-0.6B-Q8_0.gguf -f <HOME>\\AppData\\Local\\Temp\\specprompt_normal_chat.txt -n 128 --spec-draft-n-max 8 --spec-draft-n-min 1 -ngl 99 -ngld 99 --top-k 1 --temp 0 -c 2048",
+                      "raw_stats_log":  "specbench-normal_chat.log"
+                  },
+                  {
+                      "schema":  "camelid.speed-receipt/v1",
+                      "lane":  "spec",
+                      "config":  "llamacpp_speculative_decode",
+                      "workload":  "creative_writing",
+                      "generated_utc":  "20260620T122747Z",
+                      "machine":  {
+                                      "gpu_name":  "NVIDIA GeForce RTX 3060 Laptop GPU",
+                                      "driver":  "576.83",
+                                      "vram_total_mib":  "6144",
+                                      "clocks_max_sm_mhz":  "2100",
+                                      "clocks_cur_sm_mhz":  "210",
+                                      "power_limit_w":  "[N/A]",
+                                      "cpu":  "11th Gen Intel(R) Core(TM) i7-11800H @ 2.30GHz",
+                                      "logical_cpus":  16,
+                                      "host_ram_gb":  15.7,
+                                      "nvcc":  "Cuda compilation tools, release 12.9, V12.9.86",
+                                      "os":  "windows 10.0.26220.0",
+                                      "sm_clock_policy":  "free (laptop boost; per-cell pre/post clock bracket recorded)",
+                                      "ggml_cuda_force_mmq":  "unset (default heuristic)",
+                                      "ggml_cuda_force_cublas":  "unset (default heuristic)",
+                                      "llamacpp_commit":  "acd79d603cb2e1c84c0886137b80f1ad649b6857",
+                                      "llamacpp_build_flags":  "-DGGML_CUDA=ON -DCMAKE_CUDA_ARCHITECTURES=86 -DGGML_NATIVE=ON -DCMAKE_BUILD_TYPE=Release (Ninja, VS2022 BuildTools 14.44, CUDA 12.9)"
+                                  },
+                      "model":  {
+                                    "target":  {
+                                                   "id":  "qwen3-4b",
+                                                   "path":  "<HOME>\\models\\Qwen3-4B-Q8_0.gguf",
+                                                   "sha256":  "8c2f07f26af9747e41988551106f149b03eb9b5cb6df636027b6bf6278473300",
+                                                   "quant":  "Q8_0"
+                                               },
+                                    "draft":  {
+                                                  "id":  "qwen3-0.6b",
+                                                  "path":  "<HOME>\\camelid-dltest\\models\\Qwen3-0.6B-Q8_0.gguf",
+                                                  "sha256":  "9465e63a22add5354d9bb4b99e90117043c7124007664907259bd16d043bb031",
+                                                  "quant":  "Q8_0"
+                                              }
+                                },
+                      "engine":  "llama.cpp",
+                      "llamacpp_commit":  "acd79d603cb2e1c84c0886137b80f1ad649b6857",
+                      "repetitions":  5,
+                      "warmup_discarded":  true,
+                      "n_gen":  128,
+                      "spec_draft_n_max":  8,
+                      "spec_draft_n_min":  1,
+                      "accept_rate_pct":  46.429,
+                      "n_drafted":  224,
+                      "n_accept":  104,
+                      "decode_tps_median":  71.662,
+                      "decode_tps_stddev":  0.32,
+                      "decode_tps_samples":  [
+                                                 72.213,
+                                                 71.561,
+                                                 71.753,
+                                                 71.662,
+                                                 71.349
+                                             ],
+                      "prefill_tps":  460.967,
+                      "sampling":  "greedy (top-k 1, temp 0) - lossless vs llama.cpp own greedy (D1)",
+                      "sampling_order":  "interleaved across 5 reps (thermal-position fair)",
+                      "gpu_clock_bracket_mhz":  [
+                                                    1747,
+                                                    1747
+                                                ],
+                      "sm_clock_policy":  "free (laptop boost; per-cell pre/post clock bracket recorded)",
+                      "cmd":  "<HOME>\\llama.cpp\\build\\bin\\llama-speculative.exe -m <HOME>\\models\\Qwen3-4B-Q8_0.gguf -md <HOME>\\camelid-dltest\\models\\Qwen3-0.6B-Q8_0.gguf -f <HOME>\\AppData\\Local\\Temp\\specprompt_creative_writing.txt -n 128 --spec-draft-n-max 8 --spec-draft-n-min 1 -ngl 99 -ngld 99 --top-k 1 --temp 0 -c 2048",
+                      "raw_stats_log":  "specbench-creative_writing.log"
+                  },
+                  {
+                      "schema":  "camelid.speed-receipt/v1",
+                      "lane":  "spec",
+                      "config":  "llamacpp_speculative_decode",
+                      "workload":  "adversarial_lowaccept",
+                      "generated_utc":  "20260620T122747Z",
+                      "machine":  {
+                                      "gpu_name":  "NVIDIA GeForce RTX 3060 Laptop GPU",
+                                      "driver":  "576.83",
+                                      "vram_total_mib":  "6144",
+                                      "clocks_max_sm_mhz":  "2100",
+                                      "clocks_cur_sm_mhz":  "210",
+                                      "power_limit_w":  "[N/A]",
+                                      "cpu":  "11th Gen Intel(R) Core(TM) i7-11800H @ 2.30GHz",
+                                      "logical_cpus":  16,
+                                      "host_ram_gb":  15.7,
+                                      "nvcc":  "Cuda compilation tools, release 12.9, V12.9.86",
+                                      "os":  "windows 10.0.26220.0",
+                                      "sm_clock_policy":  "free (laptop boost; per-cell pre/post clock bracket recorded)",
+                                      "ggml_cuda_force_mmq":  "unset (default heuristic)",
+                                      "ggml_cuda_force_cublas":  "unset (default heuristic)",
+                                      "llamacpp_commit":  "acd79d603cb2e1c84c0886137b80f1ad649b6857",
+                                      "llamacpp_build_flags":  "-DGGML_CUDA=ON -DCMAKE_CUDA_ARCHITECTURES=86 -DGGML_NATIVE=ON -DCMAKE_BUILD_TYPE=Release (Ninja, VS2022 BuildTools 14.44, CUDA 12.9)"
+                                  },
+                      "model":  {
+                                    "target":  {
+                                                   "id":  "qwen3-4b",
+                                                   "path":  "<HOME>\\models\\Qwen3-4B-Q8_0.gguf",
+                                                   "sha256":  "8c2f07f26af9747e41988551106f149b03eb9b5cb6df636027b6bf6278473300",
+                                                   "quant":  "Q8_0"
+                                               },
+                                    "draft":  {
+                                                  "id":  "qwen3-0.6b",
+                                                  "path":  "<HOME>\\camelid-dltest\\models\\Qwen3-0.6B-Q8_0.gguf",
+                                                  "sha256":  "9465e63a22add5354d9bb4b99e90117043c7124007664907259bd16d043bb031",
+                                                  "quant":  "Q8_0"
+                                              }
+                                },
+                      "engine":  "llama.cpp",
+                      "llamacpp_commit":  "acd79d603cb2e1c84c0886137b80f1ad649b6857",
+                      "repetitions":  5,
+                      "warmup_discarded":  true,
+                      "n_gen":  128,
+                      "spec_draft_n_max":  8,
+                      "spec_draft_n_min":  1,
+                      "accept_rate_pct":  45.982,
+                      "n_drafted":  224,
+                      "n_accept":  103,
+                      "decode_tps_median":  71.346,
+                      "decode_tps_stddev":  0.343,
+                      "decode_tps_samples":  [
+                                                 71.806,
+                                                 71.107,
+                                                 71.396,
+                                                 70.892,
+                                                 71.346
+                                             ],
+                      "prefill_tps":  593.92,
+                      "sampling":  "greedy (top-k 1, temp 0) - lossless vs llama.cpp own greedy (D1)",
+                      "sampling_order":  "interleaved across 5 reps (thermal-position fair)",
+                      "gpu_clock_bracket_mhz":  [
+                                                    1747,
+                                                    1747
+                                                ],
+                      "sm_clock_policy":  "free (laptop boost; per-cell pre/post clock bracket recorded)",
+                      "cmd":  "<HOME>\\llama.cpp\\build\\bin\\llama-speculative.exe -m <HOME>\\models\\Qwen3-4B-Q8_0.gguf -md <HOME>\\camelid-dltest\\models\\Qwen3-0.6B-Q8_0.gguf -f <HOME>\\AppData\\Local\\Temp\\specprompt_adversarial_lowaccept.txt -n 128 --spec-draft-n-max 8 --spec-draft-n-min 1 -ngl 99 -ngld 99 --top-k 1 --temp 0 -c 2048",
+                      "raw_stats_log":  "specbench-adversarial_lowaccept.log"
+                  }
+              ]
+}

@@ -1,0 +1,15 @@
+{
+  "schema": "camelid.basalt_phase6_relabel_evidence.v1",
+  "generated_utc": "2026-07-17",
+  "git_head": "off main bb8382a6 (branch basalt/nvfp4-relabel-execution-truth)",
+  "campaign": "BASALT",
+  "pass": "nvfp4-relabel+execution-truth",
+  "note": "Post-#474 reconciliation: retire \"experimental\" for NVFP4 (2 surfaces) + add execution-truth clause (gemma4 pilot runs via gemma4_runtime not the runnable serve bridge; refuses generic runnable admission on BF16). Diff-only, no figure changed, drift-green. Self-consistency + DO-NOT-TOUCH audit in self_consistency_receipt.md.",
+  "files": [
+    {
+      "file": "self_consistency_receipt.md",
+      "sha256": "ffcc9ef2e1dd3ec9edb5029b8066752055d4ad102ed6a7cfc15c9d332a81c544",
+      "size_bytes": 5150
+    }
+  ]
+}

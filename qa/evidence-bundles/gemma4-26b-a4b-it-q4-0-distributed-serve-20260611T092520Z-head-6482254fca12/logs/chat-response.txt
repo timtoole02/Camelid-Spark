@@ -1,0 +1,38 @@
+{
+  "camelid": {
+    "generated_token_ids": [
+      100,
+      45518,
+      107,
+      101,
+      50429
+    ],
+    "timings_ms": {
+      "generate": 24208.686666999998,
+      "generation": {
+        "forward_total": 24208.686666999998
+      },
+      "lane": "gemma4_wall_clock_total_only",
+      "prompt_evaluation": {}
+    }
+  },
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "Paris",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1781169478,
+  "id": "chatcmpl-gemma4",
+  "model": "gemma4_26b_a4b_it_q4_0",
+  "object": "chat.completion",
+  "usage": {
+    "completion_tokens": 5,
+    "prompt_tokens": 0,
+    "total_tokens": 5
+  }
+}

@@ -1,0 +1,10 @@
+started_utc=2026-05-09T02:43:44Z
+worktree=$CAMELID_WORKTREE
+artifact_root=target/llama3-8b-context-1024-2048-current-head-20260509T024342Z-head-b49034007f2e
+head=b49034007f2efbc9964e7522d94900080ebbd3a1
+building
+starting_backend
+running_pack_1024_utc=2026-05-09T02:44:05Z
+pack_1024_exit=0
+running_pack_2048_utc=2026-05-09T02:47:44Z
+pack_2048_exit=0

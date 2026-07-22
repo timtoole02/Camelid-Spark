@@ -1,0 +1,195 @@
+[
+  {
+    "prompt": 0,
+    "divergent_index": 62,
+    "oracle_pick": {
+      "id": 32208,
+      "entry": {
+        "id": 32208,
+        "token": " Portugal",
+        "bytes": [
+          32,
+          80,
+          111,
+          114,
+          116,
+          117,
+          103,
+          97,
+          108
+        ],
+        "logprob": -1.1111444234848022
+      }
+    },
+    "camelid_pick": {
+      "id": 279,
+      "entry": {
+        "id": 279,
+        "token": " the",
+        "bytes": [
+          32,
+          116,
+          104,
+          101
+        ],
+        "logprob": -1.2221330404281616
+      },
+      "rank": 2
+    },
+    "top2_gap_nats": 0.11098861694335938,
+    "top4": [
+      {
+        "id": 32208,
+        "token": " Portugal",
+        "logprob": -1.1111444234848022
+      },
+      {
+        "id": 279,
+        "token": " the",
+        "logprob": -1.2221330404281616
+      },
+      {
+        "id": 8100,
+        "token": " Russia",
+        "logprob": -1.9755090475082397
+      },
+      {
+        "id": 23655,
+        "token": " Greece",
+        "logprob": -2.6061930656433105
+      }
+    ],
+    "camelid_tail_text": " the United",
+    "oracle_tail_text": " Portugal?"
+  },
+  {
+    "prompt": 2,
+    "divergent_index": 53,
+    "oracle_pick": {
+      "id": 23868,
+      "entry": {
+        "id": 23868,
+        "token": " acknowledge",
+        "bytes": [
+          32,
+          97,
+          99,
+          107,
+          110,
+          111,
+          119,
+          108,
+          101,
+          100,
+          103,
+          101
+        ],
+        "logprob": -1.0738861560821533
+      }
+    },
+    "camelid_pick": {
+      "id": 27376,
+      "entry": {
+        "id": 27376,
+        "token": " disagree",
+        "bytes": [
+          32,
+          100,
+          105,
+          115,
+          97,
+          103,
+          114,
+          101,
+          101
+        ],
+        "logprob": -1.3959267139434814
+      },
+      "rank": 2
+    },
+    "top2_gap_nats": 0.3220405578613281,
+    "top4": [
+      {
+        "id": 23868,
+        "token": " acknowledge",
+        "logprob": -1.0738861560821533
+      },
+      {
+        "id": 27376,
+        "token": " disagree",
+        "logprob": -1.3959267139434814
+      },
+      {
+        "id": 4252,
+        "token": " correct",
+        "logprob": -1.8107330799102783
+      },
+      {
+        "id": 7440,
+        "token": " confirm",
+        "logprob": -1.8710606098175049
+      }
+    ],
+    "camelid_tail_text": " disagree, or simply acknowledge the statement. It's a",
+    "oracle_tail_text": " acknowledge, or respond to a simple factual statement. It"
+  },
+  {
+    "prompt": 3,
+    "divergent_index": 9,
+    "oracle_pick": {
+      "id": 369,
+      "entry": {
+        "id": 369,
+        "token": " is",
+        "bytes": [
+          32,
+          105,
+          115
+        ],
+        "logprob": -1.6952769756317139
+      }
+    },
+    "camelid_pick": {
+      "id": 3905,
+      "entry": {
+        "id": 3905,
+        "token": " comes",
+        "bytes": [
+          32,
+          99,
+          111,
+          109,
+          101,
+          115
+        ],
+        "logprob": -1.8417518138885498
+      },
+      "rank": 3
+    },
+    "top2_gap_nats": 0.08164024353027344,
+    "top4": [
+      {
+        "id": 369,
+        "token": " is",
+        "logprob": -1.6952769756317139
+      },
+      {
+        "id": 1324,
+        "token": " number",
+        "logprob": -1.7769172191619873
+      },
+      {
+        "id": 3905,
+        "token": " comes",
+        "logprob": -1.8417518138885498
+      },
+      {
+        "id": 635,
+        "token": " do",
+        "logprob": -2.3802459239959717
+      }
+    ],
+    "camelid_tail_text": " comes next? The answer is 6. This simple sequence illustrates a fundamental principle",
+    "oracle_tail_text": " is the next number in the sequence?\n\nThe next number in the sequence is"
+  }
+]

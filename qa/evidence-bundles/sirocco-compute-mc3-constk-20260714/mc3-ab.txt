@@ -1,0 +1,4 @@
+=== M-C3 (const-k unroll) vs M1 flash — both flash-on, interleaved ===
+  ctx=4072  M1=13804.9ms  MC3=12623.8ms  MC3-vs-M1=1.09x
+  ctx=6602  M1=28048.8ms  MC3=25186.0ms  MC3-vs-M1=1.11x
+  ctx=8802  M1=47096.2ms  MC3=39995.0ms  MC3-vs-M1=1.18x

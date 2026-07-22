@@ -1,0 +1,20 @@
+{
+  "schema": "camelid.qwen3.decode_vs_prefill_artifact_correction.v1",
+  "row_id": "qwen3_1_7b_instruct_q8_0",
+  "subject": "Correction to the deterministic-parity investigation's decode-vs-prefill claim",
+  "prior_claim_now_falsified": "The thinking-deterministic investigation (PR #281) attributed 3/4 thinking-trace divergences to a camelid decode-vs-prefill numerical inconsistency (~0.7 logit at capital-of-France token 73; camelid prefill appearing to pick the reference token while decode flipped).",
+  "root_cause_of_the_prior_claim": "Measurement artifact. The prior 'prefill' side fed the prefix via /v1/completions TEXT input, which renders with parse_special=FALSE (src/api/mod.rs ~line 5329). The detokenized prefix's special markers (<|im_start|>, <|im_end|>, <think>, </think> = ids 151644/151645/151667/151668) were therefore tokenized as LITERAL CHARACTERS, producing a different token sequence/positions than the real decode KV — so the compared logits were from a different context, not a genuine prefill of the same tokens.",
+  "artifact_free_remeasurement": {
+    "method": "Feed the EXACT decode token ids back via camelid_prompt_token_ids (PromptInput::TokenIds, bypasses tokenization). Prefill [prompt_ids ++ decode_gen[0..d-1]], read top_logits, compare argmax to decode's actual token at index d. camelid --deterministic CPU path, Qwen3-1.7B Q8_0, on mini2.",
+    "probes": [
+      {"prompt": "What is the capital of France?", "divergence_index": 73, "decode_token": 6594, "prefill_argmax": 6594, "agree": true, "prefill_top2_gap_logit": 0.0030, "note": "the exact 'sites' vs 'landmarks' case the prior 0.706-logit swing was claimed on — actually a 0.003-logit razor-tie, decode and prefill agree"},
+      {"prompt": "Name a primary color.", "divergence_index": 27, "decode_token": 576, "prefill_argmax": 576, "agree": true, "prefill_top2_gap_logit": 0.1856},
+      {"prompt": "Say hello.", "divergence_index": 26, "decode_token": 429, "prefill_argmax": 429, "agree": true, "prefill_top2_gap_logit": 0.0406},
+      {"prompt": "What is 2+2?", "divergence_index": 205, "agree": null, "note": "not captured — 220-token trace repeatedly hit client/tunnel timeout on the contended box; 3/3 captured probes conclusive"}
+    ],
+    "result": "camelid decode == camelid prefill on identical token ids for all 3 captured probes (including the headline capital@73). The decode-vs-prefill difference is f32-noise-sized (≤0.003 logit at the contested token), NOT 0.7."
+  },
+  "corrected_conclusion": "There is NO decode-vs-prefill numerical bug. camelid's decode path is numerically consistent with its prefill path. The thinking-trace divergence vs llama.cpp is ENTIRELY camelid-vs-ggml cross-implementation f32 rounding at near-ties (camelid ranks 'sites' over 'landmarks' by 0.003 logit; the pinned reference ranks 'landmarks' over 'sites' by 0.166; the fixed per-kernel rounding difference flips the near-tie). This is the explicitly out-of-scope item (camelid CPU dot vs ggml vec_dot; reimplementation, not configuration).",
+  "impact_on_PR_281_verdict": "PR #281's VERDICT stands and is strengthened: full-trace token-parity is not achievable via a shared-reduction-order config. Only the mechanism attribution changes — it is purely cross-implementation rounding, with no decode-vs-prefill confound.",
+  "decode_prefill_alignment_task_outcome": "Killed at Phase 1. The target bug does not exist; no fix made (a symptom patch would have been a failure of that task's discipline)."
+}

@@ -1,0 +1,14 @@
+{
+  "what": "CAMELID_THREADS sweep on Llama-3.2-3B-Q8_0, CPU-only (CUDA hidden), greedy temp=0, byte-identical across all thread counts (parity_all=true).",
+  "host": "i7-11800H 8C/16T, ~51 GB/s DDR4",
+  "model": "<home>/models/Llama-3.2-3B-Instruct-Q8_0.gguf",
+  "finding": "prefill is compute-bound (scales to logical cores); decode is memory-bandwidth-bound (peaks ~6 threads, degrades past it).",
+  "results": {
+    "4":  { "prefill_tok_s": 12.18, "decode_tok_s": 5.88 },
+    "6":  { "prefill_tok_s": 16.21, "decode_tok_s": 5.94 },
+    "8":  { "prefill_tok_s": 19.48, "decode_tok_s": 5.73, "note": "old Windows default (physical cores)" },
+    "12": { "prefill_tok_s": 21.59, "decode_tok_s": 5.28 },
+    "16": { "prefill_tok_s": 23.56, "decode_tok_s": 5.20, "note": "logical cores; best prefill, worst decode" }
+  },
+  "parity_all_identical": true
+}

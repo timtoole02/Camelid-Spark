@@ -1,0 +1,58 @@
+{
+  "schema": "camelid.agent-syscap-receipt/v1",
+  "receipt_id": "06ac92dd39fb246525488ede277e4c11c166d3b4b308e2c83385eac580bfeaa4",
+  "created_unix": 1782688037,
+  "feature": "windows-system-control: run_windows_command (Exec) + inspect_system (Read)",
+  "outcome": "PASS",
+  "host": {
+    "os": "windows",
+    "arch": "x86_64",
+    "hostname": "DESKTOP-RLET2RK"
+  },
+  "cases": [
+    {
+      "name": "quoting_roundtrip",
+      "input": "Write-Output 'sq='' dq=\" bt=` dollar=$ semi=; path=C:\\Program Files'",
+      "observed": "exit: 0\nstdout:\nsq=' dq=\" bt=` dollar=$ semi=; path=C:\\Program Files\n",
+      "verdict": "PASS"
+    },
+    {
+      "name": "multiline_stdin",
+      "input": "Write-Output 'line-alpha'\\nWrite-Output 'line-beta'",
+      "observed": "exit: 0\nstdout:\nline-alpha\r\nline-beta\n",
+      "verdict": "PASS"
+    },
+    {
+      "name": "timeout_hard_kill",
+      "input": "Start-Sleep -Seconds 30 (timeout 2s)",
+      "observed": "command timed out after 2s",
+      "verdict": "PASS"
+    },
+    {
+      "name": "output_truncation",
+      "input": "Write-Output ('x' * 20000)",
+      "observed": "exit: 0\nstdout:\nxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx…",
+      "verdict": "PASS"
+    },
+    {
+      "name": "sandbox_escape_refused",
+      "input": "cwd=..\\..\\..",
+      "observed": "path ..\\..\\.. escapes the sandbox root <home>\\AppData\\Local\\Temp\\camelid-agent-syscap-4476",
+      "verdict": "PASS"
+    },
+    {
+      "name": "inspect_system_readonly",
+      "input": "environment + invalid query_type",
+      "observed": "env_ok=true bad_query_rejected=true sentinel_intact=true",
+      "verdict": "PASS"
+    },
+    {
+      "name": "injection_output_inert",
+      "input": "read_file(instructions.txt) containing a Remove-Item lure",
+      "observed": "returned_as_data=true victim_intact=true",
+      "verdict": "PASS"
+    }
+  ],
+  "note": "7/7 syscap cases passed under the default sandboxed mode",
+  "promotes_capability": false
+}

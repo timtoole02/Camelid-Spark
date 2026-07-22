@@ -1,0 +1,178 @@
+{
+ "row": "gemma-4-E2B-it-Q8_0",
+ "pack_id": "gemma4-basic-v1",
+ "decode": "greedy (temperature=0, top_k=1)",
+ "oracle": "llama.cpp 5d56eff llama-server (CPU, -ngl 0, --no-repack -fa off -ctk f32 -ctv f32 -ub 1: plain-f32 GEMV numeric path)",
+ "results": [
+  {
+   "id": "capital-france",
+   "prompt_tokens": [
+    2,
+    818,
+    5279,
+    529,
+    7001,
+    563
+   ],
+   "generated_tokens": [
+    9079,
+    236761
+   ],
+   "generated_text": " Paris.",
+   "stop_type": "eos",
+   "stopping_word": "",
+   "stopped_on_eog_token": 106
+  },
+  {
+   "id": "count-primes",
+   "prompt_tokens": [
+    2,
+    818,
+    1171,
+    3493,
+    8355,
+    4945,
+    659
+   ],
+   "generated_tokens": [
+    236743,
+    236778,
+    236764,
+    236743,
+    236800,
+    236764,
+    236743,
+    236810,
+    236764,
+    236743,
+    236832,
+    236764,
+    532,
+    236743,
+    236770,
+    236770,
+    236761
+   ],
+   "generated_text": " 2, 3, 5, 7, and 11.",
+   "stop_type": "eos",
+   "stopping_word": "",
+   "stopped_on_eog_token": 106
+  },
+  {
+   "id": "haiku-sea",
+   "prompt_tokens": [
+    2,
+    236776,
+    678,
+    20517,
+    1003,
+    506,
+    5442,
+    236787,
+    107
+   ],
+   "generated_tokens": [
+    16520,
+    11707,
+    19592,
+    580,
+    6784,
+    236764,
+    107,
+    69654,
+    15414,
+    100271,
+    80636,
+    2634,
+    236764,
+    107,
+    79290,
+    137065,
+    5268,
+    236761
+   ],
+   "generated_text": "Blue waves crash on sand,\nSalt spray kisses salty air,\nOcean whispers deep.",
+   "stop_type": "eos",
+   "stopping_word": "",
+   "stopped_on_eog_token": 106
+  },
+  {
+   "id": "rust-fn",
+   "prompt_tokens": [
+    2,
+    15059,
+    1138,
+    236769,
+    236746,
+    236787,
+    858,
+    236800,
+    236778,
+    236764,
+    518,
+    236787,
+    858,
+    236800,
+    236778,
+    236768,
+    3921,
+    858,
+    236800,
+    236778,
+    642
+   ],
+   "generated_tokens": [
+    107,
+    140,
+    236746,
+    900,
+    518,
+    107,
+    236783,
+    108,
+    15059,
+    1689,
+    825,
+    642,
+    107,
+    140,
+    1184,
+    2324,
+    578,
+    1138,
+    236769,
+    236810,
+    236764,
+    236743,
+    236800,
+    626
+   ],
+   "generated_text": "\n    a + b\n}\n\nfn main() {\n    let sum = add(5, 3);",
+   "stop_type": "limit",
+   "stopping_word": ""
+  },
+  {
+   "id": "translate-de",
+   "prompt_tokens": [
+    2,
+    27832,
+    236787,
+    1535,
+    5597,
+    107,
+    51423,
+    236787
+   ],
+   "generated_tokens": [
+    84249,
+    110299
+   ],
+   "generated_text": " guten morgen",
+   "stop_type": "eos",
+   "stopping_word": "",
+   "stopped_on_eog_token": 106
+  }
+ ],
+ "note": "generated_tokens exclude the terminating EOG token (recorded as stopped_on_eog_token); text already excludes it",
+ "kernel_note": "Pinned comparator configuration: --no-repack -fa off -ctk f32 -ctv f32 -ub 1 (plain-f32 GEMV numeric path matching the from-scratch runtime: no repacked kernels, no flash attention, f32 KV cache, token-at-a-time prefill). The reference DEFAULTS (f16 KV + flash attention + repacked kernels + batched prefill GEMM) flip near-tie argmax positions relative to this path \u2014 measured flips at top-2 gaps of 0.02-0.2 logits; the comparator config is part of the recorded envelope."
+}

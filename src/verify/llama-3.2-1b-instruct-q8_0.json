@@ -1,0 +1,51 @@
+{
+  "schema": "camelid.verify-profile/v1",
+  "profile_id": "83804f49cb661898d16e26698117899baee8b3886b99a6ccb0f71b5e0d681534",
+  "model": {
+    "model_id": "Llama 3.2 1B Instruct Q8_0",
+    "gguf_filename": "Llama-3.2-1B-Instruct-Q8_0.gguf",
+    "gguf_sha256": "3f87a880027e7b9ea8e0da9e4009584336f352af444a0e6e5c20721ac4c7ffd1",
+    "quantization": "Q8_0",
+    "architecture": "llama"
+  },
+  "request": {
+    "endpoint": "/v1/chat/completions",
+    "messages_or_prompt": [
+      {
+        "content": "You are a terse assistant. Reply with a single short sentence.",
+        "role": "system"
+      },
+      {
+        "content": "What is the capital of France?",
+        "role": "user"
+      },
+      {
+        "content": "Paris.",
+        "role": "assistant"
+      },
+      {
+        "content": "And the capital of Japan?",
+        "role": "user"
+      }
+    ],
+    "max_tokens": 24,
+    "temperature": 0,
+    "top_p": null,
+    "top_k": null,
+    "seed": null,
+    "stop": []
+  },
+  "expected": {
+    "prompt_token_ids": [128000, 128006, 9125, 128007, 271, 2675, 527, 264, 51637, 18328, 13, 18321, 449, 264, 3254, 2875, 11914, 13, 128009, 128006, 882, 128007, 271, 3923, 374, 279, 6864, 315, 9822, 30, 128009, 128006, 78191, 128007, 271, 60704, 13, 128009, 128006, 882, 128007, 271, 3112, 279, 6864, 315, 6457, 30, 128009, 128006, 78191, 128007, 271],
+    "generated_token_ids": [53954, 16417, 13, 128009],
+    "generated_text": "Tokyo.",
+    "completion_tokens": 4,
+    "finish_reason": "stop"
+  },
+  "evidence": {
+    "oracle": "llama.cpp acd79d6 (MSVC, Windows AMD64)",
+    "capability_receipt": "qa/capability/receipts/capability-receipt.chat.system_multiturn.llama-3.2-1b-instruct-q8_0.json",
+    "expected_result_source": "qa/capability/mac_sm_out/llama-3.2-1b/parity-receipt.json",
+    "claim": "The expected token vector comes from the committed same-row parity receipt. The Windows capability receipt independently records this exact Windows GGUF, the same request and Tokyo. result, four generated tokens, and bit-exact parity with pinned llama.cpp."
+  }
+}

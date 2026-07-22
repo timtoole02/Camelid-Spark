@@ -1,0 +1,464 @@
+{
+  "schema": "camelid.qwen3.chatml_chat_parity.v1",
+  "row_id": "qwen3_0_6b_instruct_q8_0",
+  "display_name": "Qwen3 0.6B Instruct Q8_0",
+  "mode": "chatml_thinking_disabled_greedy",
+  "comparator": "llama.cpp 9632 CPU; camelid CPU-reference (CAMELID_CUDA_RESIDENT_DECODE=0)",
+  "camelid_base": "http://127.0.0.1:8185",
+  "llama_base": "http://127.0.0.1:8090",
+  "token_counts": [
+    1,
+    5,
+    50
+  ],
+  "all_pass": true,
+  "results": [
+    {
+      "prompt": "What is the capital of France?",
+      "chatml_rendered": "<|im_start|>user\nWhat is the capital of France?<|im_end|>\n<|im_start|>assistant\n<think>\n\n</think>\n\n",
+      "reference_prompt_tokens": [
+        151644,
+        872,
+        198,
+        3838,
+        374,
+        279,
+        6722,
+        315,
+        9625,
+        30,
+        151645,
+        198,
+        151644,
+        77091,
+        198,
+        151667,
+        271,
+        151668,
+        271
+      ],
+      "camelid_prompt_tokens": [
+        151644,
+        872,
+        198,
+        3838,
+        374,
+        279,
+        6722,
+        315,
+        9625,
+        30,
+        151645,
+        198,
+        151644,
+        77091,
+        198,
+        151667,
+        271,
+        151668,
+        271
+      ],
+      "prompt_token_match": true,
+      "generations": {
+        "1": {
+          "reference_text": "The",
+          "reference_tokens": [
+            785
+          ],
+          "reference_content_tokens": [
+            785
+          ],
+          "camelid_text": "The",
+          "camelid_content_tokens": [
+            785
+          ],
+          "text_match": true,
+          "token_match": true,
+          "stopped_early_at_eos": false
+        },
+        "5": {
+          "reference_text": "The capital of France is",
+          "reference_tokens": [
+            785,
+            6722,
+            315,
+            9625,
+            374
+          ],
+          "reference_content_tokens": [
+            785,
+            6722,
+            315,
+            9625,
+            374
+          ],
+          "camelid_text": "The capital of France is",
+          "camelid_content_tokens": [
+            785,
+            6722,
+            315,
+            9625,
+            374
+          ],
+          "text_match": true,
+          "token_match": true,
+          "stopped_early_at_eos": false
+        },
+        "50": {
+          "reference_text": "The capital of France is **Paris**.",
+          "reference_tokens": [
+            785,
+            6722,
+            315,
+            9625,
+            374,
+            3070,
+            59604,
+            334,
+            13,
+            151645
+          ],
+          "reference_content_tokens": [
+            785,
+            6722,
+            315,
+            9625,
+            374,
+            3070,
+            59604,
+            334,
+            13
+          ],
+          "camelid_text": "The capital of France is **Paris**.",
+          "camelid_content_tokens": [
+            785,
+            6722,
+            315,
+            9625,
+            374,
+            3070,
+            59604,
+            334,
+            13
+          ],
+          "text_match": true,
+          "token_match": true,
+          "stopped_early_at_eos": true
+        }
+      }
+    },
+    {
+      "prompt": "Name a primary color.",
+      "chatml_rendered": "<|im_start|>user\nName a primary color.<|im_end|>\n<|im_start|>assistant\n<think>\n\n</think>\n\n",
+      "reference_prompt_tokens": [
+        151644,
+        872,
+        198,
+        675,
+        264,
+        6028,
+        1894,
+        13,
+        151645,
+        198,
+        151644,
+        77091,
+        198,
+        151667,
+        271,
+        151668,
+        271
+      ],
+      "camelid_prompt_tokens": [
+        151644,
+        872,
+        198,
+        675,
+        264,
+        6028,
+        1894,
+        13,
+        151645,
+        198,
+        151644,
+        77091,
+        198,
+        151667,
+        271,
+        151668,
+        271
+      ],
+      "prompt_token_match": true,
+      "generations": {
+        "1": {
+          "reference_text": "A",
+          "reference_tokens": [
+            32
+          ],
+          "reference_content_tokens": [
+            32
+          ],
+          "camelid_text": "A",
+          "camelid_content_tokens": [
+            32
+          ],
+          "text_match": true,
+          "token_match": true,
+          "stopped_early_at_eos": false
+        },
+        "5": {
+          "reference_text": "A primary color is a",
+          "reference_tokens": [
+            32,
+            6028,
+            1894,
+            374,
+            264
+          ],
+          "reference_content_tokens": [
+            32,
+            6028,
+            1894,
+            374,
+            264
+          ],
+          "camelid_text": "A primary color is a",
+          "camelid_content_tokens": [
+            32,
+            6028,
+            1894,
+            374,
+            264
+          ],
+          "text_match": true,
+          "token_match": true,
+          "stopped_early_at_eos": false
+        },
+        "50": {
+          "reference_text": "A primary color is a color that cannot be made by mixing other colors. The primary colors are **red, blue, and yellow**.",
+          "reference_tokens": [
+            32,
+            6028,
+            1894,
+            374,
+            264,
+            1894,
+            429,
+            4157,
+            387,
+            1865,
+            553,
+            26792,
+            1008,
+            7987,
+            13,
+            576,
+            6028,
+            7987,
+            525,
+            3070,
+            1151,
+            11,
+            6303,
+            11,
+            323,
+            13753,
+            334,
+            13,
+            151645
+          ],
+          "reference_content_tokens": [
+            32,
+            6028,
+            1894,
+            374,
+            264,
+            1894,
+            429,
+            4157,
+            387,
+            1865,
+            553,
+            26792,
+            1008,
+            7987,
+            13,
+            576,
+            6028,
+            7987,
+            525,
+            3070,
+            1151,
+            11,
+            6303,
+            11,
+            323,
+            13753,
+            334,
+            13
+          ],
+          "camelid_text": "A primary color is a color that cannot be made by mixing other colors. The primary colors are **red, blue, and yellow**.",
+          "camelid_content_tokens": [
+            32,
+            6028,
+            1894,
+            374,
+            264,
+            1894,
+            429,
+            4157,
+            387,
+            1865,
+            553,
+            26792,
+            1008,
+            7987,
+            13,
+            576,
+            6028,
+            7987,
+            525,
+            3070,
+            1151,
+            11,
+            6303,
+            11,
+            323,
+            13753,
+            334,
+            13
+          ],
+          "text_match": true,
+          "token_match": true,
+          "stopped_early_at_eos": true
+        }
+      }
+    },
+    {
+      "prompt": "Say hello.",
+      "chatml_rendered": "<|im_start|>user\nSay hello.<|im_end|>\n<|im_start|>assistant\n<think>\n\n</think>\n\n",
+      "reference_prompt_tokens": [
+        151644,
+        872,
+        198,
+        45764,
+        23811,
+        13,
+        151645,
+        198,
+        151644,
+        77091,
+        198,
+        151667,
+        271,
+        151668,
+        271
+      ],
+      "camelid_prompt_tokens": [
+        151644,
+        872,
+        198,
+        45764,
+        23811,
+        13,
+        151645,
+        198,
+        151644,
+        77091,
+        198,
+        151667,
+        271,
+        151668,
+        271
+      ],
+      "prompt_token_match": true,
+      "generations": {
+        "1": {
+          "reference_text": "Hello",
+          "reference_tokens": [
+            9707
+          ],
+          "reference_content_tokens": [
+            9707
+          ],
+          "camelid_text": "Hello",
+          "camelid_content_tokens": [
+            9707
+          ],
+          "text_match": true,
+          "token_match": true,
+          "stopped_early_at_eos": false
+        },
+        "5": {
+          "reference_text": "Hello! How can I",
+          "reference_tokens": [
+            9707,
+            0,
+            2585,
+            646,
+            358
+          ],
+          "reference_content_tokens": [
+            9707,
+            0,
+            2585,
+            646,
+            358
+          ],
+          "camelid_text": "Hello! How can I",
+          "camelid_content_tokens": [
+            9707,
+            0,
+            2585,
+            646,
+            358
+          ],
+          "text_match": true,
+          "token_match": true,
+          "stopped_early_at_eos": false
+        },
+        "50": {
+          "reference_text": "Hello! How can I assist you today?",
+          "reference_tokens": [
+            9707,
+            0,
+            2585,
+            646,
+            358,
+            7789,
+            498,
+            3351,
+            30,
+            151645
+          ],
+          "reference_content_tokens": [
+            9707,
+            0,
+            2585,
+            646,
+            358,
+            7789,
+            498,
+            3351,
+            30
+          ],
+          "camelid_text": "Hello! How can I assist you today?",
+          "camelid_content_tokens": [
+            9707,
+            0,
+            2585,
+            646,
+            358,
+            7789,
+            498,
+            3351,
+            30
+          ],
+          "text_match": true,
+          "token_match": true,
+          "stopped_early_at_eos": true
+        }
+      }
+    }
+  ]
+}

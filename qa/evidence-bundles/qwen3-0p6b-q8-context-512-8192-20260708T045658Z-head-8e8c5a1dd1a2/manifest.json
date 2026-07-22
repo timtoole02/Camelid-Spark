@@ -1,0 +1,88 @@
+{
+  "schema": "camelid.qwen3_0p6b_q8_context_sweep_public_evidence.v1",
+  "generated_utc": "2026-07-08T04:56:58.218Z",
+  "git_head": "8e8c5a1dd1a2",
+  "row_id": "qwen3_0_6b_instruct_q8_0",
+  "model": {
+    "filename": "Qwen3-0.6B-Q8_0.gguf",
+    "size_bytes": 639446688,
+    "sha256": "9465e63a22add5354d9bb4b99e90117043c7124007664907259bd16d043bb031",
+    "quantization": "Q8_0",
+    "architecture": "qwen3"
+  },
+  "comparator": "llama.cpp acd79d603 (Windows CPU-only build) /completion, greedy (temp 0/top_k 1/seed 0), -ngl 0 -ctk f32 -ctv f32 -fa off --no-repack -c 8704",
+  "camelid_backend": "q8_0 runtime, RTX 3060 Laptop 6 GiB: ALL five buckets fully GPU-resident — the 0.6B weights (639 MiB) leave a resident KV cap of 36297 positions covering every bucket. No CPU-fallback.",
+  "execution_note": "Single-model runs only: the llama.cpp oracle was captured alone and its server killed before camelid was started (engines never co-resident).",
+  "parity_semantics": "ENGINE-CORRECTNESS parity: camelid reproduces the pinned llama.cpp greedy output token-for-token at each promoted context length. The tiny 0.6B model degenerates into repetitive/hallucinated output at longer contexts (e.g. looping \"Answer:\\nCMLD-<n>\"); this bundle does NOT claim the 0.6B's generated TEXT is correct or useful — only that camelid's decode of this exact model matches the reference bit-for-bit.",
+  "resident_cap_positions": 36297,
+  "promoted_windows": [
+    512,
+    2048,
+    4096,
+    8192
+  ],
+  "sweep_all_pass": false,
+  "token_counts": [
+    50
+  ],
+  "buckets": [
+    {
+      "target_window": 512,
+      "actual_qwen3_tokens": 446,
+      "decode_path": "fully_gpu_resident",
+      "token_and_text_identical": true,
+      "promoted": true,
+      "note": "promoted: strict token+text identity"
+    },
+    {
+      "target_window": 1024,
+      "actual_qwen3_tokens": 968,
+      "decode_path": "fully_gpu_resident",
+      "token_and_text_identical": false,
+      "promoted": false,
+      "note": "NOT identical — benign greedy near-tie (see near_tie); not claimed"
+    },
+    {
+      "target_window": 2048,
+      "actual_qwen3_tokens": 2013,
+      "decode_path": "fully_gpu_resident",
+      "token_and_text_identical": true,
+      "promoted": true,
+      "note": "promoted: strict token+text identity"
+    },
+    {
+      "target_window": 4096,
+      "actual_qwen3_tokens": 4088,
+      "decode_path": "fully_gpu_resident",
+      "token_and_text_identical": true,
+      "promoted": true,
+      "note": "promoted: strict token+text identity"
+    },
+    {
+      "target_window": 8192,
+      "actual_qwen3_tokens": 8253,
+      "decode_path": "fully_gpu_resident",
+      "token_and_text_identical": true,
+      "promoted": true,
+      "note": "promoted: strict token+text identity"
+    }
+  ],
+  "near_tie": {
+    "bucket": 1024,
+    "divergent_generation_index": 12,
+    "oracle_pick": {
+      "token": 16141,
+      "piece": "Answer",
+      "logprob_in_camelid_dist": -1.5040334
+    },
+    "camelid_pick": {
+      "token": 785,
+      "piece": "The",
+      "logprob": -1.4014734
+    },
+    "gap_nats": 0.10256,
+    "description": "At generation index 12 (both engines already in a degenerate loop on this tiny model) camelid's top token is 'The' (logprob -1.40) and the oracle's is 'Answer' (-1.50) — a ~0.10-nat near-tie. A benign greedy coin-flip between two degenerate continuations, not a camelid decode error; but not token-identical, so 1024 is NOT promoted. Note the ADJACENT longer buckets 2048/4096/8192 ARE token-identical (camelid matches the oracle's degenerate output exactly there), so this is a single isolated near-tie, not a context-length failure.",
+    "logprobs_receipt": "near-tie-1024-logprobs.json"
+  },
+  "claim_boundary": "PROMOTED (non-contiguous): bounded 512/2048/4096/8192-context (446/2013/4088/8253 Qwen3 tokens) raw-decode greedy parity for the exact Qwen3-0.6B-Q8_0 row ONLY — camelid fully-GPU-resident CUDA decode is token-AND-text-identical to the pinned llama.cpp acd79d603 oracle at 50 generated tokens on these four buckets. NOT PROMOTED: the 1024 bucket, which diverges at a documented benign ~0.10-nat greedy near-tie (the two adjacent longer buckets pass, so it is an isolated flip, not a context failure). This is ENGINE-CORRECTNESS parity (camelid == reference), NOT a claim about the 0.6B's text quality (the tiny model degenerates at context). NOT claimed: the 1024 bucket, model-native/larger context beyond 8192, other Qwen3 sizes/quants, thinking-mode, or throughput."
+}

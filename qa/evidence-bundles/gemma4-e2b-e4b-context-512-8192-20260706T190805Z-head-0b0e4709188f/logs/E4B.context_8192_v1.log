@@ -1,0 +1,11 @@
+    Finished `release` profile [optimized] target(s) in 0.54s
+     Running tests\gemma4_generation_parity.rs (target\release\deps\gemma4_generation_parity-8072d6457aa9da4b.exe)
+
+running 1 test
+row gemma-4-E4B-it-Q8_0: 1 prompts, runtime = cpu
+test gemma4_greedy_generation_matches_llama_cpp_oracle has been running for over 60 seconds
+  recall-8192 OK (4 tokens): "8192"
+test gemma4_greedy_generation_matches_llama_cpp_oracle ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 4541.01s
+

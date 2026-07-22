@@ -1,0 +1,1 @@
+PASS (exit 0, 0 warnings) — cargo clippy -p camelid --lib --tests @ 510fa51 on Apple M4 (Darwin arm64)

@@ -1,0 +1,97 @@
+{
+  "schema": "camelid.qwen3.chatml-thinking-template-shapes.v1",
+  "pack_id": "qwen3-chatml-thinking-template-pack-v1",
+  "support_scope": "thinking_opt_in_leading_trace_only",
+  "description": "Qwen3 ChatML chat-template shape pack covering the opt-in thinking lane. For every supported envelope shape (optional LEADING system turn + alternating user/assistant turns) it byte-locks the camelid renderer output in BOTH modes: enable_thinking=false (the parity-locked thinking-DISABLED default — generation prompt carries the empty `<think>\\n\\n</think>\\n\\n` block) and enable_thinking=true (the opt-in thinking lane — a bare `<|im_start|>assistant\\n` generation turn, no pre-filled block, so the model emits its own `<think>…</think>`). The whole point of this pack is the enable_thinking=true rows: they are the one strong, bit-exact guarantee the opt-in thinking lane can carry.",
+  "what_this_locks": "render_qwen3_chatml_prompt(messages, enable_thinking) reproduces `rendered_prompt` byte-for-byte for every shape. This is a deterministic template-shape guarantee, independent of any model run.",
+  "what_this_does_NOT_claim": "Full-trace thinking-mode token parity. enable_thinking=true is supported only as a leading-trace lane (the first N generated tokens match the llama.cpp reference before a benign f32 near-tie; see the qwen3-*-q8-thinking-leadingtrace-* evidence bundles). The parity-locked exact-row support mode remains thinking-DISABLED. Out-of-envelope shapes (mid-conversation system turns, tools, multimodal parts) are NOT claimed.",
+  "reference": "camelid render_qwen3_chatml_prompt (src/api/mod.rs); the enable_thinking=true `rendered_prompt` strings were cross-checked byte-for-byte against llama.cpp b9430 (d48a56eff) `--jinja /apply-template` (GGUF-embedded ChatML template, add_generation_prompt=true, enable_thinking=true) for the supported single-/multi-turn envelope.",
+  "renderer": "render_qwen3_chatml_prompt(messages, enable_thinking)",
+  "shapes": [
+    {
+      "id": "user-only-thinking-disabled",
+      "enable_thinking": false,
+      "messages": [
+        { "role": "user", "content": "What is the capital of France?" }
+      ],
+      "rendered_prompt": "<|im_start|>user\nWhat is the capital of France?<|im_end|>\n<|im_start|>assistant\n<think>\n\n</think>\n\n"
+    },
+    {
+      "id": "user-only-thinking-enabled",
+      "enable_thinking": true,
+      "messages": [
+        { "role": "user", "content": "What is the capital of France?" }
+      ],
+      "rendered_prompt": "<|im_start|>user\nWhat is the capital of France?<|im_end|>\n<|im_start|>assistant\n"
+    },
+    {
+      "id": "system-user-thinking-disabled",
+      "enable_thinking": false,
+      "messages": [
+        { "role": "system", "content": "Be terse." },
+        { "role": "user", "content": "Hi" }
+      ],
+      "rendered_prompt": "<|im_start|>system\nBe terse.<|im_end|>\n<|im_start|>user\nHi<|im_end|>\n<|im_start|>assistant\n<think>\n\n</think>\n\n"
+    },
+    {
+      "id": "system-user-thinking-enabled",
+      "enable_thinking": true,
+      "messages": [
+        { "role": "system", "content": "Be terse." },
+        { "role": "user", "content": "Hi" }
+      ],
+      "rendered_prompt": "<|im_start|>system\nBe terse.<|im_end|>\n<|im_start|>user\nHi<|im_end|>\n<|im_start|>assistant\n"
+    },
+    {
+      "id": "multi-turn-thinking-disabled",
+      "enable_thinking": false,
+      "messages": [
+        { "role": "user", "content": "A" },
+        { "role": "assistant", "content": "B" },
+        { "role": "user", "content": "C" }
+      ],
+      "rendered_prompt": "<|im_start|>user\nA<|im_end|>\n<|im_start|>assistant\nB<|im_end|>\n<|im_start|>user\nC<|im_end|>\n<|im_start|>assistant\n<think>\n\n</think>\n\n"
+    },
+    {
+      "id": "multi-turn-thinking-enabled",
+      "enable_thinking": true,
+      "messages": [
+        { "role": "user", "content": "A" },
+        { "role": "assistant", "content": "B" },
+        { "role": "user", "content": "C" }
+      ],
+      "rendered_prompt": "<|im_start|>user\nA<|im_end|>\n<|im_start|>assistant\nB<|im_end|>\n<|im_start|>user\nC<|im_end|>\n<|im_start|>assistant\n"
+    },
+    {
+      "id": "system-multi-turn-thinking-disabled",
+      "enable_thinking": false,
+      "messages": [
+        { "role": "system", "content": "You answer in French." },
+        { "role": "user", "content": "Hello" },
+        { "role": "assistant", "content": "Bonjour" },
+        { "role": "user", "content": "How are you?" }
+      ],
+      "rendered_prompt": "<|im_start|>system\nYou answer in French.<|im_end|>\n<|im_start|>user\nHello<|im_end|>\n<|im_start|>assistant\nBonjour<|im_end|>\n<|im_start|>user\nHow are you?<|im_end|>\n<|im_start|>assistant\n<think>\n\n</think>\n\n"
+    },
+    {
+      "id": "system-multi-turn-thinking-enabled",
+      "enable_thinking": true,
+      "messages": [
+        { "role": "system", "content": "You answer in French." },
+        { "role": "user", "content": "Hello" },
+        { "role": "assistant", "content": "Bonjour" },
+        { "role": "user", "content": "How are you?" }
+      ],
+      "rendered_prompt": "<|im_start|>system\nYou answer in French.<|im_end|>\n<|im_start|>user\nHello<|im_end|>\n<|im_start|>assistant\nBonjour<|im_end|>\n<|im_start|>user\nHow are you?<|im_end|>\n<|im_start|>assistant\n"
+    },
+    {
+      "id": "prefill-assistant-no-genprompt-thinking-enabled",
+      "enable_thinking": true,
+      "messages": [
+        { "role": "user", "content": "hi" },
+        { "role": "assistant", "content": "hello" }
+      ],
+      "rendered_prompt": "<|im_start|>user\nhi<|im_end|>\n<|im_start|>assistant\nhello<|im_end|>\n"
+    }
+  ]
+}

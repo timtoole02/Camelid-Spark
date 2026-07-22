@@ -1,0 +1,36 @@
+{
+  "schema": "camelid.qwen3.gpu_resident_parity_bundle.v1",
+  "generated_utc": "2026-06-14T17:19:39Z",
+  "bundle_head": "f97a896399eb729812f83ec39ad5669632f99d68",
+  "row_id": "qwen3_1_7b_instruct_q8_0",
+  "display_name": "Qwen3 1.7B Instruct Q8_0 — GPU-resident path",
+  "exact_support_status": "gpu_resident_chatml_thinking_disabled_parity_proven",
+  "model": {
+    "id": "Qwen3 1.7B Instruct",
+    "source": "Qwen/Qwen3-1.7B-GGUF/Qwen3-1.7B-Q8_0.gguf",
+    "sha256": "061b54daade076b5d3362dac252678d17da8c68f07560be70818cace6590cb1a",
+    "arch": "qwen3",
+    "quant": "Q8_0",
+    "n_layer": 28, "n_head": 16, "n_head_kv": 8, "head_dim": 128,
+    "embedding_length": 2048, "context_length": 40960,
+    "tied_embeddings": true, "rope_freq_base": 1000000.0, "rms_norm_eps": 1e-06, "qk_norm": true
+  },
+  "comparator": {
+    "engine": "llama.cpp", "version": "1 (5d56eff)", "built": "2025-04-28",
+    "flags": "-ngl 0 -ctk f32 -ctv f32 -fa off --no-repack -c 16384",
+    "note": "pinned f32/no-flash-attn/no-repack reference; fed the identical rendered ChatML string via /completion"
+  },
+  "camelid": {
+    "backend": "metal_resident",
+    "decode_path": "ResidentDecodeState.forward_token (CAMELID_METAL_RESIDENT_DECODE=1)",
+    "prefill_path": "ResidentDecodeState.prefill_tokens (CAMELID_METAL_RESIDENT_PREFILL=1)",
+    "qk_norm_applied": "per-head RMSNorm on Q/K after projection, before RoPE (rms_norm_per_head_f32 kernel)",
+    "prefill_precision_note": "QK-norm forces the f32 activation path in prefill (mm/half/attn-as-mm lanes disabled) for numeric parity with cpu_reference; slower than the mm path but token-exact",
+    "single_shot_prefill_ceiling_tokens": 16384,
+    "kv_context_ceiling_tokens": 40960,
+    "chat_template": "hardcoded ChatML renderer, thinking disabled"
+  },
+  "mode": "chatml_thinking_disabled_greedy",
+  "all_pass": true,
+  "artifacts": ["qwen3-gpu-resident-parity.json"]
+}

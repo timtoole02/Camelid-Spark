@@ -1,0 +1,43 @@
+### GABBRO M1 ARM decode — nvfp4_* tests on Apple M4
+### host: Apple M4, macOS 26.5, arm64
+### worktree: <worktree> @ 510fa51
+### target: <target-dir>
+### start_utc: 20260718T183600Z
+========================================================
+   Compiling camelid v0.3.1 (<worktree>)
+   Compiling futures-sink v0.3.32
+   Compiling tokio-util v0.7.18
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 45.36s
+     Running tests/nvfp4_e4b_spotcheck.rs (<target-dir>/debug/deps/nvfp4_e4b_spotcheck-7ffcaf9b412ac823)
+
+running 1 test
+test produced_pilot_row_blocks_bit_exact_through_both_paths ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.15s
+
+     Running tests/nvfp4_format.rs (<target-dir>/debug/deps/nvfp4_format-aa0bcacf7347302e)
+
+running 9 tests
+test decode_nvfp4_tensor_refuses_non_multiple_of_64_elements ... ok
+test decode_nvfp4_tensor_refuses_nan_sentinel_scales_but_block_dequant_stays_pin_bitwise ... ok
+test nan_scale_scanner_ignores_qs_bytes_and_reports_first_block ... ok
+test decode_nvfp4_tensor_refuses_wrong_byte_length ... ok
+test decode_table_nibble_probes_lock_packing_order ... ok
+test decode_table_all_4096_scale_code_pairs_bit_exact ... ok
+test ue4m3_table_bit_exact_vs_pin ... ok
+test real_gguf_blocks_bit_exact_through_both_paths ... ok
+test random_blocks_bit_exact_through_both_paths ... ok
+
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.44s
+
+     Running tests/nvfp4_wire_lane_refusals.rs (<target-dir>/debug/deps/nvfp4_wire_lane_refusals-ecf37feb44ef2a48)
+
+running 3 tests
+test fixtures_are_byte_pinned ... ok
+test sidecar_fixture_trips_d_b2_end_to_end ... ok
+test nan_sentinel_fixture_trips_the_scan_seam ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+======== EXIT CODE: 0 ========
+### end_utc: 20260718T183647Z

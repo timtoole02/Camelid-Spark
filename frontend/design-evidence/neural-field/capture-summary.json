@@ -1,0 +1,47 @@
+{
+  "capturedAt": "2026-07-02T14:37:38.398Z",
+  "model": "tinyllama_tinyllama-1.1b-chat-v1.0",
+  "eventsSeen": [
+    "hello",
+    "inference_started",
+    "prefill_started",
+    "prefill_progress",
+    "decode_started",
+    "sampler_step",
+    "token_decoded",
+    "kv_cache_updated",
+    "inference_finished",
+    "inference_error",
+    "receipt_written"
+  ],
+  "perf": [
+    {
+      "dpr": "dpr1",
+      "httpStatus": 200,
+      "cadence": {
+        "frames": 57,
+        "avgMs": 16.63,
+        "p95Ms": 16.8
+      },
+      "drawCost": {
+        "frames": 57,
+        "avgMs": 1.63,
+        "p95Ms": 2.3
+      }
+    },
+    {
+      "dpr": "dpr2",
+      "httpStatus": 200,
+      "cadence": {
+        "frames": 69,
+        "avgMs": 16.87,
+        "p95Ms": 16.8
+      },
+      "drawCost": {
+        "frames": 69,
+        "avgMs": 1.8,
+        "p95Ms": 3.3
+      }
+    }
+  ]
+}

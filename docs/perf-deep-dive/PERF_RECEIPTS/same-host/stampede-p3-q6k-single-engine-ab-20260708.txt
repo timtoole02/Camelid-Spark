@@ -1,0 +1,5 @@
+single-engine-prefill-ab.mjs, camelid 001a2486+q6k-sibling(routing-fixed), 3B Q4_K_M, CUDA hidden, no concurrent llama-server:
+flag=off prefill tok/s: 13.62, 13.68, 13.81, 13.82 | median 13.74 | kquant_taken(last): 0
+flag=on  prefill tok/s: 23.76, 23.77, 23.81, 23.89 | median 23.79 | kquant_taken(last): 392
+flag=off prefill tok/s: 13.97, 14.04, 14.22, 14.39 | median 14.13 | kquant_taken(last): 0
+speedup on/off: 1.731x (drift check off2/off: 1.028x)

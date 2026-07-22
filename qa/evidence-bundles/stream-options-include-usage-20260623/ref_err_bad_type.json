@@ -1,0 +1,1 @@
+{"oracle":"llama-server acd79d6","request":{"stream":true,"stream_options":{"include_usage":"yes"}},"observed_http_status":200,"observed_body_is_error":false,"note":"streamed normally with NO terminal usage chunk (include_usage coerced to false)"}

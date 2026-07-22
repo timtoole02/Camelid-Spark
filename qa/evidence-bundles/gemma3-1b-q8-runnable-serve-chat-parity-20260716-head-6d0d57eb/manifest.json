@@ -1,0 +1,51 @@
+{
+ "schema": "camelid.evidence_bundle_manifest/v1",
+ "bundle": "gemma3-1b-q8-runnable-serve-chat-parity-20260716-head-6d0d57eb",
+ "row_id": "gemma_3_1b_it_q8_0",
+ "campaign": "MUSTER M-A1",
+ "date_utc": "2026-07-16",
+ "source_head": "6d0d57eb",
+ "model": {
+  "filename": "gemma-3-1b-it-Q8_0.gguf",
+  "sha256": "b205840c5dcef55078e37d344677869a714ffd42a4ae448c48dcfb52e4bb10d5",
+  "size_bytes": 1069306368,
+  "provenance": "ggml-org/gemma-3-1b-it-GGUF (upstream-verified exact, license gemma)"
+ },
+ "comparator": {
+  "name": "llama.cpp llama-server",
+  "version": "9632 (acd79d603)",
+  "binary_sha256": "6c787bf07ac1d7e1bbaa1ee176c3ef0df58ea86494c8c1b1d2d9f4a9176b19ae",
+  "backend": "CPU",
+  "flags": "-ngl 0 -ctk f32 -ctv f32 -fa off --no-repack -c 2048"
+ },
+ "camelid_lane": "runnable serve chat (CAMELID_RUNNABLE_SERVE=1), CPU, gemma3 marker renderer",
+ "verdict": "prompt tokens 5/5; 4/5 prompts all-depth identical; 1 flip documented with gap stated (0.3416 nat, oracle rank-2, controls stable) — see the Near-tie disclosure; determinism byte-identical x2; frontend expectation leg exit 0 (all four assertions)",
+ "deviations": "generation-timings helper of model-promotion-smoke-bundle fails on the runnable lane (no camelid.timings_ms — pre-existing lane gap); the four 7.1 expectations were asserted by running the frontend leg directly. Serve used CAMELID_SKIP_FIT_CHECK=1 for the smoke re-load. Host paths redacted to <repo>/<home>; *.log artifacts committed as .txt; the two ~10MB metadata dumps stay in the gitignored run dir.",
+ "files": {
+  "api-webui/capabilities.json": "07d8f4937abdf5763eea350bc28e09b0bdf594b25e4861d56856ff23c6d1c281",
+  "api-webui/chat.request.json": "e73947e4a8fadfc944fa0606adfc020d9a30b96fcc8a009d859b19589b4a1f63",
+  "api-webui/chat.response.json": "a021162b1736a0081cbb124885d9a5dd285f095d6e9c872caa594123145c9b77",
+  "api-webui/completion.request.json": "17f4212d5dcd29d66d1c6e9b444f4c519d077bcb43ed8c7d69a18f82d417170a",
+  "api-webui/completion.response.json": "b63600e257550a50e1beacb9f961c6dfe86397ba8ef77a12e522df28514fd5da",
+  "api-webui/generation-timings.command.txt": "51fcb73bf7d8ec423ef2412cea0f506e82288868806878c95764d5f84a26b49d",
+  "api-webui/generation-timings.run.json": "47dbfa855a87ae5821aca43f9c1ee679d5686b1c68f3e3fa4bb899761589f3f1",
+  "api-webui/generation-timings.stderr.txt": "325fbf8cc764b5782fa170675d2bfc664ffde18878ae6f4a101ee9133d9f41b0",
+  "api-webui/generation-timings.stdout.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "api-webui/health-before.json": "77529a8cd4850a3c1ac123861ede52e6c950aecae6216ecda4e09e31fb29c582",
+  "api-webui/load.request.json": "7fa622ae97c6a5b09e57b43917c0040db0dcf490030041a515da48075328b743",
+  "api-webui/summary.json": "ace338f2a49bde17bb197c891ce0624e79af4664579c7a2052c586fc77420c07",
+  "api-webui/v1-models.json": "1bcbd77e6815fedf4bbbd82eb6e1cafe9a74e1e009658e0198a70b0fbed1e02e",
+  "compare-stderr.txt": "88854610afe4681f0e46fa48652d5a110eb789600a88dcce35ad76993e69bc60",
+  "det-run1.json": "fbbc494e56adf1afcd7d33871f057b422f306d675b0ba9bc7702686bf5ab1a44",
+  "det-run2.json": "fbbc494e56adf1afcd7d33871f057b422f306d675b0ba9bc7702686bf5ab1a44",
+  "frontend-smoke.txt": "a6445502ebe4b94a6df474829b43cc797d6f53456ea7ab36301b6a531e60fe62",
+  "gemma3-oracle.json": "5c402824ea4dd2b0bab83c7909f324a0e12db755153c02180077e92eaeeb58e0",
+  "gemma3-parity.json": "b4477d881dc04098aba9ac35f636e0c82825c0bc291f6e029f65dde9b239475c",
+  "near-tie-analysis.json": "08b8d7b54861a0d9ae7e67e60cdb9e22913fad739d414d0ad467ae7087111a8a",
+  "probe-repack.json": "c7cc9ca01d991e860716aeea5b89c12732b49f58554f2b55c00871249c3b2d29",
+  "probe-t-default.json": "028485eea5c3fc437f2271d45501badc8af2b19e4d59841d8dd6d01b53f5c3f1",
+  "probe-t2.json": "bde852d7c7b5b59197672ad871fe5521a3b957f9ac1ac6d3f6f784632ec0d47b",
+  "probe-t4.json": "286fd07298f0112d300981eb1627298747058a9a5382f752b29b22408b74f505",
+  "README.md": "2049827b3c48d4a2ad94a8b918aaf924f825d46e13f288f374372452178ac048"
+ }
+}

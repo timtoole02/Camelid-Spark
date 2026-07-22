@@ -1,0 +1,142 @@
+# `camelid-desktop` (a Tauri v2 native Windows app) is an ADDITIVE workspace member.
+# resolver = "2" keeps this root package's feature resolution identical to the standalone
+# edition-2021 default it had before the workspace existed. default-members = ["."] scopes
+# bare `cargo build`/`cargo test` to the `camelid` server exactly as before — the desktop
+# app is built explicitly with `-p camelid-desktop`. CI builds the server with
+# `--bin camelid`, which never pulls the desktop member into its graph, so the shipped
+# server binary stays byte-for-byte unaffected. See DECISIONS.md D11.
+[workspace]
+members = ["camelid-desktop"]
+default-members = ["."]
+resolver = "2"
+
+[package]
+name = "camelid"
+version = "0.3.1"
+edition = "2021"
+rust-version = "1.89"
+description = "Camelid: a Rust-native local GGUF inference backend with evidence-gated model compatibility"
+license = "MIT"
+repository = "https://github.com/timtoole02/Camelid"
+readme = "README.md"
+keywords = ["gguf", "llm", "inference", "rust", "openai-compatible"]
+categories = ["api-bindings", "command-line-utilities"]
+
+[dependencies]
+anyhow = "1"
+async-stream = "0.3"
+axum = "0.7"
+clap = { version = "4.5", features = ["derive", "env"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+sha2 = "0.10"
+minijinja = { version = "2", features = ["json"] }
+rust-embed = { version = "8", features = ["mime-guess"] }
+libc = "0.2"
+rayon = "1"
+ratatui = "0.29"
+rustyline = "14"
+thiserror = "1"
+tokio = { version = "1", features = ["macros", "rt-multi-thread", "net", "signal"] }
+# CancellationToken for the generation paths: guard/compute lifetime equivalence
+# (see docs/recon/ENGINE_INVERSION_CONDUCTOR.md). sync-only, no extra features.
+tokio-util = "0.7"
+tower-http = { version = "0.5", features = ["trace", "cors"] }
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter", "fmt"] }
+uuid = { version = "1", features = ["v4", "serde"] }
+
+[target.'cfg(target_os = "macos")'.dependencies]
+metal = "0.31"
+
+[target.'cfg(windows)'.dependencies]
+# Read-only file mapping for the GGUF wire path. The Unix path uses raw libc
+# mmap; Windows uses memmap2 (CreateFileMapping/MapViewOfFile under the hood).
+memmap2 = "0.9"
+# GetSystemInfo (page size) and GetProcessMemoryInfo (peak working set).
+windows-sys = { version = "0.59", features = [
+    "Win32_Foundation",
+    "Win32_Security",
+    "Win32_Storage_FileSystem",
+    "Win32_System_SystemInformation",
+    "Win32_System_Threading",
+    "Win32_System_ProcessStatus",
+    "Win32_System_Power",
+    "Win32_System_Registry",
+    # Kill-on-close Job Objects for process-tree teardown of agent-spawned
+    # PowerShell (and, later, subagent) processes — see src/chat/win_job.rs.
+    "Win32_System_JobObjects",
+    # Enable ANSI escape processing + a UTF-8 code page for the inline/agent line
+    # renderers so colors and glyphs render like macOS/Linux — see
+    # src/chat/win_console.rs.
+    "Win32_System_Console",
+    # GUI control (computer-control agent): synthesize keyboard/mouse input via
+    # SendInput, position the cursor, and read screen metrics — see
+    # src/chat/win_input.rs.
+    "Win32_UI_Input_KeyboardAndMouse",
+    "Win32_UI_WindowsAndMessaging",
+] }
+# Windows: CUDA is part of the DEFAULT build (the primary dev host is a CUDA box).
+# cudarc is non-optional here and `build.rs` turns on the `cuda` cfg, so a bare
+# `cargo build` includes the GPU backend with no `--features` flag. Driver/NVRTC are
+# loaded dynamically at runtime (no CUDA SDK needed to build; no-ops without a GPU).
+cudarc = { version = "0.19", default-features = false, features = [
+    "std",
+    "driver",
+    "nvrtc",
+    "cuda-12090",
+    "fallback-dynamic-loading",
+] }
+
+# Linux (non-macOS unix): CUDA is OPT-IN via `--features cuda` (CI uses
+# `--all-features`). macOS has no cudarc — its GPU lane is Metal.
+[target.'cfg(all(not(target_os = "macos"), not(windows)))'.dependencies]
+cudarc = { version = "0.19", default-features = false, features = [
+    "std",
+    "driver",
+    "nvrtc",
+    "cuda-12090",
+    "fallback-dynamic-loading",
+], optional = true }
+
+[features]
+# CUDA builds by DEFAULT on Windows only: `build.rs` enables the `cuda` cfg there and
+# the Windows cudarc above is always linked, so no `--features` flag is needed. On
+# Linux it is opt-in via `--features cuda` (or `--all-features`); macOS never has it.
+# The CPU path remains the parity reference everywhere.
+default = []
+cuda = ["dep:cudarc"]
+# Decode zero-alloc gate (Lane B step 6): installs a counting global allocator
+# and enables the hidden `bench-alloc-gate` subcommand. Measurement-only build;
+# never enabled in shipped binaries (the default allocator stays untouched).
+alloc-gate = []
+
+[dev-dependencies]
+tower = { version = "0.5", features = ["util"] }
+tempfile = "3"
+
+[lints.rust]
+# The objc crate's msg_send!/sel_impl! macros (used for Metal command-buffer GPU
+# timestamps) internally probe the legacy `feature = "cargo-clippy"` cfg; register it so
+# check-cfg does not error under -D warnings.
+unexpected_cfgs = { level = "warn", check-cfg = ['cfg(feature, values("cargo-clippy"))'] }
+
+# Phase 1 build flags (CPU perf mission). Fat LTO + a single codegen unit let the
+# optimizer inline and vectorize the hot Q8_0 matvec/dequant loops across module
+# boundaries. opt-level 3 is already the release default. No fast-math is enabled,
+# so f32 reduction order — and therefore token output — stays bit-identical.
+[profile.release]
+lto = "fat"
+codegen-units = 1
+
+[lib]
+name = "camelid"
+path = "src/lib.rs"
+
+[[bin]]
+name = "camelid"
+path = "src/main.rs"
+
+[[bin]]
+name = "repack-ghost"
+path = "tools/repack_ghost.rs"

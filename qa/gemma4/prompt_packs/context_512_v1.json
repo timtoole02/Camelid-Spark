@@ -1,0 +1,16 @@
+{
+ "schema": "camelid.gemma4.prompt-pack.v1",
+ "pack_id": "gemma4-context-512-v1",
+ "description": "Bounded 512-token context recall bucket: synthetic numbered facts with one embedded audit code at ~60% depth; greedy completion must recall it. Prompt sized by reference tokenization (BOS + plain text).",
+ "decode": "greedy",
+ "target_context_window": 512,
+ "reference_prompt_token_count": 440,
+ "expected_code": "CMLD-512",
+ "prompts": [
+  {
+   "id": "recall-512",
+   "text": "Context block start. Fact 01: llama records deterministic tokens. Fact 02: vicuna checks bounded context. Fact 03: guanaco preserves exact rows. Fact 04: camel audits public summaries. Fact 05: dromedary matches clean checkouts. Fact 06: tapir verifies wire checksums. Fact 07: capybara stores layer plans. Fact 08: ibex tracks greedy parity. Fact 09: markhor guards pinned oracles. Fact 10: saiga keeps blue evidence. Fact 11: chamois records deterministic tokens. Fact 12: serow checks bounded context. Fact 13: goral preserves exact rows. Fact 14: takin audits public summaries. Fact 15: argali matches clean checkouts. Fact 16: urial verifies wire checksums. Fact 17: mouflon stores layer plans. Fact 18: addax tracks greedy parity. Fact 19: oryx guards pinned oracles. Fact 20: the audit code is CMLD-512. Fact 21: llama records deterministic tokens. Fact 22: vicuna checks bounded context. Fact 23: guanaco preserves exact rows. Fact 24: camel audits public summaries. Fact 25: dromedary matches clean checkouts. Fact 26: tapir verifies wire checksums. Fact 27: capybara stores layer plans. Fact 28: ibex tracks greedy parity. Fact 29: markhor guards pinned oracles. Fact 30: saiga keeps blue evidence. Fact 31: chamois records deterministic tokens. Fact 32: serow checks bounded context. Fact 33: goral preserves exact rows. Fact 34: takin audits public summaries. Context block end. The audit code hidden in fact 20 is the answer. Question: respond with ONLY the audit code from fact 20, formatted as CMLD-<number>. Answer: CMLD-",
+   "max_new_tokens": 8
+  }
+ ]
+}

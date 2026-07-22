@@ -1,0 +1,31 @@
+{
+  "cases": [
+    {
+      "case": "read_and_count",
+      "final_answer": "The file `notes.txt` has **3 lines**:\n1. `alpha`\n2. `beta`\n3. `gamma`",
+      "goal": "Read the file notes.txt and tell me how many lines it has. Use the read_file tool, then give the count.",
+      "loop_end": "Answered",
+      "passed": true,
+      "tool_calls": [
+        "read_file(notes.txt)"
+      ],
+      "tool_results": [
+        {
+          "ok": true,
+          "output": "alpha\nbeta\ngamma\n",
+          "tool": "read_file"
+        }
+      ]
+    }
+  ],
+  "gguf": "<home>\\Camelid\\models\\ornith-1.0-9b-Q8_0.gguf",
+  "gguf_bytes": 9527500992,
+  "host_loadavg_1m": null,
+  "model_id": "Ornith 1.0 9B",
+  "note": "battery complete",
+  "outcome": "PASS",
+  "promotion_eligible": true,
+  "quantization": "Q8_0",
+  "schema": "camelid.agent_eval/v1",
+  "timestamp_unix": 1782768506
+}

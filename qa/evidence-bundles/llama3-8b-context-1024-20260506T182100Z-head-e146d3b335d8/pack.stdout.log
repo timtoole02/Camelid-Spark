@@ -1,0 +1,9 @@
+pack=${CAMELID_CHECKOUT}/qa/prompt-packs/llama3-context-1024-smoke.json
+out_dir=${CAMELID_RUN_ROOT}/llama3-8b-context-1024-proof-20260506T182100Z-head-e146d3b335d8/pack
+model=${CAMELID_MODEL_DIR}/Meta-Llama-3-8B-Instruct-Q8_0.gguf
+model_id=meta-llama3-8b-q8
+prompt_count=1
+prompt_tokens_all_match=true
+generated_tokens_all_match=true
+generated_text_all_match=true
+summary_json=${CAMELID_RUN_ROOT}/llama3-8b-context-1024-proof-20260506T182100Z-head-e146d3b335d8/pack/summary.json

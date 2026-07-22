@@ -1,0 +1,43 @@
+{
+  "bin": "<scratch>/camelid-baseline-ffada00f.exe",
+  "model": "<home>/models/tinyllama-1.1b-chat-v1.0.Q8_0.gguf",
+  "pid": 5780,
+  "duration_s": 60,
+  "workers": 6,
+  "ok_nonstream": 57,
+  "ok_stream": 61,
+  "aborted_by_client": 69,
+  "queue_full_503": 0,
+  "other_5xx": 0,
+  "garbled": 0,
+  "mismatches": [],
+  "rss_mb": [
+    1371,
+    1371,
+    1385,
+    1376,
+    1375,
+    1376,
+    1376,
+    1376,
+    1376,
+    1376,
+    1375,
+    1377
+  ],
+  "ttft_under_load_ms": [
+    1706.1995,
+    2345.5339,
+    2760.3154,
+    2451.0664,
+    2722.2111,
+    2892.371,
+    3145.1678,
+    3685.9837,
+    4221.571,
+    3418.71,
+    4045.044
+  ],
+  "panics": 0,
+  "stderr_panic_lines": []
+}

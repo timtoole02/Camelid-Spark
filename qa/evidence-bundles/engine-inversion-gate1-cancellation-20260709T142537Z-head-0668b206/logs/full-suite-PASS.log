@@ -1,0 +1,15 @@
+test tokenizer::tests::qwen35_pretokenizer_folds_combining_marks_into_letter_runs ... ok
+test tensor::wire_dequant::tests::unsupported_format_fails_closed ... ok
+test web_ui::tests::root_serves_the_app_shell ... ok
+test wire_mmap::tests::rejects_range_larger_than_max_window ... ok
+test wire_mmap::tests::wire_pages_are_page_aligned_and_match_file_bytes ... ok
+test tokenizer::tests::llama3_bpe_signature_matches_only_the_llama3_vocab ... ok
+test wire_mmap::tests::window_plan_covers_ranges_without_straddles ... ok
+test wire_mmap::tests::window_plan_splits_when_exceeding_max_window ... ok
+test wire_mmap::tests::maps_and_reads_exact_file_bytes ... ok
+test web_ui::tests::missing_static_file_is_not_masked ... ok
+test inference::tests::kv_head_major_layout_is_bitwise_identical_to_position_major ... ok
+test inference::tests::decode_attention_parallel_lane_is_bitwise_identical_to_serial ... ok
+
+test result: ok. 675 passed; 0 failed; 55 ignored; 0 measured; 0 filtered out; finished in 160.02s
+

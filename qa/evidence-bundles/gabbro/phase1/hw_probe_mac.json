@@ -1,0 +1,9 @@
+{
+  "chip": "Apple M4",
+  "cpu": { "logical": 10, "perf_cores": 4, "eff_cores": 6 },
+  "unified_memory_bytes": 17179869184,
+  "unified_memory_usable_bytes": 16632037376,
+  "os": { "product": "macOS", "version": "26.5", "build": "25F5058e" },
+  "toolchain": { "xcode_app": false, "apple_clang": "17.0.0 (clang-1700.4.4.1)", "sdk": "CommandLineTools MacOSX.sdk", "rustc": "rustc 1.95.0 (59807616e 2026-04-14) (Homebrew)" },
+  "worktree_head": "510fa511633c7904b4841a1b5ce3486fc3bed351"
+}

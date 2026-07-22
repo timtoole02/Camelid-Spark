@@ -1,0 +1,33 @@
+{
+  "note": "per-token GPU weight READ set; actual GGUF tensor n_bytes (raw wire = uploaded byte count). KV/scratch/ctx excluded.",
+  "nvfp4mm": {
+    "label": "NVFP4-mm CUDA-resident",
+    "matmul_bytes": 2219212800,
+    "head_bytes": 713031680,
+    "ple_bytes": 55050240,
+    "small_proj_bytes": 58490880,
+    "norm_bytes": 2263208,
+    "per_token_read_bytes": 3048048808,
+    "per_token_read_GB": 3.048,
+    "per_token_read_GiB": 2.8387,
+    "excluded_per_layer_token_embd_bytes": 2994733056,
+    "other_bytes": 0,
+    "other": []
+  },
+  "q8_0": {
+    "label": "Q8_0 CUDA-resident",
+    "matmul_bytes": 4191846400,
+    "head_bytes": 713031680,
+    "ple_bytes": 55050240,
+    "small_proj_bytes": 220200960,
+    "norm_bytes": 2263208,
+    "per_token_read_bytes": 5182392488,
+    "per_token_read_GB": 5.1824,
+    "per_token_read_GiB": 4.8265,
+    "excluded_per_layer_token_embd_bytes": 2994733056,
+    "other_bytes": 0,
+    "other": []
+  },
+  "per_token_byte_reduction_q8_over_nvfp4": 1.7002,
+  "matmul_only_shrink_q8_over_nvfp4": 1.8889
+}

@@ -1,0 +1,267 @@
+{
+  "mode": "pc1",
+  "pin_sm": 0,
+  "ts": null,
+  "points": {
+    "n64": {
+      "label": "P1 n=64",
+      "n_runs": 3,
+      "n_flagged": 0,
+      "tok_s_p50": 130.60367506303183,
+      "tok_s_p99": 131.11042202988068,
+      "tok_s_min": 128.88097964273783,
+      "tok_s_max": 131.11042202988068,
+      "ms_per_tok_p50": 7.537115625,
+      "var_band_pct": 1.7070288305952201,
+      "sm_clocks": [
+        1635,
+        1755,
+        1627
+      ],
+      "temps": [
+        62,
+        61,
+        63
+      ],
+      "raw": [
+        {
+          "tok_s": 131.11042202988068,
+          "decode_ms": 480.511,
+          "gen": 64,
+          "prompt_tokens": 2,
+          "prefill_ms": 58.458,
+          "ttft_ms": 69.2849,
+          "ms_per_tok": 7.507984375,
+          "sm": 1635,
+          "mem": 6000,
+          "temp": 62,
+          "throttle": "0x0000000000000004",
+          "flagged": false
+        },
+        {
+          "tok_s": 128.88097964273783,
+          "decode_ms": 488.8231,
+          "gen": 64,
+          "prompt_tokens": 2,
+          "prefill_ms": 57.495,
+          "ttft_ms": 68.6807,
+          "ms_per_tok": 7.6378609375,
+          "sm": 1755,
+          "mem": 6000,
+          "temp": 61,
+          "throttle": "0x0000000000000000",
+          "flagged": false
+        },
+        {
+          "tok_s": 130.60367506303183,
+          "decode_ms": 482.3754,
+          "gen": 64,
+          "prompt_tokens": 2,
+          "prefill_ms": 54.753,
+          "ttft_ms": 66.1984,
+          "ms_per_tok": 7.537115625,
+          "sm": 1627,
+          "mem": 6000,
+          "temp": 63,
+          "throttle": "0x0000000000000004",
+          "flagged": false
+        }
+      ]
+    },
+    "n256": {
+      "label": "P1 n=256",
+      "n_runs": 3,
+      "n_flagged": 0,
+      "tok_s_p50": 127.05329332599513,
+      "tok_s_p99": 127.15564978481774,
+      "tok_s_min": 127.02590122884358,
+      "tok_s_max": 127.15564978481774,
+      "ms_per_tok_p50": 7.83996796875,
+      "var_band_pct": 0.10212136386047828,
+      "sm_clocks": [
+        1755,
+        1552,
+        1537
+      ],
+      "temps": [
+        64,
+        66,
+        66
+      ],
+      "raw": [
+        {
+          "tok_s": 127.05329332599513,
+          "decode_ms": 2007.0318,
+          "gen": 256,
+          "prompt_tokens": 2,
+          "prefill_ms": 60.578,
+          "ttft_ms": 71.17370000000001,
+          "ms_per_tok": 7.83996796875,
+          "sm": 1755,
+          "mem": 6000,
+          "temp": 64,
+          "throttle": "0x0000000000000000",
+          "flagged": false
+        },
+        {
+          "tok_s": 127.15564978481774,
+          "decode_ms": 2005.4162,
+          "gen": 256,
+          "prompt_tokens": 2,
+          "prefill_ms": 56.613,
+          "ttft_ms": 67.22970000000001,
+          "ms_per_tok": 7.83365703125,
+          "sm": 1552,
+          "mem": 6000,
+          "temp": 66,
+          "throttle": "0x0000000000000004",
+          "flagged": false
+        },
+        {
+          "tok_s": 127.02590122884358,
+          "decode_ms": 2007.4646,
+          "gen": 256,
+          "prompt_tokens": 2,
+          "prefill_ms": 57.369,
+          "ttft_ms": 74.436,
+          "ms_per_tok": 7.84165859375,
+          "sm": 1537,
+          "mem": 6000,
+          "temp": 66,
+          "throttle": "0x0000000000000004",
+          "flagged": false
+        }
+      ]
+    },
+    "n1024": {
+      "label": "P1 n=1024",
+      "n_runs": 3,
+      "n_flagged": 0,
+      "tok_s_p50": 124.7088939092591,
+      "tok_s_p99": 124.99608867560657,
+      "tok_s_min": 124.56663034532052,
+      "tok_s_max": 124.99608867560657,
+      "ms_per_tok_p50": 8.000933849557521,
+      "var_band_pct": 0.3443686467129893,
+      "sm_clocks": [
+        1747,
+        1747,
+        1612
+      ],
+      "temps": [
+        66,
+        69,
+        70
+      ],
+      "raw": [
+        {
+          "tok_s": 124.99608867560657,
+          "decode_ms": 3608.1129,
+          "gen": 452,
+          "prompt_tokens": 2,
+          "prefill_ms": 57.573,
+          "ttft_ms": 68.3607,
+          "ms_per_tok": 7.982550663716815,
+          "sm": 1747,
+          "mem": 6000,
+          "temp": 66,
+          "throttle": "0x0000000000000000",
+          "flagged": false
+        },
+        {
+          "tok_s": 124.7088939092591,
+          "decode_ms": 3616.4221,
+          "gen": 452,
+          "prompt_tokens": 2,
+          "prefill_ms": 58.367,
+          "ttft_ms": 69.7654,
+          "ms_per_tok": 8.000933849557521,
+          "sm": 1747,
+          "mem": 6000,
+          "temp": 69,
+          "throttle": "0x0000000000000000",
+          "flagged": false
+        },
+        {
+          "tok_s": 124.56663034532052,
+          "decode_ms": 3620.5523,
+          "gen": 452,
+          "prompt_tokens": 2,
+          "prefill_ms": 54.418,
+          "ttft_ms": 71.0704,
+          "ms_per_tok": 8.010071460176992,
+          "sm": 1612,
+          "mem": 6000,
+          "temp": 70,
+          "throttle": "0x0000000000000004",
+          "flagged": false
+        }
+      ]
+    },
+    "n2048": {
+      "label": "P1 n=2048",
+      "n_runs": 3,
+      "n_flagged": 0,
+      "tok_s_p50": 124.55130461553995,
+      "tok_s_p99": 124.65310299024553,
+      "tok_s_min": 124.44654400082119,
+      "tok_s_max": 124.65310299024553,
+      "ms_per_tok_p50": 8.011057079646019,
+      "var_band_pct": 0.16584249363098644,
+      "sm_clocks": [
+        1747,
+        1747,
+        1747
+      ],
+      "temps": [
+        69,
+        69,
+        69
+      ],
+      "raw": [
+        {
+          "tok_s": 124.55130461553995,
+          "decode_ms": 3620.9978,
+          "gen": 452,
+          "prompt_tokens": 2,
+          "prefill_ms": 59.368,
+          "ttft_ms": 70.1923,
+          "ms_per_tok": 8.011057079646019,
+          "sm": 1747,
+          "mem": 6000,
+          "temp": 69,
+          "throttle": "0x0000000000000000",
+          "flagged": false
+        },
+        {
+          "tok_s": 124.65310299024553,
+          "decode_ms": 3618.0407,
+          "gen": 452,
+          "prompt_tokens": 2,
+          "prefill_ms": 57.398,
+          "ttft_ms": 68.7209,
+          "ms_per_tok": 8.004514823008849,
+          "sm": 1747,
+          "mem": 6000,
+          "temp": 69,
+          "throttle": "0x0000000000000000",
+          "flagged": false
+        },
+        {
+          "tok_s": 124.44654400082119,
+          "decode_ms": 3624.046,
+          "gen": 452,
+          "prompt_tokens": 2,
+          "prefill_ms": 61.661,
+          "ttft_ms": 72.4837,
+          "ms_per_tok": 8.017800884955752,
+          "sm": 1747,
+          "mem": 6000,
+          "temp": 69,
+          "throttle": "0x0000000000000000",
+          "flagged": false
+        }
+      ]
+    }
+  }
+}

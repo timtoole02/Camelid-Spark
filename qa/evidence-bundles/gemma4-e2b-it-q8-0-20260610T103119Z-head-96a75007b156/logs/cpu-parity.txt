@@ -1,0 +1,24 @@
+warning: function `f32_to_f16_bits` is never used
+    --> src/tensor/mod.rs:3476:15
+     |
+3476 | pub(crate) fn f32_to_f16_bits(value: f32) -> u16 {
+     |               ^^^^^^^^^^^^^^^
+     |
+     = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: `camelid` (lib) generated 1 warning
+    Finished `release` profile [optimized] target(s) in 1.27s
+     Running tests/gemma4_generation_parity.rs (<local>/gemma4_generation_parity-5826e75deca140ca)
+
+running 1 test
+row gemma-4-E2B-it-Q8_0: 5 prompts, runtime = cpu
+test gemma4_greedy_generation_matches_llama_cpp_oracle has been running for over 60 seconds
+  capital-france OK (2 tokens): " Paris."
+  count-primes OK (17 tokens): " 2, 3, 5, 7, and 11."
+  haiku-sea OK (18 tokens): "Blue waves crash on sand,\nSalt spray kisses salty air,\nOcean whispers deep."
+  rust-fn OK (24 tokens): "\n    a + b\n}\n\nfn main() {\n    let sum = add(5, 3);"
+  translate-de OK (2 tokens): " guten morgen"
+test gemma4_greedy_generation_matches_llama_cpp_oracle ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 138.06s
+

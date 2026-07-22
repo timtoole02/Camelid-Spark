@@ -1,0 +1,31 @@
+{
+  "schema": "camelid.capability-receipt/v1",
+  "capability_id": "tools.function_calling",
+  "capability": "native tool/function calling — REQUIRES tool-call branch or tool/ipython control tokens in THIS model template",
+  "row": "llama-3.2-3b-instruct-q8_0",
+  "model_label": "Llama 3.2 3B Instruct Q8_0",
+  "oracle_class": "B",
+  "verdict": "validated",
+  "generated": "2026-06-26",
+  "platform": {
+    "os": "macos",
+    "target": "aarch64-apple-darwin",
+    "backend": "metal",
+    "oracle": "llama.cpp 9632 (acd79d603, Metal, Apple M4)"
+  },
+  "gguf": {
+    "filename": "Llama-3.2-3B-Instruct-Q8_0.gguf",
+    "sha256": "b5607b5090a8280063fff2d706bb3408ca6542341b06aab39c3eca0a28575921"
+  },
+  "harness": {
+    "repo_head": "e1458a9ba2fdf5dbf3c1b3bcdd8f170aff8e9b86",
+    "branch": "win2metal/phase2-capability",
+    "working_tree": "WIN2METAL Phase 2 (Bucket A) validation on Apple M4 16GB. Binary is the FROZEN base build /Volumes/Untitled/camelid-base-28f224b (camelid v0.1.7-92-g28f224b, commit 28f224b); no src changes in this branch. Outputs salvaged under qa/capability/mac_*_out/<row>/.",
+    "binary": "/Volumes/Untitled/camelid-base-28f224b (camelid v0.1.7-92-g28f224b)",
+    "e2e_harness": "qa/capability/* Metal harness; outputs under qa/capability/mac_*_out/llama-3.2-3b"
+  },
+  "evidence": {
+    "kind": "behavioral_battery",
+    "summary": "e2e behavioral battery on Metal (qa/capability/tools_smoke.sh, Apple M4): tools rendered into the model template on input, output parsed back to OpenAI tool_calls — 3/3 triggering prompts produced finish_reason=\"tool_calls\" with structurally-valid calls (function name + JSON-string arguments, content emptied); tool_choice:\"none\" suppresses parsing (content retained, finish_reason \"stop\"). 3B arguments are semantically correct (get_weather -> {\"city\":\"Paris\"}/{\"city\":\"Tokyo\"}, add -> {\"a\":17,\"b\":25}). Capability template-expressed and driven on the Metal backend. Evidence: qa/capability/mac_tools_out/llama-3.2-3b/p1.json, p2.json, p3.json, none.json."
+  }
+}

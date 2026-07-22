@@ -1,0 +1,61 @@
+{
+  "schema": "camelid.qwen3.chatml_parity_bundle.windows.v1",
+  "generated_utc": "20260616T155745Z",
+  "row_id": "qwen3_0_6b_instruct_q8_0",
+  "display_name": "Qwen3 0.6B Instruct Q8_0",
+  "platform": {
+    "operating_system": "windows",
+    "architecture": "x86_64",
+    "toolchain": "x86_64-pc-windows-msvc (rustc 1.95.0)",
+    "host_ram_gb": 15.7
+  },
+  "exact_support_status": "windows_x86_64_chatml_thinking_disabled_chat_parity_proven",
+  "source_runtime_head": "fdae7a233c92ef909234bacc156509d6d183c677",
+  "clean_checkout": false,
+  "checkout_note": "Generated at HEAD fdae7a23 with uncommitted local Qwen3-Windows-support changes: src/execution_plan.rs (qwen3 rows -> supported_exact_row_smoke_chatml + x86_q8 plan), scripts/chat-parity-qwen3.mjs (label args), scripts/chat-parity-qwen3-twophase.mjs (new). Re-seal from a clean commit to claim clean-checkout state.",
+  "model": {
+    "id": "Qwen3 0.6B Instruct",
+    "source": "Qwen/Qwen3-0.6B-GGUF/Qwen3-0.6B-Q8_0.gguf",
+    "sha256": "9465e63a22add5354d9bb4b99e90117043c7124007664907259bd16d043bb031",
+    "arch": "qwen3",
+    "quant": "Q8_0",
+    "geometry": "n_layer 28, n_head 16, n_head_kv 8, embedding 1024, head_dim 128 (EXPLICIT: 128 != 1024/16=64; from attention.key_length), tied embeddings, qk_norm, rope_freq_base 1e6"
+  },
+  "comparator": {
+    "engine": "llama.cpp",
+    "version": "9632 (acd79d603)",
+    "built_with": "Clang 20.1.8 for Windows x86_64",
+    "flags": "-ngl 0 -ctk f32 -ctv f32 -fa off --no-repack",
+    "note": "On-disk Windows comparator. NOTE: differs from the 5d56eff pinned in the macOS/Ubuntu Qwen3 bundles; recorded here as the Windows platform comparator, not as bit-exact continuity with those bundles."
+  },
+  "camelid": {
+    "backend": "cpu_q8_runtime_repack",
+    "q8_path": "x86_experimental_q8_0_avx2_rust",
+    "support_level": "supported_exact_row_smoke_chatml",
+    "thread_count": 16,
+    "server_rss_mb_after_generation": null,
+    "rss_note": "not separately sampled on Windows (smallest row; <1 GiB)",
+    "dual_path_note": "Token+text parity verified on BOTH the x86_q8 AVX2 runtime-repack path (production/default for this supported row) AND the cpu_reference scalar path (the AVX2 path is bit-identical to scalar)."
+  },
+  "mode": "chatml_thinking_disabled_greedy",
+  "prompt_pack": "default 3 (capital-of-France, primary-color, say-hello)",
+  "token_counts": [
+    1,
+    5,
+    50
+  ],
+  "all_pass": true,
+  "api_smoke": {
+    "models_load": "PASS (serve --model startup load; /v1/models lists the row)",
+    "v1_completions": "PASS (greedy completion coherent)",
+    "v1_chat_completions": "PASS (exercised by the parity harness)",
+    "api_capabilities": "PASS (captured in capabilities.json; execution_plan.support_level=supported_exact_row_smoke_chatml)",
+    "frontend_webui_smoke": "NOT RUN on Windows (follow-up); parity + API/capabilities only",
+    "generation_ready": true
+  },
+  "claim_boundary": "Supported exact-row smoke for this exact Qwen3 Q8_0 GGUF on Windows x86_64 (MSVC), ChatML chat with thinking DISABLED, short-chat envelope. Token+text identical to the recorded llama.cpp comparator at 1/5/50 on the listed prompts, on the x86_q8 AVX2 path and the cpu_reference path. NOT claimed: other Qwen3 sizes/variants/quants, base variants, Qwen3-MoE (A3B), longer/model-native context, thinking-mode, WebUI smoke on Windows, production throughput, or broad Qwen-family support.",
+  "artifacts": [
+    "qwen3-0.6b-windows-chatml-parity.json",
+    "capabilities.json"
+  ]
+}

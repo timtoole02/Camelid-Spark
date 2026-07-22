@@ -1,0 +1,4 @@
+﻿# 16K residency measurements 2026-07-02T14:22:57.1562968-07:00
+== IQ3_XXS ==
+peak_vram_mib=4158 headroom_vs_6144=1986 exit=
+== Q3_K_M ==

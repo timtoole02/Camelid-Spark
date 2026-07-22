@@ -1,0 +1,31 @@
+{
+  "schema": "camelid.capability-receipt/v1",
+  "capability_id": "context.rope_scaling",
+  "capability": "RoPE scaling/extension — REQUIRES a rope scaling type/factor declared in metadata",
+  "row": "llama-3.2-3b-instruct-q8_0",
+  "model_label": "Llama 3.2 3B Instruct Q8_0",
+  "oracle_class": "D",
+  "verdict": "validated",
+  "generated": "2026-06-26",
+  "platform": {
+    "os": "macos",
+    "target": "aarch64-apple-darwin",
+    "backend": "metal",
+    "oracle": "llama.cpp 9632 (acd79d603, Metal, Apple M4)"
+  },
+  "gguf": {
+    "filename": "Llama-3.2-3B-Instruct-Q8_0.gguf",
+    "sha256": "b5607b5090a8280063fff2d706bb3408ca6542341b06aab39c3eca0a28575921"
+  },
+  "harness": {
+    "repo_head": "e1458a9ba2fdf5dbf3c1b3bcdd8f170aff8e9b86",
+    "branch": "win2metal/phase2-capability",
+    "working_tree": "WIN2METAL Phase 2 (Bucket A) validation on Apple M4 16GB. Binary is the FROZEN base build /Volumes/Untitled/camelid-base-28f224b (camelid v0.1.7-92-g28f224b, commit 28f224b); no src changes in this branch. Outputs salvaged under qa/capability/mac_*_out/<row>/.",
+    "binary": "/Volumes/Untitled/camelid-base-28f224b (camelid v0.1.7-92-g28f224b)",
+    "e2e_harness": "qa/capability/* Metal harness; outputs under qa/capability/mac_*_out/llama-3.2-3b"
+  },
+  "evidence": {
+    "kind": "oracle_token_parity",
+    "summary": "e2e on Metal (qa/capability/context_parity.mjs, Apple M4, --verify-mode reference-only): a 5813-token prompt is decoded greedily (temperature=0). Camelid emits a server-sealed camelid.parity-receipt/v1; `camelid verify-receipt --reference-only` feeds the exact 5813 prompt token ids to llama.cpp 9632 (acd79d603, Metal) /completion — the continuation matches BIT-EXACT (generated tokens (8), first_divergent_token_index=-1; self-digest + lane-identity + reference-rerun PASS). Here the 5813-token prompt sits WITHIN the original 8192 window (this run did not reach the >8192 extension regime — that remains as-validated on the Windows row); the byte-exact match still confirms Camelid applies the GGUF's baked rope_freqs.weight (llama3 NTK-by-parts) scaling identically to llama.cpp across all 5813 positions, and KV-cache correctness across the whole context, on Metal. MECHANISM: the GGUF declares no llama.rope.scaling.* metadata; the llama3 scaling is baked into a rope_freqs.weight tensor that both engines read identically. The Camelid self-replay was skipped (reference-only) to bound the cost of a long Metal prefill; Camelid greedy determinism is independently established on the companion full self+reference runs (system_multiturn). KV projection passed the harness predict-and-abort gate. Evidence: qa/capability/mac_ctx_out/llama-3.2-3b/summary.json, parity-receipt.json, verify.log."
+  }
+}

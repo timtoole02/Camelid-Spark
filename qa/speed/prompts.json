@@ -1,0 +1,63 @@
+{
+  "schema": "camelid.speed-prompts/v1",
+  "purpose": "Fixed, engine-independent workload prompt pack for the speed campaign (SPEED_CAMPAIGN.md §5 matrix columns). The SAME texts and the SAME generated-token budget (n_gen) are used for both the llama.cpp baseline (Phase 1) and the matched Camelid baseline (Phase 2), so rows are directly comparable. Exact tokenized prompt-token counts are tokenizer-specific and are stamped into each receipt at run time (not guessed here).",
+  "notes": [
+    "n_gen is the fixed output-length policy per column; both engines generate exactly this many tokens (greedy) so tok/s is compared at equal work.",
+    "The adversarial and creative columns are mandatory-report columns: they exist to expose where concurrent spec ties or loses, per the campaign's honesty rules. Do not drop them.",
+    "Prompts are deliberately self-contained (no system prompt) so the raw-decode lane and the spec lane see identical context."
+  ],
+  "columns": [
+    {
+      "id": "code_completion",
+      "class": "code",
+      "n_gen": 128,
+      "spec_friendly": true,
+      "prompt": "Complete this Python module. Write a class `LRUCache` with `__init__(self, capacity)`, `get(self, key)`, and `put(self, key, value)` using an OrderedDict, then a short usage example. Only output code:\n\nfrom collections import OrderedDict\n\nclass LRUCache:\n"
+    },
+    {
+      "id": "structured_json",
+      "class": "structured",
+      "n_gen": 128,
+      "spec_friendly": true,
+      "prompt": "Convert the following into a single JSON object with keys name, age, email, city, country, occupation, and skills (an array). Output only valid JSON, no prose:\n\nName: Ada Lovelace. Age: 36. Email: ada@analytical.engine. Lives in London, United Kingdom. Works as a mathematician. Skills: analytical engines, algorithms, mathematics, writing.\n\nJSON:\n"
+    },
+    {
+      "id": "repetitive_extraction",
+      "class": "repetitive",
+      "n_gen": 128,
+      "spec_friendly": true,
+      "prompt": "Extract every email address from the log below, one per line, in the order they appear. Output only the addresses:\n\n[INFO] user a@x.com logged in\n[INFO] user b@x.com logged in\n[WARN] user c@x.com failed auth\n[INFO] user d@x.com logged in\n[INFO] user e@x.com logged in\n[WARN] user f@x.com failed auth\n[INFO] user g@x.com logged in\n\nAddresses:\n"
+    },
+    {
+      "id": "normal_chat",
+      "class": "chat",
+      "n_gen": 128,
+      "spec_friendly": false,
+      "prompt": "Explain in a few clear sentences what the difference is between a process and a thread, and when you would choose one over the other."
+    },
+    {
+      "id": "creative_writing",
+      "class": "creative",
+      "n_gen": 128,
+      "spec_friendly": false,
+      "mandatory_report": true,
+      "prompt": "Write an original short paragraph describing a thunderstorm rolling over an empty coastal town at dusk. Use vivid, unhurried, non-repetitive language."
+    },
+    {
+      "id": "adversarial_lowaccept",
+      "class": "adversarial",
+      "n_gen": 128,
+      "spec_friendly": false,
+      "mandatory_report": true,
+      "prompt": "Generate a sequence of 60 unrelated, unpredictable words, each on its own line, drawn from wildly different domains (physics, cooking, mythology, finance, marine biology). Do not let any word predict the next."
+    },
+    {
+      "id": "longctx_splitk",
+      "class": "longctx",
+      "n_gen": 96,
+      "spec_friendly": false,
+      "mandatory_report": true,
+      "prompt": "Entry 1: the lighthouse keeper recorded the tide, the wind from the north-east, and the color of the evening sky over the grey harbor, then noted the passing of a single distant ship.\nEntry 2: the lighthouse keeper recorded the tide, the wind from the north-east, and the color of the evening sky over the grey harbor, then noted the passing of a single distant ship.\nEntry 3: the lighthouse keeper recorded the tide, the wind from the north-east, and the color of the evening sky over the grey harbor, then noted the passing of a single distant ship.\nEntry 4: the lighthouse keeper recorded the tide, the wind from the north-east, and the color of the evening sky over the grey harbor, then noted the passing of a single distant ship.\nEntry 5: the lighthouse keeper recorded the tide, the wind from the north-east, and the color of the evening sky over the grey harbor, then noted the passing of a single distant ship.\nEntry 6: the lighthouse keeper recorded the tide, the wind from the north-east, and the color of the evening sky over the grey harbor, then noted the passing of a single distant ship.\nEntry 7: the lighthouse keeper recorded the tide, the wind from the north-east, and the color of the evening sky over the grey harbor, then noted the passing of a single distant ship.\nEntry 8: the lighthouse keeper recorded the tide, the wind from the north-east, and the color of the evening sky over the grey harbor, then noted the passing of a single distant ship.\nEntry 9: the lighthouse keeper recorded the tide, the wind from the north-east, and the color of the evening sky over the grey harbor, then noted the passing of a single distant ship.\nEntry 10: the lighthouse keeper recorded the tide, the wind from the north-east, and the color of the evening sky over the grey harbor, then noted the passing of a single distant ship.\nEntry 11: the lighthouse keeper recorded the tide, the wind from the north-east, and the color of the evening sky over the grey harbor, then noted the passing of a single distant ship.\nEntry 12: the lighthouse keeper recorded the tide, the wind from the north-east, and the color of the evening sky over the grey harbor, then noted the passing of a single distant ship.\nEntry 13: the lighthouse keeper recorded the tide, the wind from the north-east, and the color of the evening sky over the grey harbor, then noted the passing of a single distant ship.\nEntry 14: the lighthouse keeper recorded the tide, the wind from the north-east, and the color of the evening sky over the grey harbor, then noted the passing of a single distant ship.\nEntry 15: the lighthouse keeper recorded the tide, the wind from the north-east, and the color of the evening sky over the grey harbor, then noted the passing of a single distant ship.\nEntry 16: the lighthouse keeper recorded the tide, the wind from the north-east, and the color of the evening sky over the grey harbor, then noted the passing of a single distant ship.\nEntry 17: the lighthouse keeper recorded the tide, the wind from the north-east, and the color of the evening sky over the grey harbor, then noted the passing of a single distant ship.\nEntry 18: the lighthouse keeper recorded the tide, the wind from the north-east, and the color of the evening sky over the grey harbor, then noted the passing of a single distant ship.\nEntry 19: the lighthouse keeper recorded the tide, the wind from the north-east, and the color of the evening sky over the grey harbor, then noted the passing of a single distant ship.\nEntry 20: the lighthouse keeper recorded the tide, the wind from the north-east, and the color of the evening sky over the grey harbor, then noted the passing of a single distant ship.\nEntry 21: the lighthouse keeper recorded the tide, the wind from the north-east, and the color of the evening sky over the grey harbor, then noted the passing of a single distant ship.\nEntry 22: the lighthouse keeper recorded the tide, the wind from the north-east, and the color of the evening sky over the grey harbor, then noted the passing of a single distant ship.\nEntry 23: the lighthouse keeper recorded the tide, the wind from the north-east, and the color of the evening sky over the grey harbor, then noted the passing of a single distant ship.\nEntry 24: the lighthouse keeper recorded the tide, the wind from the north-east, and the color of the evening sky over the grey harbor, then noted the passing of a single distant ship.\nEntry 25: the lighthouse keeper recorded the tide, the wind from the north-east, and the color of the evening sky over the grey harbor, then noted the passing of a single distant ship.\nEntry 26: the lighthouse keeper recorded the tide, the wind from the north-east, and the color of the evening sky over the grey harbor, then noted the passing of a single distant ship.\nEntry 27: the lighthouse keeper recorded the tide, the wind from the north-east, and the color of the evening sky over the grey harbor, then noted the passing of a single distant ship.\nEntry 28: the lighthouse keeper recorded the tide, the wind from the north-east, and the color of the evening sky over the grey harbor, then noted the passing of a single distant ship.\nEntry 29: the lighthouse keeper recorded the tide, the wind from the north-east, and the color of the evening sky over the grey harbor, then noted the passing of a single distant ship.\nEntry 30: the lighthouse keeper recorded the tide, the wind from the north-east, and the color of the evening sky over the grey harbor, then noted the passing of a single distant ship.\nEntry 31: the lighthouse keeper recorded the tide, the wind from the north-east, and the color of the evening sky over the grey harbor, then noted the passing of a single distant ship.\nEntry 32: the lighthouse keeper recorded the tide, the wind from the north-east, and the color of the evening sky over the grey harbor, then noted the passing of a single distant ship.\nEntry 33: the lighthouse keeper recorded the tide, the wind from the north-east, and the color of the evening sky over the grey harbor, then noted the passing of a single distant ship.\nEntry 34: the lighthouse keeper recorded the tide, the wind from the north-east, and the color of the evening sky over the grey harbor, then noted the passing of a single distant ship.\nEntry 35: the lighthouse keeper recorded the tide, the wind from the north-east, and the color of the evening sky over the grey harbor, then noted the passing of a single distant ship.\nEntry 36: the lighthouse keeper recorded the tide, the wind from the north-east, and the color of the evening sky over the grey harbor, then noted the passing of a single distant ship.\nEntry 37: the lighthouse keeper recorded the tide, the wind from the north-east, and the color of the evening sky over the grey harbor, then noted the passing of a single distant ship.\nEntry 38: the lighthouse keeper recorded the tide, the wind from the north-east, and the color of the evening sky over the grey harbor, then noted the passing of a single distant ship.\nEntry 39: the lighthouse keeper recorded the tide, the wind from the north-east, and the color of the evening sky over the grey harbor, then noted the passing of a single distant ship.\nEntry 40: the lighthouse keeper recorded the tide, the wind from the north-east, and the color of the evening sky over the grey harbor, then noted the passing of a single distant ship.\nEntry 41: the lighthouse keeper recorded the tide, the wind from the north-east, and the color of the evening sky over the grey harbor, then noted the passing of a single distant ship.\nEntry 42: the lighthouse keeper recorded the tide, the wind from the north-east, and the color of the evening sky over the grey harbor, then noted the passing of a single distant ship.\nEntry 43: the lighthouse keeper recorded the tide, the wind from the north-east, and the color of the evening sky over the grey harbor, then noted the passing of a single distant ship.\nEntry 44: the lighthouse keeper recorded the tide, the wind from the north-east, and the color of the evening sky over the grey harbor, then noted the passing of a single distant ship.\nEntry 45: the lighthouse keeper recorded the tide, the wind from the north-east, and the color of the evening sky over the grey harbor, then noted the passing of a single distant ship.\n\nContinue this logbook in exactly the same numbered format, inventing plausible new entries:\nEntry 46:"
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "bundle": "engine-inversion-gate0-orphan-repro",
+  "generated_utc": "2026-07-09T13:43:04Z",
+  "source_head": "ffada00f",
+  "branch": "feat/engine-inversion",
+  "mission": "docs/recon/ENGINE_INVERSION_CONDUCTOR.md",
+  "gate": "GATE 0 (GO/KILL)",
+  "verdict": "GO — orphan-decode overlap demonstrated on T1, T2, T3",
+  "tests": [
+    "api::tests::generation_timeout_must_not_orphan_decode",
+    "api::tests::client_disconnect_must_not_orphan_decode",
+    "api::tests::stream_disconnect_must_not_orphan_decode_step"
+  ],
+  "expected_state": "FAILING on the pin (failure IS the receipt); must flip to PASSING at Gate 1",
+  "toolchain": "rustc 1.95.0 / cargo 1.95.0, windows x86_64, test profile",
+  "artifacts": ["README.md", "logs/orphan-repro-tests-FAIL.log"]
+}

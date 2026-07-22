@@ -1,0 +1,200 @@
+{
+  "schema": "camelid.capability-manifest/v1",
+  "row": "llama-3-8b-instruct-q8_0",
+  "model_label": "Llama 3 8B Instruct Q8_0",
+  "generated": "2026-06-25",
+  "phase0_complete": false,
+  "artifact": {
+    "present": false,
+    "gguf_path": null,
+    "gguf_filename": "Meta-Llama-3-8B-Instruct.Q8_0.gguf (expected)",
+    "gguf_sha256": null,
+    "size_bytes": null,
+    "note": "BLOCKED: GGUF not downloaded; envelope is PROVISIONAL (spec-derived), NOT hash-anchored; Phase 0 INCOMPLETE for this row."
+  },
+  "platform": {
+    "os": "windows",
+    "target": "x86_64-pc-windows-msvc",
+    "execution_backends_in_scope": [
+      "cpu",
+      "cuda"
+    ],
+    "discovery_tool": "camelid inspect (target/release/camelid.exe, built 2026-06-23)",
+    "oracle": "llama.cpp acd79d6 (MSVC, Windows AMD64) — llama.cpp/build/bin/llama-{cli,server}.exe"
+  },
+  "arch": {
+    "architecture": "llama",
+    "bos_token_id": 128000,
+    "eos_token_ids": [
+      128009,
+      128001
+    ],
+    "rope_freq_base": 500000,
+    "rope_scaling_factor": null,
+    "rope_scaling_type": null,
+    "special_tokens": [
+      "<|begin_of_text|>",
+      "<|end_of_text|>",
+      "<|start_header_id|>",
+      "<|end_header_id|>",
+      "<|eot_id|>"
+    ],
+    "trained_context_length": 8192
+  },
+  "chat_template_excerpt": "{{ bos_token }}{% for message in messages %}{{ '<|start_header_id|>' + message['role'] + '<|end_header_id|>\\n\\n' + message['content'] | trim + '<|eot_id|>' }}{% endfor %}{% if add_generation_prompt %}{{ '<|start_header_id|>assistant<|end_header_id|>\\n\\n' }}{% endif %}  [PROVISIONAL reconstruction of the published original Llama 3 8B Instruct template — NOT read from an on-disk GGUF; must be replaced by the actual tokenizer.chat_template metadata once the file is downloaded. Note: this template has NO tool-call branch and references only the 5 header/text control tokens listed in special_tokens (no <|python_tag|>/<|eom_id|>/ipython), consistent with ORIGINAL Llama 3, not 3.1.]",
+  "claimed_envelope": [
+    {
+      "id": "gen.n_choices",
+      "capability": "Multi-choice n>1 independent generations (decoder/API)",
+      "verdict": "capable",
+      "oracle_class": "C",
+      "matrix_cell": "open",
+      "camelid_state": "typed_error_stub",
+      "receipt_present": false,
+      "receipt": null,
+      "model_evidence": "PROVISIONAL — not from on-disk GGUF. n>1 independent generations are a decoder/API-side concern, model-agnostic; the original Llama 3 8B causal LM places no constraint on parallel/sequential resampling. Capable contingent on the conductor's decoder path; must re-confirm against the actual GGUF once downloaded. [REVIEW: retained capable/D — engine-side, sound.]"
+    },
+    {
+      "id": "gen.stream_usage",
+      "capability": "OpenAI stream_options.include_usage terminal usage chunk (API)",
+      "verdict": "capable",
+      "oracle_class": "C",
+      "matrix_cell": "open",
+      "camelid_state": "drives",
+      "receipt_present": false,
+      "receipt": null,
+      "model_evidence": "PROVISIONAL — not from on-disk GGUF. stream_options.include_usage terminal usage chunk is an engine/API feature (already implemented in Camelid's streaming lane), independent of which model is loaded. No Llama 3 8B model property gates it. [REVIEW: retained capable/D.]"
+    },
+    {
+      "id": "gen.length_stop",
+      "capability": "max_tokens, stop sequences, EOS stop behavior",
+      "verdict": "capable",
+      "oracle_class": "D/C",
+      "matrix_cell": "open",
+      "camelid_state": "drives",
+      "receipt_present": false,
+      "receipt": null,
+      "model_evidence": "PROVISIONAL — not from on-disk GGUF. max_tokens / stop sequences / EOS stop are decoder-side. Expected EOS set for Llama 3 8B Instruct is <|eot_id|> (128009) plus <|end_of_text|> (128001); the Instruct turn terminator is <|eot_id|>. Exact eos_token_id list MUST be re-read from GGUF metadata once present. [REVIEW: retained capable/D; EOS set matches arch.eos_token_ids.]"
+    },
+    {
+      "id": "sampling.full_set",
+      "capability": "top_p,top_k,min_p,temperature,repetition/frequency/presence_penalty,seed,logit_bias",
+      "verdict": "capable",
+      "oracle_class": "I",
+      "matrix_cell": "open",
+      "camelid_state": "partial",
+      "receipt_present": false,
+      "receipt": null,
+      "model_evidence": "PROVISIONAL — not from on-disk GGUF. top_p/top_k/min_p/temperature/repetition+frequency+presence penalties/seed/logit_bias are sampler-side and model-agnostic; the original Llama 3 8B logit head imposes no restriction. Capable subject to confirming actual vocab/logit layout from the GGUF. [REVIEW: retained capable/D.]"
+    },
+    {
+      "id": "sampling.seed_determinism",
+      "capability": "fixed seed reproduces token-for-token across runs",
+      "verdict": "capable",
+      "oracle_class": "I",
+      "matrix_cell": "open",
+      "camelid_state": "drives",
+      "receipt_present": false,
+      "receipt": null,
+      "model_evidence": "PROVISIONAL — not from on-disk GGUF. Fixed-seed token-for-token reproducibility is a property of the deterministic CPU/GPU decode path (established for other Camelid rows), not of this specific model. Must be re-validated on the actual Q8_0 weights after download. [REVIEW: retained capable/D.]"
+    },
+    {
+      "id": "logprobs.top_logprobs",
+      "capability": "logprobs/top_logprobs at temp=0 (any causal LM)",
+      "verdict": "capable",
+      "oracle_class": "D",
+      "matrix_cell": "open",
+      "camelid_state": "drives",
+      "receipt_present": false,
+      "receipt": null,
+      "model_evidence": "PROVISIONAL — not from on-disk GGUF. logprobs/top_logprobs at temp=0 are derivable for any causal LM from the final softmax; original Llama 3 8B is a standard causal decoder. Capable pending confirmation that the loaded GGUF exposes the full 128256-entry logit vector. [REVIEW: retained capable/D.]"
+    },
+    {
+      "id": "chat.system_multiturn",
+      "capability": "system role + multi-turn template fidelity (per THIS template)",
+      "verdict": "capable",
+      "oracle_class": "D",
+      "matrix_cell": "open",
+      "camelid_state": "drives",
+      "receipt_present": false,
+      "receipt": null,
+      "model_evidence": "PROVISIONAL — not from on-disk GGUF. RETAINED capable on adversarial review: I CAN point to the specific template branch — the generic per-message loop emits <|start_header_id|> + message['role'] + <|end_header_id|>\\n\\n{content}<|eot_id|> for EVERY role including 'system', and the three required control tokens (<|start_header_id|>, <|end_header_id|>, <|eot_id|>) are all present in special_tokens. Original Llama 3 8B Instruct demonstrably supports a 'system' role and arbitrary multi-turn interleaving; flipping to incapable would be an UNDERCLAIM. Template fidelity must still be re-verified against the actual tokenizer.chat_template in the GGUF before being treated as anchored."
+    },
+    {
+      "id": "tools.function_calling",
+      "capability": "native tool/function calling — REQUIRES tool-call branch or tool/ipython control tokens in THIS model template",
+      "verdict": "incapable",
+      "oracle_class": "none",
+      "matrix_cell": "n/a",
+      "camelid_state": "drives",
+      "receipt_present": false,
+      "receipt": null,
+      "model_evidence": "PROVISIONAL — not from on-disk GGUF. CORRECTED uncertain→INCAPABLE on adversarial review. The ORIGINAL Llama 3 (pre-3.1) chat template predates the 3.1 tool-calling format: it has NO tool-call/tool-response branch, no 'tool'/'ipython' role handling, and special_tokens contains NONE of <|python_tag|>, <|eom_id|>, <|eot_id| as a tool terminator>, or any tool-call control token (only the 5 header/text tokens are present). Because there is NO specific template branch or control token expressing native function calling, and per the 'choose the stricter verdict' rule, this is a definitive model-anchored NEGATIVE, not genuine uncertainty. Must still be re-confirmed against the actual GGUF chat_template + added_tokens once downloaded (and a file mislabeled as 3.1 would change this)."
+    },
+    {
+      "id": "structured.json_grammar",
+      "capability": "JSON mode + GBNF grammar-constrained decode (decoder-side, model-agnostic)",
+      "verdict": "uncertain",
+      "oracle_class": "B",
+      "matrix_cell": "open",
+      "camelid_state": "drives",
+      "receipt_present": false,
+      "receipt": null,
+      "model_evidence": "PROVISIONAL — not from on-disk GGUF. RETAINED uncertain on adversarial review: the unknown here is purely ENGINE-side (whether the conductor's decode path implements JSON-mode / GBNF grammar-constrained decoding), which is model-agnostic and independent of Llama 3 weights. Unlike tools.function_calling (a definite model-template negative), there is no template/metadata signal to anchor a verdict either way, so flipping to 'incapable' would assert an unsupported negative about the engine. Not an overclaim; re-assess once the row is loadable and the decoder feature set is confirmed."
+    },
+    {
+      "id": "context.full_length",
+      "capability": "full TRAINED context length, exact value from metadata",
+      "verdict": "capable",
+      "oracle_class": "D",
+      "matrix_cell": "open",
+      "camelid_state": "drives",
+      "receipt_present": false,
+      "receipt": null,
+      "model_evidence": "PROVISIONAL — not from on-disk GGUF. RE-VERIFIED: original Llama 3 8B Instruct has an 8192-token trained context (NOT the 131072/128K of Llama 3.1/3.2). Provisional trained_context_length=8192, matching arch.trained_context_length=8192; the exact llama.context_length value MUST be read from GGUF metadata once downloaded to anchor this. [REVIEW: retained capable/C; exact trained length 8192 confirmed against original-Llama-3 spec, no 3.1 contamination.]"
+    },
+    {
+      "id": "context.rope_scaling",
+      "capability": "RoPE scaling/extension — REQUIRES a rope scaling type/factor declared in metadata",
+      "verdict": "incapable",
+      "oracle_class": "none",
+      "matrix_cell": "n/a",
+      "camelid_state": "drives",
+      "receipt_present": false,
+      "receipt": null,
+      "model_evidence": "PROVISIONAL — not from on-disk GGUF. RETAINED incapable on adversarial review (correct, not an underclaim): original Llama 3 8B declares rope_theta/freq_base=500000 with NO rope_scaling type or factor, so there is no rope.scaling.* metadata key to anchor a 'capable' verdict and the model genuinely performs no context-extension scaling. Re-confirm absence of rope.scaling.* keys from the GGUF after download; a file mislabeled as 3.1 (which adds rope_scaling type=llama3, factor=8) would flip this."
+    },
+    {
+      "id": "observ.usage_timing",
+      "capability": "prompt/completion/total token accounting + optional timing fields",
+      "verdict": "capable",
+      "oracle_class": "C",
+      "matrix_cell": "open",
+      "camelid_state": "drives",
+      "receipt_present": false,
+      "receipt": null,
+      "model_evidence": "PROVISIONAL — not from on-disk GGUF. prompt/completion/total token accounting and optional timing fields are produced by the conductor's receipt/usage layer, model-agnostic. No Llama 3 8B property gates it; confirm token counts once the real tokenizer is loaded. [REVIEW: retained capable/D.]"
+    },
+    {
+      "id": "load.quant_breadth",
+      "capability": "(SECONDARY) loadability across additional quants beyond Q8_0",
+      "verdict": "uncertain",
+      "oracle_class": "D",
+      "matrix_cell": "open",
+      "camelid_state": "partial",
+      "receipt_present": false,
+      "receipt": null,
+      "model_evidence": "PROVISIONAL — not from on-disk GGUF. (SECONDARY) Even the primary Q8_0 file is absent, so loadability across additional quants (Q4_K, Q5_K, Q6_K, etc.) is unverified. Llama-family quants are generally supported by the loader, but no quant of this 8B row has been loaded; cannot claim breadth until at least Q8_0 is on disk and admitted. [REVIEW: retained uncertain/B — nothing on disk to load, legitimate engine/loader-side unknown.]"
+    }
+  ],
+  "overclaim_flags": [
+    "CHANGE — tools.function_calling: FLIPPED uncertain→INCAPABLE. Original Llama 3 (pre-3.1) template has no tool-call branch and special_tokens lacks <|python_tag|>/<|eom_id|>/ipython; I cannot point to any branch or control token expressing native function calling, so the stricter, model-anchored verdict is incapable (not 'uncertain by design'). Re-confirm against the real GGUF chat_template + added_tokens; would change only if the downloaded file is actually a 3.1 tool template.",
+    "CONSIDERED-BUT-RETAINED — chat.system_multiturn: kept CAPABLE. The generic role-header loop emits <|start_header_id|>+role+<|end_header_id|> for the 'system' role and all three control tokens are present in special_tokens; original Llama 3 8B Instruct demonstrably supports system role + multiturn. Flipping to incapable would be an UNDERCLAIM, so it is retained over a blind strict-flip.",
+    "CONSIDERED-BUT-RETAINED — structured.json_grammar: kept UNCERTAIN. The unknown is engine-side GBNF/JSON-mode support (model-agnostic), with no template/metadata anchor; flipping to incapable would assert an unsupported negative about the engine. 'uncertain' is not an overclaim.",
+    "CONSIDERED-BUT-RETAINED — context.rope_scaling (incapable) and context.full_length (capable, 8192): both re-verified against ORIGINAL Llama 3 spec; no underclaim. rope_scaling stays incapable (no rope.scaling.* declared); full_length stays capable with exact trained length 8192 (NOT 3.1's 131072).",
+    "ENTIRE ENVELOPE PROVISIONAL: derived from the published ORIGINAL Llama 3 8B Instruct spec, NOT from an on-disk GGUF. Manifest is NOT GGUF-hash-anchored; Phase 0 is INCOMPLETE. present=false, inspect_ok=false, phase0_complete=false retained.",
+    "arch fields (bos=128000, eos={128009,128001}, rope_freq_base=500000, special_tokens, ctx=8192, chat template) are reconstructed from spec, not measured; every value requires GGUF-metadata confirmation. Disk scan re-verified: only models\\Llama-3.2-3B-Instruct-Q8_0.gguf is present and NO 8B GGUF exists anywhere in the Camelid tree, so present=false is correct.",
+    "3.1/3.2 DISAMBIGUATION RISK: if the eventually-downloaded file is mislabeled 3.1/3.2, context.full_length (8192→131072), context.rope_scaling (incapable→capable), and tools.function_calling (incapable→capable) all flip. Re-read llama.context_length, rope.scaling.*, and tokenizer.chat_template/added_tokens from GGUF metadata before marking phase0_complete=true."
+  ],
+  "phase0_notes": "BLOCKED ON GGUF DOWNLOAD — adversarial review of a PROVISIONAL spec-derived envelope; no re-inspect possible. Disk re-verified: only models\\Llama-3.2-3B-Instruct-Q8_0.gguf is present and a tree-wide search for any *8b*.gguf returned nothing, so present=false, inspect_ok=false, phase0_complete=FALSE are correct. ONE substantive correction: tools.function_calling FLIPPED uncertain→incapable — original Llama 3 (pre-3.1) template carries no tool-call branch and special_tokens lacks <|python_tag|>/<|eom_id|>/ipython, a definite model-anchored negative under the stricter-verdict rule (re-confirm if the file turns out to be 3.1). RESISTED blind strict-flips on the other two 'ESPECIALLY' caps: chat.system_multiturn kept CAPABLE (system role + multiturn are expressed by the generic role-header loop and the present <|start_header_id|>/<|end_header_id|>/<|eot_id|> tokens — flipping would underclaim) and context.rope_scaling kept INCAPABLE (correct, no rope.scaling.* on original Llama 3). context.full_length re-verified as exactly 8192 (NOT 3.1's 131072), matching arch.trained_context_length. structured.json_grammar kept UNCERTAIN (engine-side GBNF unknown, not a template negative). All D-class engine/sampler/decoder caps retained capable. Expected file once downloaded: Meta-Llama-3-8B-Instruct.Q8_0.gguf (arch=llama, ~8.5 GB) under Camelid\\models. Then re-run inspect to anchor llama.context_length, rope.scaling.*, eos ids, and tokenizer.chat_template, and re-resolve tools.function_calling / context.full_length / context.rope_scaling / structured.json_grammar before phase0_complete=true. Critical disambiguation: confirm ORIGINAL Llama 3 (8192 ctx, no rope scaling, no tool tokens), NOT Llama 3.1 (131072 + rope_scaling type=llama3 + tool template)."
+}

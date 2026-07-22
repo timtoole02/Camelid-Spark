@@ -1,0 +1,43 @@
+   Compiling camelid v0.2.6 (<home>/camelid)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 18.93s
+     Running unittests src\lib.rs (target\debug\deps\camelid-b5887cf2cd7a3a77.exe)
+
+running 3 tests
+test api::tests::stream_disconnect_must_not_orphan_decode_step ... FAILED
+test api::tests::client_disconnect_must_not_orphan_decode ... FAILED
+test api::tests::generation_timeout_must_not_orphan_decode ... FAILED
+
+failures:
+
+---- api::tests::stream_disconnect_must_not_orphan_decode_step stdout ----
+[cuda] selected device 0 of 1: "NVIDIA GeForce RTX 3060 Laptop GPU" (compute capability 8.6) | VRAM 5122 MiB free / 6143 MiB total
+
+thread 'api::tests::stream_disconnect_must_not_orphan_decode_step' (7896) panicked at src\api\mod.rs:12173:9:
+assertion `left == right` failed: P0-T3 stream disconnect: generation_lock was acquired while a previous request's decode was still running on the blocking pool (orphaned compute)
+  left: 1
+ right: 0
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- api::tests::client_disconnect_must_not_orphan_decode stdout ----
+
+thread 'api::tests::client_disconnect_must_not_orphan_decode' (19204) panicked at src\api\mod.rs:12173:9:
+assertion `left == right` failed: P0-T1 client disconnect: generation_lock was acquired while a previous request's decode was still running on the blocking pool (orphaned compute)
+  left: 1
+ right: 0
+
+---- api::tests::generation_timeout_must_not_orphan_decode stdout ----
+
+thread 'api::tests::generation_timeout_must_not_orphan_decode' (20068) panicked at src\api\mod.rs:12173:9:
+assertion `left == right` failed: P0-T2 generation timeout: generation_lock was acquired while a previous request's decode was still running on the blocking pool (orphaned compute)
+  left: 1
+ right: 0
+
+
+failures:
+    api::tests::client_disconnect_must_not_orphan_decode
+    api::tests::generation_timeout_must_not_orphan_decode
+    api::tests::stream_disconnect_must_not_orphan_decode_step
+
+test result: FAILED. 0 passed; 3 failed; 0 ignored; 0 measured; 727 filtered out; finished in 4.74s
+
+error: test failed, to rerun pass `--lib`

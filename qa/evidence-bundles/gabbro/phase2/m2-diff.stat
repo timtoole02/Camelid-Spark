@@ -1,0 +1,16 @@
+ CAPABILITY_MATRIX.md              |  2 +-
+ COMPATIBILITY.md                  |  2 +-
+ DECISIONS.md                      | 24 +++++++++++++-
+ DOCS.md                           |  2 +-
+ README.md                         |  4 +--
+ STATUS.md                         |  2 +-
+ SUPPORT_MATRIX_v0.1.md            |  2 +-
+ docs/architecture/NVFP4_FORMAT.md | 22 +++++++------
+ ledger/camelid-ledger.json        |  2 +-
+ qa/invariant_lanes.json           |  6 ++--
+ src/api/mod.rs                    |  2 +-
+ src/gemma4_runtime.rs             | 61 +++++++++++++++++++++++++-----------
+ src/runnable/admit.rs             | 66 ++++++++++++++++++++++++++-------------
+ tests/invariant_matrix_binding.rs | 20 ++++++------
+ tests/nvfp4_wire_lane_refusals.rs | 13 ++++----
+ 15 files changed, 153 insertions(+), 77 deletions(-)

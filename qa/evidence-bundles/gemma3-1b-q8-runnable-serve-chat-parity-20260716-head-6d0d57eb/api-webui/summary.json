@@ -1,0 +1,49 @@
+{
+  "schema": "camelid.model-promotion.smoke-bundle.v1",
+  "generated_utc": "2026-07-16T17:41:44.904Z",
+  "api_base": "http://127.0.0.1:8181",
+  "frontend_url": "http://127.0.0.1:8181",
+  "model_path": "<repo>\\models\\gemma-3-1b-it-Q8_0.gguf",
+  "model_id": "gemma_3_1b_it_q8_0",
+  "message": "hello",
+  "max_tokens": 1,
+  "temperature": 0,
+  "allow_guarded_chat": false,
+  "skip_frontend": false,
+  "steps": {
+    "health_before": {
+      "ok": true,
+      "path": "<repo>\\target\\muster-ma1-20260716\\api-webui\\health-before.json"
+    },
+    "load": {
+      "ok": true,
+      "path": "<repo>\\target\\muster-ma1-20260716\\api-webui\\load.response.json"
+    },
+    "current_model": {
+      "ok": true,
+      "path": "<repo>\\target\\muster-ma1-20260716\\api-webui\\current-model.json"
+    },
+    "v1_models": {
+      "ok": true,
+      "path": "<repo>\\target\\muster-ma1-20260716\\api-webui\\v1-models.json"
+    },
+    "capabilities": {
+      "ok": true,
+      "path": "<repo>\\target\\muster-ma1-20260716\\api-webui\\capabilities.json"
+    },
+    "v1_completions": {
+      "ok": true,
+      "path": "<repo>\\target\\muster-ma1-20260716\\api-webui\\completion.response.json"
+    },
+    "v1_chat_completions": {
+      "ok": true,
+      "path": "<repo>\\target\\muster-ma1-20260716\\api-webui\\chat.response.json"
+    },
+    "generation_timings": {
+      "ok": false,
+      "path": "<repo>\\target\\muster-ma1-20260716\\api-webui\\generation-timings.run.json"
+    }
+  },
+  "passed": false,
+  "error": "generation_timings: generation timing summary exited 1"
+}

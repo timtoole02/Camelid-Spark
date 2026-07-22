@@ -1,0 +1,25 @@
+{
+  "schema": "camelid.qwen3.cuda_resident.documented_near_tie.v1",
+  "row_id": "qwen3_1_7b_instruct_q8_0",
+  "prompt": "Name a primary color.",
+  "note": "Benign f32 frontier near-tie: after \"A primary color is **red**\" the reference distribution is a ~0.62/0.38 coin-flip between continuing the list (\"**,\") and closing (\"**\" -> \".\"). GPU reduction order (CUDA) closes; CPU/llama.cpp continue. Both are valid answers. NOT a correctness defect — the GPU decode is deterministic and bit-exact to the CPU reference on the confident probes (capital-of-France, say-hello, 2+2). Mirrors the documented 4B primary-color tie in the Windows x86 CPU bundles.",
+  "gpu_cuda_resident_text": "A primary color is **red**.",
+  "reference_llama_text": "A primary color is **red**, **blue**, or **yellow**. These are the three basic colors used in color theory to create all other colors through mixing.",
+  "reference_flip_position": {
+    "chose": "**,",
+    "candidates": [
+      {
+        "token": "**,",
+        "prob": 0.620850855518878
+      },
+      {
+        "token": "**",
+        "prob": 0.37914521409838575
+      },
+      {
+        "token": ",",
+        "prob": 0.000003747169897299097
+      }
+    ]
+  }
+}

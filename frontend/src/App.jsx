@@ -1,0 +1,401 @@
+import { lazy, Suspense, useEffect, useMemo, useState } from 'react'
+import SidebarRail from './components/layout/SidebarRail'
+import TopBar from './components/TopBar'
+import { BackendBanner } from './components/layout/BackendBanner'
+import { Notice } from './components/ui/Notice'
+import { ConfirmDialog } from './components/ui/ConfirmDialog'
+import { formatPreview, formatSidebarDate } from './lib/formatters'
+import { useDashboardData } from './hooks/useDashboardData'
+import { useBackendLauncher } from './hooks/useBackendLauncher'
+import { useNotice } from './hooks/useNotice'
+import { useTheme } from './hooks/useTheme'
+import { ensureInferenceTelemetryConnected } from './hooks/useInferenceTelemetry'
+import ChatWorkspace from './views/ChatWorkspace'
+import { CommandPalette } from './components/CommandPalette'
+import { ShortcutsOverlay } from './components/ShortcutsOverlay'
+
+/* Route-level code splitting (Phase 7): chat is the default surface and stays
+   eager; every other view loads on first visit. */
+const AnalyticsView = lazy(() => import('./views/AnalyticsView'))
+const HistoryView = lazy(() => import('./views/HistoryView'))
+const MemoryView = lazy(() => import('./views/MemoryView'))
+const ModelsView = lazy(() => import('./views/ModelsView'))
+const ApiView = lazy(() => import('./views/ApiView'))
+const SystemView = lazy(() => import('./views/SystemView'))
+const SettingsView = lazy(() => import('./views/SettingsView'))
+const ClusterView = lazy(() => import('./views/ClusterView'))
+const CompatibilityView = lazy(() => import('./views/CompatibilityView'))
+const TelemetryView = lazy(() => import('./views/TelemetryView'))
+const InferenceObservatoryView = lazy(() => import('./views/InferenceObservatoryView'))
+
+const DEMO_UI = import.meta.env?.VITE_CAMELID_DEMO_UI === 'true'
+const HASH_TABS = new Set(['chat', 'library', 'api', 'analytics', 'history', 'memory', 'system', 'settings', 'cluster', 'observatory', 'compatibility', 'telemetry'])
+
+function App() {
+  const { notice, noticeTone, showNotice, clearNotice } = useNotice()
+  const { preference, resolved, cyclePreference, setPreference } = useTheme()
+
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(() => {
+    if (DEMO_UI) return true
+    if (typeof window === 'undefined') return false
+    return window.localStorage.getItem('camelid.sidebarCollapsed') === 'true'
+  })
+  const [mobileNavOpen, setMobileNavOpen] = useState(false)
+  const [isMobile, setIsMobile] = useState(
+    () => typeof window !== 'undefined' && window.matchMedia('(max-width: 860px)').matches,
+  )
+  const [pendingDeleteConversationId, setPendingDeleteConversationId] = useState(null)
+  const [ledgerFocusRow, setLedgerFocusRow] = useState(null)
+  const [paletteOpen, setPaletteOpen] = useState(false)
+  const [shortcutsOpen, setShortcutsOpen] = useState(false)
+  const [deleteBusy, setDeleteBusy] = useState(false)
+  const [modelsVisited, setModelsVisited] = useState(false)
+
+  useEffect(() => {
+    if (typeof window === 'undefined' || !window.matchMedia) return undefined
+    const media = window.matchMedia('(max-width: 860px)')
+    const sync = () => { setIsMobile(media.matches); if (!media.matches) setMobileNavOpen(false) }
+    media.addEventListener('change', sync)
+    return () => media.removeEventListener('change', sync)
+  }, [])
+
+  const dash = useDashboardData({ showNotice, clearNotice })
+  const {
+    dashboard, tab, setTab, selectedConversationId, setSelectedConversationId,
+    selectedModelId, setSelectedModelId, search, setSearch, memorySearch, setMemorySearch,
+    composer, setComposer, newChatTitle, setNewChatTitle, sending, receiptMode, setReceiptMode,
+    thinkingMode, setThinkingMode,
+    loadingModelId, registerForm, setRegisterForm,
+    conversations, memories, filteredConversations, models, runtime, selectedConversation,
+    selectedModel, selectedModelRunnable, selectedModelExperimental, latestAssistantMessage, pendingConversation,
+    createConversation, showNewChatLanding, sendMessage, resendFromMessage, stopGeneration, saveToMemory,
+    createMemory, updateMemory, deleteMemory, renameConversation, deleteConversation, deleteAllConversations,
+    activateModel, unloadCurrentModel,
+    registerModel, loadDashboard, stoppingGeneration,
+    apiBase, setApiBase,
+  } = dash
+
+  const backend = useBackendLauncher({ showNotice, loadDashboard })
+
+  useEffect(() => {
+    if (tab === 'library') setModelsVisited(true)
+  }, [tab])
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    window.localStorage.setItem('camelid.sidebarCollapsed', String(sidebarCollapsed))
+  }, [sidebarCollapsed])
+
+  // Deep-link the active tab via the URL hash (e.g. #library) — shareable and
+  // handy for direct navigation. Runs once on mount if a valid tab hash is present.
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    const hash = window.location.hash.replace('#', '')
+    if (HASH_TABS.has(hash)) setTab(hash)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  const closeMobileNav = () => setMobileNavOpen(false)
+
+  /* Observatory stream listens from app start (Phase 6.1 DEFECT 1): runs made
+     before the view's first mount must not be invisible. */
+  useEffect(() => {
+    if (apiBase) ensureInferenceTelemetryConnected(apiBase)
+  }, [apiBase])
+
+  /* Evidence Chips anywhere in the app deep-link to their ledger row through
+     this event — no prop drilling through every chip call site. */
+  useEffect(() => {
+    const onOpenLedger = (event) => {
+      setLedgerFocusRow(event.detail?.rowId || null)
+      setTab('compatibility')
+      if (typeof window !== 'undefined') window.history.replaceState(null, '', '#compatibility')
+    }
+    window.addEventListener('camelid:open-ledger', onOpenLedger)
+    return () => window.removeEventListener('camelid:open-ledger', onOpenLedger)
+  }, [setTab])
+
+  /* Global keys: Cmd/Ctrl+K command palette; "?" shortcut map outside inputs. */
+  useEffect(() => {
+    const onKeyDown = (event) => {
+      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'k') {
+        event.preventDefault()
+        setShortcutsOpen(false)
+        setPaletteOpen((value) => !value)
+        return
+      }
+      const typing = ['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement?.tagName) || document.activeElement?.isContentEditable
+      if (event.key === '?' && !typing && !event.metaKey && !event.ctrlKey) {
+        event.preventDefault()
+        setPaletteOpen(false)
+        setShortcutsOpen((value) => !value)
+      }
+    }
+    window.addEventListener('keydown', onKeyDown)
+    return () => window.removeEventListener('keydown', onKeyDown)
+  }, [])
+
+  const navigateTab = (next) => {
+    setTab(next)
+    if (typeof window !== 'undefined' && HASH_TABS.has(next)) {
+      window.history.replaceState(null, '', next === 'chat' ? window.location.pathname : `#${next}`)
+    }
+    closeMobileNav()
+  }
+
+  const selectConversation = (id) => {
+    setSelectedConversationId(id)
+    setTab('chat')
+    closeMobileNav()
+  }
+
+  const startNewChat = () => {
+    showNewChatLanding()
+    closeMobileNav()
+  }
+
+  const requestDeleteConversation = (id) => {
+    setPendingDeleteConversationId(id)
+    setDeleteBusy(false)
+  }
+
+  const pendingDeleteConversation = useMemo(
+    () => conversations.find((c) => c.id === pendingDeleteConversationId) || null,
+    [conversations, pendingDeleteConversationId],
+  )
+
+  const pendingDeleteTitle = useMemo(() => {
+    if (!pendingDeleteConversation) return 'Delete chat?'
+    const trimmed = pendingDeleteConversation.title?.trim()
+    if (trimmed && trimmed.toLowerCase() !== 'new conversation') return `Delete “${trimmed}”?`
+    return `Delete untitled chat · ${formatSidebarDate(pendingDeleteConversation.updated_at) || 'new chat'}?`
+  }, [pendingDeleteConversation])
+
+  const pendingDeleteDetail = useMemo(() => {
+    if (!pendingDeleteConversation) return ''
+    const latest = [...(pendingDeleteConversation.messages || [])].reverse()
+      .find((m) => typeof m?.content === 'string' && m.content.trim())
+    const preview = formatPreview(latest?.content, 80)
+    return preview === 'No messages yet' ? 'This conversation will be permanently removed.' : `“${preview}” — this conversation will be permanently removed.`
+  }, [pendingDeleteConversation])
+
+  const handleDeleteConfirm = async () => {
+    if (!pendingDeleteConversationId || deleteBusy) return
+    setDeleteBusy(true)
+    const ok = await deleteConversation(pendingDeleteConversationId)
+    if (ok) setPendingDeleteConversationId(null)
+    setDeleteBusy(false)
+  }
+
+  if (!dashboard) {
+    return (
+      <div className="loading-shell">
+        <div className="loading-shell-stack">
+          <Notice notice={notice} tone={noticeTone} />
+          <div>Loading Camelid…</div>
+        </div>
+      </div>
+    )
+  }
+
+  const shellClasses = [
+    'camelid-app',
+    sidebarCollapsed ? 'is-collapsed' : '',
+    mobileNavOpen ? 'is-mobile-open' : '',
+    DEMO_UI ? 'is-demo' : '',
+  ].filter(Boolean).join(' ')
+
+  return (
+    <div className={shellClasses}>
+      {!DEMO_UI && (
+        <SidebarRail
+          collapsed={!isMobile && sidebarCollapsed}
+          onToggleCollapsed={() => setSidebarCollapsed((v) => !v)}
+          showNewChatLanding={startNewChat}
+          search={search}
+          setSearch={setSearch}
+          tab={tab}
+          setTab={navigateTab}
+          filteredConversations={filteredConversations}
+          selectedConversationId={selectedConversation?.id || null}
+          onSelectConversation={selectConversation}
+          renameConversation={renameConversation}
+          requestDeleteConversation={requestDeleteConversation}
+          runtime={runtime}
+          themePreference={preference}
+          themeResolved={resolved}
+          onCycleTheme={cyclePreference}
+        />
+      )}
+
+      {!DEMO_UI && mobileNavOpen && (
+        <button type="button" className="camelid-app__scrim" aria-label="Close navigation" onClick={closeMobileNav} />
+      )}
+
+      <main className="camelid-main" data-view={tab}>
+        <TopBar
+          tab={tab}
+          setTab={navigateTab}
+          selectedConversationTitle={selectedConversation?.title || ''}
+          runtime={runtime}
+          capabilities={dashboard?.capabilities}
+          selectedModelId={selectedModelId}
+          models={models}
+          onToggleSidebar={DEMO_UI ? null : () => setMobileNavOpen((v) => !v)}
+          demoMode={DEMO_UI}
+        />
+
+        {notice && (
+          <div className="camelid-notice-slot">
+            <Notice notice={notice} tone={noticeTone} onDismiss={clearNotice} />
+          </div>
+        )}
+
+        {!DEMO_UI && runtime?.status === 'offline' && tab !== 'settings' && (
+          <BackendBanner backend={backend} onOpenSettings={() => navigateTab('settings')} />
+        )}
+
+        <div className={`camelid-view ${(tab === 'chat' || tab === 'cluster' || tab === 'observatory') ? 'camelid-view--chat' : 'camelid-view--page'}`}>
+          <Suspense fallback={<div className="view-loading" role="status" aria-label="Loading view">Loading view…</div>}>
+          {tab === 'chat' && (
+            <ChatWorkspace
+              selectedConversation={selectedConversation}
+              selectedModel={selectedModel}
+              selectedModelId={selectedModelId}
+              setSelectedModelId={setSelectedModelId}
+              activateModel={activateModel}
+              loadingModelId={loadingModelId}
+              models={models}
+              runtime={runtime}
+              capabilities={dashboard?.capabilities}
+              latestAssistantMessage={latestAssistantMessage}
+              pendingConversation={pendingConversation}
+              composer={composer}
+              setComposer={setComposer}
+              saveToMemory={saveToMemory}
+              sendMessage={sendMessage}
+              resendFromMessage={resendFromMessage}
+              stopGeneration={stopGeneration}
+              sending={sending}
+              receiptMode={receiptMode}
+              setReceiptMode={setReceiptMode}
+              thinkingMode={thinkingMode}
+              setThinkingMode={setThinkingMode}
+              stoppingGeneration={stoppingGeneration}
+              selectedModelRunnable={selectedModelRunnable}
+              selectedModelExperimental={selectedModelExperimental}
+              setTab={navigateTab}
+              showNewChatLanding={startNewChat}
+              demoMode={DEMO_UI}
+            />
+          )}
+
+          {tab === 'analytics' && (
+            <AnalyticsView conversations={conversations} models={models} runtime={runtime} capabilities={dashboard?.capabilities} />
+          )}
+
+          {tab === 'history' && (
+            <HistoryView
+              filteredConversations={filteredConversations}
+              setSelectedConversationId={selectConversation}
+              setTab={navigateTab}
+              deleteConversation={requestDeleteConversation}
+            />
+          )}
+
+          {tab === 'memory' && (
+            <MemoryView
+              memories={memories}
+              memorySearch={memorySearch}
+              setMemorySearch={setMemorySearch}
+              selectedConversation={selectedConversation}
+              latestAssistantMessage={latestAssistantMessage}
+              saveToMemory={saveToMemory}
+              createMemory={createMemory}
+              updateMemory={updateMemory}
+              deleteMemory={deleteMemory}
+              setTab={navigateTab}
+            />
+          )}
+
+          {modelsVisited && (
+            <div hidden={tab !== 'library'}>
+              <ModelsView
+                runtime={runtime}
+                capabilities={dashboard?.capabilities}
+                refreshDashboard={loadDashboard}
+                onOpenChat={() => navigateTab('chat')}
+                unloadCurrentModel={unloadCurrentModel}
+                loadingModelId={loadingModelId}
+                registerForm={registerForm}
+                setRegisterForm={setRegisterForm}
+                registerModel={registerModel}
+                apiBase={apiBase}
+              />
+            </div>
+          )}
+
+          {tab === 'api' && <ApiView runtime={runtime} selectedModel={selectedModel} capabilities={dashboard?.capabilities} />}
+
+          {tab === 'telemetry' && <TelemetryView />}
+
+          {tab === 'compatibility' && (
+            <CompatibilityView
+              capabilities={dashboard?.capabilities}
+              focusRowId={ledgerFocusRow}
+              onFocusConsumed={() => setLedgerFocusRow(null)}
+            />
+          )}
+
+          {tab === 'system' && <SystemView runtime={runtime} selectedModel={selectedModel} capabilities={dashboard?.capabilities} />}
+
+          {tab === 'settings' && (
+            <SettingsView
+              runtime={runtime}
+              apiBase={apiBase}
+              setApiBase={setApiBase}
+              backend={backend}
+              showNotice={showNotice}
+              themePreference={preference}
+              setThemePreference={setPreference}
+              onOpenCluster={() => navigateTab('cluster')}
+              conversationCount={conversations.length}
+              deleteAllConversations={deleteAllConversations}
+              selectedModel={selectedModel}
+              capabilities={dashboard?.capabilities}
+            />
+          )}
+
+          {tab === 'cluster' && <ClusterView showNotice={showNotice} />}
+
+          {tab === 'observatory' && <InferenceObservatoryView apiBase={apiBase} runtime={runtime} selectedModel={selectedModel} capabilities={dashboard?.capabilities} />}
+          </Suspense>
+        </div>
+      </main>
+
+      <CommandPalette
+        open={paletteOpen}
+        onClose={() => setPaletteOpen(false)}
+        setTab={navigateTab}
+        showNewChatLanding={startNewChat}
+        cyclePreference={cyclePreference}
+        models={models}
+        capabilities={dashboard?.capabilities?.model_compatibility || []}
+        setSelectedModelId={setSelectedModelId}
+      />
+      <ShortcutsOverlay open={shortcutsOpen} onClose={() => setShortcutsOpen(false)} />
+
+            <ConfirmDialog
+        open={Boolean(pendingDeleteConversation)}
+        title={pendingDeleteTitle}
+        detail={pendingDeleteDetail}
+        confirmLabel="Delete"
+        busy={deleteBusy}
+        onCancel={() => { if (!deleteBusy) setPendingDeleteConversationId(null) }}
+        onConfirm={handleDeleteConfirm}
+      />
+    </div>
+  )
+}
+
+export default App

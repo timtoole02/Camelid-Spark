@@ -1,0 +1,12 @@
+{
+  "command": [
+    "node",
+    "<repo>\\scripts\\summarize-generation-timings.mjs",
+    "--out",
+    "<repo>\\target\\muster-mb1-20260716-head-052c4030\\api-webui\\generation-timings.summary.json",
+    "<repo>\\target\\muster-mb1-20260716-head-052c4030\\api-webui\\completion.response.json",
+    "<repo>\\target\\muster-mb1-20260716-head-052c4030\\api-webui\\chat.response.json"
+  ],
+  "exit_code": 0,
+  "summary_path": "<repo>\\target\\muster-mb1-20260716-head-052c4030\\api-webui\\generation-timings.summary.json"
+}

@@ -1,0 +1,18 @@
+{
+  "schema": "camelid.fixture-corpus/v1",
+  "lane": "ornith-9b-constrained-vram",
+  "purpose": "five-prompt greedy parity gate (exactness lanes: Items 2, 6)",
+  "frozen": "2026-07-02",
+  "notes": [
+    "Prompts 0-3 are verbatim the certified G-PARITY corpus (qa/ornith/G-PARITY-qwen35-vs-llamacpp.md, PASS 4/4 vs acd79d6); their prompt token-ID arrays below are the certified encodings and MUST NOT change.",
+    "Prompt 4 added by this conductor for corpus breadth (explanatory prose); its token IDs are frozen at Item 1 (tokenizer gate) time.",
+    "Parity method: identical prompt token-ID arrays fed to both engines; greedy (temperature 0, top_k 1, seed 0), n_predict 64 for this conductor (the original gate used 20; 64 per Item 2 spec)."
+  ],
+  "prompts": [
+    { "id": 0, "category": "factual", "text": "What is the capital of France?", "prompt_token_ids": [3710, 369, 279, 6511, 314, 9338, 30] },
+    { "id": 1, "category": "code", "text": "def fibonacci(n):", "prompt_token_ids": [727, 73111, 1393, 1590] },
+    { "id": 2, "category": "completion", "text": "The opposite of hot is", "prompt_token_ids": [760, 13600, 314, 3882, 369] },
+    { "id": 3, "category": "arithmetic", "text": "Count to five: 1, 2, 3,", "prompt_token_ids": [2427, 310, 4097, 25, 220, 16, 11, 220, 17, 11, 220, 18, 11] },
+    { "id": 4, "category": "explanatory", "text": "Explain why the sky is blue in one sentence.", "prompt_token_ids": [814, 20139, 3069, 279, 12515, 369, 6105, 303, 799, 11316, 13] }
+  ]
+}

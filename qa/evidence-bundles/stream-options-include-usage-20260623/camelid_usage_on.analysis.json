@@ -1,0 +1,29 @@
+{
+  "file": "camelid_usage_on.sse",
+  "total_data_frames": 5,
+  "chunk_count_excluding_done": 4,
+  "done_seen": true,
+  "done_is_last_frame": true,
+  "content_chunks_all_omit_usage": true,
+  "usage_chunk_count": 1,
+  "terminal_usage_chunk": {
+    "choices_is_empty_array": true,
+    "has_id": true,
+    "has_created": true,
+    "has_model": true,
+    "object": "chat.completion.chunk",
+    "usage_keys": [
+      "completion_tokens",
+      "prompt_tokens",
+      "total_tokens"
+    ],
+    "usage_values": {
+      "prompt_tokens": 25,
+      "completion_tokens": 2,
+      "total_tokens": 27
+    }
+  },
+  "empty_choice_chunk_count": 1,
+  "usage_after_finish_reason": true,
+  "usage_before_done": true
+}

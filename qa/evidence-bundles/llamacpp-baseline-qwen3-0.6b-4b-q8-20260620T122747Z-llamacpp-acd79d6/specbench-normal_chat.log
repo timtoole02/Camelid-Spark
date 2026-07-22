@@ -1,0 +1,47 @@
+﻿
+
+Explain in a few clear sentences what the difference is between a process and a thread, and when you would choose one over the other. Also, explain what a context switch is and how it relates to threads and processes. Additionally, explain what a deadlock is and how to avoid it. Finally, explain what a race condition is and how to avoid it. Please make sure to use simple language and avoid jargon as much as possible.
+
+Sure! Here's a simple explanation:
+
+**Process vs. Thread:**
+A **process** is like a separate program that runs on your computer. It has its own memory and resources. A **thread** is like a smaller part of a process that can do tasks. You use threads when you want to do multiple things at once within the same program,
+
+
+
+
+0.00.023.890 I common_init_result: fitting params to device memory ...
+0.00.023.895 I common_init_result: (for bugs during this step try to reproduce them with -fit off, or provide --verbose logs if the bug only occurs with -fit on)
+0.00.673.683 W common_fit_params: failed to fit params to free device memory: n_gpu_layers already set by user to 99, abort
+0.01.005.546 W load: control-looking token: 128247 '</s>' was not control-type; this is probably a bug in the model. its type will be overridden
+0.03.286.035 W llama_context: n_ctx_seq (2048) < n_ctx_train (40960) -- the full capacity of the model will not be utilized
+0.03.304.508 I common_init_from_params: warming up the model with an empty run - please wait ... (--no-warmup to disable)
+0.03.361.274 I common_init_result: fitting params to device memory ...
+0.03.361.279 I common_init_result: (for bugs during this step try to reproduce them with -fit off, or provide --verbose logs if the bug only occurs with -fit on)
+0.03.651.826 W common_fit_params: failed to fit params to free device memory: n_gpu_layers already set by user to 99, abort
+0.03.903.304 W load: control-looking token: 128247 '</s>' was not control-type; this is probably a bug in the model. its type will be overridden
+0.04.278.158 W llama_context: n_ctx_seq (2048) < n_ctx_train (40960) -- the full capacity of the model will not be utilized
+0.04.294.072 I common_init_from_params: warming up the model with an empty run - please wait ... (--no-warmup to disable)
+0.06.990.905 I encoded   28 tokens in    0.072 seconds, speed:  387.860 t/s
+0.06.990.907 I decoded  132 tokens in    2.602 seconds, speed:   50.730 t/s
+0.06.990.907 I 
+0.06.990.907 I n_draft   = 8
+0.06.990.908 I n_predict = 132
+0.06.990.908 I n_drafted = 320
+0.06.990.908 I n_accept  = 91
+0.06.990.909 I accept    = 28.438%
+0.06.990.909 I 
+0.06.990.909 I draft:
+
+0.06.990.914 I 
+0.06.990.914 I target:
+
+0.06.990.916 I common_perf_print:    sampling time =      31.00 ms
+0.06.990.916 I common_perf_print:    samplers time =      12.85 ms /   132 tokens
+0.06.990.917 I common_perf_print:        load time =    2455.13 ms
+0.06.990.918 I common_perf_print: prompt eval time =    1163.17 ms /   388 tokens (    3.00 ms per token,   333.57 tokens per second)
+0.06.990.920 I common_perf_print:        eval time =       0.00 ms /     1 runs   (    0.00 ms per token,      inf tokens per second)
+0.06.990.920 I common_perf_print:       total time =     651.53 ms /   389 tokens
+0.06.990.922 I common_perf_print: unaccounted time =    -542.64 ms / -83.3 %      (total - sampling - prompt eval - eval) / (total)
+0.06.990.923 I common_perf_print:    graphs reused =         39
+

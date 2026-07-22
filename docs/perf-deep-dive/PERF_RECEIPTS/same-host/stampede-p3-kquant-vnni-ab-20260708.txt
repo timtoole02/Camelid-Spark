@@ -1,0 +1,7 @@
+single-engine four-leg A/B (vnni-prefill-ab.mjs pattern), camelid af5be7a6+vnni-inner, 3B Q4_K_M, CUDA hidden, no concurrent llama-server, bench-memory-safety compliant (7.7GB free pre-run, no orphans before/after):
+off            : 14.38, 14.64, 14.72, 14.77 | median 14.68 | kq_taken: 0
+owner+vnni     : 27.24, 27.31, 27.52, 27.55 | median 27.41 | kq_taken: 392
+owner+avx2only : 24.22, 24.34, 24.40, 24.63 | median 24.37 | kq_taken: 392
+off (drift)    : 13.45, 14.05, 14.24, 14.32 | median 14.14 | kq_taken: 0
+vnni/off: 1.868x | avx2/off: 1.660x | vnni/avx2: 1.125x | drift: 0.964x
+Prefill is compute-bound so the AVX-512 downclock ruling (decode-only) does not bind; consistent with the Q8 owner v2/v3 VNNI receipts.

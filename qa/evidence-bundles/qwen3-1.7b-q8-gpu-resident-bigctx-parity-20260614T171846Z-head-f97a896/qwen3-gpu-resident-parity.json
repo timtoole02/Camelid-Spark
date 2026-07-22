@@ -1,0 +1,119 @@
+{
+  "schema": "camelid.qwen3.gpu_resident_parity_bundle.v1",
+  "row_id": "qwen3_1_7b_instruct_q8_0",
+  "display_name": "Qwen3 1.7B Instruct Q8_0 — GPU-resident path",
+  "mode": "chatml_thinking_disabled_greedy",
+  "proves": [
+    "GPU-resident decode+prefill applies per-head QK-norm and is token+text identical to the cpu_reference path (itself proven token+text identical to llama.cpp).",
+    "GPU-resident single-shot prefill is token+text identical to the pinned llama.cpp reference at a 15,373-token context."
+  ],
+  "self_parity_vs_cpu_reference": {
+    "note": "Both endpoints are camelid Qwen3-1.7B Q8_0; one with CAMELID_METAL_RESIDENT_DECODE/PREFILL=1, one with them=0. Greedy, ChatML thinking-disabled, 64 max tokens.",
+    "all_pass": true,
+    "rows": [
+      {
+        "prompt": "What is the capital of France?",
+        "resident_text": "The capital of France is Paris.",
+        "cpu_reference_text": "The capital of France is Paris.",
+        "text_match": true,
+        "token_match": true,
+        "n_content_tokens": 7
+      },
+      {
+        "prompt": "Name a primary color.",
+        "resident_text": "A primary color is **red**, **blue**, or **yellow**. These are the three basic colors used in color theory to create all other colors through mixing.",
+        "cpu_reference_text": "A primary color is **red**, **blue**, or **yellow**. These are the three basic colors used in color theory to create all other colors through mixing.",
+        "text_match": true,
+        "token_match": true,
+        "n_content_tokens": 33
+      },
+      {
+        "prompt": "Say hello.",
+        "resident_text": "Hello! How can I assist you today? 😊",
+        "cpu_reference_text": "Hello! How can I assist you today? 😊",
+        "text_match": true,
+        "token_match": true,
+        "n_content_tokens": 11
+      },
+      {
+        "prompt": "Write one sentence about the ocean.",
+        "resident_text": "The ocean covers more than 70% of the Earth's surface and is home to diverse ecosystems, marine life, and plays a crucial role in regulating the planet's climate.",
+        "cpu_reference_text": "The ocean covers more than 70% of the Earth's surface and is home to diverse ecosystems, marine life, and plays a crucial role in regulating the planet's climate.",
+        "text_match": true,
+        "token_match": true,
+        "n_content_tokens": 36
+      },
+      {
+        "prompt": "List three prime numbers.",
+        "resident_text": "Three prime numbers are:\n\n1. 2  \n2. 3  \n3. 5  \n\nThese are the first three prime numbers in the sequence of prime numbers.",
+        "cpu_reference_text": "Three prime numbers are:\n\n1. 2  \n2. 3  \n3. 5  \n\nThese are the first three prime numbers in the sequence of prime numbers.",
+        "text_match": true,
+        "token_match": true,
+        "n_content_tokens": 34
+      }
+    ]
+  },
+  "big_context_vs_llama_cpp": {
+    "note": "Single user turn whose rendered ChatML prompt tokenizes to 15,373 tokens (just under the 16,384 single-shot resident-prefill ceiling). camelid resident vs pinned llama.cpp /completion fed the identical ChatML string. Greedy, 24 tokens.",
+    "prompt_tokens_evaluated": 15373,
+    "resident_prefill_engaged": "yes - single-shot; resident decode trace shows positions 0..15371 filled by prefill, decode begins at pos 15372 (no per-token seeding below the prompt length).",
+    "gen_tokens": 24,
+    "oracle_text": "The recurring theme of the observations is that the study of various landforms and geological features over many seasons contributes to the gradual",
+    "resident_text": "The recurring theme of the observations is that the study of various landforms and geological features over many seasons contributes to the gradual",
+    "oracle_content_tokens": [
+      785,
+      45250,
+      6912,
+      315,
+      279,
+      23722,
+      374,
+      429,
+      279,
+      3920,
+      315,
+      5257,
+      4268,
+      9807,
+      323,
+      85178,
+      4419,
+      916,
+      1657,
+      15584,
+      42972,
+      311,
+      279,
+      52622
+    ],
+    "resident_reencoded_tokens": [
+      785,
+      45250,
+      6912,
+      315,
+      279,
+      23722,
+      374,
+      429,
+      279,
+      3920,
+      315,
+      5257,
+      4268,
+      9807,
+      323,
+      85178,
+      4419,
+      916,
+      1657,
+      15584,
+      42972,
+      311,
+      279,
+      52622
+    ],
+    "text_match": true,
+    "token_match": true
+  },
+  "all_pass": true
+}

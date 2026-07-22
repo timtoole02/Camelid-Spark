@@ -1,0 +1,44 @@
+{
+  "schema": "camelid.qwen3.cuda_resident.throughput_baseline.v1",
+  "label": "P6 cuda-streams on llama3b-q8 depth",
+  "base": "http://127.0.0.1:8190",
+  "mode": "greedy_temperature_0",
+  "gpu_resident_active": true,
+  "runs": 5,
+  "decode": {
+    "generated_tokens": 128,
+    "context_prompt_tokens": 1881,
+    "tok_s": {
+      "median": 23.8,
+      "min": 21.49,
+      "max": 28.74,
+      "stddev": 2.55,
+      "n": 5
+    },
+    "short_prefill_first_token_ms": {
+      "median": 37928.52,
+      "min": 37802.46,
+      "max": 38813.46,
+      "stddev": 376.54,
+      "n": 5
+    }
+  },
+  "prefill": {
+    "prompt_tokens": 572,
+    "tok_s": {
+      "median": 74.01,
+      "min": 73.7,
+      "max": 74.53,
+      "stddev": 0.27,
+      "n": 5
+    },
+    "total_ms": {
+      "median": 7728.18,
+      "min": 7674.94,
+      "max": 7761.41,
+      "stddev": 28.36,
+      "n": 5
+    }
+  },
+  "note": "median-of-N, same session; RTX 3060 Laptop 6GB. Pre-optimization baseline."
+}

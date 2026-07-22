@@ -1,0 +1,31 @@
+{
+  "schema": "camelid.q8-prefill-owner/v2",
+  "generated_utc": "2026-06-28",
+  "lane": "Lane 1 v2 — AVX-512/VNNI (dpbusd) microkernel for the unified tiled Q8_0 prefill owner",
+  "host": "win i7-11800H (8C/16T Tiger Lake, AVX-512 + AVX512-VNNI, ~16 GiB DDR4, RTX 3060 6GB hidden)",
+  "camelid_head": "51018c00 + feat/q8-prefill-owner-lane1 (v1 14933fb5 + v2)",
+  "llama_pin": "acd79d6",
+  "ubuntu_host": "PENDING (Windows-only per Tim, 2026-06-28)",
+  "flag": "CAMELID_X86_Q8_MATMUL_OWNER=all + CAMELID_X86_Q8_MATMUL_OWNER_VNNI=1 (default-on, gated by runtime avx512f/bw/vnni detection). VNNI=0 forces the v1 AVX2 microkernel.",
+  "method": "bench-generate (in-binary, default plan, CUDA hidden, KV pinned), greedy temp=0, ~516-tok prompt, median-of-5. llama reference = llama-bench pp512 -r5.",
+
+  "what_v2_is": "Bit-exact AVX-512 VNNI 4x4 microkernel (q8_0_packed_rows4_gemm4_accumulate_block_avx512vnni): replaces the v1 AVX2 maddubs+madd+hadd with a single _mm512_dpbusd_epi32 per (chunk-pair, input-lane); the 64-byte weight band is loaded ONCE per pair and reused across the 4 input lanes. This is llama.cpp tinyBLAS's exact compute technique. The integer dot is identical (associative i32, no Q8 overflow) and the f32 scale order is unchanged, so output is byte-identical to v1/scalar.",
+
+  "parity": {
+    "kernel_bit_identity": "PASS — unit test asserts to_bits()==baseline for BOTH microkernels (vnni=0 and vnni=1) across rows {4,5,8,13,16} x roles {ffn_down, linear, attention_k}",
+    "end_to_end_greedy": "PASS — first_divergent_generated_token_index == -1 (VNNI owner vs off) on Llama-3.2-3B-Q8; identical 32 generated token IDs and text",
+    "downclock_check": "AVX-512 did NOT regress prefill on this Tiger-Lake box (sustained compute amortizes the clock drop, as llama demonstrates running AVX-512 here). The prior AVX-512 *decode* downclock concern does not apply to compute-bound prefill."
+  },
+
+  "prefill_tok_s_median5": {
+    "note": "off = default shipping path; ownerAVX2 = v1; ownerVNNI = v2. Win SCALES WITH WEIGHT SIZE.",
+    "llama-3.2-3b-q8": { "off": 25.96, "owner_avx2": 26.74, "owner_vnni": 27.53, "llama": 32.5,  "ratio_off": 0.80, "ratio_vnni": 0.85, "vnni_vs_off": "+6.0%" },
+    "qwen3-4b-q8":     { "off": 18.87, "owner_avx2": 20.68, "owner_vnni": 21.57, "llama": 26.57, "ratio_off": 0.71, "ratio_vnni": 0.81, "vnni_vs_off": "+14.3%" }
+  },
+
+  "decode": "Unchanged by design (owner is prefill-only, rows>=4; decode rows=1 -> default path).",
+
+  "verdict": "HONEST WIN. The VNNI owner is bit-exact, parity-certified, and closes the prefill gap to llama.cpp from 0.78x/0.67x (3B/4B) to 0.85x/0.81x — +6% on 3B, +14% on 4B, scaling with size. Still short of full match (the remaining gap is wider register tiles / N-panel L2 blocking + cross-projection single-quant — v3). Default-off; promotion still requires the Ubuntu host (both-host treaty), but on Windows it is a clean, measured, parity-clean gain.",
+
+  "next_v3": "Wider register tile (4x8 via two 4x4 calls; bit-exact) + GotoBLAS-style 2D cache blocking (block input dimension so both operands stay cache-resident) + cross-projection single-quant (attn_norm 3x->1x, ffn_norm 2x->1x per layer). Each is bit-exact-preservable and AVX2/VNNI-agnostic."
+}

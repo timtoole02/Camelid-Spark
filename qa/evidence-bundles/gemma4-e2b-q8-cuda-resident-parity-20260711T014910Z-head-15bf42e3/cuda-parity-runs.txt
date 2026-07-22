@@ -1,0 +1,40 @@
+gemma4 E2B Q8_0 Windows CUDA-resident parity — raw harness output
+tests/gemma4_generation_parity.rs CUDA branch, cargo test --release --features cuda
+CAMELID_GEMMA4_GGUF=<...>/gemma-4-E2B-it-Q8_0.gguf CAMELID_GEMMA4_CUDA=1
+
+=== basic_v1 (run 1) ===
+row gemma-4-E2B-it-Q8_0: 5 prompts, runtime = cuda-resident
+  capital-france OK (2 tokens): " Paris."
+  count-primes OK (17 tokens): " 2, 3, 5, 7, and 11."
+  haiku-sea OK (18 tokens): "Blue waves crash on sand,\nSalt spray kisses salty air,\nOcean whispers deep."
+  rust-fn OK (24 tokens): "\n    a + b\n}\n\nfn main() {\n    let sum = add(5, 3);"
+  translate-de OK (2 tokens): " guten morgen"
+test result: ok. 1 passed; 0 failed; finished in 13.09s
+
+=== basic_v1 (run 2, GPU-sampled) ===
+GPU_PEAK_VRAM_MiB=2709  GPU_PEAK_UTIL_PCT=90  samples=15
+row gemma-4-E2B-it-Q8_0: 5 prompts, runtime = cuda-resident
+  capital-france OK (2 tokens): " Paris."
+  count-primes OK (17 tokens): " 2, 3, 5, 7, and 11."
+  haiku-sea OK (18 tokens): "Blue waves crash on sand,\nSalt spray kisses salty air,\nOcean whispers deep."
+  rust-fn OK (24 tokens): "\n    a + b\n}\n\nfn main() {\n    let sum = add(5, 3);"
+  translate-de OK (2 tokens): " guten morgen"
+test result: ok. 1 passed; 0 failed; finished in 10.89s
+
+=== deep_v1 (4 prompts) ===
+recorded frontier note: primary-colors cpu_known_frontier parity_prefix_tokens=11 applies_to_gpu=true
+  primary-colors OK to the recorded 11-token applies_to_gpu frontier (documented near-tie, top-2 gap 0.0869)
+  village-story OK (50 tokens): " lived a young girl named Lily. Lily had hair the color of spun gold and eyes the ..."
+  water-cycle OK (50 tokens): "\n\n1. **Evaporation:** The sun heats up water in oceans, lakes, and rivers, turning it ..."
+  pancake-recipe OK (50 tokens): "**Ingredients:**\n* 1 cup all-purpose flour\n* 2 tablespoons sugar ..."
+test result: ok. 1 passed; 0 failed
+
+=== context ladder ===
+context_512_v1   OK (recall "512"):  test result: ok. 1 passed; finished in 17.32s
+context_1024_v1  OK (recall "1024"): test result: ok. 1 passed; finished in 32.99s
+context_2048_v1  OK (recall "2048"): test result: ok. 1 passed; finished in 76.90s   [GPU-sampled: 2741 MiB / 100% util]
+context_4096_v1  OK (recall "4096"): test result: ok. 1 passed; finished in 194.92s
+context_8192_v1  OK (recall "8192"): test result: ok. 1 passed; finished in 527.74s
+
+ALL PACKS PASS. GPU-resident execution verified (nvidia-smi: 2709-2741 MiB VRAM, 90-100% util).
+Comparator: llama.cpp 5d56eff (committed oracles under qa/gemma4/oracle/).

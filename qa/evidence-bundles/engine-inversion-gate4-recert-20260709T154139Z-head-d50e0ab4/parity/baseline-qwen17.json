@@ -1,0 +1,3185 @@
+{
+  "bin": "<scratch>/camelid-baseline-ffada00f.exe",
+  "model": "<home>/models/Qwen3-1.7B-Q8_0.gguf",
+  "pid": 3240,
+  "chat": [
+    {
+      "id": "<id>",
+      "object": "chat.completion",
+      "created": 0,
+      "model": "Qwen3 1.7B Instruct",
+      "choices": [
+        {
+          "index": 0,
+          "message": {
+            "role": "assistant",
+            "content": "Hello! How can I assist you today? 😊"
+          },
+          "finish_reason": "stop"
+        }
+      ],
+      "usage": {
+        "prompt_tokens": 13,
+        "completion_tokens": 12,
+        "total_tokens": 25
+      },
+      "camelid": {
+        "prompt_token_ids": [
+          151644,
+          872,
+          198,
+          14990,
+          151645,
+          198,
+          151644,
+          77091,
+          198,
+          151667,
+          271,
+          151668,
+          271
+        ],
+        "generated_token_ids": [
+          9707,
+          0,
+          2585,
+          646,
+          358,
+          7789,
+          498,
+          3351,
+          30,
+          26525,
+          232,
+          151645
+        ],
+        "dense_metadata": {
+          "embedding_length": 2048,
+          "attention_head_count": 16,
+          "attention_head_count_kv": 8,
+          "head_dim": 128,
+          "rope_dimension_count": 128,
+          "rope_freq_base": 1000000,
+          "rope_scaling_type": "none",
+          "rope_scaling_factor": null,
+          "rope_scaling_original_context_length": null,
+          "rope_scaling_low_freq_factor": null,
+          "rope_scaling_high_freq_factor": null,
+          "rope_pairing": "adjacent_even_odd",
+          "rope_direction": "forward",
+          "rope_position_mode": "zero_based",
+          "gqa_head_mapping": "grouped",
+          "attention_score_scale": "head_dim",
+          "linear_accumulation": "f32",
+          "ffn_gate_up_order": "gate_up",
+          "rms_norm_epsilon": 0.000001,
+          "rms_norm_effective_epsilon": 0.000001,
+          "square_linear_diagnostic_layout": "transposed",
+          "rectangular_linear_diagnostic_layout": "auto",
+          "token_embedding_shape": [
+            151936,
+            2048
+          ],
+          "output_shape": [
+            2048,
+            151936
+          ],
+          "output_is_tied_embedding": true,
+          "output_projection_layout": "input_output",
+          "output_projection_diagnostic_layout": "token_major",
+          "zero_attention_delta": "none",
+          "zero_ffn_delta": "none",
+          "projection_orientations": {
+            "attention_q": {
+              "shape": [
+                2048,
+                2048
+              ],
+              "input_width": 2048,
+              "output_width": 2048,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "rhs_transposed",
+              "square_diagnostic_applies": true
+            },
+            "attention_k": {
+              "shape": [
+                2048,
+                1024
+              ],
+              "input_width": 2048,
+              "output_width": 1024,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "descriptor",
+              "square_diagnostic_applies": false
+            },
+            "attention_v": {
+              "shape": [
+                2048,
+                1024
+              ],
+              "input_width": 2048,
+              "output_width": 1024,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "descriptor",
+              "square_diagnostic_applies": false
+            },
+            "attention_output": {
+              "shape": [
+                2048,
+                2048
+              ],
+              "input_width": 2048,
+              "output_width": 2048,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "rhs_transposed",
+              "square_diagnostic_applies": true
+            },
+            "ffn_gate": {
+              "shape": [
+                2048,
+                6144
+              ],
+              "input_width": 2048,
+              "output_width": 6144,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "descriptor",
+              "square_diagnostic_applies": false
+            },
+            "ffn_up": {
+              "shape": [
+                2048,
+                6144
+              ],
+              "input_width": 2048,
+              "output_width": 6144,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "descriptor",
+              "square_diagnostic_applies": false
+            },
+            "ffn_down": {
+              "shape": [
+                6144,
+                2048
+              ],
+              "input_width": 6144,
+              "output_width": 2048,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "descriptor",
+              "square_diagnostic_applies": false
+            }
+          }
+        },
+        "top_logits": [
+          {
+            "token_id": 9707,
+            "logit": 41.44717,
+            "probability": 0.9998666,
+            "rank": 1,
+            "selected": false,
+            "text": "Hello"
+          },
+          {
+            "token_id": 13048,
+            "logit": 32.490875,
+            "probability": 0.00012890583,
+            "rank": 2,
+            "selected": false,
+            "text": "Hi"
+          },
+          {
+            "token_id": 78078,
+            "logit": 27.917702,
+            "probability": 0.0000013309708,
+            "rank": 3,
+            "selected": false,
+            "text": "Hallo"
+          },
+          {
+            "token_id": 14990,
+            "logit": 27.792622,
+            "probability": 0.0000011744836,
+            "rank": 4,
+            "selected": false,
+            "text": "hello"
+          },
+          {
+            "token_id": 68012,
+            "logit": 27.536503,
+            "probability": 9.091091e-7,
+            "rank": 5,
+            "selected": false,
+            "text": "Hola"
+          },
+          {
+            "token_id": 21927,
+            "logit": 26.930603,
+            "probability": 4.959947e-7,
+            "rank": 6,
+            "selected": false,
+            "text": " Hello"
+          },
+          {
+            "token_id": 13936,
+            "logit": 26.163216,
+            "probability": 2.3025281e-7,
+            "rank": 7,
+            "selected": false,
+            "text": "Welcome"
+          },
+          {
+            "token_id": 18665,
+            "logit": 26.073803,
+            "probability": 2.1055885e-7,
+            "rank": 8,
+            "selected": false,
+            "text": "Hey"
+          }
+        ],
+        "output_projection": []
+      }
+    },
+    {
+      "id": "<id>",
+      "object": "chat.completion",
+      "created": 0,
+      "model": "Qwen3 1.7B Instruct",
+      "choices": [
+        {
+          "index": 0,
+          "message": {
+            "role": "assistant",
+            "content": "Hello! How can I assist you today? 😊"
+          },
+          "finish_reason": "stop"
+        }
+      ],
+      "usage": {
+        "prompt_tokens": 13,
+        "completion_tokens": 12,
+        "total_tokens": 25
+      },
+      "camelid": {
+        "prompt_token_ids": [
+          151644,
+          872,
+          198,
+          14990,
+          151645,
+          198,
+          151644,
+          77091,
+          198,
+          151667,
+          271,
+          151668,
+          271
+        ],
+        "generated_token_ids": [
+          9707,
+          0,
+          2585,
+          646,
+          358,
+          7789,
+          498,
+          3351,
+          30,
+          26525,
+          232,
+          151645
+        ],
+        "dense_metadata": {
+          "embedding_length": 2048,
+          "attention_head_count": 16,
+          "attention_head_count_kv": 8,
+          "head_dim": 128,
+          "rope_dimension_count": 128,
+          "rope_freq_base": 1000000,
+          "rope_scaling_type": "none",
+          "rope_scaling_factor": null,
+          "rope_scaling_original_context_length": null,
+          "rope_scaling_low_freq_factor": null,
+          "rope_scaling_high_freq_factor": null,
+          "rope_pairing": "adjacent_even_odd",
+          "rope_direction": "forward",
+          "rope_position_mode": "zero_based",
+          "gqa_head_mapping": "grouped",
+          "attention_score_scale": "head_dim",
+          "linear_accumulation": "f32",
+          "ffn_gate_up_order": "gate_up",
+          "rms_norm_epsilon": 0.000001,
+          "rms_norm_effective_epsilon": 0.000001,
+          "square_linear_diagnostic_layout": "transposed",
+          "rectangular_linear_diagnostic_layout": "auto",
+          "token_embedding_shape": [
+            151936,
+            2048
+          ],
+          "output_shape": [
+            2048,
+            151936
+          ],
+          "output_is_tied_embedding": true,
+          "output_projection_layout": "input_output",
+          "output_projection_diagnostic_layout": "token_major",
+          "zero_attention_delta": "none",
+          "zero_ffn_delta": "none",
+          "projection_orientations": {
+            "attention_q": {
+              "shape": [
+                2048,
+                2048
+              ],
+              "input_width": 2048,
+              "output_width": 2048,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "rhs_transposed",
+              "square_diagnostic_applies": true
+            },
+            "attention_k": {
+              "shape": [
+                2048,
+                1024
+              ],
+              "input_width": 2048,
+              "output_width": 1024,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "descriptor",
+              "square_diagnostic_applies": false
+            },
+            "attention_v": {
+              "shape": [
+                2048,
+                1024
+              ],
+              "input_width": 2048,
+              "output_width": 1024,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "descriptor",
+              "square_diagnostic_applies": false
+            },
+            "attention_output": {
+              "shape": [
+                2048,
+                2048
+              ],
+              "input_width": 2048,
+              "output_width": 2048,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "rhs_transposed",
+              "square_diagnostic_applies": true
+            },
+            "ffn_gate": {
+              "shape": [
+                2048,
+                6144
+              ],
+              "input_width": 2048,
+              "output_width": 6144,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "descriptor",
+              "square_diagnostic_applies": false
+            },
+            "ffn_up": {
+              "shape": [
+                2048,
+                6144
+              ],
+              "input_width": 2048,
+              "output_width": 6144,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "descriptor",
+              "square_diagnostic_applies": false
+            },
+            "ffn_down": {
+              "shape": [
+                6144,
+                2048
+              ],
+              "input_width": 6144,
+              "output_width": 2048,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "descriptor",
+              "square_diagnostic_applies": false
+            }
+          }
+        },
+        "top_logits": [
+          {
+            "token_id": 9707,
+            "logit": 41.44717,
+            "probability": 0.9998666,
+            "rank": 1,
+            "selected": false,
+            "text": "Hello"
+          },
+          {
+            "token_id": 13048,
+            "logit": 32.490875,
+            "probability": 0.00012890583,
+            "rank": 2,
+            "selected": false,
+            "text": "Hi"
+          },
+          {
+            "token_id": 78078,
+            "logit": 27.917702,
+            "probability": 0.0000013309708,
+            "rank": 3,
+            "selected": false,
+            "text": "Hallo"
+          },
+          {
+            "token_id": 14990,
+            "logit": 27.792622,
+            "probability": 0.0000011744836,
+            "rank": 4,
+            "selected": false,
+            "text": "hello"
+          },
+          {
+            "token_id": 68012,
+            "logit": 27.536503,
+            "probability": 9.091091e-7,
+            "rank": 5,
+            "selected": false,
+            "text": "Hola"
+          },
+          {
+            "token_id": 21927,
+            "logit": 26.930603,
+            "probability": 4.959947e-7,
+            "rank": 6,
+            "selected": false,
+            "text": " Hello"
+          },
+          {
+            "token_id": 13936,
+            "logit": 26.163216,
+            "probability": 2.3025281e-7,
+            "rank": 7,
+            "selected": false,
+            "text": "Welcome"
+          },
+          {
+            "token_id": 18665,
+            "logit": 26.073803,
+            "probability": 2.1055885e-7,
+            "rank": 8,
+            "selected": false,
+            "text": "Hey"
+          }
+        ],
+        "output_projection": []
+      }
+    },
+    {
+      "id": "<id>",
+      "object": "chat.completion",
+      "created": 0,
+      "model": "Qwen3 1.7B Instruct",
+      "choices": [
+        {
+          "index": 0,
+          "message": {
+            "role": "assistant",
+            "content": "Hello! How can I assist you today? 😊"
+          },
+          "finish_reason": "stop"
+        }
+      ],
+      "usage": {
+        "prompt_tokens": 13,
+        "completion_tokens": 12,
+        "total_tokens": 25
+      },
+      "camelid": {
+        "prompt_token_ids": [
+          151644,
+          872,
+          198,
+          14990,
+          151645,
+          198,
+          151644,
+          77091,
+          198,
+          151667,
+          271,
+          151668,
+          271
+        ],
+        "generated_token_ids": [
+          9707,
+          0,
+          2585,
+          646,
+          358,
+          7789,
+          498,
+          3351,
+          30,
+          26525,
+          232,
+          151645
+        ],
+        "dense_metadata": {
+          "embedding_length": 2048,
+          "attention_head_count": 16,
+          "attention_head_count_kv": 8,
+          "head_dim": 128,
+          "rope_dimension_count": 128,
+          "rope_freq_base": 1000000,
+          "rope_scaling_type": "none",
+          "rope_scaling_factor": null,
+          "rope_scaling_original_context_length": null,
+          "rope_scaling_low_freq_factor": null,
+          "rope_scaling_high_freq_factor": null,
+          "rope_pairing": "adjacent_even_odd",
+          "rope_direction": "forward",
+          "rope_position_mode": "zero_based",
+          "gqa_head_mapping": "grouped",
+          "attention_score_scale": "head_dim",
+          "linear_accumulation": "f32",
+          "ffn_gate_up_order": "gate_up",
+          "rms_norm_epsilon": 0.000001,
+          "rms_norm_effective_epsilon": 0.000001,
+          "square_linear_diagnostic_layout": "transposed",
+          "rectangular_linear_diagnostic_layout": "auto",
+          "token_embedding_shape": [
+            151936,
+            2048
+          ],
+          "output_shape": [
+            2048,
+            151936
+          ],
+          "output_is_tied_embedding": true,
+          "output_projection_layout": "input_output",
+          "output_projection_diagnostic_layout": "token_major",
+          "zero_attention_delta": "none",
+          "zero_ffn_delta": "none",
+          "projection_orientations": {
+            "attention_q": {
+              "shape": [
+                2048,
+                2048
+              ],
+              "input_width": 2048,
+              "output_width": 2048,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "rhs_transposed",
+              "square_diagnostic_applies": true
+            },
+            "attention_k": {
+              "shape": [
+                2048,
+                1024
+              ],
+              "input_width": 2048,
+              "output_width": 1024,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "descriptor",
+              "square_diagnostic_applies": false
+            },
+            "attention_v": {
+              "shape": [
+                2048,
+                1024
+              ],
+              "input_width": 2048,
+              "output_width": 1024,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "descriptor",
+              "square_diagnostic_applies": false
+            },
+            "attention_output": {
+              "shape": [
+                2048,
+                2048
+              ],
+              "input_width": 2048,
+              "output_width": 2048,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "rhs_transposed",
+              "square_diagnostic_applies": true
+            },
+            "ffn_gate": {
+              "shape": [
+                2048,
+                6144
+              ],
+              "input_width": 2048,
+              "output_width": 6144,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "descriptor",
+              "square_diagnostic_applies": false
+            },
+            "ffn_up": {
+              "shape": [
+                2048,
+                6144
+              ],
+              "input_width": 2048,
+              "output_width": 6144,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "descriptor",
+              "square_diagnostic_applies": false
+            },
+            "ffn_down": {
+              "shape": [
+                6144,
+                2048
+              ],
+              "input_width": 6144,
+              "output_width": 2048,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "descriptor",
+              "square_diagnostic_applies": false
+            }
+          }
+        },
+        "top_logits": [
+          {
+            "token_id": 9707,
+            "logit": 41.44717,
+            "probability": 0.9998666,
+            "rank": 1,
+            "selected": false,
+            "text": "Hello"
+          },
+          {
+            "token_id": 13048,
+            "logit": 32.490875,
+            "probability": 0.00012890583,
+            "rank": 2,
+            "selected": false,
+            "text": "Hi"
+          },
+          {
+            "token_id": 78078,
+            "logit": 27.917702,
+            "probability": 0.0000013309708,
+            "rank": 3,
+            "selected": false,
+            "text": "Hallo"
+          },
+          {
+            "token_id": 14990,
+            "logit": 27.792622,
+            "probability": 0.0000011744836,
+            "rank": 4,
+            "selected": false,
+            "text": "hello"
+          },
+          {
+            "token_id": 68012,
+            "logit": 27.536503,
+            "probability": 9.091091e-7,
+            "rank": 5,
+            "selected": false,
+            "text": "Hola"
+          },
+          {
+            "token_id": 21927,
+            "logit": 26.930603,
+            "probability": 4.959947e-7,
+            "rank": 6,
+            "selected": false,
+            "text": " Hello"
+          },
+          {
+            "token_id": 13936,
+            "logit": 26.163216,
+            "probability": 2.3025281e-7,
+            "rank": 7,
+            "selected": false,
+            "text": "Welcome"
+          },
+          {
+            "token_id": 18665,
+            "logit": 26.073803,
+            "probability": 2.1055885e-7,
+            "rank": 8,
+            "selected": false,
+            "text": "Hey"
+          }
+        ],
+        "output_projection": []
+      }
+    },
+    {
+      "id": "<id>",
+      "object": "chat.completion",
+      "created": 0,
+      "model": "Qwen3 1.7B Instruct",
+      "choices": [
+        {
+          "index": 0,
+          "message": {
+            "role": "assistant",
+            "content": "The three primary colors are **red, blue, and yellow**. These are the fundamental colors in the traditional **RYB color model** (used in art and painting), which is based on the color mixing of light (RGB) and"
+          },
+          "finish_reason": "length"
+        }
+      ],
+      "usage": {
+        "prompt_tokens": 17,
+        "completion_tokens": 48,
+        "total_tokens": 65
+      },
+      "camelid": {
+        "prompt_token_ids": [
+          151644,
+          872,
+          198,
+          785,
+          2326,
+          6028,
+          7987,
+          525,
+          151645,
+          198,
+          151644,
+          77091,
+          198,
+          151667,
+          271,
+          151668,
+          271
+        ],
+        "generated_token_ids": [
+          785,
+          2326,
+          6028,
+          7987,
+          525,
+          3070,
+          1151,
+          11,
+          6303,
+          11,
+          323,
+          13753,
+          334,
+          13,
+          4220,
+          525,
+          279,
+          15811,
+          7987,
+          304,
+          279,
+          8606,
+          3070,
+          11242,
+          33,
+          1894,
+          1614,
+          334,
+          320,
+          2591,
+          304,
+          1947,
+          323,
+          18824,
+          701,
+          892,
+          374,
+          3118,
+          389,
+          279,
+          1894,
+          26792,
+          315,
+          3100,
+          320,
+          18184,
+          8,
+          323
+        ],
+        "dense_metadata": {
+          "embedding_length": 2048,
+          "attention_head_count": 16,
+          "attention_head_count_kv": 8,
+          "head_dim": 128,
+          "rope_dimension_count": 128,
+          "rope_freq_base": 1000000,
+          "rope_scaling_type": "none",
+          "rope_scaling_factor": null,
+          "rope_scaling_original_context_length": null,
+          "rope_scaling_low_freq_factor": null,
+          "rope_scaling_high_freq_factor": null,
+          "rope_pairing": "adjacent_even_odd",
+          "rope_direction": "forward",
+          "rope_position_mode": "zero_based",
+          "gqa_head_mapping": "grouped",
+          "attention_score_scale": "head_dim",
+          "linear_accumulation": "f32",
+          "ffn_gate_up_order": "gate_up",
+          "rms_norm_epsilon": 0.000001,
+          "rms_norm_effective_epsilon": 0.000001,
+          "square_linear_diagnostic_layout": "transposed",
+          "rectangular_linear_diagnostic_layout": "auto",
+          "token_embedding_shape": [
+            151936,
+            2048
+          ],
+          "output_shape": [
+            2048,
+            151936
+          ],
+          "output_is_tied_embedding": true,
+          "output_projection_layout": "input_output",
+          "output_projection_diagnostic_layout": "token_major",
+          "zero_attention_delta": "none",
+          "zero_ffn_delta": "none",
+          "projection_orientations": {
+            "attention_q": {
+              "shape": [
+                2048,
+                2048
+              ],
+              "input_width": 2048,
+              "output_width": 2048,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "rhs_transposed",
+              "square_diagnostic_applies": true
+            },
+            "attention_k": {
+              "shape": [
+                2048,
+                1024
+              ],
+              "input_width": 2048,
+              "output_width": 1024,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "descriptor",
+              "square_diagnostic_applies": false
+            },
+            "attention_v": {
+              "shape": [
+                2048,
+                1024
+              ],
+              "input_width": 2048,
+              "output_width": 1024,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "descriptor",
+              "square_diagnostic_applies": false
+            },
+            "attention_output": {
+              "shape": [
+                2048,
+                2048
+              ],
+              "input_width": 2048,
+              "output_width": 2048,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "rhs_transposed",
+              "square_diagnostic_applies": true
+            },
+            "ffn_gate": {
+              "shape": [
+                2048,
+                6144
+              ],
+              "input_width": 2048,
+              "output_width": 6144,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "descriptor",
+              "square_diagnostic_applies": false
+            },
+            "ffn_up": {
+              "shape": [
+                2048,
+                6144
+              ],
+              "input_width": 2048,
+              "output_width": 6144,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "descriptor",
+              "square_diagnostic_applies": false
+            },
+            "ffn_down": {
+              "shape": [
+                6144,
+                2048
+              ],
+              "input_width": 6144,
+              "output_width": 2048,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "descriptor",
+              "square_diagnostic_applies": false
+            }
+          }
+        },
+        "top_logits": [
+          {
+            "token_id": 785,
+            "logit": 56.317142,
+            "probability": 1,
+            "rank": 1,
+            "selected": false,
+            "text": "The"
+          },
+          {
+            "token_id": 576,
+            "logit": 32.923237,
+            "probability": 6.920793e-11,
+            "rank": 2,
+            "selected": false,
+            "text": " The"
+          },
+          {
+            "token_id": 1782,
+            "logit": 32.248272,
+            "probability": 3.52389e-11,
+            "rank": 3,
+            "selected": false,
+            "text": "the"
+          },
+          {
+            "token_id": 10022,
+            "logit": 31.359272,
+            "probability": 1.4485536e-11,
+            "rank": 4,
+            "selected": false,
+            "text": "\"The"
+          },
+          {
+            "token_id": 641,
+            "logit": 29.137718,
+            "probability": 1.5708186e-12,
+            "rank": 5,
+            "selected": false,
+            "text": "In"
+          },
+          {
+            "token_id": 3862,
+            "logit": 27.98137,
+            "probability": 4.942319e-13,
+            "rank": 6,
+            "selected": false,
+            "text": "There"
+          },
+          {
+            "token_id": 17229,
+            "logit": 26.942225,
+            "probability": 1.7483775e-13,
+            "rank": 7,
+            "selected": false,
+            "text": "THE"
+          },
+          {
+            "token_id": 1249,
+            "logit": 26.881319,
+            "probability": 1.6450697e-13,
+            "rank": 8,
+            "selected": false,
+            "text": "To"
+          }
+        ],
+        "output_projection": []
+      }
+    },
+    {
+      "id": "<id>",
+      "object": "chat.completion",
+      "created": 0,
+      "model": "Qwen3 1.7B Instruct",
+      "choices": [
+        {
+          "index": 0,
+          "message": {
+            "role": "assistant",
+            "content": "The three primary colors are **red, blue, and yellow**. These are the colors that are used in painting and"
+          },
+          "finish_reason": "length"
+        }
+      ],
+      "usage": {
+        "prompt_tokens": 17,
+        "completion_tokens": 24,
+        "total_tokens": 41
+      },
+      "camelid": {
+        "prompt_token_ids": [
+          151644,
+          872,
+          198,
+          785,
+          2326,
+          6028,
+          7987,
+          525,
+          151645,
+          198,
+          151644,
+          77091,
+          198,
+          151667,
+          271,
+          151668,
+          271
+        ],
+        "generated_token_ids": [
+          785,
+          2326,
+          6028,
+          7987,
+          525,
+          3070,
+          1151,
+          11,
+          6303,
+          11,
+          323,
+          13753,
+          334,
+          13,
+          4220,
+          525,
+          279,
+          7987,
+          429,
+          525,
+          1483,
+          304,
+          18824,
+          323
+        ],
+        "dense_metadata": {
+          "embedding_length": 2048,
+          "attention_head_count": 16,
+          "attention_head_count_kv": 8,
+          "head_dim": 128,
+          "rope_dimension_count": 128,
+          "rope_freq_base": 1000000,
+          "rope_scaling_type": "none",
+          "rope_scaling_factor": null,
+          "rope_scaling_original_context_length": null,
+          "rope_scaling_low_freq_factor": null,
+          "rope_scaling_high_freq_factor": null,
+          "rope_pairing": "adjacent_even_odd",
+          "rope_direction": "forward",
+          "rope_position_mode": "zero_based",
+          "gqa_head_mapping": "grouped",
+          "attention_score_scale": "head_dim",
+          "linear_accumulation": "f32",
+          "ffn_gate_up_order": "gate_up",
+          "rms_norm_epsilon": 0.000001,
+          "rms_norm_effective_epsilon": 0.000001,
+          "square_linear_diagnostic_layout": "transposed",
+          "rectangular_linear_diagnostic_layout": "auto",
+          "token_embedding_shape": [
+            151936,
+            2048
+          ],
+          "output_shape": [
+            2048,
+            151936
+          ],
+          "output_is_tied_embedding": true,
+          "output_projection_layout": "input_output",
+          "output_projection_diagnostic_layout": "token_major",
+          "zero_attention_delta": "none",
+          "zero_ffn_delta": "none",
+          "projection_orientations": {
+            "attention_q": {
+              "shape": [
+                2048,
+                2048
+              ],
+              "input_width": 2048,
+              "output_width": 2048,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "rhs_transposed",
+              "square_diagnostic_applies": true
+            },
+            "attention_k": {
+              "shape": [
+                2048,
+                1024
+              ],
+              "input_width": 2048,
+              "output_width": 1024,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "descriptor",
+              "square_diagnostic_applies": false
+            },
+            "attention_v": {
+              "shape": [
+                2048,
+                1024
+              ],
+              "input_width": 2048,
+              "output_width": 1024,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "descriptor",
+              "square_diagnostic_applies": false
+            },
+            "attention_output": {
+              "shape": [
+                2048,
+                2048
+              ],
+              "input_width": 2048,
+              "output_width": 2048,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "rhs_transposed",
+              "square_diagnostic_applies": true
+            },
+            "ffn_gate": {
+              "shape": [
+                2048,
+                6144
+              ],
+              "input_width": 2048,
+              "output_width": 6144,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "descriptor",
+              "square_diagnostic_applies": false
+            },
+            "ffn_up": {
+              "shape": [
+                2048,
+                6144
+              ],
+              "input_width": 2048,
+              "output_width": 6144,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "descriptor",
+              "square_diagnostic_applies": false
+            },
+            "ffn_down": {
+              "shape": [
+                6144,
+                2048
+              ],
+              "input_width": 6144,
+              "output_width": 2048,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "descriptor",
+              "square_diagnostic_applies": false
+            }
+          }
+        },
+        "top_logits": [
+          {
+            "token_id": 785,
+            "logit": 56.317142,
+            "probability": 1,
+            "rank": 1,
+            "selected": false,
+            "text": "The"
+          },
+          {
+            "token_id": 576,
+            "logit": 32.923237,
+            "probability": 6.920793e-11,
+            "rank": 2,
+            "selected": false,
+            "text": " The"
+          },
+          {
+            "token_id": 1782,
+            "logit": 32.248272,
+            "probability": 3.52389e-11,
+            "rank": 3,
+            "selected": false,
+            "text": "the"
+          },
+          {
+            "token_id": 10022,
+            "logit": 31.359272,
+            "probability": 1.4485536e-11,
+            "rank": 4,
+            "selected": false,
+            "text": "\"The"
+          },
+          {
+            "token_id": 641,
+            "logit": 29.137718,
+            "probability": 1.5708186e-12,
+            "rank": 5,
+            "selected": false,
+            "text": "In"
+          },
+          {
+            "token_id": 3862,
+            "logit": 27.98137,
+            "probability": 4.942319e-13,
+            "rank": 6,
+            "selected": false,
+            "text": "There"
+          },
+          {
+            "token_id": 17229,
+            "logit": 26.942225,
+            "probability": 1.7483775e-13,
+            "rank": 7,
+            "selected": false,
+            "text": "THE"
+          },
+          {
+            "token_id": 1249,
+            "logit": 26.881319,
+            "probability": 1.6450697e-13,
+            "rank": 8,
+            "selected": false,
+            "text": "To"
+          }
+        ],
+        "output_projection": []
+      }
+    },
+    {
+      "id": "<id>",
+      "object": "chat.completion",
+      "created": 0,
+      "model": "Qwen3 1.7B Instruct",
+      "choices": [
+        {
+          "index": 0,
+          "message": {
+            "role": "assistant",
+            "content": "The three primary colors are **red, blue, and yellow**. These are the fundamental colors in the traditional **RYB color model** (used in art and painting), which is based on the color mixing of light (RGB) and"
+          },
+          "finish_reason": "length"
+        }
+      ],
+      "usage": {
+        "prompt_tokens": 17,
+        "completion_tokens": 48,
+        "total_tokens": 65
+      },
+      "camelid": {
+        "prompt_token_ids": [
+          151644,
+          872,
+          198,
+          785,
+          2326,
+          6028,
+          7987,
+          525,
+          151645,
+          198,
+          151644,
+          77091,
+          198,
+          151667,
+          271,
+          151668,
+          271
+        ],
+        "generated_token_ids": [
+          785,
+          2326,
+          6028,
+          7987,
+          525,
+          3070,
+          1151,
+          11,
+          6303,
+          11,
+          323,
+          13753,
+          334,
+          13,
+          4220,
+          525,
+          279,
+          15811,
+          7987,
+          304,
+          279,
+          8606,
+          3070,
+          11242,
+          33,
+          1894,
+          1614,
+          334,
+          320,
+          2591,
+          304,
+          1947,
+          323,
+          18824,
+          701,
+          892,
+          374,
+          3118,
+          389,
+          279,
+          1894,
+          26792,
+          315,
+          3100,
+          320,
+          18184,
+          8,
+          323
+        ],
+        "dense_metadata": {
+          "embedding_length": 2048,
+          "attention_head_count": 16,
+          "attention_head_count_kv": 8,
+          "head_dim": 128,
+          "rope_dimension_count": 128,
+          "rope_freq_base": 1000000,
+          "rope_scaling_type": "none",
+          "rope_scaling_factor": null,
+          "rope_scaling_original_context_length": null,
+          "rope_scaling_low_freq_factor": null,
+          "rope_scaling_high_freq_factor": null,
+          "rope_pairing": "adjacent_even_odd",
+          "rope_direction": "forward",
+          "rope_position_mode": "zero_based",
+          "gqa_head_mapping": "grouped",
+          "attention_score_scale": "head_dim",
+          "linear_accumulation": "f32",
+          "ffn_gate_up_order": "gate_up",
+          "rms_norm_epsilon": 0.000001,
+          "rms_norm_effective_epsilon": 0.000001,
+          "square_linear_diagnostic_layout": "transposed",
+          "rectangular_linear_diagnostic_layout": "auto",
+          "token_embedding_shape": [
+            151936,
+            2048
+          ],
+          "output_shape": [
+            2048,
+            151936
+          ],
+          "output_is_tied_embedding": true,
+          "output_projection_layout": "input_output",
+          "output_projection_diagnostic_layout": "token_major",
+          "zero_attention_delta": "none",
+          "zero_ffn_delta": "none",
+          "projection_orientations": {
+            "attention_q": {
+              "shape": [
+                2048,
+                2048
+              ],
+              "input_width": 2048,
+              "output_width": 2048,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "rhs_transposed",
+              "square_diagnostic_applies": true
+            },
+            "attention_k": {
+              "shape": [
+                2048,
+                1024
+              ],
+              "input_width": 2048,
+              "output_width": 1024,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "descriptor",
+              "square_diagnostic_applies": false
+            },
+            "attention_v": {
+              "shape": [
+                2048,
+                1024
+              ],
+              "input_width": 2048,
+              "output_width": 1024,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "descriptor",
+              "square_diagnostic_applies": false
+            },
+            "attention_output": {
+              "shape": [
+                2048,
+                2048
+              ],
+              "input_width": 2048,
+              "output_width": 2048,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "rhs_transposed",
+              "square_diagnostic_applies": true
+            },
+            "ffn_gate": {
+              "shape": [
+                2048,
+                6144
+              ],
+              "input_width": 2048,
+              "output_width": 6144,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "descriptor",
+              "square_diagnostic_applies": false
+            },
+            "ffn_up": {
+              "shape": [
+                2048,
+                6144
+              ],
+              "input_width": 2048,
+              "output_width": 6144,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "descriptor",
+              "square_diagnostic_applies": false
+            },
+            "ffn_down": {
+              "shape": [
+                6144,
+                2048
+              ],
+              "input_width": 6144,
+              "output_width": 2048,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "descriptor",
+              "square_diagnostic_applies": false
+            }
+          }
+        },
+        "top_logits": [
+          {
+            "token_id": 785,
+            "logit": 56.317142,
+            "probability": 1,
+            "rank": 1,
+            "selected": false,
+            "text": "The"
+          },
+          {
+            "token_id": 576,
+            "logit": 32.923237,
+            "probability": 6.920793e-11,
+            "rank": 2,
+            "selected": false,
+            "text": " The"
+          },
+          {
+            "token_id": 1782,
+            "logit": 32.248272,
+            "probability": 3.52389e-11,
+            "rank": 3,
+            "selected": false,
+            "text": "the"
+          },
+          {
+            "token_id": 10022,
+            "logit": 31.359272,
+            "probability": 1.4485536e-11,
+            "rank": 4,
+            "selected": false,
+            "text": "\"The"
+          },
+          {
+            "token_id": 641,
+            "logit": 29.137718,
+            "probability": 1.5708186e-12,
+            "rank": 5,
+            "selected": false,
+            "text": "In"
+          },
+          {
+            "token_id": 3862,
+            "logit": 27.98137,
+            "probability": 4.942319e-13,
+            "rank": 6,
+            "selected": false,
+            "text": "There"
+          },
+          {
+            "token_id": 17229,
+            "logit": 26.942225,
+            "probability": 1.7483775e-13,
+            "rank": 7,
+            "selected": false,
+            "text": "THE"
+          },
+          {
+            "token_id": 1249,
+            "logit": 26.881319,
+            "probability": 1.6450697e-13,
+            "rank": 8,
+            "selected": false,
+            "text": "To"
+          }
+        ],
+        "output_projection": []
+      }
+    },
+    {
+      "id": "<id>",
+      "object": "chat.completion",
+      "created": 0,
+      "model": "Qwen3 1.7B Instruct",
+      "choices": [
+        {
+          "index": 0,
+          "message": {
+            "role": "assistant",
+            "content": "Llamas are large, woolly animals native to South America. They are known for their long, curved horns and gentle nature."
+          },
+          "finish_reason": "stop"
+        }
+      ],
+      "usage": {
+        "prompt_tokens": 20,
+        "completion_tokens": 28,
+        "total_tokens": 48
+      },
+      "camelid": {
+        "prompt_token_ids": [
+          151644,
+          872,
+          198,
+          7985,
+          1378,
+          2805,
+          22870,
+          911,
+          9323,
+          28089,
+          13,
+          151645,
+          198,
+          151644,
+          77091,
+          198,
+          151667,
+          271,
+          151668,
+          271
+        ],
+        "generated_token_ids": [
+          43,
+          23771,
+          300,
+          525,
+          3460,
+          11,
+          38540,
+          398,
+          9898,
+          9867,
+          311,
+          4882,
+          5159,
+          13,
+          2379,
+          525,
+          3881,
+          369,
+          862,
+          1293,
+          11,
+          49164,
+          59984,
+          323,
+          21700,
+          6993,
+          13,
+          151645
+        ],
+        "dense_metadata": {
+          "embedding_length": 2048,
+          "attention_head_count": 16,
+          "attention_head_count_kv": 8,
+          "head_dim": 128,
+          "rope_dimension_count": 128,
+          "rope_freq_base": 1000000,
+          "rope_scaling_type": "none",
+          "rope_scaling_factor": null,
+          "rope_scaling_original_context_length": null,
+          "rope_scaling_low_freq_factor": null,
+          "rope_scaling_high_freq_factor": null,
+          "rope_pairing": "adjacent_even_odd",
+          "rope_direction": "forward",
+          "rope_position_mode": "zero_based",
+          "gqa_head_mapping": "grouped",
+          "attention_score_scale": "head_dim",
+          "linear_accumulation": "f32",
+          "ffn_gate_up_order": "gate_up",
+          "rms_norm_epsilon": 0.000001,
+          "rms_norm_effective_epsilon": 0.000001,
+          "square_linear_diagnostic_layout": "transposed",
+          "rectangular_linear_diagnostic_layout": "auto",
+          "token_embedding_shape": [
+            151936,
+            2048
+          ],
+          "output_shape": [
+            2048,
+            151936
+          ],
+          "output_is_tied_embedding": true,
+          "output_projection_layout": "input_output",
+          "output_projection_diagnostic_layout": "token_major",
+          "zero_attention_delta": "none",
+          "zero_ffn_delta": "none",
+          "projection_orientations": {
+            "attention_q": {
+              "shape": [
+                2048,
+                2048
+              ],
+              "input_width": 2048,
+              "output_width": 2048,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "rhs_transposed",
+              "square_diagnostic_applies": true
+            },
+            "attention_k": {
+              "shape": [
+                2048,
+                1024
+              ],
+              "input_width": 2048,
+              "output_width": 1024,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "descriptor",
+              "square_diagnostic_applies": false
+            },
+            "attention_v": {
+              "shape": [
+                2048,
+                1024
+              ],
+              "input_width": 2048,
+              "output_width": 1024,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "descriptor",
+              "square_diagnostic_applies": false
+            },
+            "attention_output": {
+              "shape": [
+                2048,
+                2048
+              ],
+              "input_width": 2048,
+              "output_width": 2048,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "rhs_transposed",
+              "square_diagnostic_applies": true
+            },
+            "ffn_gate": {
+              "shape": [
+                2048,
+                6144
+              ],
+              "input_width": 2048,
+              "output_width": 6144,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "descriptor",
+              "square_diagnostic_applies": false
+            },
+            "ffn_up": {
+              "shape": [
+                2048,
+                6144
+              ],
+              "input_width": 2048,
+              "output_width": 6144,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "descriptor",
+              "square_diagnostic_applies": false
+            },
+            "ffn_down": {
+              "shape": [
+                6144,
+                2048
+              ],
+              "input_width": 6144,
+              "output_width": 2048,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "descriptor",
+              "square_diagnostic_applies": false
+            }
+          }
+        },
+        "top_logits": [
+          {
+            "token_id": 43,
+            "logit": 43.02975,
+            "probability": 0.9998117,
+            "rank": 1,
+            "selected": false,
+            "text": "L"
+          },
+          {
+            "token_id": 4086,
+            "logit": 34.45044,
+            "probability": 0.00018791898,
+            "rank": 2,
+            "selected": false,
+            "text": "LL"
+          },
+          {
+            "token_id": 654,
+            "logit": 28.245483,
+            "probability": 3.794831e-7,
+            "rank": 3,
+            "selected": false,
+            "text": "ll"
+          },
+          {
+            "token_id": 86708,
+            "logit": 25.467184,
+            "probability": 2.3582636e-8,
+            "rank": 4,
+            "selected": false,
+            "text": "LLL"
+          },
+          {
+            "token_id": 49356,
+            "logit": 24.428808,
+            "probability": 8.348942e-9,
+            "rank": 5,
+            "selected": false,
+            "text": "LLLL"
+          },
+          {
+            "token_id": 444,
+            "logit": 22.63629,
+            "probability": 1.3904344e-9,
+            "rank": 6,
+            "selected": false,
+            "text": " L"
+          },
+          {
+            "token_id": 42995,
+            "logit": 22.583157,
+            "probability": 1.3184849e-9,
+            "rank": 7,
+            "selected": false,
+            "text": "_ll"
+          },
+          {
+            "token_id": 81289,
+            "logit": 22.478857,
+            "probability": 1.1878961e-9,
+            "rank": 8,
+            "selected": false,
+            "text": "Lake"
+          }
+        ],
+        "output_projection": []
+      }
+    },
+    {
+      "id": "<id>",
+      "object": "chat.completion",
+      "created": 0,
+      "model": "Qwen3 1.7B Instruct",
+      "choices": [
+        {
+          "index": 0,
+          "message": {
+            "role": "assistant",
+            "content": "Llamas are large sheep-like animals found in the Andes Mountains. They have long, slender bodies and black and"
+          },
+          "finish_reason": "length"
+        }
+      ],
+      "usage": {
+        "prompt_tokens": 20,
+        "completion_tokens": 24,
+        "total_tokens": 44
+      },
+      "camelid": {
+        "prompt_token_ids": [
+          151644,
+          872,
+          198,
+          7985,
+          1378,
+          2805,
+          22870,
+          911,
+          9323,
+          28089,
+          13,
+          151645,
+          198,
+          151644,
+          77091,
+          198,
+          151667,
+          271,
+          151668,
+          271
+        ],
+        "generated_token_ids": [
+          43,
+          23771,
+          300,
+          525,
+          3460,
+          31912,
+          12681,
+          9898,
+          1730,
+          304,
+          279,
+          1597,
+          288,
+          40014,
+          13,
+          2379,
+          614,
+          1293,
+          11,
+          72242,
+          12866,
+          323,
+          3691,
+          323
+        ],
+        "dense_metadata": {
+          "embedding_length": 2048,
+          "attention_head_count": 16,
+          "attention_head_count_kv": 8,
+          "head_dim": 128,
+          "rope_dimension_count": 128,
+          "rope_freq_base": 1000000,
+          "rope_scaling_type": "none",
+          "rope_scaling_factor": null,
+          "rope_scaling_original_context_length": null,
+          "rope_scaling_low_freq_factor": null,
+          "rope_scaling_high_freq_factor": null,
+          "rope_pairing": "adjacent_even_odd",
+          "rope_direction": "forward",
+          "rope_position_mode": "zero_based",
+          "gqa_head_mapping": "grouped",
+          "attention_score_scale": "head_dim",
+          "linear_accumulation": "f32",
+          "ffn_gate_up_order": "gate_up",
+          "rms_norm_epsilon": 0.000001,
+          "rms_norm_effective_epsilon": 0.000001,
+          "square_linear_diagnostic_layout": "transposed",
+          "rectangular_linear_diagnostic_layout": "auto",
+          "token_embedding_shape": [
+            151936,
+            2048
+          ],
+          "output_shape": [
+            2048,
+            151936
+          ],
+          "output_is_tied_embedding": true,
+          "output_projection_layout": "input_output",
+          "output_projection_diagnostic_layout": "token_major",
+          "zero_attention_delta": "none",
+          "zero_ffn_delta": "none",
+          "projection_orientations": {
+            "attention_q": {
+              "shape": [
+                2048,
+                2048
+              ],
+              "input_width": 2048,
+              "output_width": 2048,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "rhs_transposed",
+              "square_diagnostic_applies": true
+            },
+            "attention_k": {
+              "shape": [
+                2048,
+                1024
+              ],
+              "input_width": 2048,
+              "output_width": 1024,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "descriptor",
+              "square_diagnostic_applies": false
+            },
+            "attention_v": {
+              "shape": [
+                2048,
+                1024
+              ],
+              "input_width": 2048,
+              "output_width": 1024,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "descriptor",
+              "square_diagnostic_applies": false
+            },
+            "attention_output": {
+              "shape": [
+                2048,
+                2048
+              ],
+              "input_width": 2048,
+              "output_width": 2048,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "rhs_transposed",
+              "square_diagnostic_applies": true
+            },
+            "ffn_gate": {
+              "shape": [
+                2048,
+                6144
+              ],
+              "input_width": 2048,
+              "output_width": 6144,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "descriptor",
+              "square_diagnostic_applies": false
+            },
+            "ffn_up": {
+              "shape": [
+                2048,
+                6144
+              ],
+              "input_width": 2048,
+              "output_width": 6144,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "descriptor",
+              "square_diagnostic_applies": false
+            },
+            "ffn_down": {
+              "shape": [
+                6144,
+                2048
+              ],
+              "input_width": 6144,
+              "output_width": 2048,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "descriptor",
+              "square_diagnostic_applies": false
+            }
+          }
+        },
+        "top_logits": [
+          {
+            "token_id": 43,
+            "logit": 43.02975,
+            "probability": 0.9998117,
+            "rank": 1,
+            "selected": false,
+            "text": "L"
+          },
+          {
+            "token_id": 4086,
+            "logit": 34.45044,
+            "probability": 0.00018791898,
+            "rank": 2,
+            "selected": false,
+            "text": "LL"
+          },
+          {
+            "token_id": 654,
+            "logit": 28.245483,
+            "probability": 3.794831e-7,
+            "rank": 3,
+            "selected": false,
+            "text": "ll"
+          },
+          {
+            "token_id": 86708,
+            "logit": 25.467184,
+            "probability": 2.3582636e-8,
+            "rank": 4,
+            "selected": false,
+            "text": "LLL"
+          },
+          {
+            "token_id": 49356,
+            "logit": 24.428808,
+            "probability": 8.348942e-9,
+            "rank": 5,
+            "selected": false,
+            "text": "LLLL"
+          },
+          {
+            "token_id": 444,
+            "logit": 22.63629,
+            "probability": 1.3904344e-9,
+            "rank": 6,
+            "selected": false,
+            "text": " L"
+          },
+          {
+            "token_id": 42995,
+            "logit": 22.583157,
+            "probability": 1.3184849e-9,
+            "rank": 7,
+            "selected": false,
+            "text": "_ll"
+          },
+          {
+            "token_id": 81289,
+            "logit": 22.478857,
+            "probability": 1.1878961e-9,
+            "rank": 8,
+            "selected": false,
+            "text": "Lake"
+          }
+        ],
+        "output_projection": []
+      }
+    },
+    {
+      "id": "<id>",
+      "object": "chat.completion",
+      "created": 0,
+      "model": "Qwen3 1.7B Instruct",
+      "choices": [
+        {
+          "index": 0,
+          "message": {
+            "role": "assistant",
+            "content": "Llamas are large, woolly animals native to South America. They are known for their long, curved horns and gentle nature."
+          },
+          "finish_reason": "stop"
+        }
+      ],
+      "usage": {
+        "prompt_tokens": 20,
+        "completion_tokens": 28,
+        "total_tokens": 48
+      },
+      "camelid": {
+        "prompt_token_ids": [
+          151644,
+          872,
+          198,
+          7985,
+          1378,
+          2805,
+          22870,
+          911,
+          9323,
+          28089,
+          13,
+          151645,
+          198,
+          151644,
+          77091,
+          198,
+          151667,
+          271,
+          151668,
+          271
+        ],
+        "generated_token_ids": [
+          43,
+          23771,
+          300,
+          525,
+          3460,
+          11,
+          38540,
+          398,
+          9898,
+          9867,
+          311,
+          4882,
+          5159,
+          13,
+          2379,
+          525,
+          3881,
+          369,
+          862,
+          1293,
+          11,
+          49164,
+          59984,
+          323,
+          21700,
+          6993,
+          13,
+          151645
+        ],
+        "dense_metadata": {
+          "embedding_length": 2048,
+          "attention_head_count": 16,
+          "attention_head_count_kv": 8,
+          "head_dim": 128,
+          "rope_dimension_count": 128,
+          "rope_freq_base": 1000000,
+          "rope_scaling_type": "none",
+          "rope_scaling_factor": null,
+          "rope_scaling_original_context_length": null,
+          "rope_scaling_low_freq_factor": null,
+          "rope_scaling_high_freq_factor": null,
+          "rope_pairing": "adjacent_even_odd",
+          "rope_direction": "forward",
+          "rope_position_mode": "zero_based",
+          "gqa_head_mapping": "grouped",
+          "attention_score_scale": "head_dim",
+          "linear_accumulation": "f32",
+          "ffn_gate_up_order": "gate_up",
+          "rms_norm_epsilon": 0.000001,
+          "rms_norm_effective_epsilon": 0.000001,
+          "square_linear_diagnostic_layout": "transposed",
+          "rectangular_linear_diagnostic_layout": "auto",
+          "token_embedding_shape": [
+            151936,
+            2048
+          ],
+          "output_shape": [
+            2048,
+            151936
+          ],
+          "output_is_tied_embedding": true,
+          "output_projection_layout": "input_output",
+          "output_projection_diagnostic_layout": "token_major",
+          "zero_attention_delta": "none",
+          "zero_ffn_delta": "none",
+          "projection_orientations": {
+            "attention_q": {
+              "shape": [
+                2048,
+                2048
+              ],
+              "input_width": 2048,
+              "output_width": 2048,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "rhs_transposed",
+              "square_diagnostic_applies": true
+            },
+            "attention_k": {
+              "shape": [
+                2048,
+                1024
+              ],
+              "input_width": 2048,
+              "output_width": 1024,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "descriptor",
+              "square_diagnostic_applies": false
+            },
+            "attention_v": {
+              "shape": [
+                2048,
+                1024
+              ],
+              "input_width": 2048,
+              "output_width": 1024,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "descriptor",
+              "square_diagnostic_applies": false
+            },
+            "attention_output": {
+              "shape": [
+                2048,
+                2048
+              ],
+              "input_width": 2048,
+              "output_width": 2048,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "rhs_transposed",
+              "square_diagnostic_applies": true
+            },
+            "ffn_gate": {
+              "shape": [
+                2048,
+                6144
+              ],
+              "input_width": 2048,
+              "output_width": 6144,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "descriptor",
+              "square_diagnostic_applies": false
+            },
+            "ffn_up": {
+              "shape": [
+                2048,
+                6144
+              ],
+              "input_width": 2048,
+              "output_width": 6144,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "descriptor",
+              "square_diagnostic_applies": false
+            },
+            "ffn_down": {
+              "shape": [
+                6144,
+                2048
+              ],
+              "input_width": 6144,
+              "output_width": 2048,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "descriptor",
+              "square_diagnostic_applies": false
+            }
+          }
+        },
+        "top_logits": [
+          {
+            "token_id": 43,
+            "logit": 43.02975,
+            "probability": 0.9998117,
+            "rank": 1,
+            "selected": false,
+            "text": "L"
+          },
+          {
+            "token_id": 4086,
+            "logit": 34.45044,
+            "probability": 0.00018791898,
+            "rank": 2,
+            "selected": false,
+            "text": "LL"
+          },
+          {
+            "token_id": 654,
+            "logit": 28.245483,
+            "probability": 3.794831e-7,
+            "rank": 3,
+            "selected": false,
+            "text": "ll"
+          },
+          {
+            "token_id": 86708,
+            "logit": 25.467184,
+            "probability": 2.3582636e-8,
+            "rank": 4,
+            "selected": false,
+            "text": "LLL"
+          },
+          {
+            "token_id": 49356,
+            "logit": 24.428808,
+            "probability": 8.348942e-9,
+            "rank": 5,
+            "selected": false,
+            "text": "LLLL"
+          },
+          {
+            "token_id": 444,
+            "logit": 22.63629,
+            "probability": 1.3904344e-9,
+            "rank": 6,
+            "selected": false,
+            "text": " L"
+          },
+          {
+            "token_id": 42995,
+            "logit": 22.583157,
+            "probability": 1.3184849e-9,
+            "rank": 7,
+            "selected": false,
+            "text": "_ll"
+          },
+          {
+            "token_id": 81289,
+            "logit": 22.478857,
+            "probability": 1.1878961e-9,
+            "rank": 8,
+            "selected": false,
+            "text": "Lake"
+          }
+        ],
+        "output_projection": []
+      }
+    }
+  ],
+  "completion": [
+    {
+      "id": "<id>",
+      "object": "text_completion",
+      "created": 0,
+      "model": "Qwen3 1.7B Instruct",
+      "choices": [
+        {
+          "index": 0,
+          "text": ": I need to create a Python script that can read a text file and output the number of lines, words, and characters in the file. I need to",
+          "finish_reason": "length"
+        }
+      ],
+      "usage": {
+        "prompt_tokens": 1,
+        "completion_tokens": 32,
+        "total_tokens": 33
+      },
+      "camelid": {
+        "prompt_token_ids": [
+          14990
+        ],
+        "generated_token_ids": [
+          25,
+          358,
+          1184,
+          311,
+          1855,
+          264,
+          13027,
+          5316,
+          429,
+          646,
+          1349,
+          264,
+          1467,
+          1034,
+          323,
+          2550,
+          279,
+          1372,
+          315,
+          5128,
+          11,
+          4244,
+          11,
+          323,
+          5766,
+          304,
+          279,
+          1034,
+          13,
+          358,
+          1184,
+          311
+        ],
+        "dense_metadata": {
+          "embedding_length": 2048,
+          "attention_head_count": 16,
+          "attention_head_count_kv": 8,
+          "head_dim": 128,
+          "rope_dimension_count": 128,
+          "rope_freq_base": 1000000,
+          "rope_scaling_type": "none",
+          "rope_scaling_factor": null,
+          "rope_scaling_original_context_length": null,
+          "rope_scaling_low_freq_factor": null,
+          "rope_scaling_high_freq_factor": null,
+          "rope_pairing": "adjacent_even_odd",
+          "rope_direction": "forward",
+          "rope_position_mode": "zero_based",
+          "gqa_head_mapping": "grouped",
+          "attention_score_scale": "head_dim",
+          "linear_accumulation": "f32",
+          "ffn_gate_up_order": "gate_up",
+          "rms_norm_epsilon": 0.000001,
+          "rms_norm_effective_epsilon": 0.000001,
+          "square_linear_diagnostic_layout": "transposed",
+          "rectangular_linear_diagnostic_layout": "auto",
+          "token_embedding_shape": [
+            151936,
+            2048
+          ],
+          "output_shape": [
+            2048,
+            151936
+          ],
+          "output_is_tied_embedding": true,
+          "output_projection_layout": "input_output",
+          "output_projection_diagnostic_layout": "token_major",
+          "zero_attention_delta": "none",
+          "zero_ffn_delta": "none",
+          "projection_orientations": {
+            "attention_q": {
+              "shape": [
+                2048,
+                2048
+              ],
+              "input_width": 2048,
+              "output_width": 2048,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "rhs_transposed",
+              "square_diagnostic_applies": true
+            },
+            "attention_k": {
+              "shape": [
+                2048,
+                1024
+              ],
+              "input_width": 2048,
+              "output_width": 1024,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "descriptor",
+              "square_diagnostic_applies": false
+            },
+            "attention_v": {
+              "shape": [
+                2048,
+                1024
+              ],
+              "input_width": 2048,
+              "output_width": 1024,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "descriptor",
+              "square_diagnostic_applies": false
+            },
+            "attention_output": {
+              "shape": [
+                2048,
+                2048
+              ],
+              "input_width": 2048,
+              "output_width": 2048,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "rhs_transposed",
+              "square_diagnostic_applies": true
+            },
+            "ffn_gate": {
+              "shape": [
+                2048,
+                6144
+              ],
+              "input_width": 2048,
+              "output_width": 6144,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "descriptor",
+              "square_diagnostic_applies": false
+            },
+            "ffn_up": {
+              "shape": [
+                2048,
+                6144
+              ],
+              "input_width": 2048,
+              "output_width": 6144,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "descriptor",
+              "square_diagnostic_applies": false
+            },
+            "ffn_down": {
+              "shape": [
+                6144,
+                2048
+              ],
+              "input_width": 6144,
+              "output_width": 2048,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "descriptor",
+              "square_diagnostic_applies": false
+            }
+          }
+        },
+        "top_logits": [
+          {
+            "token_id": 25,
+            "logit": 10.495855,
+            "probability": 0.015127099,
+            "rank": 1,
+            "selected": false,
+            "text": ":"
+          },
+          {
+            "token_id": 74592,
+            "logit": 9.976347,
+            "probability": 0.008997794,
+            "rank": 2,
+            "selected": false,
+            "text": "STRACT"
+          },
+          {
+            "token_id": 102107,
+            "logit": 9.777474,
+            "probability": 0.0073750806,
+            "rank": 3,
+            "selected": false,
+            "text": "車"
+          },
+          {
+            "token_id": 11,
+            "logit": 8.545052,
+            "probability": 0.0021504648,
+            "rank": 4,
+            "selected": false,
+            "text": ","
+          },
+          {
+            "token_id": 13,
+            "logit": 8.499069,
+            "probability": 0.0020538203,
+            "rank": 5,
+            "selected": false,
+            "text": "."
+          },
+          {
+            "token_id": 563,
+            "logit": 8.4602995,
+            "probability": 0.001975718,
+            "rank": 6,
+            "selected": false,
+            "text": "__"
+          },
+          {
+            "token_id": 92015,
+            "logit": 8.379275,
+            "probability": 0.0018219507,
+            "rank": 7,
+            "selected": false,
+            "text": "岁"
+          },
+          {
+            "token_id": 594,
+            "logit": 8.337868,
+            "probability": 0.0017480487,
+            "rank": 8,
+            "selected": false,
+            "text": "'s"
+          }
+        ],
+        "output_projection": []
+      }
+    },
+    {
+      "id": "<id>",
+      "object": "text_completion",
+      "created": 0,
+      "model": "Qwen3 1.7B Instruct",
+      "choices": [
+        {
+          "index": 0,
+          "text": " red, blue, and yellow.  A student is trying to create a new color by mixing red and blue.  The student has 100 grams",
+          "finish_reason": "length"
+        }
+      ],
+      "usage": {
+        "prompt_tokens": 5,
+        "completion_tokens": 32,
+        "total_tokens": 37
+      },
+      "camelid": {
+        "prompt_token_ids": [
+          785,
+          2326,
+          6028,
+          7987,
+          525
+        ],
+        "generated_token_ids": [
+          2518,
+          11,
+          6303,
+          11,
+          323,
+          13753,
+          13,
+          220,
+          362,
+          5458,
+          374,
+          4460,
+          311,
+          1855,
+          264,
+          501,
+          1894,
+          553,
+          26792,
+          2518,
+          323,
+          6303,
+          13,
+          220,
+          576,
+          5458,
+          702,
+          220,
+          16,
+          15,
+          15,
+          33319
+        ],
+        "dense_metadata": {
+          "embedding_length": 2048,
+          "attention_head_count": 16,
+          "attention_head_count_kv": 8,
+          "head_dim": 128,
+          "rope_dimension_count": 128,
+          "rope_freq_base": 1000000,
+          "rope_scaling_type": "none",
+          "rope_scaling_factor": null,
+          "rope_scaling_original_context_length": null,
+          "rope_scaling_low_freq_factor": null,
+          "rope_scaling_high_freq_factor": null,
+          "rope_pairing": "adjacent_even_odd",
+          "rope_direction": "forward",
+          "rope_position_mode": "zero_based",
+          "gqa_head_mapping": "grouped",
+          "attention_score_scale": "head_dim",
+          "linear_accumulation": "f32",
+          "ffn_gate_up_order": "gate_up",
+          "rms_norm_epsilon": 0.000001,
+          "rms_norm_effective_epsilon": 0.000001,
+          "square_linear_diagnostic_layout": "transposed",
+          "rectangular_linear_diagnostic_layout": "auto",
+          "token_embedding_shape": [
+            151936,
+            2048
+          ],
+          "output_shape": [
+            2048,
+            151936
+          ],
+          "output_is_tied_embedding": true,
+          "output_projection_layout": "input_output",
+          "output_projection_diagnostic_layout": "token_major",
+          "zero_attention_delta": "none",
+          "zero_ffn_delta": "none",
+          "projection_orientations": {
+            "attention_q": {
+              "shape": [
+                2048,
+                2048
+              ],
+              "input_width": 2048,
+              "output_width": 2048,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "rhs_transposed",
+              "square_diagnostic_applies": true
+            },
+            "attention_k": {
+              "shape": [
+                2048,
+                1024
+              ],
+              "input_width": 2048,
+              "output_width": 1024,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "descriptor",
+              "square_diagnostic_applies": false
+            },
+            "attention_v": {
+              "shape": [
+                2048,
+                1024
+              ],
+              "input_width": 2048,
+              "output_width": 1024,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "descriptor",
+              "square_diagnostic_applies": false
+            },
+            "attention_output": {
+              "shape": [
+                2048,
+                2048
+              ],
+              "input_width": 2048,
+              "output_width": 2048,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "rhs_transposed",
+              "square_diagnostic_applies": true
+            },
+            "ffn_gate": {
+              "shape": [
+                2048,
+                6144
+              ],
+              "input_width": 2048,
+              "output_width": 6144,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "descriptor",
+              "square_diagnostic_applies": false
+            },
+            "ffn_up": {
+              "shape": [
+                2048,
+                6144
+              ],
+              "input_width": 2048,
+              "output_width": 6144,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "descriptor",
+              "square_diagnostic_applies": false
+            },
+            "ffn_down": {
+              "shape": [
+                6144,
+                2048
+              ],
+              "input_width": 6144,
+              "output_width": 2048,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "descriptor",
+              "square_diagnostic_applies": false
+            }
+          }
+        },
+        "top_logits": [
+          {
+            "token_id": 2518,
+            "logit": 23.94913,
+            "probability": 0.59139556,
+            "rank": 1,
+            "selected": false,
+            "text": " red"
+          },
+          {
+            "token_id": 6303,
+            "logit": 21.97191,
+            "probability": 0.081880964,
+            "rank": 2,
+            "selected": false,
+            "text": " blue"
+          },
+          {
+            "token_id": 1483,
+            "logit": 21.871668,
+            "probability": 0.07407098,
+            "rank": 3,
+            "selected": false,
+            "text": " used"
+          },
+          {
+            "token_id": 279,
+            "logit": 21.276333,
+            "probability": 0.0408411,
+            "rank": 4,
+            "selected": false,
+            "text": " the"
+          },
+          {
+            "token_id": 13753,
+            "logit": 20.97748,
+            "probability": 0.030290555,
+            "rank": 5,
+            "selected": false,
+            "text": " yellow"
+          },
+          {
+            "token_id": 11136,
+            "logit": 20.485085,
+            "probability": 0.018512396,
+            "rank": 6,
+            "selected": false,
+            "text": " typically"
+          },
+          {
+            "token_id": 3691,
+            "logit": 20.324062,
+            "probability": 0.015759107,
+            "rank": 7,
+            "selected": false,
+            "text": " black"
+          },
+          {
+            "token_id": 5990,
+            "logit": 20.06327,
+            "probability": 0.012141467,
+            "rank": 8,
+            "selected": false,
+            "text": " usually"
+          }
+        ],
+        "output_projection": []
+      }
+    },
+    {
+      "id": "<id>",
+      "object": "text_completion",
+      "created": 0,
+      "model": "Qwen3 1.7B Instruct",
+      "choices": [
+        {
+          "index": 0,
+          "text": " 1. 2.\nThe first sentence should be about the physical characteristics of llamas, and the second sentence should be about their behavior or habitat.\nTo",
+          "finish_reason": "length"
+        }
+      ],
+      "usage": {
+        "prompt_tokens": 8,
+        "completion_tokens": 32,
+        "total_tokens": 40
+      },
+      "camelid": {
+        "prompt_token_ids": [
+          7985,
+          1378,
+          2805,
+          22870,
+          911,
+          9323,
+          28089,
+          13
+        ],
+        "generated_token_ids": [
+          220,
+          16,
+          13,
+          220,
+          17,
+          624,
+          785,
+          1156,
+          11652,
+          1265,
+          387,
+          911,
+          279,
+          6961,
+          17452,
+          315,
+          9323,
+          28089,
+          11,
+          323,
+          279,
+          2086,
+          11652,
+          1265,
+          387,
+          911,
+          862,
+          7709,
+          476,
+          38546,
+          624,
+          1249
+        ],
+        "dense_metadata": {
+          "embedding_length": 2048,
+          "attention_head_count": 16,
+          "attention_head_count_kv": 8,
+          "head_dim": 128,
+          "rope_dimension_count": 128,
+          "rope_freq_base": 1000000,
+          "rope_scaling_type": "none",
+          "rope_scaling_factor": null,
+          "rope_scaling_original_context_length": null,
+          "rope_scaling_low_freq_factor": null,
+          "rope_scaling_high_freq_factor": null,
+          "rope_pairing": "adjacent_even_odd",
+          "rope_direction": "forward",
+          "rope_position_mode": "zero_based",
+          "gqa_head_mapping": "grouped",
+          "attention_score_scale": "head_dim",
+          "linear_accumulation": "f32",
+          "ffn_gate_up_order": "gate_up",
+          "rms_norm_epsilon": 0.000001,
+          "rms_norm_effective_epsilon": 0.000001,
+          "square_linear_diagnostic_layout": "transposed",
+          "rectangular_linear_diagnostic_layout": "auto",
+          "token_embedding_shape": [
+            151936,
+            2048
+          ],
+          "output_shape": [
+            2048,
+            151936
+          ],
+          "output_is_tied_embedding": true,
+          "output_projection_layout": "input_output",
+          "output_projection_diagnostic_layout": "token_major",
+          "zero_attention_delta": "none",
+          "zero_ffn_delta": "none",
+          "projection_orientations": {
+            "attention_q": {
+              "shape": [
+                2048,
+                2048
+              ],
+              "input_width": 2048,
+              "output_width": 2048,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "rhs_transposed",
+              "square_diagnostic_applies": true
+            },
+            "attention_k": {
+              "shape": [
+                2048,
+                1024
+              ],
+              "input_width": 2048,
+              "output_width": 1024,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "descriptor",
+              "square_diagnostic_applies": false
+            },
+            "attention_v": {
+              "shape": [
+                2048,
+                1024
+              ],
+              "input_width": 2048,
+              "output_width": 1024,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "descriptor",
+              "square_diagnostic_applies": false
+            },
+            "attention_output": {
+              "shape": [
+                2048,
+                2048
+              ],
+              "input_width": 2048,
+              "output_width": 2048,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "rhs_transposed",
+              "square_diagnostic_applies": true
+            },
+            "ffn_gate": {
+              "shape": [
+                2048,
+                6144
+              ],
+              "input_width": 2048,
+              "output_width": 6144,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "descriptor",
+              "square_diagnostic_applies": false
+            },
+            "ffn_up": {
+              "shape": [
+                2048,
+                6144
+              ],
+              "input_width": 2048,
+              "output_width": 6144,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "descriptor",
+              "square_diagnostic_applies": false
+            },
+            "ffn_down": {
+              "shape": [
+                6144,
+                2048
+              ],
+              "input_width": 6144,
+              "output_width": 2048,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "descriptor",
+              "square_diagnostic_applies": false
+            }
+          }
+        },
+        "top_logits": [
+          {
+            "token_id": 220,
+            "logit": 24.428967,
+            "probability": 0.2745264,
+            "rank": 1,
+            "selected": false,
+            "text": " "
+          },
+          {
+            "token_id": 444,
+            "logit": 24.062582,
+            "probability": 0.19031161,
+            "rank": 2,
+            "selected": false,
+            "text": " L"
+          },
+          {
+            "token_id": 576,
+            "logit": 23.757181,
+            "probability": 0.14022693,
+            "rank": 3,
+            "selected": false,
+            "text": " The"
+          },
+          {
+            "token_id": 3776,
+            "logit": 23.285362,
+            "probability": 0.08748287,
+            "rank": 4,
+            "selected": false,
+            "text": " One"
+          },
+          {
+            "token_id": 481,
+            "logit": 22.595705,
+            "probability": 0.04389436,
+            "rank": 5,
+            "selected": false,
+            "text": " -"
+          },
+          {
+            "token_id": 8886,
+            "logit": 22.330229,
+            "probability": 0.03365998,
+            "rank": 6,
+            "selected": false,
+            "text": " Each"
+          },
+          {
+            "token_id": 5512,
+            "logit": 22.265043,
+            "probability": 0.031535823,
+            "rank": 7,
+            "selected": false,
+            "text": " First"
+          },
+          {
+            "token_id": 7281,
+            "logit": 21.699734,
+            "probability": 0.017918156,
+            "rank": 8,
+            "selected": false,
+            "text": " Also"
+          }
+        ],
+        "output_projection": []
+      }
+    }
+  ],
+  "stream": [
+    [
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"Qwen3 1.7B Instruct\",\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"Qwen3 1.7B Instruct\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"Hello\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"Qwen3 1.7B Instruct\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"!\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"Qwen3 1.7B Instruct\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\" How\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"Qwen3 1.7B Instruct\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\" can\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"Qwen3 1.7B Instruct\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\" I\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"Qwen3 1.7B Instruct\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\" assist\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"Qwen3 1.7B Instruct\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\" you\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"Qwen3 1.7B Instruct\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\" today\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"Qwen3 1.7B Instruct\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"?\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"Qwen3 1.7B Instruct\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\" \"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"Qwen3 1.7B Instruct\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"😊\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"Qwen3 1.7B Instruct\",\"choices\":[{\"index\":0,\"delta\":{},\"finish_reason\":\"stop\"}]}",
+      "data: [DONE]"
+    ],
+    [
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"Qwen3 1.7B Instruct\",\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"Qwen3 1.7B Instruct\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"Hello\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"Qwen3 1.7B Instruct\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"!\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"Qwen3 1.7B Instruct\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\" How\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"Qwen3 1.7B Instruct\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\" can\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"Qwen3 1.7B Instruct\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\" I\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"Qwen3 1.7B Instruct\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\" assist\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"Qwen3 1.7B Instruct\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\" you\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"Qwen3 1.7B Instruct\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\" today\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"Qwen3 1.7B Instruct\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"?\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"Qwen3 1.7B Instruct\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\" \"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"Qwen3 1.7B Instruct\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"😊\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"Qwen3 1.7B Instruct\",\"choices\":[{\"index\":0,\"delta\":{},\"finish_reason\":\"stop\"}]}",
+      "data: [DONE]"
+    ],
+    [
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"Qwen3 1.7B Instruct\",\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"Qwen3 1.7B Instruct\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"The\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"Qwen3 1.7B Instruct\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\" three\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"Qwen3 1.7B Instruct\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\" primary\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"Qwen3 1.7B Instruct\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\" colors\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"Qwen3 1.7B Instruct\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\" are\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"Qwen3 1.7B Instruct\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\" **\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"Qwen3 1.7B Instruct\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"red\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"Qwen3 1.7B Instruct\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\",\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"Qwen3 1.7B Instruct\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\" blue\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"Qwen3 1.7B Instruct\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\",\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"Qwen3 1.7B Instruct\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\" and\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"Qwen3 1.7B Instruct\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\" yellow\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"Qwen3 1.7B Instruct\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"**\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"Qwen3 1.7B Instruct\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\".\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"Qwen3 1.7B Instruct\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\" These\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"Qwen3 1.7B Instruct\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\" are\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"Qwen3 1.7B Instruct\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\" the\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"Qwen3 1.7B Instruct\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\" fundamental\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"Qwen3 1.7B Instruct\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\" colors\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"Qwen3 1.7B Instruct\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\" in\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"Qwen3 1.7B Instruct\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\" the\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"Qwen3 1.7B Instruct\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\" traditional\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"Qwen3 1.7B Instruct\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\" **\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"Qwen3 1.7B Instruct\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"RY\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"Qwen3 1.7B Instruct\",\"choices\":[{\"index\":0,\"delta\":{},\"finish_reason\":\"length\"}]}",
+      "data: [DONE]"
+    ],
+    [
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"Qwen3 1.7B Instruct\",\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"Qwen3 1.7B Instruct\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"The\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"Qwen3 1.7B Instruct\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\" three\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"Qwen3 1.7B Instruct\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\" primary\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"Qwen3 1.7B Instruct\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\" colors\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"Qwen3 1.7B Instruct\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\" are\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"Qwen3 1.7B Instruct\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\" **\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"Qwen3 1.7B Instruct\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"red\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"Qwen3 1.7B Instruct\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\",\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"Qwen3 1.7B Instruct\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\" blue\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"Qwen3 1.7B Instruct\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\",\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"Qwen3 1.7B Instruct\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\" and\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"Qwen3 1.7B Instruct\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\" yellow\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"Qwen3 1.7B Instruct\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"**\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"Qwen3 1.7B Instruct\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\".\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"Qwen3 1.7B Instruct\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\" These\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"Qwen3 1.7B Instruct\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\" are\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"Qwen3 1.7B Instruct\",\"choices\":[{\"index\":0,\"delta\":{},\"finish_reason\":\"length\"}]}",
+      "data: [DONE]"
+    ],
+    [
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"Qwen3 1.7B Instruct\",\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"Qwen3 1.7B Instruct\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"L\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"Qwen3 1.7B Instruct\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"lam\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"Qwen3 1.7B Instruct\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"as\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"Qwen3 1.7B Instruct\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\" are\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"Qwen3 1.7B Instruct\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\" large\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"Qwen3 1.7B Instruct\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\",\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"Qwen3 1.7B Instruct\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\" wool\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"Qwen3 1.7B Instruct\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"ly\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"Qwen3 1.7B Instruct\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\" animals\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"Qwen3 1.7B Instruct\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\" native\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"Qwen3 1.7B Instruct\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\" to\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"Qwen3 1.7B Instruct\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\" South\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"Qwen3 1.7B Instruct\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\" America\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"Qwen3 1.7B Instruct\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\".\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"Qwen3 1.7B Instruct\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\" They\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"Qwen3 1.7B Instruct\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\" are\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"Qwen3 1.7B Instruct\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\" known\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"Qwen3 1.7B Instruct\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\" for\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"Qwen3 1.7B Instruct\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\" their\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"Qwen3 1.7B Instruct\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\" long\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"Qwen3 1.7B Instruct\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\",\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"Qwen3 1.7B Instruct\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\" curved\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"Qwen3 1.7B Instruct\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\" horns\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"Qwen3 1.7B Instruct\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\" and\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"Qwen3 1.7B Instruct\",\"choices\":[{\"index\":0,\"delta\":{},\"finish_reason\":\"length\"}]}",
+      "data: [DONE]"
+    ],
+    [
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"Qwen3 1.7B Instruct\",\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"Qwen3 1.7B Instruct\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"L\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"Qwen3 1.7B Instruct\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"lam\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"Qwen3 1.7B Instruct\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"as\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"Qwen3 1.7B Instruct\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\" are\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"Qwen3 1.7B Instruct\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\" large\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"Qwen3 1.7B Instruct\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\" sheep\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"Qwen3 1.7B Instruct\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"-like\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"Qwen3 1.7B Instruct\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\" animals\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"Qwen3 1.7B Instruct\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\" found\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"Qwen3 1.7B Instruct\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\" in\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"Qwen3 1.7B Instruct\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\" the\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"Qwen3 1.7B Instruct\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\" And\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"Qwen3 1.7B Instruct\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"es\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"Qwen3 1.7B Instruct\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\" Mountains\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"Qwen3 1.7B Instruct\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\".\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"Qwen3 1.7B Instruct\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\" They\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"Qwen3 1.7B Instruct\",\"choices\":[{\"index\":0,\"delta\":{},\"finish_reason\":\"length\"}]}",
+      "data: [DONE]"
+    ]
+  ],
+  "perf": [
+    {
+      "kind": "chat",
+      "prompt": "hello",
+      "wall_ms": 2840.283,
+      "completion_tokens": 12
+    },
+    {
+      "kind": "stream-ttfb",
+      "prompt": "hello",
+      "ttfb_ms": 35.6125
+    },
+    {
+      "kind": "chat",
+      "prompt": "The three primary colors are",
+      "wall_ms": 682.4677,
+      "completion_tokens": 48
+    },
+    {
+      "kind": "stream-ttfb",
+      "prompt": "The three primary colors are",
+      "ttfb_ms": 39.6778
+    },
+    {
+      "kind": "chat",
+      "prompt": "Write two short sentences about llamas.",
+      "wall_ms": 451.5257,
+      "completion_tokens": 28
+    },
+    {
+      "kind": "stream-ttfb",
+      "prompt": "Write two short sentences about llamas.",
+      "ttfb_ms": 48.4109
+    }
+  ]
+}

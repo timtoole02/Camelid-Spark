@@ -1,0 +1,86 @@
+{
+  "schema": "camelid.qwen3_4b_q4km_context_sweep_public_evidence.v1",
+  "generated_utc": "2026-07-07T23:43:54.250Z",
+  "git_head": "38324e3265e7",
+  "row_id": "qwen3_4b_q4_k_m",
+  "model": {
+    "filename": "Qwen3-4B-Q4_K_M.gguf",
+    "size_bytes": 2497280256,
+    "sha256": "7485fe6f11af29433bc51cab58009521f205840f5b4ae3a32fa7f92e8534fdf5",
+    "quantization": "Q4_K_M",
+    "architecture": "qwen3",
+    "quant_mix": "216 Q4_K + 37 Q6_K + 145 F32 norms (drives both q4k_gemv and q6k_gemv)"
+  },
+  "comparator": "llama.cpp acd79d603 (Windows CPU-only build) /completion, greedy (temp 0/top_k 1/seed 0), -ngl 0 -ctk f32 -ctv f32 -fa off --no-repack -c 8704",
+  "camelid_backend": "q4_k_m runtime, RTX 3060 Laptop 6 GiB: ALL five buckets fit under the 15888-position VRAM-sized resident KV cap (build_resident_cuda_engine: free 5122 MiB - weights 2375 MiB - 512 headroom -> fits 15888 pos), so decode is fully GPU-resident (CUDA q4k_gemv/q6k_gemv) end-to-end for every bucket. No CPU-fallback.",
+  "execution_note": "Single-model runs only: the llama.cpp oracle was captured alone and its server killed before camelid was started (engines never co-resident), to stay within host RAM.",
+  "resident_cap_positions": 15888,
+  "promoted_windows": [
+    512,
+    1024
+  ],
+  "sweep_all_pass": false,
+  "token_counts": [
+    50
+  ],
+  "buckets": [
+    {
+      "target_window": 512,
+      "actual_qwen3_tokens": 446,
+      "decode_path": "fully_gpu_resident",
+      "token_and_text_identical": true,
+      "promoted": true,
+      "note": "promoted: strict token+text identity"
+    },
+    {
+      "target_window": 1024,
+      "actual_qwen3_tokens": 968,
+      "decode_path": "fully_gpu_resident",
+      "token_and_text_identical": true,
+      "promoted": true,
+      "note": "promoted: strict token+text identity"
+    },
+    {
+      "target_window": 2048,
+      "actual_qwen3_tokens": 2013,
+      "decode_path": "fully_gpu_resident",
+      "token_and_text_identical": false,
+      "promoted": false,
+      "note": "NOT identical — benign greedy near-tie divergence (see near_tie detail); not claimed"
+    },
+    {
+      "target_window": 4096,
+      "actual_qwen3_tokens": 4088,
+      "decode_path": "fully_gpu_resident",
+      "token_and_text_identical": true,
+      "promoted": false,
+      "note": "token+text identical in this sweep, but held unpromoted to keep the promoted ladder a contiguous 512/1024 (the 2048 bucket between it and here is a near-tie divergence)"
+    },
+    {
+      "target_window": 8192,
+      "actual_qwen3_tokens": 8253,
+      "decode_path": "fully_gpu_resident",
+      "token_and_text_identical": true,
+      "promoted": false,
+      "note": "token+text identical in this sweep, but held unpromoted to keep the promoted ladder a contiguous 512/1024 (the 2048 bucket between it and here is a near-tie divergence)"
+    }
+  ],
+  "near_tie": {
+    "bucket": 2048,
+    "divergent_generation_index": 14,
+    "camelid_pick": {
+      "token": 93676,
+      "piece": " llama",
+      "logprob": -1.9199085
+    },
+    "oracle_pick": {
+      "token": 279,
+      "piece": " the",
+      "logprob_in_camelid_dist": -2.0017815
+    },
+    "gap_nats": 0.081873,
+    "description": "At generation index 14 (after the shared 14-token prefix) camelid's top token is ' llama' (leading to correct fact recall) and the llama.cpp oracle's is ' the' (leading the oracle into a degenerate 'the code is CMLD-2048' repetition loop). In camelid's own distribution the two candidates are separated by only 0.082 nat — a benign sub-0.1-nat near-tie well under the ~0.33-nat threshold used elsewhere in this repo. This is a lower-precision-quant greedy coin-flip, not a camelid decode error; camelid's continuation is the more sensible one. Because it is not token-identical to the oracle, the 2048 bucket is NOT promoted.",
+    "logprobs_receipt": "near-tie-2048-logprobs.json"
+  },
+  "claim_boundary": "PROMOTED: bounded 512/1024-context (446/968 Qwen3 tokens) raw-decode greedy parity for the exact Qwen3-4B-Q4_K_M row ONLY — camelid GPU-resident CUDA decode (q4k_gemv/q6k_gemv) is token-AND-text-identical to the pinned llama.cpp acd79d603 oracle at 50 generated tokens on both buckets. DISCLOSED BUT NOT PROMOTED: the 4096/8192 buckets (4088/8253 tokens) were ALSO token-AND-text-identical in this same sweep, but the promoted ladder is held to a contiguous 512/1024 because the intervening 2048 bucket diverges at a documented benign sub-0.1-nat greedy near-tie (see near_tie; the oracle degenerates into a repetition loop, camelid recalls correctly). NOT claimed: the 2048 bucket, the 4096/8192 buckets pending a clean 2048, model-native/larger context, other Qwen3 sizes/quants, other K-quant files, thinking-mode, or throughput."
+}

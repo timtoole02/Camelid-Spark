@@ -1,0 +1,13 @@
+
+> backendinference-frontend@0.1.0 build
+> vite build
+
+vite v8.0.10 building client environment for production...
+[2Ktransforming...✓ 35 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                   0.39 kB │ gzip:  0.26 kB
+dist/assets/index-BYjwCPwW.css   86.18 kB │ gzip: 15.19 kB
+dist/assets/index-KlNTFuI_.js   343.69 kB │ gzip: 96.78 kB
+
+✓ built in 161ms

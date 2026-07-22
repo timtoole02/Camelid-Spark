@@ -1,0 +1,6 @@
+682d22086ca220563d5bffa2b8a42927e8c3acbd48ae887bf0e2d758b0b3d150 *capabilities.json
+cde126273968c38b7c697b856cc1880deb44a306b862bd21e0ec380af5cd6bce *llama-3.2-3b-q4_k_m-cuda-resident-speed.json
+5a69f700fd3b23b5ad2bcd21b3e445ce6c1f2eed4ff1aeef197f523e85a00dad *llama-3.2-3b-q4_k_m-near-tie-analysis.json
+32eaeb5831246625af1869206673ce65e04ed4fd441dcc52c1eace45eef30247 *llama-3.2-3b-q4_k_m-windows-cuda-resident-parity.json
+a3fb261d0fa105a1b2dd48bf72d57f524ea868825daf9e006f9f3a554eb59f47 *manifest.json
+3f752db0d7a3e351398187ac2dc017397a917981555207d9a7e83093ecc6254a *README.md

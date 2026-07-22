@@ -1,0 +1,33 @@
+{
+  "schema": "camelid.parity-receipt/v1",
+  "gate": "ITEM3_serving_surface",
+  "lane": "ornith-9b-constrained-vram",
+  "date": "2026-07-02",
+  "serve_config": "CAMELID_RUNNABLE_SERVE=1 CAMELID_QWEN35_CUDA=1 camelid serve --model ornith-1.0-9b-Q4_K_M.gguf (fully GPU-resident runnable lane, ~12 tok/s)",
+  "components": {
+    "chat_template": "native render (render_ornith_chatml_prompt[_with_tools]) — certified by G-TOOLCALL (qa/ornith/G-TOOLCALL-qwen35.md, merged PR #350)",
+    "reasoning_split": "split_ornith_think -> reasoning_content (message + delta) — non-streaming certified by G-TOOLCALL; STREAMING implemented THIS conductor (was 'not yet implemented' on the bridge): think tokens stream as delta.reasoning_content, phase-switched on the </think> token id, UTF-8 hold-back for multi-token code points",
+    "tool_call_parsing": "qwen3_xml <tool_call><function=...> -> OpenAI tool_calls (parse_ornith / parse_ornith_tool_calls_json) — certified by G-TOOLCALL; streaming emits one aggregate tool_calls delta chunk + finish_reason=tool_calls",
+    "stream_options_include_usage": "terminal usage chunk with REAL prompt/completion counts (the non-streaming bridge's prompt_tokens:0 placeholder also fixed to real counts)",
+    "sampling_defaults": "model card 0.6/0.95/20 exposed via request params, not hardcoded (fixtures carry the profile)"
+  },
+  "sse_capture": {
+    "file": "sse_capture_item3.txt (+ sse_capture_item3_summary.json)",
+    "request": "agentic fixture 1 (read src/config.py, 3-tool schema), stream:true, stream_options.include_usage:true, camelid_enable_thinking:true, greedy",
+    "observed": {
+      "chunks": 56,
+      "reasoning_delta_chunks": 26,
+      "content_delta_chunks": 26,
+      "tool_call_delta_chunks": 1,
+      "finish_reason": "tool_calls",
+      "usage": { "prompt_tokens": 381, "completion_tokens": 54, "total_tokens": 435 },
+      "reasoning_leaked_into_content": false
+    }
+  },
+  "agent_eval": {
+    "receipt": "qa/agent-eval/ornith-1.0-9b-Q4_K_M-1783019779-PASS.json",
+    "result": "PASS — FULL battery (read_and_count, list_dir_find, write_greeting) in ONE invocation against the GPU serve; the prior tool_capable evidence (3 single-case PASS receipts, G-AGENT) was packaged per-case only because the CPU lane ran ~1 s/token. First full-battery single-run PASS on this host.",
+    "note_on_conductor_4of4": "the conductor's 'agent-eval bar (4/4)' count is stale — the certified battery on main is 3 distinct-tool cases (src/chat/agent_eval.rs battery()); all 3/3 pass. No 4th case exists in the certified spec."
+  },
+  "result": "PASS — all Item 3 components certified (template/reasoning/tools by merged receipts; streaming reasoning_content deltas + include_usage composition + full-battery agent-eval produced this conductor)"
+}

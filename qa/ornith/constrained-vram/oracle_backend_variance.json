@@ -1,0 +1,25 @@
+{
+  "comparison": "llama.cpp acd79d6 CPU vs CUDA backend, same Q4_K_M weights, greedy n=64, token-id prompts",
+  "rows": [
+    {
+      "id": 0,
+      "first_divergence": -1
+    },
+    {
+      "id": 1,
+      "first_divergence": -1
+    },
+    {
+      "id": 2,
+      "first_divergence": -1
+    },
+    {
+      "id": 3,
+      "first_divergence": 9
+    },
+    {
+      "id": 4,
+      "first_divergence": -1
+    }
+  ]
+}

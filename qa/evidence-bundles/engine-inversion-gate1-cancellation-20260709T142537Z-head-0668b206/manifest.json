@@ -1,0 +1,28 @@
+{
+  "bundle": "engine-inversion-gate1-cancellation",
+  "generated_utc": "2026-07-09T14:25:37Z",
+  "candidate_head": "0668b206",
+  "base_pin": "ffada00f",
+  "branch": "feat/engine-inversion",
+  "mission": "docs/recon/ENGINE_INVERSION_CONDUCTOR.md",
+  "gate": "GATE 1",
+  "verdict": "PASS",
+  "criteria": {
+    "p0_tests_flipped": "3/3 passing, assertions unchanged (logs/orphan-tests-PASS.log)",
+    "full_suite": "675 passed / 0 failed / 55 ignored (logs/full-suite-PASS.log)",
+    "fmt_clippy": "clean under --all-targets --all-features -D warnings",
+    "parity": "byte-identical canonical outputs pre/post on TinyLlama-1.1B-Q8_0 and Llama-3.2-1B-Q8_0 (parity/*.json); Mistral row substituted (not on host), carried to Phase 4",
+    "perf": "steady-state chat wall + stream TTFB within noise (perf arrays in parity JSONs)"
+  },
+  "toolchain": "rustc 1.95.0, release profile (fat LTO), windows x86_64, CUDA default lane",
+  "artifacts": [
+    "README.md",
+    "logs/orphan-tests-PASS.log",
+    "logs/full-suite-PASS.log",
+    "parity/engine-inversion-parity.mjs",
+    "parity/baseline-tinyllama.json",
+    "parity/phase1-tinyllama.json",
+    "parity/baseline-llama1b.json",
+    "parity/phase1-llama1b.json"
+  ]
+}

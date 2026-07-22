@@ -1,0 +1,33 @@
+{
+  "file": "ref_usage_on.sse",
+  "total_data_frames": 18,
+  "chunk_count_excluding_done": 17,
+  "done_seen": true,
+  "done_is_last_frame": true,
+  "content_chunks_all_omit_usage": true,
+  "usage_chunk_count": 1,
+  "terminal_usage_chunk": {
+    "choices_is_empty_array": true,
+    "has_id": true,
+    "has_created": true,
+    "has_model": true,
+    "object": "chat.completion.chunk",
+    "usage_keys": [
+      "completion_tokens",
+      "prompt_tokens",
+      "prompt_tokens_details",
+      "total_tokens"
+    ],
+    "usage_values": {
+      "completion_tokens": 16,
+      "prompt_tokens": 21,
+      "total_tokens": 37,
+      "prompt_tokens_details": {
+        "cached_tokens": 0
+      }
+    }
+  },
+  "empty_choice_chunk_count": 1,
+  "usage_after_finish_reason": true,
+  "usage_before_done": true
+}

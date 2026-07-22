@@ -1,0 +1,329 @@
+{
+  "schema": "camelid.parity-receipt/v1",
+  "gate": "ITEM1_tokenizer",
+  "lane": "ornith-9b-constrained-vram",
+  "date": "2026-07-02T17:26:53.072Z",
+  "reference": "llama.cpp acd79d6 (REF_QWEN35) llama-tokenize",
+  "model": "models/ornith-1.0-9b-Q4_K_M.gguf",
+  "modes": {
+    "plain": {
+      "cases": 45,
+      "mismatches": [
+        {
+          "case": "adversarial/8",
+          "text": "<think>\nThe user wants X, so I should Y.\n</think>\nThe answer is 42.",
+          "camelid": [
+            13314,
+            741,
+            29,
+            198,
+            760,
+            1156,
+            6587,
+            1543,
+            11,
+            748,
+            353,
+            1220,
+            783,
+            13,
+            198,
+            510,
+            26003,
+            29,
+            198,
+            760,
+            4087,
+            369,
+            220,
+            19,
+            17,
+            13
+          ],
+          "oracle": [
+            248068,
+            198,
+            760,
+            1156,
+            6587,
+            1543,
+            11,
+            748,
+            353,
+            1220,
+            783,
+            13,
+            198,
+            248069,
+            198,
+            760,
+            4087,
+            369,
+            220,
+            19,
+            17,
+            13
+          ]
+        },
+        {
+          "case": "adversarial/9",
+          "text": "<tool_call>\n<function=read_file>\n<parameter=path>src/main.rs</parameter>\n</function>\n</tool_call>",
+          "camelid": [
+            27,
+            13766,
+            13042,
+            29,
+            198,
+            27,
+            1628,
+            86779,
+            2378,
+            29,
+            198,
+            27,
+            15704,
+            79114,
+            29,
+            3431,
+            14905,
+            24822,
+            510,
+            15704,
+            29,
+            198,
+            510,
+            1628,
+            29,
+            198,
+            510,
+            13766,
+            13042,
+            29
+          ],
+          "oracle": [
+            248058,
+            198,
+            27,
+            1628,
+            86779,
+            2378,
+            29,
+            198,
+            27,
+            15704,
+            79114,
+            29,
+            3431,
+            14905,
+            24822,
+            510,
+            15704,
+            29,
+            198,
+            510,
+            1628,
+            29,
+            198,
+            248059
+          ]
+        },
+        {
+          "case": "adversarial/13",
+          "text": "नमस्ते दुनिया (Devanagari with matras)",
+          "camelid": [
+            58069,
+            84237,
+            75681,
+            28640,
+            153348,
+            184642,
+            235886,
+            318,
+            14172,
+            276,
+            346,
+            2692,
+            440,
+            5344,
+            12418,
+            8
+          ],
+          "oracle": [
+            58069,
+            84237,
+            150104,
+            153348,
+            184642,
+            235886,
+            318,
+            14172,
+            276,
+            346,
+            2692,
+            440,
+            5344,
+            12418,
+            8
+          ]
+        }
+      ]
+    },
+    "parse_special": {
+      "cases": 45,
+      "mismatches": [
+        {
+          "case": "adversarial/13",
+          "text": "नमस्ते दुनिया (Devanagari with matras)",
+          "camelid": [
+            58069,
+            84237,
+            75681,
+            28640,
+            153348,
+            184642,
+            235886,
+            318,
+            14172,
+            276,
+            346,
+            2692,
+            440,
+            5344,
+            12418,
+            8
+          ],
+          "oracle": [
+            58069,
+            84237,
+            150104,
+            153348,
+            184642,
+            235886,
+            318,
+            14172,
+            276,
+            346,
+            2692,
+            440,
+            5344,
+            12418,
+            8
+          ]
+        }
+      ]
+    }
+  },
+  "special_roundtrip": [
+    {
+      "marker": "<|im_start|>",
+      "oracle": [
+        248045
+      ],
+      "camelid": [
+        248045
+      ],
+      "match": true,
+      "single_token": true,
+      "decoded": "<|im_start|>"
+    },
+    {
+      "marker": "<|im_end|>",
+      "oracle": [
+        248046
+      ],
+      "camelid": [
+        248046
+      ],
+      "match": true,
+      "single_token": true,
+      "decoded": "<|im_end|>"
+    },
+    {
+      "marker": "<think>",
+      "oracle": [
+        248068
+      ],
+      "camelid": [
+        248068
+      ],
+      "match": true,
+      "single_token": true,
+      "decoded": "<think>"
+    },
+    {
+      "marker": "</think>",
+      "oracle": [
+        248069
+      ],
+      "camelid": [
+        248069
+      ],
+      "match": true,
+      "single_token": true,
+      "decoded": "</think>"
+    },
+    {
+      "marker": "<tool_call>",
+      "oracle": [
+        248058
+      ],
+      "camelid": [
+        248058
+      ],
+      "match": true,
+      "single_token": true,
+      "decoded": "<tool_call>"
+    },
+    {
+      "marker": "</tool_call>",
+      "oracle": [
+        248059
+      ],
+      "camelid": [
+        248059
+      ],
+      "match": true,
+      "single_token": true,
+      "decoded": "</tool_call>"
+    }
+  ],
+  "unsplittability": [
+    {
+      "marker": "<|im_start|>",
+      "special_id": 248045,
+      "leaked_in_plain_mode": false,
+      "plain_ids_match_oracle": true
+    },
+    {
+      "marker": "<|im_end|>",
+      "special_id": 248046,
+      "leaked_in_plain_mode": false,
+      "plain_ids_match_oracle": true
+    },
+    {
+      "marker": "<think>",
+      "special_id": 248068,
+      "leaked_in_plain_mode": false,
+      "plain_ids_match_oracle": false
+    },
+    {
+      "marker": "</think>",
+      "special_id": 248069,
+      "leaked_in_plain_mode": false,
+      "plain_ids_match_oracle": false
+    },
+    {
+      "marker": "<tool_call>",
+      "special_id": 248058,
+      "leaked_in_plain_mode": false,
+      "plain_ids_match_oracle": false
+    },
+    {
+      "marker": "</tool_call>",
+      "special_id": 248059,
+      "leaked_in_plain_mode": false,
+      "plain_ids_match_oracle": false
+    }
+  ],
+  "result": "FAIL (8 failures)"
+}

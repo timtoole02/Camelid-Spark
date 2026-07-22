@@ -1,0 +1,27 @@
+{
+ "schema": "camelid.apple_silicon_m4_multi_row_q8_three_runtime_throughput.v1",
+ "captured_utc": "20260605T043953Z",
+ "head_commit": "d7c2940",
+ "passed": true,
+ "claim_boundary": "Exact-row, same-host, bounded throughput snapshots for Llama 3.2 1B Instruct Q8_0 and Llama 3 8B Instruct Q8_0 on one Apple M4 (16GB), 601-token prefill + short-context 128-token greedy decode, three same-session rounds with alternating runtime order per row. 1B: Camelid decode reads above both comparators in every round (median 74.79 vs llama.cpp 67.20 and MLX-LM 69.66); 1B prefill reads above llama.cpp (1664.3 vs 1472.8) and parity-level with MLX-LM (1670.0, the medians differ by less than inter-round spread — no win claimed against MLX on this lane). 8B: Camelid prefill reads narrowly above both (234.2 vs 220.4 / 229.2); 8B decode is a three-way parity band (12.09 / 12.14 / 12.04 — no win claimed, the lane is weight-bandwidth-bound). Same-session snapshots on exact rows; nothing transfers.",
+ "host": {"machine": "Mac16,10 (Apple M4, 10-core GPU, 16GB unified memory)", "os": "macOS (Darwin 25.5.0)"},
+ "workload": {
+  "rows": "Llama 3.2 1B Instruct Q8_0 (bartowski GGUF; mlx-community 1B 8bit) and Llama 3 8B Instruct Q8_0 (QuantFactory GGUF; mlx-community 8B 8bit)",
+  "prefill_prompt": "601-token repeated-sentence prompt",
+  "decode_prompt": "short prompt, 128 greedy tokens",
+  "camelid_command": "camelid bench-generate <model> --prompt-file <prompt> --max-tokens 16|128 --temperature 0 --warmup --iterations 4 --json (default CLI fast stack)",
+  "llamacpp_command": "llama-bench -m <model> -p 601 -n 128 -r 3 -o md (brew, Metal)",
+  "mlx_command": "mlx_lm.generate two-point decode + 601-token verbose prompt pass"
+ },
+ "results": {
+  "llama32_1b": {
+   "prefill_601_tok_s": {"camelid_round_medians": [1664.3, 1664.3, 1664.9], "camelid_session_median": 1664.3, "llamacpp_median": 1472.8, "mlx_median": 1670.0},
+   "decode_128_tok_s": {"camelid_round_medians": [74.78, 75.05, 74.79], "camelid_session_median": 74.79, "llamacpp_median": 67.20, "mlx_median": 69.66}
+  },
+  "llama3_8b": {
+   "prefill_601_tok_s": {"camelid_round_medians": [234.2, 239.5, 233.6], "camelid_session_median": 234.2, "llamacpp_median": 220.4, "mlx_median": 229.2},
+   "decode_128_tok_s": {"camelid_round_medians": [12.02, 12.19, 12.09], "camelid_session_median": 12.09, "llamacpp_median": 12.14, "mlx_median": 12.04}
+  }
+ },
+ "parity": "Camelid greedy continuations identical across every iteration of every round on both rows (output_token_ids in the jsonl logs)."
+}

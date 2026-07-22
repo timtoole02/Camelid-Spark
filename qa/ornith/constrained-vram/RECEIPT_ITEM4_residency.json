@@ -1,0 +1,48 @@
+{
+  "schema": "camelid.parity-receipt/v1",
+  "gate": "ITEM4_6gb_budget_and_quants",
+  "lane": "ornith-9b-constrained-vram",
+  "date": "2026-07-02",
+  "conductor": "ORNITH_9B_CONSTRAINED_VRAM_CONDUCTOR.md Item 4",
+  "quant_production": {
+    "source": "ornith-1.0-9b-bf16.gguf (sha256 27bc7534..., == HF LFS oid)",
+    "tool": "llama-quantize at REF_QWEN35 (acd79d6)",
+    "imatrix": {
+      "file": "imatrix_ornith_agentic.gguf",
+      "calibration": "TRACES_agentic_20.txt (frozen 20-trace agentic-coding corpus, 45,252 chars, 5 chunks @ c=2048)",
+      "activations_host": "Q8_0 (-ngl 12) — DOCUMENTED DEVIATION: bf16 (17.9GB) exceeds the 15.7GB host RAM and would page-thrash; Q8_0 is the parity-certified quant (host limit, per runnable-lane memory policy)"
+    },
+    "outputs": [
+      { "name": "ornith-1.0-9b-IQ3_XXS.gguf", "bytes": 3938165280, "sha256": "0be488edfb63d7bd112a15b947d8a24fcb184a6678cddb6cc23d0e828b9aa7ae" },
+      { "name": "ornith-1.0-9b-Q3_K_M.gguf", "bytes": 4623524384, "sha256": "16f54df50e44bcaed854941835e595e60a12db48d3b2248af2a1959fc91b6eaa" },
+      { "name": "ornith-1.0-9b-IQ4_XS.gguf", "bytes": 5196440096, "sha256": "0e267369ffbbfcdbdc50241db62a865942a155fb5dfa041f7e8518949b5df7b9" }
+    ]
+  },
+  "quality_table": "QUANT_QUALITY_TABLE.md — held-out coding PPL (heldout_coding.txt, disjoint from calibration): Q6_K 2.3636 / IQ4_XS 2.3900 / Q4_K_M-home 2.4112 / Q3_K_M 2.4693 / IQ3_XXS 2.5323",
+  "residency_16k": {
+    "bar": "full residency + >=512 MiB headroom at 16K context (6144 MiB card)",
+    "llama_cpp_measurements": "residency_16k_server.txt (llama-server -c 16384 -ngl 99, peak across load + 64-token completion): IQ3_XXS 4281 MiB (1863 headroom) / Q3_K_M 4935 (1209) / IQ4_XS 5381 (763) — all PASS",
+    "camelid_measurement": {
+      "config": "stock Q3_K_M, CAMELID_QWEN35_CUDA=1, CAMELID_QWEN35_CUDA_MAXPOS=16384, single session (engine build + prefill + greedy decode)",
+      "peak_vram_mib": 4747,
+      "headroom_mib": 1397,
+      "verdict": "PASS (2.7x the bar; beats the llama.cpp figure — sparse KV over the 8 full-attn layers only)"
+    },
+    "kill_criterion": "NOT FIRED — multiple quants achieve 16K full residency with >=512 MiB headroom"
+  },
+  "camelid_parity_on_chosen_quant": {
+    "quant": "STOCK Q3_K_M (see QUANT_QUALITY_TABLE.md decision — the custom-remix path was abandoned after llama.cpp's q5_K budget proved instance-count-based)",
+    "enablement": "q3_K runnable dequant + admission + builder mapping to the EXISTING resident q3k GEMV; the four q5_K tensors upcast to 36-byte Q8_0 blocks at load (q5k_to_q8_0_blocks — strict precision upcast, ~+40 MiB)",
+    "tests_at_maxpos_16384": {
+      "qwen35_gpu_single_token_matches_cpu": "PASS (cpu=gpu=271)",
+      "qwen35_gpu_greedy_matches_cpu": "PASS solo — gpu==cpu==run-twice [271,760,6511,314,9338,369,11751,13], IDENTICAL to the certified Q8_0/Q4_K_M reference sequence; the parallel-battery failure was 4 concurrent test engines exhausting VRAM (expect('gpu gen') on engine build), not a numeric divergence",
+      "qwen35_gpu_long_context_fits": "PASS (2100-token prefill @ 16384)",
+      "qwen35_gpu_vs_cpu_tokps": "PASS (bench)"
+    }
+  },
+  "followups": [
+    "IQ4_XS is the quality-per-byte champion (+1.1% vs Q6_K, beats home-Q4_K_M while 412 MiB smaller): preferred plain-serving quant if an IQ kernel family + GGUF IQ parsing ever land",
+    "16K sparse-KV serve default: CAMELID_QWEN35_CUDA_MAXPOS=16384 verified; consider raising the default for the Q3_K_M row"
+  ],
+  "result": "PASS — quants produced + hash-manifested, quality table complete, 16K residency bar passed on Camelid's own engine with full parity on the chosen quant"
+}

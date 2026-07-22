@@ -1,0 +1,35 @@
+{
+  "camelid": {
+    "generated_token_ids": [
+      45518,
+      107,
+      101,
+      50429
+    ],
+    "timings_ms": {
+      "generate": 149101.674875,
+      "generation": {
+        "forward_total": 149101.674875
+      },
+      "lane": "gemma4_wall_clock_total_only",
+      "prompt_evaluation": {}
+    }
+  },
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "logprobs": null,
+      "text": "thought\n<channel|>Paris"
+    }
+  ],
+  "created": 1781169454,
+  "id": "cmpl-gemma4",
+  "model": "gemma4_26b_a4b_it_q4_0",
+  "object": "text_completion",
+  "usage": {
+    "completion_tokens": 4,
+    "prompt_tokens": 0,
+    "total_tokens": 4
+  }
+}

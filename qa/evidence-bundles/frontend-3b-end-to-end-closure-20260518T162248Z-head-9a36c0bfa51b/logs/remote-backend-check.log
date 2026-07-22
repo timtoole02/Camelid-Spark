@@ -1,0 +1,6 @@
+timestamp_utc=20260518T162236Z
+---HEALTH---
+curl: (7) Failed to connect to 127.0.0.1 port 8181 after 0 ms: Couldn't connect to server
+result=blocked_backend_not_listening
+ssh=pass
+curl_exit=7

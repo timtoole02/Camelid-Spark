@@ -1,0 +1,270 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "camelid.ledger/v1",
+  "title": "camelid.ledger/v1 — Camelid claim ledger",
+  "description": "The single source of truth for Camelid's claim boundary (CAIRN). One populated ledger (ledger/camelid-ledger.json) is intended to GENERATE, byte-identically, the /api/capabilities response (src/api/capabilities_generated.rs), the README ledger tables, the COMPATIBILITY tables, and the STATUS snapshot. Design rules: (1) every current surface string is holdable VERBATIM so regeneration is byte-identical (the Phase 3 fixpoint) — prose fields are free strings, never lossy-normalized here; (2) the constrained enums (status, support_scope, full_support_status, latest_checked_result) are the code's own vocabulary from src/api/mod.rs, NOT a four-word display lane (CAIRN Amendment 1 #6); (3) identity.sha256 / identity.gguf_filename are ADDITIVE typed fields — they do not replace the verbatim contract prose that currently carries those values until the fixpoint proves them redundant (Phase 5). The `contract` block mirrors the ModelCompatibilityTarget struct field-for-field (40 fields) so an /api/capabilities row round-trips with zero loss.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["ledger_version", "capabilities", "model_rows"],
+  "properties": {
+    "ledger_version": { "const": "camelid.ledger/v1" },
+    "provenance": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "source_head": { "type": "string", "description": "git head the ledger was extracted from / is valid against" },
+        "note": { "type": "string" }
+      }
+    },
+    "capabilities": { "$ref": "#/definitions/capabilitiesEnvelope" },
+    "model_rows": {
+      "type": "array",
+      "description": "One entry per exact model row. Its `contract` generates the matching /api/capabilities model_compatibility[] element; its `surfaces` generate the README / COMPATIBILITY / STATUS cells for the same row.",
+      "items": { "$ref": "#/definitions/modelRow" }
+    }
+  },
+  "definitions": {
+    "statusVocabulary": {
+      "type": "string",
+      "$comment": "Code-derived from `status:` literals in src/api/mod.rs. check-ledger-schema.mjs asserts this list is a SUPERSET of the live code values (drift guard). Polymorphic by item type: model rows use the supported_*/active_validation_*/planned_* subset; SupportItem lists (quant/family/api_features) add ok/partial/future/downloading/error.",
+      "enum": [
+        "active_validation_partial_runtime",
+        "blocked_later_generation_divergence",
+        "blocked_pending_normalized_full_support",
+        "current_gate_refresh_under_stricter_bar",
+        "downloading",
+        "error",
+        "future",
+        "not_applicable_until_certified_row",
+        "not_applicable_until_runtime_support",
+        "ok",
+        "partial",
+        "planned",
+        "planned_beyond_named_certified_rows",
+        "planned_exact_row_candidate",
+        "planned_phase_10",
+        "supported",
+        "supported_current_gate",
+        "supported_exact_row_smoke",
+        "supported_exact_row_smoke_lane",
+        "supported_exact_row_smoke_lanes",
+        "supported_named_exact_rows_only",
+        "unsupported"
+      ]
+    },
+    "supportScopeVocabulary": {
+      "type": "string",
+      "$comment": "Code-derived from `support_scope:` literals in src/api/mod.rs (checked ⊇ by check-ledger-schema.mjs).",
+      "enum": [
+        "current_full_gate_exact_row",
+        "exact_row_bounded_moe_runtime_only",
+        "exact_row_chatml_thinking_disabled_gpu_resident_smoke_only",
+        "exact_row_chatml_thinking_disabled_smoke_only",
+        "exact_row_distributed_serve_smoke_only",
+        "exact_row_gpu_resident_raw_decode_parity_smoke_only",
+        "exact_row_single_node_cpu_smoke_only",
+        "exact_row_smoke_only",
+        "future_exact_row_planning_only"
+      ]
+    },
+    "fullSupportStatusVocabulary": {
+      "type": "string",
+      "$comment": "Code-derived from `full_support_status:` literals in src/api/mod.rs (checked ⊇ by check-ledger-schema.mjs).",
+      "enum": [
+        "blocked_later_generation_divergence",
+        "blocked_pending_normalized_full_support",
+        "current_gate_refresh_under_stricter_bar",
+        "not_applicable_until_certified_row",
+        "not_applicable_until_runtime_support"
+      ]
+    },
+    "latestCheckedResultVocabulary": {
+      "type": "string",
+      "$comment": "Code-derived from `latest_checked_result:` literals in src/api/mod.rs (checked ⊇ by check-ledger-schema.mjs).",
+      "enum": ["blocked_later_generation_divergence", "not_started", "pass", "planning_only"]
+    },
+    "supportItem": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "status", "notes"],
+      "description": "Mirrors the Rust SupportItem struct (supported_quantization / planned_quantization / supported_model_families / planned_model_families / api_features).",
+      "properties": {
+        "id": { "type": "string" },
+        "status": { "$ref": "#/definitions/statusVocabulary" },
+        "notes": { "type": "string" }
+      }
+    },
+    "supportContract": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["current_gate", "support_policy", "unsupported_policy"],
+      "description": "Mirrors the Rust SupportContract struct.",
+      "properties": {
+        "current_gate": { "type": "string" },
+        "support_policy": { "type": "string" },
+        "unsupported_policy": { "type": "string" }
+      }
+    },
+    "capabilitiesEnvelope": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "The non-row parts of the CapabilitiesResponse struct. `execution_plan` is runtime-injected (capabilities_response() passes None), so it is null in the static contract the ledger owns.",
+      "required": [
+        "engine", "gguf_metadata", "tensor_loading", "tokenization", "inference",
+        "streaming", "model_downloads", "hf_catalog_install", "execution_plan",
+        "support_contract", "supported_quantization", "planned_quantization",
+        "supported_model_families", "planned_model_families", "api_features", "notes"
+      ],
+      "properties": {
+        "engine": { "type": "string" },
+        "gguf_metadata": { "type": "boolean" },
+        "tensor_loading": { "type": "boolean" },
+        "tokenization": { "type": "boolean" },
+        "inference": { "type": "boolean" },
+        "streaming": { "type": "boolean" },
+        "model_downloads": { "type": "boolean" },
+        "hf_catalog_install": { "type": "boolean" },
+        "execution_plan": { "type": ["object", "null"] },
+        "support_contract": { "$ref": "#/definitions/supportContract" },
+        "supported_quantization": { "type": "array", "items": { "$ref": "#/definitions/supportItem" } },
+        "planned_quantization": { "type": "array", "items": { "$ref": "#/definitions/supportItem" } },
+        "supported_model_families": { "type": "array", "items": { "$ref": "#/definitions/supportItem" } },
+        "planned_model_families": { "type": "array", "items": { "$ref": "#/definitions/supportItem" } },
+        "api_features": { "type": "array", "items": { "$ref": "#/definitions/supportItem" } },
+        "notes": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "modelContract": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Field-for-field mirror of the ModelCompatibilityTarget struct (40 fields). Every field is present on every row (the Rust struct has no Option), so all 40 are required — this is what makes byte-identical /api/capabilities regeneration possible. All fields are held verbatim; only status / support_scope / full_support_status / latest_checked_result are enum-constrained.",
+      "required": [
+        "id", "family", "quantization", "status", "tool_capable", "support_scope",
+        "full_support_status", "full_support_blockers", "metadata_parses", "tokenizer_works",
+        "tensors_load", "generation_runs", "parity_audited", "performance_measured",
+        "frontend_load_path_verified", "frontend_readiness_gate", "tested_context",
+        "chat_template_renderer", "chat_template_shape_pack", "chat_template_shape_pack_id",
+        "bounded_context_512_pack", "bounded_context_512_pack_id", "bounded_context_window",
+        "bounded_context_1024_pack", "bounded_context_1024_pack_id", "bounded_context_1024_window",
+        "bounded_context_2048_pack", "bounded_context_2048_pack_id", "bounded_context_2048_window",
+        "bounded_context_4096_pack", "bounded_context_4096_pack_id", "bounded_context_4096_window",
+        "bounded_context_8192_pack", "bounded_context_8192_pack_id", "bounded_context_8192_window",
+        "latest_checked_bucket", "latest_checked_result", "latest_checked_output", "evidence", "next_step"
+      ],
+      "properties": {
+        "id": { "type": "string" },
+        "family": { "type": "string" },
+        "quantization": { "type": "string" },
+        "status": { "$ref": "#/definitions/statusVocabulary" },
+        "tool_capable": { "type": "boolean" },
+        "support_scope": { "$ref": "#/definitions/supportScopeVocabulary" },
+        "full_support_status": { "$ref": "#/definitions/fullSupportStatusVocabulary" },
+        "full_support_blockers": { "type": "string" },
+        "metadata_parses": { "type": "string" },
+        "tokenizer_works": { "type": "string" },
+        "tensors_load": { "type": "string" },
+        "generation_runs": { "type": "string" },
+        "parity_audited": { "type": "string" },
+        "performance_measured": { "type": "string" },
+        "frontend_load_path_verified": { "type": "string" },
+        "frontend_readiness_gate": { "type": "string" },
+        "tested_context": { "type": "string" },
+        "chat_template_renderer": { "type": "string" },
+        "chat_template_shape_pack": { "type": "string" },
+        "chat_template_shape_pack_id": { "type": "string" },
+        "bounded_context_512_pack": { "type": "string" },
+        "bounded_context_512_pack_id": { "type": "string" },
+        "bounded_context_window": { "type": "integer", "minimum": 0 },
+        "bounded_context_1024_pack": { "type": "string" },
+        "bounded_context_1024_pack_id": { "type": "string" },
+        "bounded_context_1024_window": { "type": "integer", "minimum": 0 },
+        "bounded_context_2048_pack": { "type": "string" },
+        "bounded_context_2048_pack_id": { "type": "string" },
+        "bounded_context_2048_window": { "type": "integer", "minimum": 0 },
+        "bounded_context_4096_pack": { "type": "string" },
+        "bounded_context_4096_pack_id": { "type": "string" },
+        "bounded_context_4096_window": { "type": "integer", "minimum": 0 },
+        "bounded_context_8192_pack": { "type": "string" },
+        "bounded_context_8192_pack_id": { "type": "string" },
+        "bounded_context_8192_window": { "type": "integer", "minimum": 0 },
+        "latest_checked_bucket": { "type": "string" },
+        "latest_checked_result": { "$ref": "#/definitions/latestCheckedResultVocabulary" },
+        "latest_checked_output": { "type": "string" },
+        "evidence": { "type": "string" },
+        "next_step": { "type": "string" }
+      }
+    },
+    "receipt": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path"],
+      "description": "A resolvable evidence pointer. `path` is repo-relative; head/captured_at are the structured provenance currently flattened into evidence-bundle directory names.",
+      "properties": {
+        "path": { "type": "string" },
+        "head": { "type": "string" },
+        "captured_at": { "type": "string" }
+      }
+    },
+    "surfaceReadme": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "The README supported-models table cells for this row (README.md:170 columns: Model row | Quant | Serve lane | Evidence). Row/Quant derive from identity; only the free-text cells live here.",
+      "properties": {
+        "serve_lane": { "type": "string" },
+        "evidence": { "type": "string" }
+      }
+    },
+    "surfaceCompatibility": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "The COMPATIBILITY at-a-glance cells for this row (COMPATIBILITY.md:45 columns: Exact row | Public claim | Checked context boundary | Do not claim).",
+      "properties": {
+        "public_claim": { "type": "string" },
+        "checked_context_boundary": { "type": "string" },
+        "do_not_claim": { "type": "string" }
+      }
+    },
+    "surfaceStatus": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "The STATUS per-row support-evidence cells (STATUS.md:211+): what is validated now, what gates are missing, and the exact blocker.",
+      "properties": {
+        "validated_now": { "type": "string" },
+        "gates_missing": { "type": "string" },
+        "blocker": { "type": "string" }
+      }
+    },
+    "modelRow": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["identity", "contract"],
+      "properties": {
+        "identity": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["id", "family", "quantization"],
+          "description": "Exact-row identity. sha256 / gguf_filename / params are additive typed fields (today they live only inside prose contract fields); the validator requires identity.id === contract.id.",
+          "properties": {
+            "id": { "type": "string" },
+            "family": { "type": "string" },
+            "params": { "type": "string" },
+            "quantization": { "type": "string" },
+            "gguf_filename": { "type": "string" },
+            "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" }
+          }
+        },
+        "contract": { "$ref": "#/definitions/modelContract" },
+        "surfaces": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "readme": { "$ref": "#/definitions/surfaceReadme" },
+            "compatibility": { "$ref": "#/definitions/surfaceCompatibility" },
+            "status": { "$ref": "#/definitions/surfaceStatus" }
+          }
+        },
+        "receipts": { "type": "array", "items": { "$ref": "#/definitions/receipt" } }
+      }
+    }
+  }
+}

@@ -1,0 +1,65 @@
+{
+  "schema": "camelid.bench-owner-sweep-stats/v1",
+  "model": "<home>/models/Llama-3.2-3B-Instruct-Q8_0.gguf",
+  "rounds": 8,
+  "per_config_median_prefill_tok_s": {
+    "off": 26.972,
+    "owner_avx2": 28.123,
+    "owner_vnni4x4": 29.529,
+    "owner_vnni4x8": 30.304
+  },
+  "paired": [
+    {
+      "base": "off",
+      "cand": "owner_avx2",
+      "n": 8,
+      "median_ratio": 1.044,
+      "ci95": [
+        1.036,
+        1.051
+      ],
+      "rounds_cand_faster": "8/8",
+      "significant": true,
+      "verdict": "SIGNIFICANT +4.441%"
+    },
+    {
+      "base": "off",
+      "cand": "owner_vnni4x4",
+      "n": 8,
+      "median_ratio": 1.087,
+      "ci95": [
+        1.084,
+        1.112
+      ],
+      "rounds_cand_faster": "8/8",
+      "significant": true,
+      "verdict": "SIGNIFICANT +8.716%"
+    },
+    {
+      "base": "off",
+      "cand": "owner_vnni4x8",
+      "n": 8,
+      "median_ratio": 1.123,
+      "ci95": [
+        1.115,
+        1.133
+      ],
+      "rounds_cand_faster": "8/8",
+      "significant": true,
+      "verdict": "SIGNIFICANT +12.32%"
+    },
+    {
+      "base": "owner_vnni4x4",
+      "cand": "owner_vnni4x8",
+      "n": 8,
+      "median_ratio": 1.029,
+      "ci95": [
+        1.026,
+        1.045
+      ],
+      "rounds_cand_faster": "8/8",
+      "significant": true,
+      "verdict": "SIGNIFICANT +2.88%"
+    }
+  ]
+}

@@ -1,0 +1,1 @@
+PASS (clean, no warnings) — cargo clippy -p camelid --lib --tests on Apple M4

@@ -1,0 +1,31 @@
+{
+  "schema": "camelid.capability-receipt/v1",
+  "capability_id": "sampling.seed_determinism",
+  "capability": "fixed seed reproduces token-for-token across runs",
+  "row": "llama-3.2-3b-instruct-q8_0",
+  "model_label": "Llama 3.2 3B Instruct Q8_0",
+  "oracle_class": "I",
+  "verdict": "validated",
+  "generated": "2026-06-26",
+  "platform": {
+    "os": "macos",
+    "target": "aarch64-apple-darwin",
+    "backend": "metal",
+    "oracle": "llama.cpp 9632 (acd79d603, Metal, Apple M4)"
+  },
+  "gguf": {
+    "filename": "Llama-3.2-3B-Instruct-Q8_0.gguf",
+    "sha256": "b5607b5090a8280063fff2d706bb3408ca6542341b06aab39c3eca0a28575921"
+  },
+  "harness": {
+    "repo_head": "e1458a9ba2fdf5dbf3c1b3bcdd8f170aff8e9b86",
+    "branch": "win2metal/phase2-capability",
+    "working_tree": "WIN2METAL Phase 2 (Bucket A) validation on Apple M4 16GB. Binary is the FROZEN base build /Volumes/Untitled/camelid-base-28f224b (camelid v0.1.7-92-g28f224b, commit 28f224b); no src changes in this branch. Outputs salvaged under qa/capability/mac_*_out/<row>/.",
+    "binary": "/Volumes/Untitled/camelid-base-28f224b (camelid v0.1.7-92-g28f224b)",
+    "e2e_harness": "qa/capability/* Metal harness; outputs under qa/capability/mac_*_out/llama-3.2-3b"
+  },
+  "evidence": {
+    "kind": "contract_e2e",
+    "summary": "e2e on Metal (qa/capability/smoke.sh, Apple M4): two identical temperature=0.8 seed=42 chat requests returned byte-identical text (llama-3.2-3b -> FROG) — the per-step SplitMix64 RNG reproduces token-for-token on the Metal backend. Evidence: qa/capability/mac_smoke_out/llama-3.2-3b/seed_a.json, seed_b.json."
+  }
+}

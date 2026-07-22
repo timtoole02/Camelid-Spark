@@ -1,0 +1,27 @@
+{
+  "command": [
+    "/opt/homebrew/Cellar/node@22/22.22.2_2/bin/node",
+    "<repo>/frontend/scripts/smoke.mjs",
+    "--api",
+    "http://127.0.0.1:8231",
+    "--frontend",
+    "http://127.0.0.1:4175",
+    "--model",
+    "<local-models-dir>/gemma-4-12b-it-Q8_0.gguf",
+    "--model-id",
+    "gemma4_12b_it_q8_0",
+    "--chat-repeats",
+    "1",
+    "--require-generation",
+    "--expect-compatibility-row",
+    "gemma4_12b_it_q8_0",
+    "--expect-compatibility-status",
+    "supported_exact_row_smoke",
+    "--expect-contract-supported",
+    "true",
+    "--expect-webui-chat",
+    "enabled"
+  ],
+  "exit_code": 0,
+  "mode": "require_generation"
+}

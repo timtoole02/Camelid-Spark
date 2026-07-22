@@ -1,0 +1,9 @@
+pack=$CAMELID_WORKTREE/qa/prompt-packs/llama3-context-2048-smoke$CAMELID_WORKTREEjson
+out_dir=$CAMELID_WORKTREE/target/llama32-3b-context-2048-20260505T105742Z-head-36ec8e492d65/pack
+model=$CAMELID_MODEL_DIR/Llama-3$CAMELID_WORKTREE2-3B-Instruct-Q8_0$CAMELID_WORKTREEgguf
+model_id=llama32-3b-q8
+prompt_count=1
+prompt_tokens_all_match=true
+generated_tokens_all_match=true
+generated_text_all_match=true
+summary_json=$CAMELID_WORKTREE/target/llama32-3b-context-2048-20260505T105742Z-head-36ec8e492d65/pack/summary$CAMELID_WORKTREEjson

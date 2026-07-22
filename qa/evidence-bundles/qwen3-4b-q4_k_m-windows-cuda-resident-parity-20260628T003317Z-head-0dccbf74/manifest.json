@@ -1,0 +1,55 @@
+{
+  "schema": "camelid.qwen3.chatml_parity_bundle.windows_cuda_resident.v1",
+  "variant": "kquant_gpu_resident",
+  "generated_utc": "20260628T003317Z",
+  "row_id": "qwen3_4b_instruct_q4_k_m",
+  "display_name": "Qwen3 4B Instruct Q4_K_M",
+  "platform": {
+    "operating_system": "windows",
+    "architecture": "x86_64",
+    "toolchain": "x86_64-pc-windows-msvc",
+    "host_ram_gb": 15.7
+  },
+  "gpu": {
+    "name": "NVIDIA GeForce RTX 3060 Laptop GPU",
+    "compute_capability": "8.6",
+    "vram_total_mib": 6144,
+    "vram_free_at_engine_build_mib": 5122,
+    "driver_version": "576.83",
+    "note": "RTX 3060 LAPTOP GPU with 6 GB VRAM. Qwen3-4B-Q4_K_M (2.32 GiB on disk) is FULLY VRAM-resident: all 36 layers in VRAM, ~4.92 GB peak. Results are specific to this GPU/driver (f32 reduction order is GPU-specific)."
+  },
+  "exact_support_status": "windows_cuda_resident_chatml_thinking_disabled_chat_parity_proven_kquant",
+  "source_runtime_head": "0dccbf74068df2481637a5eb11cbf87973ceba49",
+  "build_profile": "release, lto=fat, codegen-units=1, target-cpu=x86-64-v3, cuda default-on (Windows)",
+  "model": {
+    "id": "Qwen3 4B Instruct Q4_K_M",
+    "source": "Qwen/Qwen3-4B-GGUF/Qwen3-4B-Q4_K_M.gguf",
+    "sha256": "7485fe6f11af29433bc51cab58009521f205840f5b4ae3a32fa7f92e8534fdf5",
+    "size_bytes": 2497280256,
+    "arch": "qwen3",
+    "quant": "Q4_K_M",
+    "quant_mix": "216 Q4_K tensors (1.765 GB) + 37 Q6_K tensors (0.725 GB) + 145 F32 norms. attn_v / ffn_down / tied token_embd(lm_head) are Q6_K; q/k/o/gate/up are Q4_K. One run exercises BOTH q4k_gemv and q6k_gemv.",
+    "geometry": "explicit head_dim path (head_dim 128 != embedding/head_count), qk_norm; tied output embedding"
+  },
+  "comparator": {
+    "engine": "llama.cpp",
+    "version": "9632 (acd79d603)",
+    "source_pin_confirmed": "local llama.cpp HEAD == acd79d6",
+    "flags": "/completion: temperature 0, top_k 1, seed 0, cache_prompt false, samplers=[top_k], return_tokens true; server -ngl 0 -ctk f32 -ctv f32 -fa off --no-repack -c 4096",
+    "note": "On-disk Windows CPU comparator (CPU-only llama.cpp build on this box; no ggml-cuda.dll). The camelid GPU-resident CUDA decode is compared DIRECTLY against this llama.cpp reference. The GPU==cpu_reference middle leg used for Q8_0 bundles is N/A here: K-quant has no camelid CPU decode path yet (Phase 2), so llama.cpp is the direct reference."
+  },
+  "camelid": {
+    "backend_observed_runtime": "cuda_resident kquant engine (q4k_gemv + q6k_gemv), all 36 layers VRAM-resident",
+    "decode_path_observed": "kquant_cuda_resident_decode (q4k_gemv/q6k_gemv)",
+    "cuda_resident_active": true,
+    "disclosure_gap": "The STATIC execution-plan classifier (/api/capabilities) mislabels this lane as selected_backend=cpu_reference / decode_path=safe_cpu_decode / quant_type=dense_or_other ('failing closed to safe path') because it is Q8_0-centric and does not yet recognize Q4_K/Q6_K. The RUNTIME nonetheless ran GPU-resident (proven: 36 layers in VRAM; coherent greedy output; the CPU path errors with data_len=0 when CUDA is hidden because K-quant tensors load wire-only). Recorded as a follow-up labeling fix; NOT a correctness defect (output is token-identical to llama.cpp). See capabilities.json."
+  },
+  "result": {
+    "all_pass": true,
+    "token_counts": [1, 5, 50],
+    "prompts": ["What is the capital of France?", "Name a primary color.", "Say hello."],
+    "claim": "GPU-resident CUDA decode of Qwen3-4B-Q4_K_M is token-AND-text-identical to llama.cpp acd79d6 at 1/5/50 generated tokens on all 3 chat prompts (thinking-disabled ChatML, greedy), with cross-engine prompt-token parity."
+  },
+  "speed_receipt": "qwen3-4b-q4_k_m-cuda-resident-speed.json",
+  "claim_boundary": "Supported exact-row smoke for THIS exact Qwen3-4B-Q4_K_M GGUF (sha 7485fe6f...) on Windows x86_64 (MSVC), GPU CUDA decode on the recorded RTX 3060 Laptop (6 GB) / driver 576.83, fully VRAM-resident, ChatML thinking-DISABLED greedy short-chat. NOT claimed: other Qwen3 sizes/quants, other K-quant files (Q5_K_M, etc.), other GPUs/drivers, long context beyond the resident KV cap, thinking-mode, CPU K-quant decode (does not exist yet), or production throughput."
+}

@@ -1,0 +1,44 @@
+{
+  "schema": "camelid.qwen3.thinking_leadingtrace_bundle.v1",
+  "generated_utc": "2026-06-16T18:53:39Z",
+  "bundle_head": "ef891b2",
+  "row_id": "qwen3_0_6b_instruct_q8_0",
+  "display_name": "Qwen3 0.6B Instruct Q8_0",
+  "feature_status": "opt_in_thinking_enabled_leading_trace_parity",
+  "support_scope": "thinking_opt_in_leading_trace_only",
+  "model": {
+    "id": "Qwen3 0.6B Instruct",
+    "source": "Qwen/Qwen3-0.6B-GGUF/Qwen3-0.6B-Q8_0.gguf",
+    "sha256": "9465e63a22add5354d9bb4b99e90117043c7124007664907259bd16d043bb031",
+    "arch": "qwen3",
+    "quant": "Q8_0"
+  },
+  "trigger": "request field camelid_enable_thinking:true (also CLI `--enable-thinking` on serve/chat, and the WebUI Thinking toggle); default/false keeps the parity-locked thinking-DISABLED mode",
+  "mode": "chatml_thinking_ENABLED_greedy",
+  "comparator": {
+    "engine": "llama.cpp",
+    "version": "b9430 (d48a56eff)",
+    "flags": "-ngl 0 -ctk f32 -ctv f32 -fa off --no-repack -c 16384",
+    "url": "http://127.0.0.1:8090",
+    "fed": "the bare-assistant thinking-enabled ChatML prompt via /completion"
+  },
+  "camelid_backend": "cpu_reference (CAMELID_METAL_RESIDENT_DECODE=0 CAMELID_METAL_RESIDENT_PREFILL=0)",
+  "leading_trace_parity_envelope_tokens": {
+    "min": 6,
+    "max": 126,
+    "per_probe": {
+      "What is the capital of France?": 22,
+      "Name a primary color.": 62,
+      "What is 2+2?": 6,
+      "Say hello.": 126
+    }
+  },
+  "all_probes_engage_thinking": true,
+  "all_probes_match_at_5": true,
+  "blocker": false,
+  "all_pass": false,
+  "not_a_full_trace_parity_claim": true,
+  "artifacts": [
+    "qwen3-0.6b-thinking-leadingtrace.json"
+  ]
+}

@@ -1,0 +1,31 @@
+{
+  "schema": "camelid.capability-receipt/v1",
+  "capability_id": "gen.stream_usage",
+  "capability": "OpenAI stream_options.include_usage terminal usage chunk (API)",
+  "row": "tinyllama-1.1b-chat-q8_0",
+  "model_label": "TinyLlama 1.1B Chat Q8_0",
+  "oracle_class": "C",
+  "verdict": "validated",
+  "generated": "2026-06-25",
+  "platform": {
+    "os": "windows",
+    "target": "x86_64-pc-windows-msvc",
+    "backend": "cpu",
+    "oracle": "llama.cpp acd79d6 (MSVC, Windows AMD64)"
+  },
+  "gguf": {
+    "filename": "tinyllama-1.1b-chat-v1.0.Q8_0.gguf",
+    "sha256": "a4c9bb1dbaa372f6381a035fa5c02ef087aaa1ff1f843a56a22328114f03fc59"
+  },
+  "harness": {
+    "repo_head": "12f202d0a2e1182f0d76ff656f632e2b9e17252e",
+    "branch": "feat/capability-conductor",
+    "working_tree": "Produced with the capability-conductor sampling + n_choices diff UNCOMMITTED on branch feat/capability-conductor (base 12f202d0). Re-seal against the commit once landed.",
+    "binary": "target/release/camelid.exe",
+    "e2e_harness": "qa/capability/smoke.sh (TinyLlama/1B/3B, Windows CPU, CUDA_VISIBLE_DEVICES=-1)"
+  },
+  "evidence": {
+    "kind": "contract_e2e",
+    "summary": "permissive include_usage resolver unit tests (api::tests, PR #321) + e2e per row: stream_options.include_usage emits a terminal chunk with an empty choices array and prompt/completion/total usage integers."
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "schema": "camelid.qwen3.thinking_deterministic_parity_investigation.v1",
+  "generated_utc": "2026-06-14T23:28:14Z",
+  "bundle_head": "4ebf1c738bb0dd45d87151a80deba3ded1c2311b",
+  "row_id": "qwen3_1_7b_instruct_q8_0",
+  "kind": "negative_result_investigation",
+  "model": {
+    "id": "Qwen3 1.7B Instruct",
+    "source": "Qwen/Qwen3-1.7B-GGUF/Qwen3-1.7B-Q8_0.gguf",
+    "sha256": "061b54daade076b5d3362dac252678d17da8c68f07560be70818cace6590cb1a",
+    "arch": "qwen3",
+    "quant": "Q8_0"
+  },
+  "comparator": {
+    "engine": "llama.cpp",
+    "version": "1 (5d56eff)",
+    "flags": "-ngl 0 -ctk f32 -ctv f32 -fa off --no-repack -c 16384 (verified reduction-order-stable at -t 1 and -t 8)"
+  },
+  "camelid": {
+    "path": "--deterministic (CAMELID_DETERMINISTIC=1), order-stable CPU forward pass (DECISIONS.md D9)"
+  },
+  "verdict": "full-trace token-parity NOT achievable via a shared-reduction-order configuration; leading-trace claim retained",
+  "artifacts": [
+    "findings.json",
+    "correction-decode-vs-prefill-artifact.json"
+  ],
+  "correction": "decode-vs-prefill mechanism was a measurement artifact; see correction-decode-vs-prefill-artifact.json. Verdict unchanged."
+}

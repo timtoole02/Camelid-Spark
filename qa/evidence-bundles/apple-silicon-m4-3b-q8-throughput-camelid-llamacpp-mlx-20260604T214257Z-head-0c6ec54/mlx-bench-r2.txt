@@ -1,0 +1,11 @@
+loading model (once)...
+Fetching 6 files:   0%|          | 0/6 [00:00<?, ?it/s]Fetching 6 files: 100%|██████████| 6/6 [00:00<00:00, 43166.08it/s]
+DECODE: 29.13 tok/s
+=== prefill (verbose) ===
+==========
+The
+==========
+Prompt: 601 tokens, 577.869 tokens-per-sec
+Generation: 1 tokens, 50421.016 tokens-per-sec
+Peak memory: 3.920 GB
+peak mem: 3.92 GB

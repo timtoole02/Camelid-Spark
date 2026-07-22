@@ -1,0 +1,5 @@
+d0343657e70acedf0e9b92fc00bf152953e3020b1e4c3d54e2b6c0586f82b370  manifest.json
+e8a98c3519535aeb94eb36f6a81ea519ba58a25a08d20c9a3431a3bbf3dba4a5  README.md
+3c777fcfadd68b5dabf1ca3b6814852b1ea71d59625fc38bd4d0d9d6211de857  qwen3-0.6b-windows-cuda-resident-parity.json
+85360734380f327b30617ee1ccc391d02090d183597c89d0c8c7bb27416bea18  qwen3-0.6b-windows-cpu-reference-parity.json
+dab51518d19e7fae7c3ea7095fad9667f549026838360e47e51e98079eeaff58  capabilities.json

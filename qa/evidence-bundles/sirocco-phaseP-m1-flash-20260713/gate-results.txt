@@ -1,0 +1,27 @@
+SIROCCO Phase P M1 — flash prefill attention (opt-in CAMELID_FLASH_PREFILL): gate log
+RTX 3060 Laptop, CUDA 12.9, WDDM. Model: Llama-3.2-1B-Instruct-Q8_0. greedy (temp 0).
+
+=== CORRECTNESS ===
+DEFAULT PATH (flash off) stays byte-exact -- device parity tests (cargo test --release --lib --ignored):
+  splitk_spec_verify_bit_identical .............. ok  (verify path untouched, bit-identical)
+  verify_batch_matches_sequential ............... ok
+  tree_linear_matches_verify_batch .............. ok
+  prefill_then_decode_matches_sequential ........ ok  (default batched prefill still == sequential)
+
+FLASH PATH (opt-in) token-parity vs baseline -- 6-prompt greedy oracle (flash-on vs flash-off, 64 tok):
+  varied6k  ctx=6602  64/64   mp-rep  ctx=6503  64/64  (near-tie repetition)
+  promptB   ctx=10232 64/64   mp-code ctx=10032 64/64
+  promptC   ctx=12211 64/64   mp-num  ctx=13651 64/64
+  => 6/6 token-identical. The flash reduction flips ZERO greedy tokens across 16 prefill layers.
+  (M0b already proved the online-softmax reassociation class is token-safe; this confirms the REAL
+   tiled kernel, whose split boundaries differ per-token from attention_batched, is also token-safe.)
+
+=== DESIGN ===
+flash_pref_scores + flash_pref_partial = the split-K decode passes (attn_sk_scores/partial) extended
+to the whole k_tokens query chunk: each key's K[p]/V[p] is loaded + dequantized ONCE and reused
+across all k query rows of the head (the query-reuse axis). Grid = (n_heads, n_splits) so SM-fill is
+unchanged from decode split-K. Buffers flat by (t*n_heads+head) so attn_sk_combine is REUSED
+unchanged (Pass 3) with n_heads = k_tokens*n_heads. Per-token causal mask (score -inf for p>base+t).
+Scores in global (frees the O(prefix) shared buffer that capped attention_batched at ~11.2k ctx).
+Prefill-only: verify_batch passes flash_ok=false, so attention_batched + its bit-identity contract
+are untouched. Opt-in CAMELID_FLASH_PREFILL (token-parity, so not default-on).

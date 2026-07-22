@@ -1,0 +1,31 @@
+{
+  "schema": "camelid.capability-receipt/v1",
+  "capability_id": "chat.system_multiturn",
+  "capability": "system role + multi-turn template fidelity (per THIS template)",
+  "row": "llama-3.2-3b-instruct-q8_0",
+  "model_label": "Llama 3.2 3B Instruct Q8_0",
+  "oracle_class": "D",
+  "verdict": "validated",
+  "generated": "2026-06-25",
+  "platform": {
+    "os": "windows",
+    "target": "x86_64-pc-windows-msvc",
+    "backend": "cpu",
+    "oracle": "llama.cpp acd79d6 (MSVC, Windows AMD64)"
+  },
+  "gguf": {
+    "filename": "Llama-3.2-3B-Instruct-Q8_0.gguf",
+    "sha256": "f34112a11b7dad74ab517dedf6dcf00d624c9adac2dc0c72c719ca0478554ef2"
+  },
+  "harness": {
+    "repo_head": "bde66bc7d5d6867124631487c6ebb4e674ba177a",
+    "branch": "feat/capability-context-chat",
+    "working_tree": "Produced with the chat.system_multiturn lane diff UNCOMMITTED on a branch based on bde66bc7 (main). Re-seal against the commit once landed.",
+    "binary": "target/release/camelid.exe",
+    "e2e_harness": "qa/capability/system_multiturn_parity.mjs (Windows CPU, CUDA_VISIBLE_DEVICES=-1)"
+  },
+  "evidence": {
+    "kind": "oracle_token_parity + template_fidelity",
+    "summary": "e2e (qa/capability/system_multiturn_parity.mjs, Windows CPU): a system role + multi-turn conversation (system instruction + 2 user turns + 1 prior assistant turn) is rendered through the Llama 3.2 chat template and decoded greedily (temperature=0). GENERATION PARITY (class-D core): Camelid emits a server-sealed camelid.parity-receipt/v1 (camelid_receipt:true); `camelid verify-receipt` replays it in-process AND feeds Camelid's exact prompt token ids to llama.cpp acd79d6 /completion — the continuation matches BIT-EXACT (generated tokens (4) and text identical, first_divergent_token_index=-1; RECEIPT VERIFIED across both isolated passes). The model answered the final user turn ('And the capital of Japan?') with 'Tokyo.' under the terse system instruction. TEMPLATE FIDELITY: Camelid renders a structurally-correct Llama-3 system+multi-turn prompt (per-turn <|start_header_id|>role<|end_header_id|> ... <|eot_id|> framing + final assistant generation header). The ONLY divergence from llama.cpp's rendering is the optional Llama-3.x 'Cutting Knowledge Date: December 2023 / Today Date: <today>' system preamble that llama.cpp injects with a LIVE date (camelid 53 prompt tokens vs llama.cpp 73, first diff at index 5 — the preamble insertion point). That preamble is non-deterministic by construction (live date) and is classified a legitimate cross-engine template difference by Camelid's own verifier (src/receipt/verify.rs:662), which is exactly why class-D parity is asserted on the pinned prompt rather than on template expansion. Camelid's deterministic design omits the live date (the forced-jinja path CAMELID_METADATA_CHAT_TEMPLATE=1 emits the preamble with a frozen date, still != llama.cpp's live date). Non-streaming, single-choice, greedy."
+  }
+}

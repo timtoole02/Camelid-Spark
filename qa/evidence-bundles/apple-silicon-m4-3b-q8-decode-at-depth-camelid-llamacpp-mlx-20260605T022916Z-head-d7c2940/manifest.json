@@ -1,0 +1,73 @@
+{
+ "schema": "camelid.apple_silicon_m4_3b_q8_decode_at_depth.v1",
+ "captured_utc": "20260605T022916Z",
+ "head_commit": "d7c2940",
+ "passed": true,
+ "claim_boundary": "Exact-row, same-host, bounded decode-at-depth snapshot for Llama 3.2 3B Instruct Q8_0 on one Apple M4 (16GB): 64 greedy tokens after ~1.5k-token and ~8k-token prompts, three same-session rounds with alternating runtime order. Camelid reads BELOW both comparators at depth (median 25.05 vs llama.cpp 26.43 / MLX-LM 26.93 at ~1.5k; 16.94 vs 19.14 / 22.23 at ~8k). This bundle records a known-behind lane; no win is claimed. Prompt token counts differ slightly per tokenizer.",
+ "host": {
+  "machine": "Mac16,10 (Apple M4, 10-core GPU, 16GB unified memory)",
+  "os": "macOS (Darwin 25.5.0)"
+ },
+ "workload": {
+  "model_row": "Llama 3.2 3B Instruct Q8_0 (GGUF for camelid and llama.cpp; mlx-community 8-bit for MLX-LM)",
+  "depths": "~1500-token and ~8012-token prompts (same text files for all runtimes), 64 greedy tokens",
+  "camelid_command": "camelid bench-generate <model> --prompt-file <depth prompt> --max-tokens 64 --temperature 0 --warmup --iterations 3 --json",
+  "llamacpp_command": "llama-bench -m <model> -p 0 -n 64 -d 1500,8012 -r 2 -o md",
+  "mlx_command": "mlx_lm.generate verbose, 64 tokens after the same prompt files"
+ },
+ "results": {
+  "decode_tokens_per_second_at_1500": {
+   "camelid": {
+    "round_medians": [
+     25.05,
+     25.31,
+     24.77
+    ],
+    "session_median": 25.05
+   },
+   "llamacpp": {
+    "rounds": [
+     26.43,
+     26.44,
+     25.86
+    ],
+    "session_median": 26.43
+   },
+   "mlx_lm": {
+    "rounds": [
+     27.53,
+     26.71,
+     26.93
+    ],
+    "session_median": 26.93
+   }
+  },
+  "decode_tokens_per_second_at_8k": {
+   "camelid": {
+    "round_medians": [
+     17.25,
+     16.88,
+     16.94
+    ],
+    "session_median": 16.94
+   },
+   "llamacpp": {
+    "rounds": [
+     19.43,
+     19.14,
+     18.93
+    ],
+    "session_median": 19.14
+   },
+   "mlx_lm": {
+    "rounds": [
+     22.23,
+     22.64,
+     21.53
+    ],
+    "session_median": 22.23
+   }
+  }
+ },
+ "notes": "Pre-split-K (commit 595b6e4) the same camelid probes read ~16 and ~6 tok/s. The remaining 8k gap tracks KV-cache element width: camelid streams f32 K/V (no split-K kv16 variant yet) while comparators stream half-width caches."
+}

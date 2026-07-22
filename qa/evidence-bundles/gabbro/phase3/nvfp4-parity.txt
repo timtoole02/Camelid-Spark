@@ -1,0 +1,14 @@
+### GABBRO M3 NVFP4 kernel parity on Apple M4 / 20260718T195301Z
+   Compiling camelid v0.3.1 (<worktree>)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 31.87s
+     Running unittests src/lib.rs (<target-dir>/debug/deps/camelid-30f30801bf79a014)
+
+running 3 tests
+test metal::tests::metal_gemma4_q4_0_matmul_f32y_matches_cpu ... ok
+test metal::tests::metal_gemma4_nvfp4_matmul_f32y_matches_cpu ... ok
+test metal::tests::metal_gemma4_q8_matmul_f32y_matches_cpu ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 878 filtered out; finished in 0.28s
+
+======== CARGO_EXIT: 0 ========
+### end_utc: 20260718T195334Z

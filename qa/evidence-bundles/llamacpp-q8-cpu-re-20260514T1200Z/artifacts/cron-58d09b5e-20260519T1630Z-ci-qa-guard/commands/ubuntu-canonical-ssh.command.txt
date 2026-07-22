@@ -1,0 +1,6 @@
+# Canonical Ubuntu validation connection command intentionally omitted from public evidence.
+# stdin payload for connection proof only:
+echo CANONICAL_SSH_OK
+hostname
+uname -m
+exit

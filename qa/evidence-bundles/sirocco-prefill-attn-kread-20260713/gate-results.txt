@@ -1,0 +1,26 @@
+SIROCCO Phase P — uint4 K-read in attention_batched / attention_tree_batched (prefill)
+RTX 3060 Laptop, CUDA 12.9, WDDM. Model: Llama-3.2-1B-Instruct-Q8_0. greedy (temp 0).
+
+Change: attention_batched (src/cuda_resident.rs, score loop) and attention_tree_batched
+(score loop, slots[]-gathered rows) now read the f16 K cache as uint4 (8 keys/load) in the
+SAME d-order as the scalar loop -> byte-identical (--fmad=false). These are the resident-prefill
+and spec-verify attention kernels; the scalar read never got win #1's uint4 treatment.
+
+=== DEVICE PARITY GATES (cargo test --release --lib -- --ignored, needs CUDA) ===
+  splitk_spec_verify_bit_identical .............. ok   (decode == uint4 attention_batched == tree, bit-identical)
+  prefill_then_decode_matches_sequential ........ ok   (batched uint4 prefill output == sequential reference)
+  verify_batch_matches_sequential ............... ok
+  tree_linear_matches_verify_batch .............. ok
+  tree_verify_multiround_lossless ............... ok   (40 tokens / 37 rounds)
+  tree_verify_forced_compaction_lossless ........ ok   (32 tokens / 16 compacting rounds)
+
+=== END-TO-END TOKEN PARITY ===
+  NEW (uint4 prefill) vs OLD (scalar prefill), ctx=8802, 48 tokens:
+    48/48 greedy tokens identical  -> byte-identical prefill confirmed end-to-end.
+
+=== WHY BYTE-IDENTICAL ===
+A uint4 load returns the same 8 consecutive f16 values as 8 scalar loads; accumulated in the
+same textual order with --fmad=false, the dot product is bit-for-bit identical (the exact
+argument that made win #1 byte-identical). head_dim=64 -> every K row (incl. the tree gather
+slots[i]*head_dim) is 16-byte aligned; (head_dim & 7)==0 guard else scalar tail. So the KV
+cache written by prefill and every verify/decode output is unchanged bit-for-bit.

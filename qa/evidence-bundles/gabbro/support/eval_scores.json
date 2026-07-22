@@ -1,0 +1,23 @@
+{
+  "campaign": "GABBRO support promotion — NVFP4 gemma4-E4B teacher-forced quality re-eval (current engine)",
+  "date": "2026-07-18",
+  "host": "Apple M4 16GB",
+  "protocol": "basalt_eval_protocol.md §5.1 (teacher-forced top-1 agreement vs Q8_0 parent)",
+  "harness": "camelid gemma4-eval-pack (load-once forced-decode; CPU path)",
+  "packs": ["qa/gemma4/prompt_packs/basic_v1.json", "qa/gemma4/prompt_packs/deep_v1.json"],
+  "positions": 296,
+  "baseline_validation": {
+    "q8_0_self_agreement": "296/296 = 100.0%",
+    "baseline_vs_basalt_committed": "8/9 prompts token-identical; village-story diverges at tail pos 38 (f32 near-tie)"
+  },
+  "go_rule": "agreement(NVFP4) >= agreement(Q4K) - 2.0",
+  "rows": {
+    "Q8_0_baseline":  { "matches": "296/296", "agreement_pct": 100.0 },
+    "NVFP4_mm":       { "matches": "268/296", "agreement_pct": 90.5, "basalt_frozen_pct": 88.5, "sha256": "eb293344972e2b292a043b8e7649b9788dca915b034e5c2721cfc531cf9863d9" },
+    "Q4K_mm":         { "matches": "272/296", "agreement_pct": 91.9, "basalt_frozen_pct": 92.6, "sha256_arm": "23aad5d02d1a46a05d954f84aca1fb41d89da2a6246aad33277210764832caf7", "note": "ARM-quantized; Q4_K float-search quantizer is ISA-sensitive, unlike NVFP4 RTN" },
+    "hybrid_ffndown_Q8_0": { "matches": "272/296", "agreement_pct": 91.9, "size_bytes": 6609110176, "note": "robustly ties Q4_K; needs Metal per-tensor-fmt to run GPU-resident" }
+  },
+  "verdict": "gap 1.4pp <= 2.0 tolerance -> GO (current engine). Honest: near-tie, comparator-sensitive; frozen G3 NO-GO stands as history.",
+  "imatrix": "not a lever for NVFP4 (ggml-quants.c:2237 GGML_UNUSED(quant_weights); pure RTN)",
+  "decode_perf_tok_s": { "NVFP4_mm": 12.12, "Q8_0": 8.34, "Q4_0": 4.14, "note": "isolated 128-token greedy, Apple M4; load excluded (T7-read-bound)" }
+}

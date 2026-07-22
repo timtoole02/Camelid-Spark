@@ -1,0 +1,11 @@
+### 1. GPU-resident load + parity gate (must NOT fall to CPU) ###
+[hw] CPU: 16 logical cores | SIMD AVX-512 (avx2=true avx512f=true fma=true neon=false) | RAM 4.8 GiB free / 15.7 GiB total
+[gpu] all 16 layers resident in VRAM (5122 MiB free) — full GPU speed
+{"runtime":"camelid","commit":"unknown","model":"models/Llama-3.2-1B-Instruct-Q8_0.gguf","quantization":"Q8_0","iteration":0,"prompt_tokens":2,"generated_tokens":4,"load_ms":3343.772,"prefill_ms":61.512,"ttft_ms":983.5729,"decode_ms":22.221700000000002,"tokens_per_second":135.0031725745555,"peak_memory_bytes":2258518016,"offload":{"total_layers":16,"layers_resident":16,"layers_offloaded":0,"per_layer_bytes":0,"free_vram_bytes":5370806272,"pcie_gbps":null,"source":"none"},"output_text":", I'm looking","output_token_ids":[11,358,2846,3411]}
+### 2. ctx~0 NO-REGRESSION (default vs =0; must be ~equal, split-K inactive) ###
+ctx~0 default(on)=126.96  off(=0)=127.23
+### 3. long-ctx SPEEDUP (default on vs =0), varied prompt ###
+r1 on=90.39@1542  off=86.28@1542
+r2 on=89.60@1542  off=83.41@1542
+### 4. TOKEN-IDENTITY (default on vs off) long-ctx ###
+TOKEN-IDENTICAL (default-on vs kill-switch)

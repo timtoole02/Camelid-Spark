@@ -1,0 +1,2 @@
+PASS — 975 passed / 0 failed / 19 ignored — cargo test -p camelid --lib + gemma4_capabilities(88) + api_vertical_slice(4) + invariant_matrix_binding(9) + nvfp4_format(9) + nvfp4_e4b_spotcheck(1) + nvfp4_wire_lane_refusals(3) on Apple M4
+SCOPE: gate-lift + truth-up + meta-test; NOT a full --all-targets run.

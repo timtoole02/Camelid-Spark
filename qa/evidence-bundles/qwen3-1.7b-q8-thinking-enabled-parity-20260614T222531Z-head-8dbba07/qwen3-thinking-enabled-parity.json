@@ -1,0 +1,86 @@
+{
+  "schema": "camelid.qwen3.thinking_enabled_parity_bundle.v1",
+  "generated_utc": "2026-06-14T22:25:31Z",
+  "bundle_head": "8dbba07a08ad2efd3db41806c2aa17fd1f285514",
+  "row_id": "qwen3_1_7b_instruct_q8_0",
+  "display_name": "Qwen3 1.7B Instruct Q8_0 \u2014 thinking-enabled mode",
+  "mode": "chatml_thinking_ENABLED_greedy",
+  "what_this_proves": [
+    "The opt-in thinking-enabled ChatML renderer (bare assistant turn, no pre-filled <think></think>) makes Qwen3 emit its own reasoning block: both camelid and the pinned llama.cpp reference begin with <think> for every probe.",
+    "Greedy generation is TOKEN-IDENTICAL to the pinned llama.cpp f32 reference for the LEADING reasoning trace (per-probe identical-prefix length below), then diverges at a benign f32 near-tie."
+  ],
+  "what_this_does_NOT_claim": "Full token-parity over arbitrary-length thinking traces. Reasoning traces run hundreds of tokens and reliably reach the documented f32-accumulation frontier (the same class as TinyLlama's <=5-token envelope and camelid's other documented near-ties). The parity-locked exact-row mode remains thinking-DISABLED.",
+  "comparator": {
+    "engine": "llama.cpp",
+    "version": "1 (5d56eff)",
+    "flags": "-ngl 0 -ctk f32 -ctv f32 -fa off --no-repack -c 16384",
+    "fed": "the identical thinking-enabled ChatML prompt via /completion"
+  },
+  "camelid": {
+    "backend": "cpu_reference (CAMELID_METAL_RESIDENT_*=0; the f32 path matching the reference's numeric math)",
+    "api": "/v1/chat/completions with camelid_enable_thinking:true",
+    "renderer": "render_qwen3_chatml_prompt(messages, enable_thinking=true)"
+  },
+  "leading_trace_parity_envelope_tokens": {
+    "min": 26,
+    "max": 205,
+    "per_probe": {
+      "What is the capital of France?": 73,
+      "Name a primary color.": 27,
+      "What is 2+2?": 205,
+      "Say hello.": 26
+    }
+  },
+  "example_divergence_is_a_synonym_near_tie": {
+    "prompt": "What is the capital of France?",
+    "first_divergence_token_index": 73,
+    "context_before": " largest city and has a lot of historical",
+    "camelid_token": "6594 \" sites\"",
+    "reference_token": "59924 \" landmarks\"",
+    "interpretation": "a near-tie in the logits (two near-synonyms); the forward pass is correct (73 identical tokens of coherent reasoning precede it)"
+  },
+  "probes": [
+    {
+      "prompt": "What is the capital of France?",
+      "both_emit_think_block": true,
+      "identical_leading_tokens": 73,
+      "match_at_1": true,
+      "match_at_5": true,
+      "match_at_50": true,
+      "match_at_100": false,
+      "full_256_match": false
+    },
+    {
+      "prompt": "Name a primary color.",
+      "both_emit_think_block": true,
+      "identical_leading_tokens": 27,
+      "match_at_1": true,
+      "match_at_5": true,
+      "match_at_50": false,
+      "match_at_100": false,
+      "full_256_match": false
+    },
+    {
+      "prompt": "What is 2+2?",
+      "both_emit_think_block": true,
+      "identical_leading_tokens": 205,
+      "match_at_1": true,
+      "match_at_5": true,
+      "match_at_50": true,
+      "match_at_100": true,
+      "full_256_match": false
+    },
+    {
+      "prompt": "Say hello.",
+      "both_emit_think_block": true,
+      "identical_leading_tokens": 26,
+      "match_at_1": true,
+      "match_at_5": true,
+      "match_at_50": false,
+      "match_at_100": false,
+      "full_256_match": false
+    }
+  ],
+  "all_probes_engage_thinking": true,
+  "all_probes_match_at_5": true
+}

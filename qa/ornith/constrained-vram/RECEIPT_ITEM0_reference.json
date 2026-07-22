@@ -1,0 +1,41 @@
+{
+  "schema": "camelid.parity-receipt/v1",
+  "gate": "ITEM0_reference_pin_and_fixtures",
+  "lane": "ornith-9b-constrained-vram",
+  "date": "2026-07-02",
+  "conductor": "ORNITH_9B_CONSTRAINED_VRAM_CONDUCTOR.md",
+  "pin": {
+    "ref_qwen35": "acd79d6",
+    "llama_cpp_build": "b1-acd79d6 (build 9632 lineage)",
+    "compiler": "MSVC 19.44.35228.0 Windows AMD64",
+    "build_flags": ["CMAKE_BUILD_TYPE=Release", "GGML_CUDA=ON", "GGML_CUDA_FA=ON", "GGML_CUDA_COMPRESSION_MODE=size"],
+    "cuda_toolkit": "12.9",
+    "gpu": "NVIDIA GeForce RTX 3060 Laptop GPU 6144MiB",
+    "driver": "576.83",
+    "os": "Windows 11 Home build 26220",
+    "binaries_dir": "<home>\\llama.cpp\\build\\bin",
+    "tools_built_at_pin": ["llama-imatrix.exe", "llama-perplexity.exe", "llama-tokenize.exe"],
+    "justification": "REFERENCE_PIN_QWEN35.md — conductor's 'acd79d6 cannot load qwen35' premise refuted (binary-level LLM_ARCH_QWEN35 + merged G-PARITY 4/4 + CUDA smoke); upstream sweep acd79d6..origin/master (228 commits, 2026-07-02) found zero qwen35/SSM CUDA correctness fixes"
+  },
+  "artifacts": {
+    "source_repo": "huggingface.co/deepreinforce-ai/Ornith-1.0-9B-GGUF",
+    "files": [
+      { "name": "ornith-1.0-9b-Q8_0.gguf", "bytes": 9527500992, "sha256": "d0e4bebaa8b3450c62090df1408f2ee5ccb2094f9c610ffde564a654483d4f37", "verified": "local recompute == HF LFS oid", "provenance": "HF pristine" },
+      { "name": "ornith-1.0-9b-Q4_K_M.gguf", "bytes": 5629108416, "sha256": "2711bf1ef034fa39eb899f793fe63bbb0aac21ebdacbcbe09406b5600ad5188f", "verified": "local recompute (no HF counterpart — home requant)", "provenance": "home requant from Q8_0 via llama-quantize --allow-requantize at acd79d6; NOT the HF Q4_K_M (HF oid 5720d1f671b4996481274fffe01868c3c36e87c135cc8538471cc7bd6087b106, 5629108704 B)" },
+      { "name": "ornith-1.0-9b-Q6_K.gguf", "bytes": 7359259072, "sha256": "33b6f6a3e3f05078438e12df8a4b55c8acf78ceadcc639d2af1cf35a026e8387", "verified": "local recompute == HF LFS oid", "provenance": "HF pristine (Item 6 verifier weights)" },
+      { "name": "ornith-1.0-9b-bf16.gguf", "bytes": 17920696512, "sha256": "27bc753487eed85539c3aef63dd602b79cd060401b928c9ff7d30d5556eca260", "verified": "local recompute == HF LFS oid (2026-07-02)", "provenance": "HF pristine (Item 4 quant source)" }
+    ]
+  },
+  "oracle_smoke": {
+    "command": "llama-cli.exe -m ornith-1.0-9b-Q4_K_M.gguf -ngl 99 -p 'What is the capital of France?' -n 24 --temp 0 --seed 0",
+    "evidence": "oracle_smoke_cuda_trimmed.txt",
+    "result": "loads on CUDA, coherent <think> opening ('Thinking Process: 1. Identify the core question...'), prompt 137-142 t/s, generation 38-40 t/s (unambiguously GPU: CPU-class decode for this model is <4 t/s)",
+    "note": "conductor predicted Q4_K_M would not fully fit; it does (see CONDUCTOR_RECONCILIATION.md refuted-premise 2, and the merged GPU-lane receipts: 5259 MiB peak @ 8192 ctx sparse-KV)"
+  },
+  "fixtures": {
+    "five_prompt_parity": "FIXTURES_five_prompt_parity.json (prompts 0-3 verbatim from certified G-PARITY corpus; prompt 4 new)",
+    "agentic_20": "FIXTURES_agentic_20.json (10 tool-eliciting, 7 reasoning, 3 mixed; 3-tool schema matching certified agent-eval); trace generation script generate_traces.mjs (runs at Item 4 against pinned oracle)",
+    "tokenizer_adversarial": "FIXTURES_tokenizer_adversarial.json (20 cases: emoji/ZWJ, CJK, whitespace, ChatML/think/tool_call markers, NFC-vs-NFD combining marks, Devanagari, Arabic harakat, zalgo)"
+  },
+  "result": "PASS — all four artifacts hash-verified (Q8_0/Q6_K/bf16 == HF LFS oids; home-requant Q4_K_M recorded with its own hash), pin justified, corpora frozen, oracle CUDA smoke captured"
+}

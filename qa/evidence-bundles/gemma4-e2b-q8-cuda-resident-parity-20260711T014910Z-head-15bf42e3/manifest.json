@@ -1,0 +1,81 @@
+{
+  "schema": "camelid.gemma4_e2b_q8_windows_cuda_resident_parity.v1",
+  "generated_utc": "2026-07-11T01:49:10Z",
+  "git_head": "15bf42e3",
+  "branch": "feat/gemma4-e2b-cuda-parity",
+  "row_id": "gemma4_e2b_it_q8_0",
+  "model": {
+    "filename": "gemma-4-E2B-it-Q8_0.gguf",
+    "size_bytes": 5048350848,
+    "sha256": "0a8488b149e1f700712c35d5bf0a3795f9dcc2563b4944d5ef2fb89375f9483e",
+    "quantization": "Q8_0",
+    "architecture": "gemma4",
+    "source": "unsloth/gemma-4-E2B-it-GGUF"
+  },
+  "lane": "Windows CUDA-resident (Gemma4CudaResident): the decoder-layer forward runs on the GPU (forward_token dispatches gemv/q4k_gemv/q6k_gemv, attention, and norm kernels on-device with a captured decode graph); the embedding-table gather stays CPU-side (too large to reside) and the tied output head runs CPU-side (documented non-Q6_K-head fallback, gemma4_runtime.rs). This is a GPU-resident decode lane with documented partial residency, NOT a CPU fallback — GPU execution is empirically verified below.",
+  "gpu_verification": {
+    "device": "NVIDIA GeForce RTX 3060 Laptop GPU (6 GiB, compute 8.6)",
+    "method": "nvidia-smi memory.used + utilization.gpu sampled every ~0.7-0.8s across a live run",
+    "basic_v1_peak_vram_mib": 2709,
+    "basic_v1_peak_util_pct": 90,
+    "context_2048_peak_vram_mib": 2741,
+    "context_2048_peak_util_pct": 100,
+    "note": "A CPU fallback would show ~0 VRAM used and ~0% GPU util; the measured allocation and utilization confirm genuine GPU-resident execution on the same code path used by every pack."
+  },
+  "comparator": "llama.cpp 5d56eff llama-server (CPU, -ngl 0, --no-repack -fa off -ctk f32 -ctv f32 -ub 1: plain-f32 GEMV numeric path) — the committed gemma4 oracles under qa/gemma4/oracle/. Same pinned reference the CPU and Metal parity cells use.",
+  "harness": "tests/gemma4_generation_parity.rs CUDA branch (CAMELID_GEMMA4_CUDA=1), built with `cargo test --release --features cuda --test gemma4_generation_parity`. Greedy (temperature=0, top_k=1). Raw prompts (BOS + text, no chat template). Compares generated token ids AND generated text to the committed oracle; strict full-budget unless the oracle records a cpu_known_frontier.",
+  "packs": [
+    {
+      "pack": "basic_v1",
+      "oracle": "qa/gemma4/oracle/gemma-4-E2B-it-Q8_0.basic_v1.json",
+      "result": "PASS (strict, no frontier)",
+      "detail": "5/5 prompts token-AND-text identical to the oracle: capital-france (2 tok), count-primes (17 tok), haiku-sea (18 tok), rust-fn (24 tok), translate-de (2 tok). Run twice, identical; GPU-verified.",
+      "consecutive_passes": 2
+    },
+    {
+      "pack": "deep_v1",
+      "oracle": "qa/gemma4/oracle/gemma-4-E2B-it-Q8_0.deep_v1.json",
+      "result": "PASS",
+      "detail": "4/4 prompts: village-story, water-cycle, pancake-recipe each token-AND-text identical to the full 50-token budget; primary-colors matches to the oracle's recorded cpu_known_frontier (parity_prefix_tokens=11, applies_to_gpu=true) — a documented near-tie (top-2 logit gap 0.0869). This bundle independently verifies only that the CUDA lane is token-identical to the oracle through the recorded 11-token frontier; the oracle's own reason additionally records that camelid CPU and GPU pick the same branch while the reference picks the other, but that CPU-equals-GPU-at-the-tie finding is the oracle's, not re-measured here. The frontier is inherent to the numeric knife-edge, disclosed by the oracle for both lanes (applies_to_gpu=true), and is NOT a CUDA-specific divergence."
+    },
+    {
+      "pack": "context_512_v1",
+      "oracle": "qa/gemma4/oracle/gemma-4-E2B-it-Q8_0.context_512_v1.json",
+      "result": "PASS (strict)",
+      "detail": "recall answer token-AND-text identical (\"512\")."
+    },
+    {
+      "pack": "context_1024_v1",
+      "oracle": "qa/gemma4/oracle/gemma-4-E2B-it-Q8_0.context_1024_v1.json",
+      "result": "PASS (strict)",
+      "detail": "recall answer token-AND-text identical (\"1024\")."
+    },
+    {
+      "pack": "context_2048_v1",
+      "oracle": "qa/gemma4/oracle/gemma-4-E2B-it-Q8_0.context_2048_v1.json",
+      "result": "PASS (strict)",
+      "detail": "recall answer token-AND-text identical (\"2048\"). GPU-verified (2741 MiB / 100% util)."
+    },
+    {
+      "pack": "context_4096_v1",
+      "oracle": "qa/gemma4/oracle/gemma-4-E2B-it-Q8_0.context_4096_v1.json",
+      "result": "PASS (strict)",
+      "detail": "recall answer token-AND-text identical (\"4096\"). ~195s prefill."
+    },
+    {
+      "pack": "context_8192_v1",
+      "oracle": "qa/gemma4/oracle/gemma-4-E2B-it-Q8_0.context_8192_v1.json",
+      "result": "PASS (strict)",
+      "detail": "recall answer token-AND-text identical (\"8192\") on the CUDA-resident code path (~528s prefill). GPU-residency was directly VRAM-sampled on basic_v1 and context_2048; at 8192 it is inferred from the identical code path (not independently VRAM-sampled at this context size). This exceeds the serve lane's conservative 4096 KV hardcap; the parity harness demonstrates the resident path handles 8192 for E2B on the 6 GiB card."
+    }
+  ],
+  "all_pass": true,
+  "claim": "The exact gemma-4-E2B-it-Q8_0 row (sha256 0a8488b1...) on the Windows CUDA-resident lane is token-AND-text identical to the pinned llama.cpp 5d56eff oracle across basic_v1, the full context ladder 512/1024/2048/4096/8192 (strict), and deep_v1 (3/4 full-budget strict + 1 bounded to the oracle's own applies_to_gpu near-tie frontier) — GPU-resident execution empirically verified. This upgrades the E2B Windows-CUDA lane from experimental (first-token argmax only) to token-for-token parity on the checked packs, with an in-tree reproducible gate and this committed bundle.",
+  "not_claimed": [
+    "gemma-4-E4B-it-Q8_0 on CUDA: NOT tested here (7.6 GiB, host-RAM-constrained on this box) — the E4B CUDA lane remains experimental (first-token argmax only), unchanged.",
+    "This is NOT a full-row support promotion: the row stays supported_exact_row_smoke. Performance/RSS gates and a WebUI promotion bundle still gate any wider gemma4 support claim.",
+    "Results are GPU/driver/CUDA-version specific to the recorded RTX 3060 Laptop (6 GiB); the CPU path remains the correctness reference.",
+    "No chat-template context claim: the parity is raw-decode (BOS + text). Template shapes are covered separately by qa/gemma4/template_shapes_v1.json.",
+    "No performance/throughput claim: prefill wall-clock times are recorded as informational only (single run, includes one-time GPU engine build + graph capture)."
+  ]
+}

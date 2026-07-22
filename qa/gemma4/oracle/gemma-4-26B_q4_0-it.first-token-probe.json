@@ -1,0 +1,58 @@
+{
+ "row": "gemma-4-26B_q4_0-it",
+ "note": "Single-prompt 6-token parity check for the A4B MoE forward (NOT the full basic_v1 pack — the 26B is the two-Mac/NVMe row; a full pack + distributed run on adequate hardware is the remaining promotion evidence). Captured after the add_bos fix.",
+ "oracle": "llama.cpp 5d56eff llama-server (CPU, -ngl 0, --no-repack -fa off -ctk f32 -ctv f32 -ub 1)",
+ "prompt": "The capital of France is",
+ "prompt_tokens": [
+  2,
+  818,
+  5279,
+  529,
+  7001,
+  563
+ ],
+ "reference_generated_tokens": [
+  9079,
+  236761,
+  107,
+  100,
+  236800,
+  236786
+ ],
+ "reference_text": " Paris.\n<|channel>3/",
+ "camelid_generated_tokens": [
+  9079,
+  236761,
+  107,
+  100,
+  236800,
+  236786
+ ],
+ "camelid_text": " Paris.",
+ "status": "MATCH (single-node AND two-Mac distributed, both token-identical to reference)",
+ "comparator_note": "camelid stops cleanly at the visible answer; the 6-token raw comparison (BOS-led prompt) is token-identical to the reference",
+ "distributed_two_mac": {
+  "note": "Two-Mac distributed layer-sharding run (master layers 0..15 on the primary 16GB M4, worker 15..30 + head on the second 16GB M4 over Thunderbolt-staged model + ssh-tunneled wire). Validates the MoE forward across the shard cut.",
+  "split": 15,
+  "generated_tokens": [
+   9079,
+   236761,
+   107,
+   100,
+   236800,
+   236786
+  ],
+  "generated_text": " Paris.",
+  "matches_single_node": true,
+  "matches_reference": true,
+  "stats": {
+   "prompt_tokens": 6,
+   "generated_tokens": 6,
+   "wire_round_trips": 12,
+   "decode_tokens_per_s": 0.168,
+   "wire_step_ms_avg": 216.4,
+   "note": "validation run, not a perf claim; slow single-prompt decode on the pair"
+  },
+  "model_sha256_local_eq_mini2": "4c856523d61d77922dbc0b26753a6bf6208e5d69d80db0c04dcd776832d054c5"
+ }
+}

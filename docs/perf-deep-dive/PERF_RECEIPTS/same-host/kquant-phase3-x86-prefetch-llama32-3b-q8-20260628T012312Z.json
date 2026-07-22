@@ -1,0 +1,23 @@
+{
+  "schema": "camelid.speed-receipt.v1",
+  "campaign": "kquant-decode-conductor Phase 3",
+  "experiment": "x86 software prefetch in q8_0_packed_rows4_dot (CAMELID_X86_PREFETCH), CPU Q8 decode",
+  "generated_utc": "20260628T012312Z",
+  "host": "i7-11800H (16T, Tiger Lake AVX-512) / Win11 / 15.7 GiB DDR4",
+  "cpu_lane": "CUDA hidden (CUDA_VISIBLE_DEVICES=-1, CAMELID_CUDA_RESIDENT_{DECODE,PREFILL}=0)",
+  "model": "Llama-3.2-3B-Instruct-Q8_0.gguf (3.18 GiB)",
+  "command": "bench-generate --prompt '...' --max-tokens 96 --iterations 3 --warmup",
+  "parity": {
+    "byte_identical": true,
+    "evidence": "output_token_ids SHA-256 == 297fc9f8dcc1 for ALL iterations, flag OFF and flag ON. A memory hint cannot change the decoded values — Class A by construction, confirmed empirically.",
+    "first_divergent_token_index": -1
+  },
+  "measurements": {
+    "prefetch_off": { "tokens_per_second_per_iter": [6.47, 6.43, 6.46], "median": 6.46 },
+    "prefetch_on":  { "tokens_per_second_per_iter": [6.45, 6.41, 6.30], "median": 6.41 }
+  },
+  "verdict": "NULL (marginally slower, within run-to-run noise: -0.8% median). x86 software prefetch does NOT help CPU Q8 decode on this box.",
+  "why": "CPU decode is DRAM-bandwidth-bound (~6.4 tok/s x 3.18 GiB = ~20 GB/s achieved, ~40% of the ~51 GB/s 2-channel DDR4 peak). The hardware prefetcher already covers the sequential weight stream; software prefetch adds instruction overhead without unblocking the bandwidth ceiling. Consistent with the GAIT campaign's prefetch null.",
+  "decision": "Flag CAMELID_X86_PREFETCH stays DEFAULT-OFF (regression guard); NOT promoted to default. Re-measure if a non-bandwidth-bound host or the Phase-2 K-quant kernels change the access pattern.",
+  "huge_pages_status": "DEFERRED — see KQUANT_RECON.md Phase 3 appendix. The MADV_HUGEPAGE hint lives in the #[cfg(unix)] mmap path, which does not compile/run on this Windows box (Windows uses the memmap2 path with no madvise). Not shipped here to honor 'do not ship code unverifiable on the host you have'."
+}

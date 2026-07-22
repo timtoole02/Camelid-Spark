@@ -1,0 +1,27 @@
+{
+  "command": [
+    "node",
+    "<repo>\\frontend\\scripts\\smoke.mjs",
+    "--api",
+    "http://127.0.0.1:8181",
+    "--frontend",
+    "http://127.0.0.1:8181",
+    "--model",
+    "<repo>\\models\\Llama-3.2-1B-Instruct-Q4_K_M.gguf",
+    "--model-id",
+    "llama_3_2_1b_instruct_q4_k_m",
+    "--chat-repeats",
+    "1",
+    "--require-generation",
+    "--expect-compatibility-row",
+    "llama_3_2_1b_instruct_q4_k_m",
+    "--expect-compatibility-status",
+    "supported_exact_row_smoke",
+    "--expect-contract-supported",
+    "true",
+    "--expect-webui-chat",
+    "enabled"
+  ],
+  "exit_code": 0,
+  "mode": "require_generation"
+}

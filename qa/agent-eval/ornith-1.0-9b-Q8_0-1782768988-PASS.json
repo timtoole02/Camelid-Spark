@@ -1,0 +1,31 @@
+{
+  "cases": [
+    {
+      "case": "list_dir_find",
+      "final_answer": "The text file in the current directory is **notes.txt**.",
+      "goal": "List the entries of the current directory '.' with the list_dir tool, then tell me the name of the text file you find there.",
+      "loop_end": "Answered",
+      "passed": true,
+      "tool_calls": [
+        "list_dir(.)"
+      ],
+      "tool_results": [
+        {
+          "ok": true,
+          "output": "notes.txt",
+          "tool": "list_dir"
+        }
+      ]
+    }
+  ],
+  "gguf": "<home>\\Camelid\\models\\ornith-1.0-9b-Q8_0.gguf",
+  "gguf_bytes": 9527500992,
+  "host_loadavg_1m": null,
+  "model_id": "Ornith 1.0 9B",
+  "note": "battery complete",
+  "outcome": "PASS",
+  "promotion_eligible": true,
+  "quantization": "Q8_0",
+  "schema": "camelid.agent_eval/v1",
+  "timestamp_unix": 1782768988
+}

@@ -1,0 +1,17 @@
+{
+ "reference": "tokenizers==0.23.1",
+ "fixtures": [
+  {
+   "family": "spm",
+   "hf_repo": "TinyLlama/TinyLlama-1.1B-Chat-v1.0",
+   "gguf": "tinyllama-1.1b-chat-v1.0.Q8_0.gguf",
+   "vocab_size": 32000
+  },
+  {
+   "family": "bpe",
+   "hf_repo": "Qwen/Qwen3-0.6B",
+   "gguf": "Qwen3-0.6B-Q8_0.gguf",
+   "vocab_size": 151669
+  }
+ ]
+}

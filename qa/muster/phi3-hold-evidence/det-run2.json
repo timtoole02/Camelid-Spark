@@ -1,0 +1,26 @@
+{
+ "model_id": "Phi3",
+ "depth": 24,
+ "results": [
+  {
+   "i": 0,
+   "text": "The capital of France is Paris. It is not only the largest city in the country but also a major European city known"
+  },
+  {
+   "i": 1,
+   "text": "Hello!"
+  },
+  {
+   "i": 2,
+   "text": "The largest ocean on Earth is the Pacific Ocean. It covers more than 63 million square miles (165"
+  },
+  {
+   "i": 3,
+   "text": "On a clear day, the sky typically appears blue to the human eye. This blue color is due to Rayleigh"
+  },
+  {
+   "i": 4,
+   "text": "1. One\n2. Two\n3. Three\n4. Four\n5. Five"
+  }
+ ]
+}

@@ -1,0 +1,154 @@
+{
+ "provenance": {
+  "baseline_path": "<camelid>/models/gemma-4-E4B-it-Q8_0.gguf",
+  "nvfp4mm_path": "<camelid>/models/gemma-4-E4B-it-NVFP4-mm.gguf",
+  "nvfp4mm_sha256": "eb293344972e2b292a043b8e7649b9788dca915b034e5c2721cfc531cf9863d9",
+  "method": "per-tensor byte-range sha256 (8 MiB streamed range reads); range = data_start + rel_offset, len computed from type block geometry and gap-checked against the next tensor offset",
+  "date": "2026-07-17"
+ },
+ "kept_tensors_expected_identical": [
+  {
+   "name": "token_embd.weight",
+   "dims": [
+    2560,
+    262144
+   ],
+   "type_baseline": "Q8_0",
+   "type_nvfp4mm": "Q8_0",
+   "byte_range_baseline": {
+    "start": 3065620320,
+    "len": 713031680
+   },
+   "byte_range_nvfp4mm": {
+    "start": 3065620320,
+    "len": 713031680
+   },
+   "sha256_baseline": "3764c4c4ad1a4157d6175c0adadf981de966ae36fd528ae6264a7087f918685e",
+   "sha256_nvfp4mm": "3764c4c4ad1a4157d6175c0adadf981de966ae36fd528ae6264a7087f918685e",
+   "identical": true
+  },
+  {
+   "name": "per_layer_token_embd.weight",
+   "dims": [
+    10752,
+    262144
+   ],
+   "type_baseline": "Q8_0",
+   "type_nvfp4mm": "Q8_0",
+   "byte_range_baseline": {
+    "start": 70886240,
+    "len": 2994733056
+   },
+   "byte_range_nvfp4mm": {
+    "start": 70886240,
+    "len": 2994733056
+   },
+   "sha256_baseline": "4a2790320eebf56299de9f32203edc1f2e068dfd8ff6c3675d1d28237fca41c4",
+   "sha256_nvfp4mm": "4a2790320eebf56299de9f32203edc1f2e068dfd8ff6c3675d1d28237fca41c4",
+   "identical": true
+  }
+ ],
+ "norm_tensors_expected_identical": [
+  {
+   "name": "blk.0.attn_norm.weight",
+   "dims": [
+    2560
+   ],
+   "type_baseline": "F32",
+   "type_nvfp4mm": "F32",
+   "byte_range_baseline": {
+    "start": 3780045664,
+    "len": 10240
+   },
+   "byte_range_nvfp4mm": {
+    "start": 3779390304,
+    "len": 10240
+   },
+   "sha256_baseline": "4bf23f287e0c80630e116bd4dd84c64100d00fa720298a7b94783d9108bfc48b",
+   "sha256_nvfp4mm": "4bf23f287e0c80630e116bd4dd84c64100d00fa720298a7b94783d9108bfc48b",
+   "identical": true
+  },
+  {
+   "name": "blk.20.post_attention_norm.weight",
+   "dims": [
+    2560
+   ],
+   "type_baseline": "F32",
+   "type_nvfp4mm": "F32",
+   "byte_range_baseline": {
+    "start": 5976185344,
+    "len": 10240
+   },
+   "byte_range_nvfp4mm": {
+    "start": 4914215424,
+    "len": 10240
+   },
+   "sha256_baseline": "b277543dbe623859a4ef63bffc60088162320fda773005059e78f8cb09e7aae9",
+   "sha256_nvfp4mm": "b277543dbe623859a4ef63bffc60088162320fda773005059e78f8cb09e7aae9",
+   "identical": true
+  },
+  {
+   "name": "blk.41.ffn_norm.weight",
+   "dims": [
+    2560
+   ],
+   "type_baseline": "F32",
+   "type_nvfp4mm": "F32",
+   "byte_range_baseline": {
+    "start": 8159814784,
+    "len": 10240
+   },
+   "byte_range_nvfp4mm": {
+    "start": 6042428544,
+    "len": 10240
+   },
+   "sha256_baseline": "19c29028ebf4753e9ed0e7c35e07656f8bba98076180601ca0e2e7b8db833e0f",
+   "sha256_nvfp4mm": "19c29028ebf4753e9ed0e7c35e07656f8bba98076180601ca0e2e7b8db833e0f",
+   "identical": true
+  }
+ ],
+ "disclosed_exceptions_expected_different": [
+  {
+   "name": "blk.0.inp_gate.weight",
+   "dims": [
+    2560,
+    256
+   ],
+   "type_baseline": "F32",
+   "type_nvfp4mm": "Q8_0",
+   "byte_range_baseline": {
+    "start": 3876159328,
+    "len": 2621440
+   },
+   "byte_range_nvfp4mm": {
+    "start": 3830284128,
+    "len": 696320
+   },
+   "sha256_baseline": "e1f6a5af504999e3727f3daecd06c8be4b99a8fa55fdb2fa09ad068c175d699f",
+   "sha256_nvfp4mm": "95038f031410cb04cefaeaf9c1f2798c98616490da0dd2ffbb3bfa9352a65063",
+   "identical": false,
+   "disclosed_exception": "Amendment 2: f32 in Q8_0 baseline vs q8_0 in produced row — llama-quantize requantizes these f32 per-layer tensors; expected NOT identical"
+  },
+  {
+   "name": "blk.41.proj.weight",
+   "dims": [
+    256,
+    2560
+   ],
+   "type_baseline": "F32",
+   "type_nvfp4mm": "Q8_0",
+   "byte_range_baseline": {
+    "start": 8190330016,
+    "len": 2621440
+   },
+   "byte_range_nvfp4mm": {
+    "start": 6057911456,
+    "len": 696320
+   },
+   "sha256_baseline": "230c339d1c79ee63192f682e6413d2076d0c35f68ac424d50edd4d0f67e62523",
+   "sha256_nvfp4mm": "d469814c78d92bc59f4b5c16ea3f0fa2a49102fa6d153202c82a93b7824745ad",
+   "identical": false,
+   "disclosed_exception": "Amendment 2: f32 in Q8_0 baseline vs q8_0 in produced row — llama-quantize requantizes these f32 per-layer tensors; expected NOT identical"
+  }
+ ]
+}

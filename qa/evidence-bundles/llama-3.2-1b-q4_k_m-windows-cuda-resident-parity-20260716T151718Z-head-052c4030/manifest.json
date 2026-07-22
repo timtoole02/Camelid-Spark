@@ -1,0 +1,56 @@
+{
+ "schema": "camelid.evidence_bundle_manifest/v1",
+ "bundle": "llama-3.2-1b-q4_k_m-windows-cuda-resident-parity-20260716T151718Z-head-052c4030",
+ "row_id": "llama_3_2_1b_instruct_q4_k_m",
+ "campaign": "MUSTER M-B1",
+ "date_utc": "2026-07-16T15:17:18Z",
+ "source_head": "052c4030",
+ "model": {
+  "filename": "Llama-3.2-1B-Instruct-Q4_K_M.gguf",
+  "sha256": "6a74661014a3e2f139871f81e6cec852c489a627d169de503a3c0434a10c503d",
+  "size_bytes": 807693984,
+  "provenance": "local file, upstream unresolved (MUSTER_ACQUISITION.md)"
+ },
+ "comparator": {
+  "name": "llama.cpp llama-server",
+  "version": "9632 (acd79d603)",
+  "binary_sha256": "6c787bf07ac1d7e1bbaa1ee176c3ef0df58ea86494c8c1b1d2d9f4a9176b19ae",
+  "backend": "CPU",
+  "flags": "-ngl 0 -ctk f32 -ctv f32 -fa off --no-repack -c 4096",
+  "request": "/completion temperature 0 top_k 1 seed 0 cache_prompt false"
+ },
+ "camelid_lane": "cuda_resident_kquant_runtime (16/16 layers VRAM-resident, RTX 3060 Laptop 6144 MiB, driver 576.83)",
+ "prompt_pack": "qa/prompt-packs/llama32-1b-q4km-raw-decode-pack-v1.json",
+ "verdict": "confident_probes_all_pass=true; 3 open-ended flips attributed benign (<=0.106 nat, oracle rank-2, CPU-lane cross-backend control); prompt tokenization 8/8 identical; determinism sanity byte-identical x2",
+ "phase5_smoke": {
+  "command": "scripts/model-promotion-smoke-bundle.mjs with --expect-compatibility-row llama_3_2_1b_instruct_q4_k_m --expect-compatibility-status supported_exact_row_smoke --expect-contract-supported true --expect-webui-chat enabled",
+  "result": "exit 0; frontend leg exit 0 — all four expectations asserted; WebUI chat gate reports supported exact row smoke / contract_supported=true; streaming + non-streaming chat round-trips green",
+  "notes": "serve ran with CAMELID_SKIP_FIT_CHECK=1 for this leg only: the advisory fit check double-counts available RAM when the same model is already resident from the API leg (fit advisor is advisory-only, never a support surface). Host paths in the copied artifacts are redacted to <repo>/<home> (string redaction only); load.response.json and current-model.json (~10MB model-metadata dumps) are retained in the gitignored run dir, not the bundle. Smoke stdout/stderr artifacts are committed with .txt extensions (the repo-root .gitignore excludes *.log from tracking; contents unchanged)."
+ },
+ "files": {
+  "api-webui/capabilities.json": "9e4d710c11e3e86f6ef9fe6784d9aacefb1ebb797248f2a7a06ac828dab821ba",
+  "api-webui/chat.request.json": "7f1f5748c49015f4141abee0679792b0bd3e042af3902d39ac204c936d297b59",
+  "api-webui/chat.response.json": "e9dced62efa4367d39022e9f3c3dc0f89059e0934a70723c70d7f5a789dd5b98",
+  "api-webui/completion.request.json": "e66bf207ec1f476f15532d798052a195455cd0c502fd8ed43ad6440d707becce",
+  "api-webui/completion.response.json": "30f18052ea0d01c5d405bb147adda27d3d6be3a29d4905489d08af5d283ad9dd",
+  "api-webui/frontend.command.txt": "5832785290daeaa6e8593e51d0baa9027fb9de9e2f630e1a708ce82dc871d32b",
+  "api-webui/frontend.stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "api-webui/frontend.stdout.txt": "62a1367edb409b8fd291c8e6e1b3558765136891899fcd09431388700c4061c0",
+  "api-webui/frontend.summary.json": "0b0c92a9883b756b804289681632538f4791ac021cbf3faaa74e104d4c076bfe",
+  "api-webui/generation-timings.command.txt": "a20278870217195700679e4e5160531f37f7baf518ebe610a8859d053d473e58",
+  "api-webui/generation-timings.run.json": "64e2945b6dfc5f820b6806f5b52bea374974e8621876ae63a21c289163ffc07e",
+  "api-webui/generation-timings.stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "api-webui/generation-timings.stdout.txt": "da42f413dce3058fe5e44b91807ec614e076d8a796a8ae4d10fe3c3fb8f6fc4f",
+  "api-webui/generation-timings.summary.json": "f7514b92c86a8f925ffbdc38ad7750c170bea9d2f17fa1a2b97b71f8d57b5ac3",
+  "api-webui/health-after.json": "40fb1f53532e2bcce7117238179c19ee3d09daf9e0b4b41fcaca85e67b58507d",
+  "api-webui/health-before.json": "7d5455d75939041e7bd1b2ad03fe96b348a690362f0e77b5189b4582a9b99b1d",
+  "api-webui/load.request.json": "9b7aa57eb77292013625384abdfe71dc4c293e24201c91a591e155f10fcd1049",
+  "api-webui/summary.json": "0617d8cadaeeb041d1721b42f5be503fe456e361fe8773098ecd2a937c49fe3c",
+  "api-webui/v1-models.json": "e8a45338b8c633dcc26c340ecccc1e7c6f3541ee7f0d58134a9315a1ef66a714",
+  "llama-3.2-1b-q4_k_m-windows-cuda-resident-parity.json": "9b1a72fe056136288eb11456513715ade09ba9cc9f64fd2c992898fbd908cd5d",
+  "near-tie-analysis.json": "3e3dbd93b8ea770dabaa95330ef7eeee7f93f44659b789c0e49c1918842b234a",
+  "oracle-nprobs-50tok.json": "856482f98f5f8052fb1edc3f7a5fba9894e9a15b4457b93a4942ae5a4051e3d7",
+  "prompt-token-parity.json": "0b1a8fd3679bf1e433b409bcc307eff90c21bd8cf587d7a443a3534ee43ae5d8",
+  "README.md": "b2922c8bd4105540a528312e5468992ff56b7535dc9aa4837e4c42087afd3c6a"
+ }
+}

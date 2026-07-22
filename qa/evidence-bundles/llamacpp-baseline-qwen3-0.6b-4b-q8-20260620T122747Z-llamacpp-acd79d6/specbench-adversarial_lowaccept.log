@@ -1,0 +1,42 @@
+﻿
+
+Generate a sequence of 60 unrelated, unpredictable words, each on its own line, drawn from wildly different domains (physics, cooking, mythology, finance, marine biology). Do not let any word predict the next. The words should be in English, and each should be a single word. The sequence should be as random as possible, with no discernible pattern or theme. The words should be as varied as possible in terms of their meanings and domains. The sequence should be as random as possible, with no discernible pattern or theme. The words should be as varied as as possible in terms of their meanings and domains. The sequence should be as random as possible, with no discernible pattern or theme. The words should be as varied as possible in terms of their meanings and domains. The sequence should be as random as possible, with no discernible pattern or theme.
+
+
+
+
+0.00.022.965 I common_init_result: fitting params to device memory ...
+0.00.022.970 I common_init_result: (for bugs during this step try to reproduce them with -fit off, or provide --verbose logs if the bug only occurs with -fit on)
+0.00.731.575 W common_fit_params: failed to fit params to free device memory: n_gpu_layers already set by user to 99, abort
+0.01.021.350 W load: control-looking token: 128247 '</s>' was not control-type; this is probably a bug in the model. its type will be overridden
+0.03.307.030 W llama_context: n_ctx_seq (2048) < n_ctx_train (40960) -- the full capacity of the model will not be utilized
+0.03.324.642 I common_init_from_params: warming up the model with an empty run - please wait ... (--no-warmup to disable)
+0.03.384.079 I common_init_result: fitting params to device memory ...
+0.03.384.095 I common_init_result: (for bugs during this step try to reproduce them with -fit off, or provide --verbose logs if the bug only occurs with -fit on)
+0.03.728.708 W common_fit_params: failed to fit params to free device memory: n_gpu_layers already set by user to 99, abort
+0.04.008.613 W load: control-looking token: 128247 '</s>' was not control-type; this is probably a bug in the model. its type will be overridden
+0.04.360.455 W llama_context: n_ctx_seq (2048) < n_ctx_train (40960) -- the full capacity of the model will not be utilized
+0.04.376.458 I common_init_from_params: warming up the model with an empty run - please wait ... (--no-warmup to disable)
+0.06.311.430 I encoded   44 tokens in    0.074 seconds, speed:  593.920 t/s
+0.06.311.431 I decoded  132 tokens in    1.838 seconds, speed:   71.806 t/s
+0.06.311.431 I 
+0.06.311.432 I n_draft   = 8
+0.06.311.432 I n_predict = 132
+0.06.311.432 I n_drafted = 224
+0.06.311.432 I n_accept  = 103
+0.06.311.433 I accept    = 45.982%
+0.06.311.433 I 
+0.06.311.433 I draft:
+
+0.06.311.437 I 
+0.06.311.438 I target:
+
+0.06.311.439 I common_perf_print:    sampling time =      28.68 ms
+0.06.311.439 I common_perf_print:    samplers time =      10.43 ms /   132 tokens
+0.06.311.440 I common_perf_print:        load time =    2457.46 ms
+0.06.311.441 I common_perf_print: prompt eval time =     832.12 ms /   296 tokens (    2.81 ms per token,   355.72 tokens per second)
+0.06.311.442 I common_perf_print:        eval time =       0.00 ms /     1 runs   (    0.00 ms per token,      inf tokens per second)
+0.06.311.443 I common_perf_print:       total time =     -69.71 ms /   297 tokens
+0.06.311.444 I common_perf_print: unaccounted time =    -930.52 ms / 1334.8 %      (total - sampling - prompt eval - eval) / (total)
+0.06.311.444 I common_perf_print:    graphs reused =         27
+

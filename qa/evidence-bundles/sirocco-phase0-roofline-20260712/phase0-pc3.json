@@ -1,0 +1,9 @@
+{
+  "mode": "pc3",
+  "note": "Truncated at ctx=3153 (16k/32k skipped: prefill >3min each + thermal at 74C; linear trend established). 2 rounds each, monitored-boost.",
+  "points": {
+    "ctx0":    { "tok_s_p50": 127.06, "ms_per_tok_p50": 7.87,  "prompt_tokens": 2 },
+    "ctx1024": { "tok_s_p50": 102.00, "ms_per_tok_p50": 9.80,  "prompt_tokens": 790 },
+    "ctx4096": { "tok_s_p50": 58.89,  "ms_per_tok_p50": 16.98, "prompt_tokens": 3153 }
+  }
+}

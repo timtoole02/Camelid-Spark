@@ -1,0 +1,31 @@
+{
+  "schema": "camelid.capability-receipt/v1",
+  "capability_id": "structured.json_grammar",
+  "capability": "JSON mode + GBNF grammar-constrained decode (decoder-side, model-agnostic)",
+  "row": "llama-3.2-3b-instruct-q8_0",
+  "model_label": "Llama 3.2 3B Instruct Q8_0",
+  "oracle_class": "B",
+  "verdict": "validated",
+  "generated": "2026-06-25",
+  "platform": {
+    "os": "windows",
+    "target": "x86_64-pc-windows-msvc",
+    "backend": "cpu",
+    "oracle": "llama.cpp acd79d6 (MSVC, Windows AMD64)"
+  },
+  "gguf": {
+    "filename": "Llama-3.2-3B-Instruct-Q8_0.gguf",
+    "sha256": "f34112a11b7dad74ab517dedf6dcf00d624c9adac2dc0c72c719ca0478554ef2"
+  },
+  "harness": {
+    "repo_head": "12f202d0a2e1182f0d76ff656f632e2b9e17252e",
+    "branch": "feat/capability-conductor",
+    "working_tree": "Produced with the capability-conductor sampling + n_choices diff UNCOMMITTED on branch feat/capability-conductor (base 12f202d0). Re-seal against the commit once landed.",
+    "binary": "target/release/camelid.exe",
+    "e2e_harness": "qa/capability/smoke.sh (TinyLlama/1B/3B, Windows CPU, CUDA_VISIBLE_DEVICES=-1)"
+  },
+  "evidence": {
+    "kind": "invariant_unit + behavioral_battery",
+    "summary": "unit: 6 JsonState PDA tests (src/grammar.rs) — complete-object acceptance cross-checked vs serde_json, prefix-validity, number/string/escape edge cases, multibyte tokens spanning structure, done-only-after-top-level-close, accepts() non-mutation — plus the response_format interpreter test (json_object on, text/absent off, json_schema rejected). e2e behavioral battery on TinyLlama/1B/3B (qa/capability/json_smoke.sh, response_format json_object, temperature 0): 12/12 responses are valid JSON (every choices[0].message.content parses); the free-text control (no response_format) is unconstrained. Mechanism: per-step logit mask to tokens that keep a valid JSON-object prefix (a large finite negative logit for the rest so the sampler accepts it), EOG allowed only once the object closes, GPU greedy-fast + speculative lanes bypassed, mask applied to a clone so logprobs/diagnostics see the real distribution. Non-streaming; json_object+stream and json_schema fail closed. Caveat: a too-small max_tokens truncates mid-object (set an adequate budget; full force-close is a follow-up)."
+  }
+}

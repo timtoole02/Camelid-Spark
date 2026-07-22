@@ -1,0 +1,32 @@
+{
+ "tag": "t2",
+ "token_at_16": 5213,
+ "text_head": "This is a classic question! The color of the sky on a clear day is **blue**.\n\nHowever, it's a bit mo",
+ "top5_at_16": [
+  {
+   "id": 5213,
+   "token": " **",
+   "logprob": -0.7169384956359863
+  },
+  {
+   "id": 3187,
+   "token": " often",
+   "logprob": -1.058504581451416
+  },
+  {
+   "id": 496,
+   "token": " a",
+   "logprob": -2.8572373390197754
+  },
+  {
+   "id": 11082,
+   "token": " typically",
+   "logprob": -3.183849811553955
+  },
+  {
+   "id": 3643,
+   "token": " actually",
+   "logprob": -3.983849048614502
+  }
+ ]
+}

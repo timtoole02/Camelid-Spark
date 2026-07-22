@@ -1,0 +1,42 @@
+{
+  "schema": "camelid.gemma4_exact_row_public_evidence.v1",
+  "generated_utc": "2026-06-11T08:46:07.274Z",
+  "git_head": "b117d40cb7c3",
+  "checkout_clean": false,
+  "row_id": "26b_it_q4_0_qat_distributed_parity",
+  "model": {
+    "filename": "gemma-4-26B_q4_0-it.gguf",
+    "size_bytes": 14439361440,
+    "sha256": "4c856523d61d77922dbc0b26753a6bf6208e5d69d80db0c04dcd776832d054c5",
+    "quantization": "Q8_0",
+    "architecture": "gemma4"
+  },
+  "oracle": {
+    "build": "llama.cpp 5d56eff (llama-server, CPU, temperature=0/top_k=1, cache_prompt=false)",
+    "prompt_pack": "qa/gemma4/prompt_packs/basic_v1.json",
+    "oracle_artifact": "qa/gemma4/oracle/gemma-4-26B_q4_0-it.basic_v1.json"
+  },
+  "logs": [
+    {
+      "name": "basic-v1-oracle",
+      "file": "logs/basic-v1-oracle.txt",
+      "sha256": "ca408777911c203694f704aae7724f3492ba72b0fa1f375278785c0fde3d0c8c"
+    },
+    {
+      "name": "distributed-pack-run",
+      "file": "logs/distributed-pack-run.txt",
+      "sha256": "cd0305c311eee7e7769f99220970326c497352a49f3613d373a0afaefeda87bc"
+    },
+    {
+      "name": "probe-classification",
+      "file": "logs/probe-classification.txt",
+      "sha256": "d28d88de78d6b549ce39d916dbe34713399b3586ebbb78c5afd811e64c8a4e31"
+    }
+  ],
+  "fields": {
+    "lane": "two-Mac distributed layer-sharding (master layers 0..15 on the primary 16GB M4, worker 15..30 + head on the second 16GB M4; model staged over Thunderbolt with full-file sha256 verified identical; wire over the ssh-tunneled TCP port)",
+    "results": "basic_v1 5-prompt pack run distributed: 2/5 (count-primes 24 tok, translate-de 16 tok) full-budget token-identical to the pinned reference; 3/5 (capital-france@6, haiku-sea@11, rust-fn@15) match a probe-verified prefix then flip at knife-edge near-ties (top-2 gaps 0.138/0.203/0.419, reference token = camelid #2 in all). Distributed output equals single-node (f32 wire)",
+    "caveats": "A4B MoE QAT (Q4_0 experts + Q6_K head); two-Mac distributed lane only (13.4GB memory-infeasible single-node sustained on 16GB); slow validation decode ~0.17 tok/s, not a perf claim; the 3 frontiers are the irreducible f32 near-tie class, not a bug"
+  },
+  "claim_boundary": "Exact-row text-token generation within the checked basic_v1 prompt pack and API smoke envelope only. No bounded-context promotion, no performance claim beyond the raw logs, no multimodal input (fails closed with a typed error), no neighboring-row or Gemma-family support, no shared-memory claim (distributed mode is layer sharding)."
+}

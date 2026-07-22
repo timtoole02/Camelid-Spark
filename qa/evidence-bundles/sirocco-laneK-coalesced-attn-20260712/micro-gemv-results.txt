@@ -1,0 +1,22 @@
+# Q8 GEMV microbench vs BW_peak=270.9 GB/s (clean, single-engine). U=latency-hiding unroll depth.
+# Shape (rows x blocks_per_row) maps to Llama-3.2-1B decode matmuls.
+[FFN_gate_up] dims rows=8192 bpr=64  weight=18.9 MB  peak=270.9 GB/s
+[FFN_gate_up]   blockdim=64:  U4=236(87%)  U8=239(88%)  U12=236(87%)  U16=212(78%)
+[FFN_gate_up]   blockdim=128:  U4=192(71%)  U8=239(88%)  U12=247(91%)  U16=243(90%)
+[FFN_gate_up]   blockdim=256:  U4=240(89%)  U8=243(90%)  U12=247(91%)  U16=222(82%)
+[FFN_down]    dims rows=2048 bpr=256  weight=18.9 MB  peak=270.9 GB/s
+[FFN_down]      blockdim=64:  U4=143(53%)  U8=142(52%)  U12=142(52%)  U16=128(47%)
+[FFN_down]      blockdim=128:  U4=209(77%)  U8=196(72%)  U12=181(67%)  U16=171(63%)
+[FFN_down]      blockdim=256:  U4=225(83%)  U8=223(82%)  U12=225(83%)  U16=225(83%)
+[LM_head]     dims rows=128256 bpr=64  weight=295.5 MB  peak=270.9 GB/s
+[LM_head]       blockdim=64:  U4=276(102%)  U8=275(102%)  U12=275(102%)  U16=273(101%)
+[LM_head]       blockdim=128:  U4=276(102%)  U8=276(102%)  U12=276(102%)  U16=276(102%)
+[LM_head]       blockdim=256:  U4=276(102%)  U8=276(102%)  U12=275(102%)  U16=238(88%)
+[attn_q_o]    dims rows=2048 bpr=64  weight=4.7 MB  peak=270.9 GB/s
+[attn_q_o]      blockdim=64:  U4=177(65%)  U8=179(66%)  U12=177(65%)  U16=177(65%)
+[attn_q_o]      blockdim=128:  U4=184(68%)  U8=177(65%)  U12=184(68%)  U16=177(65%)
+[attn_q_o]      blockdim=256:  U4=177(65%)  U8=177(65%)  U12=177(65%)  U16=165(61%)
+[attn_k_v]    dims rows=512 bpr=64  weight=1.2 MB  peak=270.9 GB/s
+[attn_k_v]      blockdim=64:  U4=115(43%)  U8=115(43%)  U12=105(39%)  U16=96(35%)
+[attn_k_v]      blockdim=128:  U4=107(39%)  U8=105(39%)  U12=96(35%)  U16=89(33%)
+[attn_k_v]      blockdim=256:  U4=89(33%)  U8=82(30%)  U12=89(33%)  U16=82(30%)

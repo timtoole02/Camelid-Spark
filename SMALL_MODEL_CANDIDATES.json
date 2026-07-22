@@ -1,0 +1,237 @@
+{
+  "schema": "camelid.small-model-candidates.v1",
+  "purpose": "Repeatable candidate manifest for small GGUF load/parity expansion without overclaiming support.",
+  "candidate_order": [
+    {
+      "model_id": "tinyllama-q8",
+      "path": "models/tinyllama-1.1b-chat-v1.0.Q8_0.gguf",
+      "source": "TheBloke/TinyLlama-1.1B-Chat-v1.0-GGUF/tinyllama-1.1b-chat-v1.0.Q8_0.gguf",
+      "family": "llama",
+      "tokenizer": "llama-spm",
+      "chat_template": "TinyLlama marker chat template",
+      "quant": "Q8_0",
+      "estimated_ram_materialization_risk": "low on the 16 GiB Mac mini; existing 5-token parity pass sampled server RSS around 5.4 GiB after generation",
+      "expected_support_row": "current supported real-model gate; preserve 29907 / C first-token and five-prompt parity evidence",
+      "load_harness": "POST /api/models/load then /v1/health generation_ready=true",
+      "parity_harness": "node scripts/chat-parity-tinyllama.mjs --max-tokens 5 --require-generated-match",
+      "latest_evidence": {
+        "load_result": "PASS via isolated /api/models/load on release backend 127.0.0.1:19944; /v1/health generation_ready=true for active_model_id tinyllama-q8",
+        "prompt_token_parity": "PASS: prompt IDs matched llama.cpp for TinyLlama chat template on current head 9049492",
+        "first_token_parity": "PASS: first generated token 29907 / \"C\"",
+        "short_generation_parity": "PASS: 5-token deterministic generation matched tokens [29907,13946,368,29991,2266] and text \"Certainly! Here\"",
+        "artifact_dir": "target/autonomous-small-model-parity-20260429T134615Z-head-9049492",
+        "artifacts": [
+          "tinyllama-q8-chat-parity-5tok.json",
+          "tinyllama-q8-chat-parity-5tok.log",
+          "tinyllama-q8-chat-parity-5tok.stderr.log",
+          "backend-ps-after-tinyllama-5tok.txt",
+          "health-after-tinyllama-5tok.json"
+        ]
+      }
+    },
+    {
+      "model_id": "llama-3.2-1b-instruct-q8",
+      "path": "$CAMELID_MODEL_DIR/Llama-3.2-1B-Instruct-Q8_0.gguf",
+      "source": "bartowski/Llama-3.2-1B-Instruct-GGUF/Llama-3.2-1B-Instruct-Q8_0.gguf",
+      "family": "llama",
+      "tokenizer": "llama-bpe",
+      "chat_template": "Llama 3 instruct header/eot template",
+      "quant": "Q8_0",
+      "estimated_ram_materialization_risk": "medium-low; validated only for the current short local-chat smoke envelope, with longer contexts and stronger perf/portability still gated",
+      "expected_support_row": "supported exact-row smoke for Llama 3.2 1B Instruct Q8_0 short local chat; do not infer support for neighboring Llama sizes, base variants, other quantizations, longer contexts, or broad chat-template behavior",
+      "load_harness": "./target/release/camelid inspect, POST /api/models/load, /v1/health, /v1/completions, /v1/chat/completions, and frontend smoke for this exact GGUF row",
+      "parity_harness": "node scripts/chat-parity-llama3.mjs plus the downloaded three-prompt Llama 3 pack; require prompt-token, generated-token, and generated-text match against llama.cpp for this exact row",
+      "latest_evidence": {
+        "load_result": "PASS for exact-row /api/models/load with generation_ready=true, plus /v1/completions, /v1/chat/completions, and frontend smoke evidence documented in STATUS.md",
+        "prompt_token_parity": "PASS: compact-header prompt and the current broader downloaded prompt pack matched llama.cpp",
+        "first_token_parity": "PASS: first generated token 9906 / \"Hello\"",
+        "short_generation_parity": "PASS: compact 5-token deterministic generation matched [9906,0,2650,649,358] / \"Hello! How can I\"; broader prompt-pack generated tokens/text also matched llama.cpp",
+        "artifact_dirs": [
+          "target/autonomous-small-model-parity-20260429T134615Z-head-9049492",
+          "target/qa-small-model-parity-20260429T1338Z-head-35bfd58",
+          "target/parity-50tok-20260502T031820Z/llama32-1b-50tok",
+          "target/downloaded-llama-matrix-20260502T231000Z"
+        ],
+        "artifacts": [
+          "llama32-1b-q8-chat-parity-5tok.json",
+          "report.json",
+          "summary.json"
+        ]
+      }
+    },
+    {
+      "model_id": "llama-3-8b-instruct-q8",
+      "path": "$CAMELID_MODEL_DIR/Meta-Llama-3-8B-Instruct-Q8_0.gguf",
+      "source": "local external-disk artifact",
+      "family": "llama",
+      "tokenizer": "llama-bpe",
+      "chat_template": "Llama 3 instruct header/eot template",
+      "quant": "Q8_0",
+      "estimated_ram_materialization_risk": "high; lazy/file-backed Q8 support path has bounded compact and prompt-pack evidence, but longer context and stronger perf/portability evidence are still expansion gates",
+      "expected_support_row": "supported exact-row smoke for Llama 3 8B Instruct Q8_0 short local chat/parity after compact parity, long-timeout three-prompt 5-token parity, API/frontend smoke, and bounded-memory evidence; do not infer broad Llama-family support",
+      "load_harness": "POST /api/models/load, /v1/models, /v1/completions, /v1/chat/completions, and frontend smoke for this exact 8B Q8_0 GGUF row",
+      "parity_harness": "compact llama3 parity plus the long-timeout three-prompt 5-token Ubuntu pack; require prompt-token, generated-token, and generated-text match against llama.cpp before preserving the support row",
+      "latest_evidence": {
+        "load_result": "PASS for exact-row load, /v1/completions, /v1/chat/completions, and frontend smoke evidence documented in STATUS.md",
+        "prompt_token_parity": "PASS for compact-header hello and the long-timeout three-prompt 5-token Ubuntu pack",
+        "first_token_parity": "PASS for compact-header hello",
+        "short_generation_parity": "PASS for compact-header 1/5/bounded-50-token runs and the long-timeout three-prompt 5-token Ubuntu pack",
+        "support_status": "SUPPORTED EXACT-ROW SMOKE: exact Llama 3 8B Instruct Q8_0 row only; longer context, broader chat-template, stronger perf/portability, and neighboring rows remain unsupported",
+        "artifact_dirs": [
+          "target/ubuntu-llama3-8b-q8-current-head-20260502T000207Z",
+          "target/parity-20260502T030911Z/llama3-8b-1tok",
+          "target/parity-20260502T030911Z/llama3-8b-5tok",
+          "target/parity-50tok-20260502T031820Z/llama3-8b-50tok",
+          "target/downloaded-llama-matrix-20260502T231000Z",
+          "target/acceptance-llama3-8b-broader-5tok-longtimeout-20260503T010536Z",
+          "target/private-four-llama-e2e-20260502T212751Z-head-c5e6d7e"
+        ]
+      }
+    },
+    {
+      "model_id": "llama-3.2-3b-instruct-q8",
+      "path": "$CAMELID_MODEL_DIR/Llama-3.2-3B-Instruct-Q8_0.gguf",
+      "source": "bartowski/Llama-3.2-3B-Instruct-GGUF/Llama-3.2-3B-Instruct-Q8_0.gguf",
+      "family": "llama",
+      "tokenizer": "llama-bpe",
+      "chat_template": "Llama 3 instruct header/eot template",
+      "quant": "Q8_0",
+      "estimated_ram_materialization_risk": "medium-high; exact-row short local-chat smoke is supported, but longer context and stronger memory/perf/portability evidence are still expansion gates",
+      "expected_support_row": "supported exact-row smoke for Llama 3.2 3B Instruct Q8_0 short local chat after compact parity, API/frontend smoke, and post-Q8-dot broader three-prompt parity evidence; do not infer broad Llama-family support",
+      "load_harness": "POST /api/models/load, /v1/health, /v1/completions, /v1/chat/completions, five-prompt API smoke, and frontend smoke for this exact GGUF row",
+      "parity_harness": "node scripts/chat-parity-llama3.mjs for compact 1/5/50-token parity plus the post-Q8-dot broader three-prompt 50-token pack; require prompt-token, generated-token, and generated-text match against llama.cpp",
+      "latest_evidence": {
+        "load_result": "PASS for exact-row /api/models/load with generation_ready=true, plus /v1/completions, /v1/chat/completions, five-prompt API smoke, and frontend smoke evidence documented in STATUS.md",
+        "prompt_token_parity": "PASS for compact-header prompt and post-Q8-dot broader prompt pack",
+        "first_token_parity": "PASS for compact-header hello",
+        "short_generation_parity": "PASS for compact 1/5/50-token parity and the broader three-prompt 50-token pack; the former JSON-shaped prompt divergence is fixed in the current pack",
+        "artifact_dirs": [
+          "target/parity-20260502T030911Z/llama32-3b-1tok",
+          "target/parity-20260502T030911Z/llama32-3b-5tok",
+          "target/parity-50tok-20260502T031820Z/llama32-3b-50tok",
+          "target/camelid-regression-q8dot-20260502T232633Z/llama32-3b-compact",
+          "target/camelid-llama32-3b-broad-50-after-q8dot-clean-20260502T233427Z/pack"
+        ]
+      }
+    },
+    {
+      "model_id": "tinyllama-q4_0-negative",
+      "path": "$CAMELID_MODEL_DIR/tinyllama-1.1b-chat-v1.0.Q4_0.gguf",
+      "source": "TheBloke/TinyLlama-1.1B-Chat-v1.0-GGUF/tinyllama-1.1b-chat-v1.0.Q4_0.gguf",
+      "family": "llama",
+      "tokenizer": "llama-spm",
+      "chat_template": "TinyLlama marker chat template",
+      "quant": "Q4_0",
+      "estimated_ram_materialization_risk": "low disk/RAM, but unsupported quant blocks should fail typed until Q4_0 dequant/matmul support exists",
+      "expected_support_row": "negative/typed-unsupported quant lane, not parity support",
+      "load_harness": "metadata inspect and typed unsupported-storage test",
+      "parity_harness": "do not require generated parity until Q4_0 runtime support exists",
+      "latest_evidence": {
+        "load_result": "MISSING LOCAL ARTIFACT in 13:46 autonomous inventory",
+        "first_token_parity": "NOT RUN",
+        "short_generation_parity": "NOT RUN; expected unsupported quant lane until Q4_0 support lands",
+        "artifact_dir": "target/autonomous-small-model-parity-20260429T134615Z-head-9049492",
+        "artifacts": [
+          "inventory.txt",
+          "readiness.json"
+        ]
+      }
+    },
+    {
+      "model_id": "qwen3-1.7b-instruct-q8",
+      "path": "$CAMELID_MODEL_DIR/Qwen3-1.7B-Q8_0.gguf",
+      "source": "Qwen/Qwen3-1.7B-GGUF/Qwen3-1.7B-Q8_0.gguf",
+      "family": "qwen3",
+      "tokenizer": "qwen2 (GPT-2/BPE pre-tokenizer; single-digit grouping)",
+      "chat_template": "ChatML (<|im_start|>/<|im_end|>), thinking disabled",
+      "quant": "Q8_0",
+      "estimated_ram_materialization_risk": "low; lazy-Q8 CPU reference path, server RSS ~212 MiB after generation on the dev M4",
+      "expected_support_row": "supported exact-row smoke for Qwen3-1.7B Q8_0 short local ChatML chat/parity with thinking DISABLED; do NOT infer support for other Qwen3 sizes (0.6B/4B/8B/14B/32B), base variants, other quants, longer context, Qwen3-MoE (A3B), or thinking-mode generation",
+      "load_harness": "./target/release/camelid inspect, POST /api/models/load, /v1/health generation_ready=true, /v1/completions, /v1/chat/completions, and five-prompt API smoke for this exact GGUF row",
+      "parity_harness": "node scripts/chat-parity-qwen3.mjs (ChatML thinking-disabled) vs pinned llama.cpp -ctk f32 -ctv f32 -fa off --no-repack; require prompt-token, generated-token, and generated-text match at 1/5/50 tokens",
+      "latest_evidence": {
+        "load_result": "PASS for exact-row /api/models/load with generation_ready=true (backend cpu_reference); /v1/completions, /v1/chat/completions, and five-prompt API smoke all coherent",
+        "prompt_token_parity": "PASS: camelid-rendered ChatML prompt tokens matched the reference byte-for-byte (incl. <think>/</think> = 151667/151668 special tokens)",
+        "first_token_parity": "PASS: first generated token matched llama.cpp for all chat prompts",
+        "short_generation_parity": "PASS: token- and text-identical to llama.cpp at 1/5/50 tokens for three fixed ChatML thinking-disabled prompts (all_pass=true)",
+        "engine_fixes": "binder carries per-head QK-norm (attn_q_norm/attn_k_norm); forward applies per-head RMSNorm on Q/K before RoPE; NEOX (split-half) RoPE pairing for the unpermuted Qwen3 GGUF; qwen2 BPE pre-tokenizer; ChatML renderer; USER_DEFINED special-token parsing",
+        "known_frontier": "raw-completion (non-chat) probe 'Q: What is 2+2? A:' hits a 0.015-logit f32 near-tie at token 3; the supported surface is the ChatML thinking-disabled chat path",
+        "artifact_dir": "qa/evidence-bundles/qwen3-1.7b-q8-chatml-parity-20260614T021844Z-head-f41e374",
+        "artifacts": [
+          "qwen3-chatml-chat-parity.json",
+          "manifest.json",
+          "README.md",
+          "SHA256SUMS"
+        ]
+      }
+    },
+    {
+      "model_id": "qwen3-0.6b-instruct-q8",
+      "path": "$CAMELID_MODEL_DIR/Qwen3-0.6B-Q8_0.gguf",
+      "source": "Qwen/Qwen3-0.6B-GGUF/Qwen3-0.6B-Q8_0.gguf",
+      "family": "qwen3",
+      "tokenizer": "qwen2 (GPT-2/BPE)",
+      "chat_template": "ChatML, thinking disabled",
+      "quant": "Q8_0",
+      "estimated_ram_materialization_risk": "very low; ~307 MiB server RSS after generation",
+      "expected_support_row": "supported exact-row smoke for Qwen3-0.6B Q8_0 short local ChatML chat/parity with thinking DISABLED; exercises the explicit head_dim path (head_dim 128 != embedding/head_count 64). do NOT infer other Qwen3 sizes/variants/quants, MoE (A3B), longer context, or thinking-mode",
+      "load_harness": "inspect, /api/models/load, /v1/health generation_ready=true, /v1/completions, /v1/chat/completions, API smoke",
+      "parity_harness": "node scripts/chat-parity-qwen3.mjs vs pinned llama.cpp -ctk f32 -ctv f32 -fa off --no-repack; prompt-token, generated-token, generated-text match at 1/5/50",
+      "latest_evidence": {
+        "load_result": "PASS generation_ready=true (cpu_reference)",
+        "engine_fixes": "explicit head_dim from attention.key_length (DenseLlamaDims.head_dim/q_width); unlocks Qwen3 0.6B/4B/32B where head_dim != embedding/head_count",
+        "short_generation_parity": "PASS: token+text identical to llama.cpp at 1/5/50 tokens for three fixed ChatML thinking-disabled prompts (all_pass=true)",
+        "model_sha256": "9465e63a22add5354d9bb4b99e90117043c7124007664907259bd16d043bb031",
+        "artifact_dir": "qa/evidence-bundles/qwen3-0.6b-q8-chatml-parity-20260614T032905Z-head-63bf015",
+        "artifacts": [
+          "qwen3-0.6b-chatml-chat-parity.json",
+          "manifest.json",
+          "README.md",
+          "SHA256SUMS"
+        ]
+      }
+    },
+    {
+      "model_id": "qwen3-4b-instruct-q8",
+      "path": "$CAMELID_MODEL_DIR/Qwen3-4B-Q8_0.gguf",
+      "source": "Qwen/Qwen3-4B-GGUF/Qwen3-4B-Q8_0.gguf",
+      "family": "qwen3",
+      "tokenizer": "qwen2 (GPT-2/BPE)",
+      "chat_template": "ChatML, thinking disabled",
+      "quant": "Q8_0",
+      "estimated_ram_materialization_risk": "low; tested on mini2 (clean 16GB)",
+      "expected_support_row": "supported exact-row smoke for Qwen3-4B Q8_0 ChatML chat (thinking disabled), explicit head_dim path; token+text parity at 1/5/50 on confident probes; one probe a documented first-token near-tie. do NOT infer other sizes/variants/quants, MoE, longer context, or thinking-mode",
+      "parity_harness": "scripts/chat-parity-qwen3.mjs vs pinned llama.cpp -ctk f32 -ctv f32 -fa off --no-repack",
+      "latest_evidence": {
+        "short_generation_parity": "PASS 1/5/50 on 3 confident probes (capital-of-France, say-hello, 2+2); 'primary color' first-token near-tie (llama.cpp The vs Red 0.34 logit)",
+        "model_sha256": "8c2f07f26af9747e41988551106f149b03eb9b5cb6df636027b6bf6278473300",
+        "test_host": "mini2 clean 16GB over TB",
+        "artifact_dir": "qa/evidence-bundles/qwen3-4b-q8-chatml-parity-20260614T054617Z-head-368ed9b"
+      }
+    },
+    {
+      "model_id": "qwen3-8b-instruct-q8",
+      "path": "$CAMELID_MODEL_DIR/Qwen3-8B-Q8_0.gguf",
+      "source": "Qwen/Qwen3-8B-GGUF/Qwen3-8B-Q8_0.gguf",
+      "family": "qwen3",
+      "tokenizer": "qwen2 (GPT-2/BPE)",
+      "chat_template": "ChatML, thinking disabled",
+      "quant": "Q8_0",
+      "estimated_ram_materialization_risk": "medium on 16GB; run with CAMELID_METAL_NOCOPY=0 (default NOCOPY+CPU path doubles memory and thrashes); ~9GB resident with NOCOPY off",
+      "expected_support_row": "supported exact-row smoke for Qwen3-8B Q8_0 ChatML chat (thinking disabled); square head_dim + UNTIED embeddings; token+text-identical at 1/5/50 (all_pass). do NOT infer other sizes/variants/quants, MoE, longer context, or thinking-mode",
+      "parity_harness": "scripts/chat-parity-qwen3.mjs (two-phase: capture oracle then compare camelid, to fit 16GB)",
+      "latest_evidence": {
+        "short_generation_parity": "PASS: token+text identical to llama.cpp at 1/5/50 for 3 fixed prompts (all_pass=true)",
+        "model_sha256": "408b955510e196121c1c375201744783b5c9a43c7956d73fc78df54c66e883d6",
+        "test_host": "mini2 clean 16GB over TB, NOCOPY=0",
+        "artifact_dir": "qa/evidence-bundles/qwen3-8b-q8-chatml-parity-20260614T072602Z-head-368ed9b"
+      }
+    }
+  ],
+  "latest_local_audit": {
+    "generated_at": "2026-05-02T23:45:00Z",
+    "head": "9d091ce plus local llama3 prompt-pack follow-on worktree",
+    "artifact_dir": "target/downloaded-llama-matrix-20260502T231000Z, target/camelid-llama32-3b-broad-50-after-q8dot-clean-20260502T233427Z/pack, and target/acceptance-llama3-8b-broader-5tok-longtimeout-20260503T010536Z",
+    "summary": "Manifest realigned to the public four-row truth: TinyLlama Q8_0 remains supported; exact Llama 3.2 1B, Llama 3.2 3B, and Llama 3 8B Instruct Q8_0 rows are supported only as short local-chat/parity smoke lanes; broader Llama-family support, longer context, stronger perf/portability, and neighboring rows remain unsupported until row-specific evidence lands. Added Qwen3-1.7B Q8_0 as a supported exact-row ChatML (thinking-disabled) chat/parity smoke lane (token-identical to llama.cpp at 1/5/50); neighboring Qwen3 sizes/variants/quants, MoE, longer context, and thinking-mode remain unsupported."
+  }
+}

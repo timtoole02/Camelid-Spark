@@ -1,0 +1,37 @@
+{
+  "schema": "camelid.q8-prefill-owner/v1",
+  "generated_utc": "2026-06-28",
+  "lane": "Lane 1 — unified tiled Q8_0 prefill GEMM owner (v1, AVX2 + weight-resident cache blocking)",
+  "host": "win i7-11800H (8C/16T Tiger Lake, AVX2+AVX-512+VNNI, ~16 GiB DDR4, RTX 3060 6GB hidden)",
+  "camelid_head": "51018c00 + feat/q8-prefill-owner-lane1 (uncommitted working tree)",
+  "llama_pin": "acd79d6",
+  "ubuntu_host": "PENDING (Windows-only per Tim, 2026-06-28)",
+  "flag": "CAMELID_X86_Q8_MATMUL_OWNER = off(default) | ffn_down | all; companion CAMELID_X86_Q8_MATMUL_OWNER_AVX2 (default-on-when-owner-on)",
+  "method": "bench-generate (in-binary, default plan, CUDA hidden, KV pinned), greedy temp=0, ~516-token prompt. Focused 3-iter runs (the full median-of-5 validation was interrupted; TinyLlama completed). llama reference = llama-bench pp512 -r5.",
+
+  "parity": {
+    "kernel_bit_identity": "PASS — to_bits() == packed-rows4 matmul baseline across rows {4,5,8,13,16} x roles {ffn_down, linear, attention_k} (unit test q8_unified_owner_prefill_is_bit_identical_to_packed_matmul)",
+    "end_to_end_greedy": "PASS — first_divergent_generated_token_index == -1 (owner off vs on) on TinyLlama-1.1B-Q8 and Llama-3.2-3B-Q8; identical generated token IDs and text"
+  },
+
+  "prefill_tok_s": {
+    "note": "Owner OFF (default shipping path) vs ON (CAMELID_X86_Q8_MATMUL_OWNER=all). Effect SCALES WITH WEIGHT SIZE: regresses on small models (cache-resident, only the new-path overhead), wins on large models (weight exceeds cache, residency fix bites).",
+    "tinyllama-1.1b-q8": { "off": 78.13, "on": 74.10, "ratio": 0.948, "verdict": "-5% (small weights fit cache)" },
+    "llama-3.2-3b-q8":   { "off": 25.97, "on": 26.0,  "ratio": 1.00,  "verdict": "neutral (within +/-2% noise)" },
+    "qwen3-4b-q8":       { "off": 18.96, "on": 19.97, "ratio": 1.053, "verdict": "+5% (weights exceed cache)" }
+  },
+
+  "decode_tok_s": {
+    "note": "Owner is prefill-only (fires for rows>=4; decode rows=1 returns None -> default path). Decode generated tokens are bit-identical; any tok/s delta is measurement noise."
+  },
+
+  "baseline_to_beat": {
+    "note": "From baseline-HEAD-51018c00 (median-of-5, CUDA hidden).",
+    "llama-3.2-3b-q8": { "camelid_prefill": 25.34, "llama_prefill": 32.5,  "ratio": 0.78 },
+    "qwen3-4b-q8":     { "camelid_prefill": 17.92, "llama_prefill": 26.57, "ratio": 0.67 }
+  },
+
+  "verdict": "HONEST PARTIAL. The unified tiled owner is bit-exact and parity-certified, and gives a size-scaling prefill win (+5% on 4B), but cache-blocking alone does NOT close the gap to llama.cpp (still ~0.71x->0.75x on 4B). The residual is llama's AVX-512/VNNI register-tiled compute, NOT the cache/bandwidth axis v1 addresses. Default-off; not promotable (Windows-only; both-host pending).",
+
+  "next_lever_v2": "AVX-512/VNNI dpbusd register-tiled microkernel (llama's tinyBLAS technique). Bit-exact-preservable (integer dot is order-free). RISK: AVX-512 downclocks on this Tiger-Lake box (prior AVX-512 decode work regressed and was reverted) -> v2's fairness needs the Ubuntu/server host where AVX-512 usually wins clean. Gate + measure both hosts before any promotion."
+}

@@ -1,0 +1,31 @@
+{
+  "schema": "camelid.capability-receipt/v1",
+  "capability_id": "chat.system_multiturn",
+  "capability": "system role + multi-turn template fidelity (per THIS template)",
+  "row": "tinyllama-1.1b-chat-q8_0",
+  "model_label": "TinyLlama 1.1B Chat Q8_0",
+  "oracle_class": "D",
+  "verdict": "validated",
+  "generated": "2026-06-25",
+  "platform": {
+    "os": "windows",
+    "target": "x86_64-pc-windows-msvc",
+    "backend": "cpu",
+    "oracle": "llama.cpp acd79d6 (MSVC, Windows AMD64)"
+  },
+  "gguf": {
+    "filename": "tinyllama-1.1b-chat-v1.0.Q8_0.gguf",
+    "sha256": "a4c9bb1dbaa372f6381a035fa5c02ef087aaa1ff1f843a56a22328114f03fc59"
+  },
+  "harness": {
+    "repo_head": "bde66bc7d5d6867124631487c6ebb4e674ba177a",
+    "branch": "feat/capability-context-chat",
+    "working_tree": "Produced with the chat.system_multiturn lane diff UNCOMMITTED on a branch based on bde66bc7 (main). Re-seal against the commit once landed.",
+    "binary": "target/release/camelid.exe",
+    "e2e_harness": "qa/capability/system_multiturn_parity.mjs (Windows CPU, CUDA_VISIBLE_DEVICES=-1)"
+  },
+  "evidence": {
+    "kind": "oracle_token_parity + template_fidelity",
+    "summary": "e2e (qa/capability/system_multiturn_parity.mjs, Windows CPU): a system role + multi-turn conversation (system instruction + 2 user turns + 1 prior assistant turn) is rendered through TinyLlama's chat template and decoded greedily (temperature=0). GENERATION PARITY (class-D core): Camelid emits a server-sealed camelid.parity-receipt/v1 (camelid_receipt:true); `camelid verify-receipt` replays it in-process AND feeds Camelid's exact prompt token ids to llama.cpp acd79d6 /completion — the continuation matches BIT-EXACT (generated tokens (5) and text identical, first_divergent_token_index=-1; RECEIPT VERIFIED across both isolated passes). TEMPLATE FIDELITY: Camelid's /apply-template rendering and prompt token ids for the same messages match llama.cpp's BYTE-FOR-BYTE and TOKEN-FOR-TOKEN (prompt_string_match=true, prompt_tokens_match=true, divergence=none) — TinyLlama's template carries no date/knowledge-cutoff preamble, so full template parity holds. Non-streaming, single-choice, greedy. Model answered the final user turn ('And the capital of Japan?') with 'Tokyo.' under the terse system instruction."
+  }
+}

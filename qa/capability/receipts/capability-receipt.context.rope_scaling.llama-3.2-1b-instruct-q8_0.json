@@ -1,0 +1,31 @@
+{
+  "schema": "camelid.capability-receipt/v1",
+  "capability_id": "context.rope_scaling",
+  "capability": "RoPE scaling/extension at positions beyond the original context (llama3 baked rope_freqs)",
+  "row": "llama-3.2-1b-instruct-q8_0",
+  "model_label": "Llama 3.2 1B Instruct Q8_0",
+  "oracle_class": "D",
+  "verdict": "validated",
+  "generated": "2026-06-25",
+  "platform": {
+    "os": "windows",
+    "target": "x86_64-pc-windows-msvc",
+    "backend": "cpu",
+    "oracle": "llama.cpp acd79d6 (MSVC, Windows AMD64)"
+  },
+  "gguf": {
+    "filename": "Llama-3.2-1B-Instruct-Q8_0.gguf",
+    "sha256": "3f87a880027e7b9ea8e0da9e4009584336f352af444a0e6e5c20721ac4c7ffd1"
+  },
+  "harness": {
+    "repo_head": "bde66bc7d5d6867124631487c6ebb4e674ba177a",
+    "branch": "feat/capability-context-chat",
+    "working_tree": "Produced with the context lane diff UNCOMMITTED on a branch based on bde66bc7 (main). Re-seal against the commit once landed.",
+    "binary": "target/release/camelid.exe",
+    "e2e_harness": "qa/capability/context_parity.mjs (Windows CPU, CUDA_VISIBLE_DEVICES=-1)"
+  },
+  "evidence": {
+    "kind": "oracle_token_parity",
+    "summary": "e2e (qa/capability/context_parity.mjs, Windows CPU): an 8511-token prompt — positions 0..8510, EXCEEDING the model's original 8192-token context — is decoded greedily (temperature=0), exercising the llama3 RoPE extension at extended positions. Camelid emits a server-sealed camelid.parity-receipt/v1; `camelid verify-receipt` replays it in-process AND feeds Camelid's exact 8511 prompt token ids to llama.cpp acd79d6 /completion — the continuation matches BIT-EXACT (generated tokens (8) and text identical, first_divergent_token_index=-1; RECEIPT VERIFIED across both isolated passes). Because positions exceed 8192, a bit-exact match confirms Camelid applies the model's rope extension identically to llama.cpp in the scaled regime (and KV-cache correctness across all 8511 positions). MECHANISM (this corrects the manifest's synthesis_correction, which named rope.rs:507): the Llama 3.2 1B GGUF declares NO llama.rope.scaling.* metadata key; the llama3 NTK-by-parts scaling is BAKED into a rope_freqs.weight tensor (32 f32 factors). BOTH engines read that tensor identically — Camelid via effective_base = rope_freq_base / rope_freqs[pair] (src/inference/rope.rs:499-500, taken under the RopeScalingKind::None arm, NOT the dormant metadata-llama3 branch at rope.rs:507) — so the comparison is apples-to-apples with no formula re-derivation drift. Non-streaming, single-choice, greedy. (The full trained 131072 context is host-limited on this box; see qa/validation-notes/2026-06-25-capability-context-host-limits.md.)"
+  }
+}

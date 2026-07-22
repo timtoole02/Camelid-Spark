@@ -1,0 +1,26 @@
+{
+ "model_id": "Gemma 3 1b It",
+ "depth": 24,
+ "results": [
+  {
+   "i": 0,
+   "text": "The capital of France is **Paris**. \n\nIt’s a common misconception that Paris is the *only* capital"
+  },
+  {
+   "i": 1,
+   "text": "Hello there!"
+  },
+  {
+   "i": 2,
+   "text": "The largest ocean on Earth is the **Pacific Ocean**. \n\nIt covers approximately 63 million square miles (1"
+  },
+  {
+   "i": 3,
+   "text": "This is a classic question! The color of the sky on a clear day is often described as **blue**. \n\n"
+  },
+  {
+   "i": 4,
+   "text": "Okay, here we go!\n\nOne, two, three, four, five!"
+  }
+ ]
+}

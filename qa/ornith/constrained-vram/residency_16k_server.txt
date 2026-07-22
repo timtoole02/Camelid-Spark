@@ -1,0 +1,7 @@
+== IQ3_XXS ==
+peak_vram_mib=4281 headroom_vs_6144=1863 tokens_generated=64
+== Q3_K_M ==
+peak_vram_mib=4935 headroom_vs_6144=1209 tokens_generated=64
+== IQ4_XS ==
+peak_vram_mib=5381 headroom_vs_6144=763 tokens_generated=64
+done

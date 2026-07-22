@@ -1,0 +1,9 @@
+=== SIROCCO Phase P M1 oracle: flash TILED kernel (on) vs baseline (off), 6 prompts ===
+  varied6k: ctx=6602 PASS (64/64 match)
+  promptB: ctx=10232 PASS (64/64 match)
+  promptC: ctx=12211 PASS (64/64 match)
+  mp-rep: ctx=6503 PASS (64/64 match)
+  mp-code: ctx=10032 PASS (64/64 match)
+  mp-num: ctx=13651 PASS (64/64 match)
+
+M1 VERDICT: PASS — flash online-rescale is token-identical to baseline across all prompts => token-parity holds => GO to M1.

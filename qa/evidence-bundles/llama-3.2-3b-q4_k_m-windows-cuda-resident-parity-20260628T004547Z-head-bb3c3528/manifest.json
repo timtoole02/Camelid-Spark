@@ -1,0 +1,60 @@
+{
+  "schema": "camelid.kquant_parity_bundle.windows_cuda_resident.v1",
+  "variant": "kquant_gpu_resident_raw_decode",
+  "generated_utc": "20260628T004547Z",
+  "row_id": "llama_3_2_3b_instruct_q4_k_m",
+  "display_name": "Llama 3.2 3B Instruct Q4_K_M",
+  "platform": {
+    "operating_system": "windows",
+    "architecture": "x86_64",
+    "toolchain": "x86_64-pc-windows-msvc",
+    "host_ram_gb": 15.7
+  },
+  "gpu": {
+    "name": "NVIDIA GeForce RTX 3060 Laptop GPU",
+    "compute_capability": "8.6",
+    "vram_total_mib": 6144,
+    "driver_version": "576.83",
+    "note": "Llama-3.2-3B-Q4_K_M (1.87 GiB on disk) FULLY VRAM-resident: all 28 layers in VRAM, ~4.51 GB peak."
+  },
+  "exact_support_status": "windows_cuda_resident_raw_decode_parity_proven_kquant_confident_probes",
+  "source_runtime_head": "bb3c3528 (binary built at 0dccbf74; Phase 0/1 doc commits only — no engine change)",
+  "build_profile": "release, lto=fat, codegen-units=1, target-cpu=x86-64-v3, cuda default-on (Windows)",
+  "model": {
+    "id": "Llama 3.2 3B Instruct Q4_K_M",
+    "source": "bartowski/Llama-3.2-3B-Instruct-GGUF/Llama-3.2-3B-Instruct-Q4_K_M.gguf",
+    "sha256": "6c1a2b41161032677be168d354123594c0e6e67d2b9227c84f296ad037c728ff",
+    "size_bytes": 2019377696,
+    "arch": "llama",
+    "quant": "Q4_K_M",
+    "quant_mix": "168 Q4_K (1.362 GB) + 29 Q6_K (0.648 GB) + 58 F32 norms. attn_v / ffn_down / tied token_embd(lm_head) are Q6_K; q/k/o/gate/up are Q4_K. TIED embeddings (no separate output.weight). Exercises BOTH q4k_gemv and q6k_gemv.",
+    "geometry": "Llama 3.2 3B, GQA, tied output embedding"
+  },
+  "comparator": {
+    "engine": "llama.cpp",
+    "version": "9632 (acd79d603)",
+    "source_pin_confirmed": "local llama.cpp HEAD == acd79d6; llama-bench build acd79d603 (9632)",
+    "flags": "/completion: temperature 0, top_k 1, seed 0, cache_prompt false, samplers=[top_k], return_tokens true; server -ngl 0 -ctk f32 -ctv f32 -fa off --no-repack -c 4096",
+    "note": "CPU-only llama.cpp on this box (no ggml-cuda.dll). camelid GPU-resident CUDA decode compared DIRECTLY to llama.cpp; the GPU==cpu_reference middle leg is N/A (no camelid CPU K-quant path — Phase 2)."
+  },
+  "camelid": {
+    "backend_observed_runtime": "cuda_resident kquant engine (q4k_gemv + q6k_gemv), all 28 layers VRAM-resident",
+    "cuda_resident_active": true,
+    "disclosure_gap": "Same as the Qwen3-4B-Q4_K_M bundle: /api/capabilities mislabels the lane selected_backend=cpu_reference / decode_path=safe_cpu_decode / quant_type=dense_or_other while cuda_resident_active=true and it ran GPU-resident. Labeling follow-up; output is parity-correct."
+  },
+  "result": {
+    "methodology": "raw-prompt token+text decode parity (no chat template, no f32 diagnostics) over 8 prompts at 1/5/50 tokens",
+    "all_pass_strict": false,
+    "confident_probes_all_pass": true,
+    "confident_probes_token_identical_count": "5 / 8 (incl. long-context lighthouse logbook ~3.5k-token prompt and code completion, all at depth 50)",
+    "near_tie_probes_count": "3 / 8 (JSON token-0 fence-vs-brace 0.18-logprob near-tie; process/thread @26; thunderstorm @38) — all coherent camelid output, the documented f32 reduction-order frontier",
+    "claim": "GPU-resident CUDA decode of Llama-3.2-3B-Q4_K_M is token-AND-text-identical to llama.cpp acd79d6 on all confident/structured probes (1/5/50 tokens); 3 open-ended probes diverge at a benign greedy near-tie (measured, coherent), matching the Q8_0 exact-row bar."
+  },
+  "artifacts": {
+    "parity": "llama-3.2-3b-q4_k_m-windows-cuda-resident-parity.json",
+    "near_tie_analysis": "llama-3.2-3b-q4_k_m-near-tie-analysis.json",
+    "speed": "llama-3.2-3b-q4_k_m-cuda-resident-speed.json",
+    "harness": "scripts/raw-decode-parity.mjs"
+  },
+  "claim_boundary": "Exact-row smoke for THIS Llama-3.2-3B-Q4_K_M GGUF (sha 6c1a2b41...) on Windows x86_64 (MSVC), GPU CUDA decode on RTX 3060 Laptop (6 GB) / driver 576.83, fully VRAM-resident, raw greedy completion. Token-identical on confident probes; near-ties documented. NOT claimed: bit-exact parity on open-ended generation, other Llama sizes/quants, other K-quant files, CPU K-quant decode (does not exist yet), other GPUs/drivers, or production throughput."
+}

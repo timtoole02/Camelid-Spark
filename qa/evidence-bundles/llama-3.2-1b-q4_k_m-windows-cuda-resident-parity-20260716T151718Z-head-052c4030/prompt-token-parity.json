@@ -1,0 +1,63 @@
+{
+ "schema": "camelid.muster_prompt_token_parity/v1",
+ "method": "camelid /api/models/tokenizer/encode add_special=true parse_special=false vs pinned llama-server /tokenize add_special=true, same 8-prompt committed pack",
+ "all_match": true,
+ "prompts": [
+  {
+   "i": 0,
+   "camelid_n": 6,
+   "oracle_n": 6,
+   "match": true,
+   "first_diff": null
+  },
+  {
+   "i": 1,
+   "camelid_n": 64,
+   "oracle_n": 64,
+   "match": true,
+   "first_diff": null
+  },
+  {
+   "i": 2,
+   "camelid_n": 83,
+   "oracle_n": 83,
+   "match": true,
+   "first_diff": null
+  },
+  {
+   "i": 3,
+   "camelid_n": 104,
+   "oracle_n": 104,
+   "match": true,
+   "first_diff": null
+  },
+  {
+   "i": 4,
+   "camelid_n": 29,
+   "oracle_n": 29,
+   "match": true,
+   "first_diff": null
+  },
+  {
+   "i": 5,
+   "camelid_n": 32,
+   "oracle_n": 32,
+   "match": true,
+   "first_diff": null
+  },
+  {
+   "i": 6,
+   "camelid_n": 44,
+   "oracle_n": 44,
+   "match": true,
+   "first_diff": null
+  },
+  {
+   "i": 7,
+   "camelid_n": 1867,
+   "oracle_n": 1867,
+   "match": true,
+   "first_diff": null
+  }
+ ]
+}

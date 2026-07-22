@@ -1,0 +1,26 @@
+{
+  "row": "llama-3.2-3b-instruct-q8_0",
+  "label": "Llama 3.2 3B Instruct Q8_0",
+  "gguf": "/Volumes/Untitled/models/Llama-3.2-3B-Instruct-Q8_0.gguf",
+  "checks": {
+    "camelid_emit": {
+      "generated_text": "Tokyo.",
+      "prompt_tokens": 53,
+      "receipt_id": "56a8a31ebb57303016cb4ca32401130ad535362a82260096dfd1aa66a4e3d912"
+    },
+    "generation_parity": {
+      "pass": true,
+      "evidence": "PASS reference-rerun: generated tokens (4) and text match llama.cpp (first_divergent_token_index=-1)"
+    },
+    "template_fidelity": {
+      "prompt_string_match": false,
+      "prompt_tokens_match": false,
+      "first_token_diff_index": 5,
+      "camelid_prompt_tokens": 53,
+      "llama_prompt_tokens": 73,
+      "divergence": "llama_injects_live_date_system_preamble",
+      "camelid_prompt": "<|start_header_id|>system<|end_header_id|>\n\nYou are a terse assistant. Reply with a single short sentence.<|eot_id|><|start_header_id|>user<|end_header_id|>\n\nWhat is the capital of France?<|eot_id|><|start_header_id|>assistant<|end_header_id|>\n\nParis.<|eot_id|><|start_header_id|>user<|end_header_id|>\n\nAnd the capital of Japan?<|eot_id|><|start_header_id|>assistant<|end_header_id|>\n\n",
+      "llama_prompt": "<|start_header_id|>system<|end_header_id|>\n\nCutting Knowledge Date: December 2023\nToday Date: 26 Jun 2026\n\nYou are a terse assistant. Reply with a single short sentence.<|eot_id|><|start_header_id|>user<|end_header_id|>\n\nWhat is the capital of France?<|eot_id|><|start_header_id|>assistant<|end_header_id|>\n\nParis.<|eot_id|><|start_header_id|>user<|end_header_id|>\n\nAnd the capital of Japan?<|eot_id|><|start_header_id|>assistant<|end_header_id|>\n\n"
+    }
+  }
+}

@@ -1,0 +1,31 @@
+{
+  "cases": [
+    {
+      "case": "read_and_count",
+      "final_answer": "The file \"notes.txt\" contains 3 lines.",
+      "goal": "Read the file notes.txt and tell me how many lines it has. Use the read_file tool, then give the count.",
+      "loop_end": "Answered",
+      "passed": true,
+      "tool_calls": [
+        "read_file(notes.txt)"
+      ],
+      "tool_results": [
+        {
+          "ok": true,
+          "output": "alpha\nbeta\ngamma\n",
+          "tool": "read_file"
+        }
+      ]
+    }
+  ],
+  "gguf": "<home>\\Camelid\\models\\Qwen3-4B-Q8_0.gguf",
+  "gguf_bytes": 4280404704,
+  "host_loadavg_1m": null,
+  "model_id": "Qwen3 4B Instruct",
+  "note": "battery complete",
+  "outcome": "PASS",
+  "promotion_eligible": true,
+  "quantization": "Q8_0",
+  "schema": "camelid.agent_eval/v1",
+  "timestamp_unix": 1782699644
+}

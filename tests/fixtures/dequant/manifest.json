@@ -1,0 +1,48 @@
+{
+ "reference": "gguf==0.19.0",
+ "note": "ref_f32_bits are u32 bit patterns of the reference f32 output",
+ "fixtures": [
+  {
+   "qtype": "F32",
+   "source": "numpy",
+   "n_elements": 256,
+   "block_bytes": 4
+  },
+  {
+   "qtype": "F16",
+   "source": "numpy",
+   "n_elements": 256,
+   "block_bytes": 2
+  },
+  {
+   "qtype": "Q8_0",
+   "source": "gguf.quants.quantize",
+   "n_elements": 256,
+   "block_bytes": 34
+  },
+  {
+   "qtype": "Q4_0",
+   "source": "gguf.quants.quantize",
+   "n_elements": 256,
+   "block_bytes": 18
+  },
+  {
+   "qtype": "Q4_K",
+   "source": "synthetic:valid-blocks",
+   "n_elements": 2048,
+   "block_bytes": 144
+  },
+  {
+   "qtype": "Q5_K",
+   "source": "synthetic:valid-blocks",
+   "n_elements": 2048,
+   "block_bytes": 176
+  },
+  {
+   "qtype": "Q6_K",
+   "source": "synthetic:valid-blocks",
+   "n_elements": 2048,
+   "block_bytes": 210
+  }
+ ]
+}

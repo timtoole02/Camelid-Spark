@@ -1,0 +1,16 @@
+=== 12B oracle capture attempt — 2026-06-09 ===
+host: M4 Mac mini 16GB; model: gemma-4-12b-it-Q8_0.gguf (12.67GB) on Samsung T7 (USB)
+oracle: llama.cpp 5d56eff llama-server --no-repack --no-warmup -c 2048 --parallel 1 -ngl 0 --temp 0
+outcome: ABORTED after 78 min — server pinned at <2% CPU, is_processing on task 8 of the 5-prompt pack,
+vm_stat pageins 34.6M, pages free ~8K: the 12.67GB working set cannot stay resident on a 16GB host;
+every generated token re-streams weights from external SSD. Single-node 12B (oracle OR camelid) is
+memory-infeasible on this hardware — matches the audit's fit math. The 12B lane stays active-validation,
+blocked on the two-node distributed run (second Mac unreachable this session: Thunderbolt <link-local-peer-stale>
+down, no LAN route).
+36004   8.8 9024880 01:18:34
+Mach Virtual Memory Statistics: (page size of 16384 bytes)
+Pages free:                                    18033.
+Pages active:                                 387716.
+Pages inactive:                               377568.
+Pages speculative:                              9325.
+Pages throttled:                                   0.

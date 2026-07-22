@@ -1,0 +1,5 @@
+
+> camelid-frontend@0.1.0 smoke:3b-closure
+> node scripts/frontend-3b-closure-smoke.mjs
+
+✓ frontend 3B closure smoke passed

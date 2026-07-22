@@ -1,0 +1,42 @@
+{
+  "schema": "camelid.muster_hold_receipt/v1",
+  "campaign": "MUSTER (MUSTER_CONDUCTOR.md)",
+  "muster_id": "M-A2",
+  "verdict": "HOLD",
+  "sealed_at_phase": "Phase 4 (parity certification, 2026-07-16) — both candidate surfaces blocked by SPM tokenizer divergences; forward-path health separately proven",
+  "file": {
+    "filename": "Phi-3-mini-4k-instruct-Q8_0.gguf",
+    "sha256": "0ac8ee48aeebf7d1b354691fd1e29e91c32ad88bbad10ad45ac880dcd4372a47",
+    "size_bytes": 4061221376,
+    "arch": "phi3",
+    "quant": "Q8_0",
+    "provenance": "bartowski/Phi-3-mini-4k-instruct-GGUF (upstream-verified exact, MIT, single 2024-04-29 upload series; pulled 2026-07-16 — see MUSTER_ACQUISITION.md and conductor Amendment A-5 for the corrected catalog size)"
+  },
+  "what_shipped_anyway_as_engine_facts_not_support": [
+    "PROBE-PROVEN NEOX RoPE flip for phi3 (src/model.rs arch_uses_neox_rope_pairing + unit gate pinning every unproven arch to adjacent even/odd): with the old pairing, long open-ended generation degenerates within ~5 tokens (the documented 92029b7e limitation, reproduced verbatim); with split-half it is coherent — probe artifacts in the hold-evidence bundle. This is a user-visible experimental-lane improvement with NO support claim.",
+    "render_phi3_prompt rewritten to the pinned oracle's /apply-template semantics and byte-locked by qa/prompt-packs/phi3-chat-template-shapes-v1.json + an in-src pack-lock test (system renders as its own <|user|> turn with the eager <|assistant|> header; trailing assistant keeps no final <|end|>; content verbatim).",
+    "scripts/chat-parity-phi3.mjs (two-phase) + committed gate packs (chat + raw) for whenever the blockers clear."
+  ],
+  "named_blockers": [
+    {
+      "id": "spm-specials-rstrip-seam",
+      "kind": "camelid_gap_preexisting_campaign_scale",
+      "statement": "CHAT surface: llama.cpp honors Phi-3's rstrip attribute on the chat special tokens (whitespace after <|user|>/<|assistant|> is stripped: '<|user|>\\nWhat' tokenizes as [32010, 1724(' What')]); camelid's SPM path keeps it ([32010, 29871, 13, 5618]). Every chat prompt's tokens diverge, so chat-surface parity is unattainable. Full report committed as-is (phi3-chat-parity.json, all_pass=false). Fixing this touches the shared SPM tokenizer under parity-locked rows (TinyLlama/Mistral) — NOT M-A2-scoped work per conductor 6.1."
+    },
+    {
+      "id": "spm-merge-order-divergence",
+      "kind": "camelid_gap_preexisting_campaign_scale",
+      "statement": "RAW surface: the live SPM segment-merge divergence (SPM_MERGE_ORDER_CONDUCTOR.md; PR #357 was docs-only) fires on 6 of 8 raw pack prompts — code/JSON/extraction/creative/adversarial/longctx classes — including a 45-token drift on the 2,180-token longctx prompt (camelid 2,135). Divergent prompt tokens make generated-token parity meaningless on those prompts. Reports committed as-is (raw-parity.json all_pass=false; prompt-token-parity.json all_match=false, 2/8 match). The fix is the documented merge-order campaign, not an M-A2 bite."
+    },
+    {
+      "id": "raw-surface-methodology-gaps",
+      "kind": "harness_limitation_documented",
+      "statement": "Two additional confounds specific to SPM chat-tuned rows: (a) the pinned oracle EMITS chat special tokens inside raw completions (prompt 4: <|assistant|> id 32001 at generated index 1 — phi3's chat tuning bleeds into raw mode) while camelid's completion text surface cannot represent that faithfully; (b) raw-decode-parity.mjs compares re-encoded camelid TEXT, and the SPM leading-space detokenize convention breaks that round-trip (reference ' Paris' vs camelid re-encode starting 29871). Both would need harness work before any raw claim on SPM rows."
+    }
+  ],
+  "forward_path_health_evidence": "NOT a blocker — recorded to scope the HOLD precisely to the tokenizer: (a) the chat leg's matched-token prompts ran 40+ generated tokens token-identical (largest-ocean prompt) and 11 identical (France) before any flip; (b) on the raw leg's two matched-token prompts, the France divergence at index 2 is the oracle's immediate #2 at a 0.0995-nat top-2 gap (oracle n_probs committed) — a benign greedy near-tie inside every precedent line; (c) determinism byte-identical across two independent serve sessions; (d) the NEOX probe transformed degenerate long generation into coherent output.",
+  "oracle_side_control": "All captures used the pinned llama.cpp 9632 (acd79d603) CPU llama-server, solo sessions, engines never co-resident; the oracle ran every leg without error — the divergences are tokenizer-algorithm differences, not oracle or file-integrity problems.",
+  "exit_condition": "HOLD until the SPM merge-order campaign lands (llama.cpp-normative segment merge + special-token lstrip/rstrip attributes), then re-run Phase 4 on the committed packs — the renderer, harness, rope flip, and packs are already in-tree waiting.",
+  "environment": "branch muster/ma2-phi3-mini (main b43092ae + M-A2 commits); Windows 11 build 26220; RAM headroom explicitly authorized by Tim for these legs (rule-5 waiver, 2026-07-16)",
+  "date": "2026-07-16"
+}

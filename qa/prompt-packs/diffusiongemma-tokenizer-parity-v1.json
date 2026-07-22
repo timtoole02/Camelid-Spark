@@ -1,0 +1,80 @@
+{
+  "schema": "camelid.diffusiongemma.tokenizer-pack.v1",
+  "pack_id": "diffusiongemma-tokenizer-parity-v1",
+  "description": "Phase 1 tokenizer-parity input pack for the experimental DiffusionGemma lane: hello, the established short/trailing-spaces/special-chars/longer/multiline edge texts, two tokenizer-specific edges (newline runs, exotic bytes), and five chat-template cases. Raw cases tokenize with add_special=true / parse_special=false; chat cases render the model's own chat template (add_generation_prompt=true) and tokenize with parse_special=true, mirroring the reference diffusion CLI. This pack makes no support claim for any row.",
+  "cases": [
+    {
+      "id": "hello",
+      "mode": "raw",
+      "text": "hello"
+    },
+    {
+      "id": "trailing-spaces",
+      "mode": "raw",
+      "text": "Reply with the word camelid and preserve this prompt's trailing spaces.   "
+    },
+    {
+      "id": "special-chars",
+      "mode": "raw",
+      "text": "Echo a compact summary of these symbols: []{}<>|~^`\\ and emoji alpaca 🦙."
+    },
+    {
+      "id": "longer",
+      "mode": "raw",
+      "text": "In two short sentences, explain why deterministic token parity matters for a local GGUF inference backend under a strict support contract."
+    },
+    {
+      "id": "multiline-long",
+      "mode": "raw",
+      "text": "Line one asks for a tiny checklist.\n\n  Line two is indented and mentions TinyLlama Q8_0.\nLine three asks for exactly three terse bullets answering all of the above.\n"
+    },
+    {
+      "id": "newline-runs",
+      "mode": "raw",
+      "text": "a\n\nb\n\n\n\nc\n"
+    },
+    {
+      "id": "exotic-bytes",
+      "mode": "raw",
+      "text": "Z̢alg̕o text, combining marks: é (é), ñ, 中文, ★, 🦙🦙, tab\tend"
+    },
+    {
+      "id": "chat-hello",
+      "mode": "chat",
+      "messages": [
+        { "role": "user", "content": "hello" }
+      ]
+    },
+    {
+      "id": "chat-multiline-system",
+      "mode": "chat",
+      "messages": [
+        { "role": "system", "content": "Keep the response concise and deterministic." },
+        { "role": "user", "content": "Line one asks for a tiny checklist.\n\n  Line two is indented.\nLine three asks for exactly three terse bullets answering all of the above.\n" }
+      ]
+    },
+    {
+      "id": "chat-special-chars",
+      "mode": "chat",
+      "messages": [
+        { "role": "user", "content": "Echo a compact summary of these symbols: []{}<>|~^`\\ and emoji alpaca 🦙." }
+      ]
+    },
+    {
+      "id": "chat-multi-turn",
+      "mode": "chat",
+      "messages": [
+        { "role": "user", "content": "What is the capital of France?" },
+        { "role": "assistant", "content": "Paris." },
+        { "role": "user", "content": "And of Germany?" }
+      ]
+    },
+    {
+      "id": "chat-trailing-spaces",
+      "mode": "chat",
+      "messages": [
+        { "role": "user", "content": "Reply with the word camelid and preserve this prompt's trailing spaces.   " }
+      ]
+    }
+  ]
+}

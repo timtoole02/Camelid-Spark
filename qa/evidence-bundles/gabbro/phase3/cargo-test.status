@@ -1,0 +1,2 @@
+PASS — metal_gemma4_nvfp4_matmul_f32y_matches_cpu OK on Apple M4 GPU (bpr 3/40/160, tol 2e-2 vs nvfp4_wire_block_dequant); no regression: lib 862/0, nvfp4_format 9, spotcheck 1, invariant_matrix_binding 9, wire_lane_refusals 3, all 0 failed.
+SCOPE: correctness/self-parity gate (§3 leg 3). Perf table + resident-lane wiring deferred to M3-followup.

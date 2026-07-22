@@ -1,0 +1,24 @@
+run_start_utc=2026-05-07T17:14:59Z
+work=<canonical-remote-workdir>
+artifact_root=target/llama3-8b-context-1024-2048-current-head-20260507T171436Z-head-25968c48b74c
+head=25968c48b74c278eda184d5f5999f51969b38212
+backend_port=8471 llama_port=8473
+pack=<canonical-remote-workdir>/qa/prompt-packs/llama3-context-1024-smoke.json
+out_dir=<canonical-remote-workdir>/target/llama3-8b-context-1024-2048-current-head-20260507T171436Z-head-25968c48b74c/pack-1024
+model=<canonical-model-path>
+model_id=meta-llama3-8b-q8-current-head-25968c48b74c
+prompt_count=1
+prompt_tokens_all_match=true
+generated_tokens_all_match=true
+generated_text_all_match=true
+summary_json=<canonical-remote-workdir>/target/llama3-8b-context-1024-2048-current-head-20260507T171436Z-head-25968c48b74c/pack-1024/summary.json
+pack=<canonical-remote-workdir>/qa/prompt-packs/llama3-context-2048-smoke.json
+out_dir=<canonical-remote-workdir>/target/llama3-8b-context-1024-2048-current-head-20260507T171436Z-head-25968c48b74c/pack-2048
+model=<canonical-model-path>
+model_id=meta-llama3-8b-q8-current-head-25968c48b74c
+prompt_count=1
+prompt_tokens_all_match=true
+generated_tokens_all_match=true
+generated_text_all_match=true
+summary_json=<canonical-remote-workdir>/target/llama3-8b-context-1024-2048-current-head-20260507T171436Z-head-25968c48b74c/pack-2048/summary.json
+run_end_utc=2026-05-07T17:24:00Z

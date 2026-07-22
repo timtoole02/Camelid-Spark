@@ -1,0 +1,97 @@
+{
+  "schema": "camelid.parity-receipt/v1",
+  "receipt_id": "2691f637929b7f8d23f8bd8c043dea49305a461fc7e66b694a88c6f9680e05bc",
+  "created_utc": "2026-07-09T15:35:07.285Z",
+  "lane": {
+    "model_id": "tinyllama-q8",
+    "gguf_sha256": "a4c9bb1dbaa372f6381a035fa5c02ef087aaa1ff1f843a56a22328114f03fc59",
+    "gguf_filename": "tinyllama-1.1b-chat-v1.0.Q8_0.gguf",
+    "quantization": "Q8_0",
+    "architecture": "llama",
+    "tokenizer_kind": "llama_spm",
+    "tokenizer_sha256": "d781ea76e8f44f40b517c8a3d1cf678733ec682884a57534685d296abb2671d8",
+    "camelid_version": "v0.2.6-53-gd50e0ab4",
+    "camelid_commit": "d50e0ab483fc42b39c8e1375b6d25af891950b2e"
+  },
+  "reference": {
+    "tool": "llama.cpp",
+    "binary": "<home>/tools/llama-cpp/llama-server.exe",
+    "version": "b9632-acd79d603",
+    "commit": null
+  },
+  "request": {
+    "endpoint": "/v1/chat/completions",
+    "messages_or_prompt": [
+      {
+        "content": "hello",
+        "role": "user"
+      }
+    ],
+    "max_tokens": 25,
+    "temperature": 0.0,
+    "top_p": null,
+    "top_k": null,
+    "seed": null,
+    "stop": []
+  },
+  "reproducible": true,
+  "result": {
+    "prompt_token_ids": [
+      1,
+      529,
+      29989,
+      1792,
+      29989,
+      29958,
+      13,
+      12199,
+      2,
+      29871,
+      13,
+      29966,
+      29989,
+      465,
+      22137,
+      29989,
+      29958,
+      13
+    ],
+    "generated_token_ids": [
+      29907,
+      13946,
+      368,
+      29991,
+      2266,
+      526,
+      777,
+      6455,
+      310,
+      920,
+      304,
+      671,
+      278,
+      376,
+      2222,
+      1135,
+      470,
+      5186,
+      304,
+      29908,
+      313,
+      29966,
+      29989,
+      465,
+      22137
+    ],
+    "generated_text": "Certainly! Here are some examples of how to use the \"less than or equal to\" (<|assistant",
+    "completion_tokens": 25,
+    "finish_reason": "length"
+  },
+  "parity": {
+    "compared_against_reference": true,
+    "prompt_tokens_match": true,
+    "generated_tokens_match": true,
+    "generated_text_match": true,
+    "first_divergent_token_index": -1
+  }
+}

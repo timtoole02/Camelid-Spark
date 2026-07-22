@@ -1,0 +1,229 @@
+{
+ "sha": "8038abba5a1cfc7c7ec3dd2a27998b526340cea0",
+ "row": "NVFP4-mm",
+ "positions": 296,
+ "matches": 262,
+ "agreement_pct": 88.5,
+ "kl_nats": {
+  "mean": 0.1112444968842746,
+  "median": 0.00552266692939001,
+  "p95_nearest_rank": 0.45402165388772336,
+  "max": 6.245743535696454,
+  "max_location": {
+   "prompt_id": "pancake-recipe",
+   "step": 47
+  }
+ },
+ "per_prompt": {
+  "capital-france": {
+   "matches": 12,
+   "positions": 13
+  },
+  "count-primes": {
+   "matches": 22,
+   "positions": 24
+  },
+  "haiku-sea": {
+   "matches": 15,
+   "positions": 19
+  },
+  "rust-fn": {
+   "matches": 23,
+   "positions": 24
+  },
+  "translate-de": {
+   "matches": 13,
+   "positions": 16
+  },
+  "primary-colors": {
+   "matches": 44,
+   "positions": 50
+  },
+  "village-story": {
+   "matches": 37,
+   "positions": 50
+  },
+  "water-cycle": {
+   "matches": 49,
+   "positions": 50
+  },
+  "pancake-recipe": {
+   "matches": 47,
+   "positions": 50
+  }
+ },
+ "mismatch_positions": [
+  {
+   "prompt_id": "capital-france",
+   "step": 2,
+   "kl": 0.39447377885473617
+  },
+  {
+   "prompt_id": "count-primes",
+   "step": 17,
+   "kl": 0.40376900630248164
+  },
+  {
+   "prompt_id": "count-primes",
+   "step": 18,
+   "kl": 0.3450000063564846
+  },
+  {
+   "prompt_id": "haiku-sea",
+   "step": 3,
+   "kl": 0.3467169548136223
+  },
+  {
+   "prompt_id": "haiku-sea",
+   "step": 8,
+   "kl": 0.42833874843272934
+  },
+  {
+   "prompt_id": "haiku-sea",
+   "step": 9,
+   "kl": 0.9764551358286833
+  },
+  {
+   "prompt_id": "haiku-sea",
+   "step": 15,
+   "kl": 0.32047289044571786
+  },
+  {
+   "prompt_id": "rust-fn",
+   "step": 8,
+   "kl": 0.6627640793634726
+  },
+  {
+   "prompt_id": "translate-de",
+   "step": 0,
+   "kl": 0.0771639039994575
+  },
+  {
+   "prompt_id": "translate-de",
+   "step": 2,
+   "kl": 0.02599926898929822
+  },
+  {
+   "prompt_id": "translate-de",
+   "step": 7,
+   "kl": 0.23495422915728503
+  },
+  {
+   "prompt_id": "primary-colors",
+   "step": 7,
+   "kl": 0.16216401833191918
+  },
+  {
+   "prompt_id": "primary-colors",
+   "step": 10,
+   "kl": 0.12128446970277432
+  },
+  {
+   "prompt_id": "primary-colors",
+   "step": 16,
+   "kl": 0.09837202818221301
+  },
+  {
+   "prompt_id": "primary-colors",
+   "step": 21,
+   "kl": 0.49659786441337456
+  },
+  {
+   "prompt_id": "primary-colors",
+   "step": 25,
+   "kl": 0.4999418114707987
+  },
+  {
+   "prompt_id": "primary-colors",
+   "step": 38,
+   "kl": 0.07358720504402085
+  },
+  {
+   "prompt_id": "village-story",
+   "step": 9,
+   "kl": 0.5852234557579324
+  },
+  {
+   "prompt_id": "village-story",
+   "step": 10,
+   "kl": 0.19667114955811618
+  },
+  {
+   "prompt_id": "village-story",
+   "step": 15,
+   "kl": 0.18490635136312983
+  },
+  {
+   "prompt_id": "village-story",
+   "step": 25,
+   "kl": 0.21141469944295563
+  },
+  {
+   "prompt_id": "village-story",
+   "step": 26,
+   "kl": 0.11430607856968145
+  },
+  {
+   "prompt_id": "village-story",
+   "step": 28,
+   "kl": 0.9437400825715508
+  },
+  {
+   "prompt_id": "village-story",
+   "step": 29,
+   "kl": 0.45533030337859287
+  },
+  {
+   "prompt_id": "village-story",
+   "step": 37,
+   "kl": 0.1765123043912907
+  },
+  {
+   "prompt_id": "village-story",
+   "step": 38,
+   "kl": 0.38703880583266903
+  },
+  {
+   "prompt_id": "village-story",
+   "step": 42,
+   "kl": 0.26995917909589573
+  },
+  {
+   "prompt_id": "village-story",
+   "step": 43,
+   "kl": 0.48285761420067325
+  },
+  {
+   "prompt_id": "village-story",
+   "step": 46,
+   "kl": 0.15084437931133163
+  },
+  {
+   "prompt_id": "village-story",
+   "step": 49,
+   "kl": 0.4293157875796718
+  },
+  {
+   "prompt_id": "water-cycle",
+   "step": 42,
+   "kl": 1.0128337890263304
+  },
+  {
+   "prompt_id": "pancake-recipe",
+   "step": 7,
+   "kl": 0.7485966624500634
+  },
+  {
+   "prompt_id": "pancake-recipe",
+   "step": 47,
+   "kl": 6.245743535696454
+  },
+  {
+   "prompt_id": "pancake-recipe",
+   "step": 48,
+   "kl": 3.3198618864108265
+  }
+ ],
+ "self_row_bin_identity": "n/a",
+ "top32_excerpts": "retained in legC/NVFP4-mm/dump-<prompt>/meta.json (per-step top-32 id,logit)"
+}

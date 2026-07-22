@@ -1,0 +1,43 @@
+{
+ "schema": "camelid.apple_silicon_m4_3b_q8_three_runtime_throughput.v1",
+ "captured_utc": "20260604T214257Z",
+ "head_commit": "0c6ec54",
+ "passed": true,
+ "claim_boundary": "Exact-row, same-host, bounded throughput snapshot for Llama 3.2 3B Instruct Q8_0 on one Apple M4 (16GB) host, covering BOTH the 601-token prefill lane and the short-context 128-token greedy decode lane. Camelid reads above both llama.cpp and MLX-LM in every round of this session in both lanes (prefill 587.3/587.3/587.4 vs MLX-LM 579.3/577.9/577.9 and llama.cpp 543.7/543.7/543.8; decode 29.74/29.85/29.74 vs MLX-LM 29.54/29.13/29.01 and llama.cpp 29.08/29.14/29.22). Margins are +1.6% (prefill) and +2.1% (decode) on session medians — every Camelid round exceeds every comparator round, but the margins are narrow: this is a same-session win on this exact row, not a durable or general claim. Not a model-family, context-sweep, or production-load claim.",
+ "host": {
+  "machine": "Mac16,10 (Apple M4, 10-core GPU, 16GB unified memory)",
+  "os": "macOS (Darwin 25.5.0)",
+  "thermal_note": "warm host; rounds alternate runtime order to bound order/thermal bias. All three runtimes read faster on this host in this session than in the prior decode snapshot (llama.cpp tg128 28.7 -> 29.1, MLX-LM 28.7 -> 29.1), so cross-session numbers are not comparable; the claim rests on the same-session rounds only."
+ },
+ "workload": {
+  "model_row": "Llama 3.2 3B Instruct Q8_0 (GGUF for camelid and llama.cpp; mlx-community Llama-3.2-3B-Instruct-8bit for MLX-LM)",
+  "prefill_prompt": "601-token repeated-sentence prompt (' '.join(['The quick brown fox jumps over the lazy dog.'] * 60))",
+  "decode_prompt": "short prompt ('Hello'), 128 greedy tokens",
+  "sampling": "greedy (temperature 0); camelid decode rides the resident GPU-sampling fast lane (default at temperature 0)",
+  "camelid_command": "camelid bench-generate <model> --prompt-file <prompt> --max-tokens 16|128 --temperature 0 --warmup --iterations 5 --json (default CLI fast stack)",
+  "llamacpp_command": "llama-bench -m <model> -p 601 -n 128 -r 3 -o md (brew llama.cpp, Metal)",
+  "mlx_command": "mlx_lm.generate two-point decode + 601-token verbose prompt pass (mlx-lm, see mlx-version.txt)"
+ },
+ "method": "Three same-session rounds with alternating runtime order (llama.cpp first in round 2, camelid first in rounds 1 and 3). Per-runtime result is the median across rounds; camelid per-round value is the median of 5 measured iterations (1 unmeasured warmup).",
+ "results": {
+  "prefill_601_tokens_per_second": {
+   "camelid": {"round_medians": [587.3, 587.3, 587.4], "session_median": 587.3},
+   "llamacpp": {"round_means": [543.7, 543.7, 543.8], "session_median": 543.7},
+   "mlx_lm": {"rounds": [579.3, 577.9, 577.9], "session_median": 577.9}
+  },
+  "decode_short_context_tokens_per_second": {
+   "camelid": {"round_medians": [29.74, 29.85, 29.74], "session_median": 29.74, "note": "128 greedy tokens after a short prompt; GPU-side argmax + embedding gather, next graph pre-released"},
+   "llamacpp": {"round_means": [29.08, 29.14, 29.22], "session_median": 29.14, "note": "tg128"},
+   "mlx_lm": {"rounds": [29.54, 29.13, 29.01], "session_median": 29.13, "note": "two-point decode, 64 tokens"}
+  },
+  "ttft_601_ms": {
+   "camelid": {"session_median": 1068}
+  }
+ },
+ "parity": "Camelid greedy continuations match the CPU sampling path token-for-token: the 16-token prefill-row continuation in every iteration of every round, and the 128-token decode continuation identical across all 15 decode iterations (output_token_ids in the jsonl logs). The GPU sampler's argmax tie-break and embedding-gather dequant are additionally pinned by unit tests against CPU references.",
+ "files": {
+  "camelid": ["camelid-prefill601-r1.jsonl", "camelid-prefill601-r2.jsonl", "camelid-prefill601-r3.jsonl", "camelid-decode128-r1.jsonl", "camelid-decode128-r2.jsonl", "camelid-decode128-r3.jsonl"],
+  "llamacpp": ["llama-bench-r1.md.txt", "llama-bench-r2.md.txt", "llama-bench-r3.md.txt", "llama-bench-version.txt"],
+  "mlx": ["mlx-bench-r1.txt", "mlx-bench-r2.txt", "mlx-bench-r3.txt", "mlx-version.txt"]
+ }
+}

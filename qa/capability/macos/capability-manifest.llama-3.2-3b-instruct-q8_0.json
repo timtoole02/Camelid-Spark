@@ -1,0 +1,202 @@
+{
+  "schema": "camelid.capability-manifest/v1",
+  "row": "llama-3.2-3b-instruct-q8_0",
+  "model_label": "Llama 3.2 3B Instruct Q8_0",
+  "generated": "2026-06-26",
+  "phase0_complete": true,
+  "artifact": {
+    "present": true,
+    "gguf_path": "/Volumes/Untitled/models/Llama-3.2-3B-Instruct-Q8_0.gguf",
+    "gguf_filename": "Llama-3.2-3B-Instruct-Q8_0.gguf",
+    "gguf_sha256": "b5607b5090a8280063fff2d706bb3408ca6542341b06aab39c3eca0a28575921",
+    "size_bytes": 3421899296,
+    "note": "hash-anchored to the on-disk macOS GGUF — NOTE this sha256 differs from the Windows manifest's (f34112a11b7dad74ab517dedf6dcf00d624c9adac2dc0c72c719ca0478554ef2): a distinct on-disk Q8_0 file, same model/quant."
+  },
+  "platform": {
+    "os": "macos",
+    "target": "aarch64-apple-darwin",
+    "execution_backends_in_scope": [
+      "metal"
+    ],
+    "discovery_tool": "camelid (frozen base /Volumes/Untitled/camelid-base-28f224b, v0.1.7-92-g28f224b)",
+    "oracle": "llama.cpp 9632 (acd79d603, Metal, Apple M4) — /Volumes/Untitled/llama.cpp-metal-parity/build-metal/bin/llama-{server,cli}"
+  },
+  "arch": {
+    "architecture": "llama",
+    "bos_token_id": 128000,
+    "eos_token_ids": [
+      128009
+    ],
+    "rope_freq_base": 500000,
+    "rope_scaling_factor": null,
+    "rope_scaling_type": null,
+    "trained_context_length": 131072,
+    "special_tokens": [
+      "<|begin_of_text|>",
+      "<|start_header_id|>",
+      "<|end_header_id|>",
+      "<|eot_id|>",
+      "ipython"
+    ]
+  },
+  "chat_template_excerpt": "{{bos_token}}; if messages[0].role=='system' extract system_message; emits \"<|start_header_id|>system<|end_header_id|>\\n\\n\"...system_message\"<|eot_id|>\"; per-msg loop: '<|start_header_id|>'+role+'<|end_header_id|>\\n\\n'+content+'<|eot_id|>'; elif 'tool_calls' in message -> assistant JSON {\"name\":..,\"parameters\":..} (raise_exception if tool_calls|length != 1); elif role=='tool'/'ipython' -> \"<|start_header_id|>ipython<|end_header_id|>\"; if tools!=none -> \"Environment: ipython\"; if add_generation_prompt -> assistant header",
+  "claimed_envelope": [
+    {
+      "id": "gen.n_choices",
+      "capability": "Multi-choice n>1 independent generations (decoder/API)",
+      "verdict": "capable",
+      "oracle_class": "C",
+      "matrix_cell": "done",
+      "camelid_state": "typed_error_stub",
+      "receipt_present": true,
+      "receipt": "macos/receipts/capability-receipt.gen.n_choices.llama-3.2-3b-instruct-q8_0.json",
+      "model_evidence": "Model-agnostic decoder/API: n>1 independent samples; causal LM arch=llama supports parallel sampling (OpenAI-shape contract)."
+    },
+    {
+      "id": "gen.stream_usage",
+      "capability": "OpenAI stream_options.include_usage terminal usage chunk (API)",
+      "verdict": "capable",
+      "oracle_class": "C",
+      "matrix_cell": "done",
+      "camelid_state": "drives",
+      "receipt_present": true,
+      "receipt": "macos/receipts/capability-receipt.gen.stream_usage.llama-3.2-3b-instruct-q8_0.json",
+      "model_evidence": "OpenAI stream_options.include_usage terminal usage chunk is API-shape, model-agnostic for any causal LM."
+    },
+    {
+      "id": "gen.length_stop",
+      "capability": "max_tokens, stop sequences, EOS stop behavior",
+      "verdict": "capable",
+      "oracle_class": "D/C",
+      "matrix_cell": "done",
+      "camelid_state": "drives",
+      "receipt_present": true,
+      "receipt": "macos/receipts/capability-receipt.gen.length_stop.llama-3.2-3b-instruct-q8_0.json",
+      "model_evidence": "VERIFIED: tokenizer.ggml.eos_token_id=128009 (<|eot_id|>) in metadata; max_tokens/stop-sequence are decoder contract."
+    },
+    {
+      "id": "sampling.full_set",
+      "capability": "top_p,top_k,min_p,temperature,repetition/frequency/presence_penalty,seed,logit_bias",
+      "verdict": "capable",
+      "oracle_class": "I",
+      "matrix_cell": "done",
+      "camelid_state": "partial",
+      "receipt_present": true,
+      "receipt": "macos/receipts/capability-receipt.sampling.full_set.llama-3.2-3b-instruct-q8_0.json",
+      "model_evidence": "Sampler set (top_p/top_k/min_p/temperature/penalties/seed/logit_bias) is model-agnostic invariant over the logit vector."
+    },
+    {
+      "id": "sampling.seed_determinism",
+      "capability": "fixed seed reproduces token-for-token across runs",
+      "verdict": "capable",
+      "oracle_class": "I",
+      "matrix_cell": "done",
+      "camelid_state": "drives",
+      "receipt_present": true,
+      "receipt": "macos/receipts/capability-receipt.sampling.seed_determinism.llama-3.2-3b-instruct-q8_0.json",
+      "model_evidence": "Fixed seed reproduces token-for-token; deterministic RNG invariant independent of model weights."
+    },
+    {
+      "id": "logprobs.top_logprobs",
+      "capability": "logprobs/top_logprobs at temp=0 (any causal LM)",
+      "verdict": "capable",
+      "oracle_class": "D",
+      "matrix_cell": "done",
+      "camelid_state": "drives",
+      "receipt_present": true,
+      "receipt": "macos/receipts/capability-receipt.logprobs.top_logprobs.llama-3.2-3b-instruct-q8_0.json",
+      "model_evidence": "Logits exposed at temp=0 enable logprobs/top_logprobs; deterministic-parity checkable for any causal LM."
+    },
+    {
+      "id": "chat.system_multiturn",
+      "capability": "system role + multi-turn template fidelity (per THIS template)",
+      "verdict": "capable",
+      "oracle_class": "D",
+      "matrix_cell": "done",
+      "camelid_state": "drives",
+      "receipt_present": true,
+      "receipt": "macos/receipts/capability-receipt.chat.system_multiturn.llama-3.2-3b-instruct-q8_0.json",
+      "model_evidence": "VERIFIED in template: \"{%- if messages[0]['role'] == 'system' %}\" extracts system_message and emits <|start_header_id|>system<|end_header_id|>; per-message loop \"'<|start_header_id|>' + message['role'] + '<|end_header_id|>'\" handles multi-turn user/assistant."
+    },
+    {
+      "id": "tools.function_calling",
+      "capability": "native tool/function calling — REQUIRES tool-call branch or tool/ipython control tokens in THIS model template",
+      "verdict": "capable",
+      "oracle_class": "B",
+      "matrix_cell": "done",
+      "camelid_state": "drives",
+      "receipt_present": true,
+      "receipt": "macos/receipts/capability-receipt.tools.function_calling.llama-3.2-3b-instruct-q8_0.json",
+      "model_evidence": "VERIFIED in template: \"{%- elif 'tool_calls' in message %}\" branch emits assistant JSON {\"name\":..,\"parameters\":..}; \"Environment: ipython\" preamble when tools!=none; tool/ipython result role -> <|start_header_id|>ipython<|end_header_id|>. Single-tool-call only (raise_exception if tool_calls|length != 1)."
+    },
+    {
+      "id": "structured.json_grammar",
+      "capability": "JSON mode + GBNF grammar-constrained decode (decoder-side, model-agnostic)",
+      "verdict": "capable",
+      "oracle_class": "B",
+      "matrix_cell": "done",
+      "camelid_state": "drives",
+      "receipt_present": true,
+      "receipt": "macos/receipts/capability-receipt.structured.json_grammar.llama-3.2-3b-instruct-q8_0.json",
+      "model_evidence": "JSON mode + GBNF grammar-constrained decode is decoder-side and model-agnostic; behavioral battery validates conformance."
+    },
+    {
+      "id": "context.full_length",
+      "capability": "full TRAINED context length, exact value from metadata",
+      "verdict": "capable",
+      "oracle_class": "D",
+      "matrix_cell": "host-limited",
+      "camelid_state": "drives",
+      "receipt_present": false,
+      "receipt": null,
+      "model_evidence": "VERIFIED: llama.context_length=131072 (exact trained length re-read from GGUF metadata).",
+      "macos_status_note": "host-limited on 16GB Metal (trained 131072 context KV beyond safe RAM); not a model limit."
+    },
+    {
+      "id": "context.rope_scaling",
+      "capability": "RoPE scaling/extension — REQUIRES a rope scaling type/factor declared in metadata",
+      "verdict": "capable",
+      "oracle_class": "D",
+      "matrix_cell": "done",
+      "camelid_state": "drives",
+      "receipt_present": true,
+      "receipt": "macos/receipts/capability-receipt.context.rope_scaling.llama-3.2-3b-instruct-q8_0.json",
+      "model_evidence": "VERIFIED: no rope.scaling.* metadata declared; only llama.rope.freq_base=500000.0 and llama.rope.dimension_count=128 present. No rope.scaling.type/factor/original_context_length key. A rope_freqs.weight tensor exists (scaling baked in) but conductor rule requires a DECLARED scaling type/factor => stricter verdict = incapable (n/a, not a gap).",
+      "synthesis_correction": "CORRECTED in synthesis (anti-underclaim §0/§4.6): rope_freqs.weight tensor = baked llama3 rope scaling reaching 131072; metadata has no rope.scaling.* key but the transform is real and engine-applied (rope.rs:507). Validate parity at extended positions vs llama.cpp (class D)."
+    },
+    {
+      "id": "observ.usage_timing",
+      "capability": "prompt/completion/total token accounting + optional timing fields",
+      "verdict": "capable",
+      "oracle_class": "C",
+      "matrix_cell": "done",
+      "camelid_state": "drives",
+      "receipt_present": true,
+      "receipt": "macos/receipts/capability-receipt.observ.usage_timing.llama-3.2-3b-instruct-q8_0.json",
+      "model_evidence": "prompt/completion/total token accounting + timing fields are API-shape, model-agnostic."
+    },
+    {
+      "id": "load.quant_breadth",
+      "capability": "(SECONDARY) loadability across additional quants beyond Q8_0",
+      "verdict": "capable",
+      "oracle_class": "D",
+      "matrix_cell": "host-limited",
+      "camelid_state": "partial",
+      "receipt_present": false,
+      "receipt": null,
+      "model_evidence": "SECONDARY: general.file_type=7 (Q8_0); arch=llama GGUF loadable across other quants — widens load matrix, not behavioral envelope.",
+      "macos_status_note": "secondary axis; not exercised on Metal in Bucket A."
+    }
+  ],
+  "overclaim_flags": [
+    "NO VERDICT FLIPS REQUIRED — adversarial re-inspection of the real artifact upheld every contested cap.",
+    "tools.function_calling=capable UPHELD: pointed to the SPECIFIC template branch '{%- elif \\'tool_calls\\' in message %}' (assistant JSON {name,parameters}), the 'Environment: ipython' preamble, and the <|start_header_id|>ipython<|end_header_id|> tool-result role. Refined evidence to record single-tool-call constraint (raise_exception if tool_calls|length != 1).",
+    "chat.system_multiturn=capable UPHELD: pointed to the SPECIFIC branch '{%- if messages[0][\\'role\\'] == \\'system\\' %}' plus the per-message role loop. Refined evidence with exact template strings.",
+    "context.rope_scaling=incapable UPHELD (stricter verdict): re-grep confirmed ZERO rope.scaling.* metadata keys (every 'scaling'/'Scaling' grep hit is a BPE vocab/merge token, not a key). rope_freqs.weight tensor present but does not satisfy the declared-type/factor rule. Considered the underclaim direction (model functionally does llama3 rope scaling) and rejected it per the conductor declared-key rule + stricter-verdict tie-break.",
+    "context.full_length=capable UPHELD: re-read llama.context_length=131072 exact from GGUF metadata.",
+    "arch PRESERVED and re-verified against metadata: architecture=llama, bos=128000, eos=[128009], rope_freq_base=500000, trained_context_length=131072. padding_token_id=128004 confirmed (matches draft note). file_type=7 (Q8_0) confirmed.",
+    "CAVEAT (no change made, preserving arch per instructions): special_tokens entry 'ipython' is a template ROLE string emitted between <|start_header_id|>/<|end_header_id|>, not a dedicated reserved control-token id in metadata. Kept for tool-role fidelity; flagged for transparency."
+  ],
+  "phase0_notes": "Adversarially re-inspected the real artifact models/Llama-3.2-3B-Instruct-Q8_0.gguf (CUDA_VISIBLE_DEVICES=-1 camelid inspect). Ground truth (30 metadata keys): general.architecture=llama, general.file_type=7 (Q8_0), llama.context_length=131072, llama.embedding_length=3072, llama.block_count=28, llama.feed_forward_length=8192, llama.attention.head_count=24, head_count_kv=8 (GQA), key/value_length=128, llama.rope.freq_base=500000.0, llama.rope.dimension_count=128, llama.vocab_size=128256. Tokens: bos=128000, eos=128009, padding=128004. Tensor rope_freqs.weight present.\\n\\nVerdict outcome: the draft survived adversarial review with NO flips. The three high-scrutiny caps each point to a concrete artifact feature — tools.function_calling and chat.system_multiturn to specific Jinja template branches; context.rope_scaling to the ABSENCE of any declared rope.scaling.* key (the precomputed rope_freqs.weight tensor does not satisfy the conductor's declared-type/factor rule, so the stricter incapable stands). context.full_length carries the exact trained length 131072.\\n\\nThe broad set of decoder/API-shape caps (gen.*, sampling.*, logprobs, structured.json_grammar, observ.usage_timing) are marked capable on model-agnostic grounds consistent with the conductor class table; no artifact evidence contradicts them, so they are left as capable. Oracle classes are sensible: D for metadata/template-deterministic checks (length, rope_scaling, system_multiturn, logprobs), B for behavioral (tools, json_grammar), C/I for API/sampler invariants, none for the secondary load.quant_breadth. One minor non-blocking caveat documented: special_tokens lists 'ipython', which is a template role string rather than a dedicated reserved control token — left in place to preserve arch per instructions.",
+  "phase2_macos_notes": "WIN2METAL Phase 2 (Bucket A) on Apple M4 16GB, GPU-resident Metal decode. Validation only — frozen base binary 28f224b, no src changes. Behavioral/contract/sampler caps re-run e2e on Metal (no Metal-specific regression); class-D parity caps (chat.system_multiturn, context.rope_scaling) byte-exact vs llama.cpp Metal. context.full_length stays host-limited (trained 131072 KV beyond safe RAM on 16GB). load.quant_breadth not exercised (secondary). logprobs watch item RESOLVED PASS (full-vocab LogitsStage forced under the resident Metal decode, not the GPU-sample shortcut)."
+}

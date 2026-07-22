@@ -1,0 +1,43 @@
+{
+  "schema": "camelid.ternary-lane.parity-receipt/v1",
+  "captured_utc": "2026-06-23",
+  "lane": "cpu-ternary-tq2_0",
+  "machine_id": "i7-11800H-win11-ddr4-3200-dual",
+  "machine": "Intel Core i7-11800H (Tiger Lake-H, 8c/16t), DDR4-3200 dual-channel, Windows 11, CPU-only (CUDA hidden via CUDA_VISIBLE_DEVICES=-1)",
+  "model": {
+    "name": "Ternary-Bonsai-4B-TQ2_0",
+    "file": "Ternary-Bonsai-4B-TQ2_0.gguf",
+    "sha256": "b85dcbaa6f57a9c71252371c97f4c68602c2c5fc61a9e1ce74d963d6fee5047c",
+    "arch": "qwen3",
+    "quant": "TQ2_0 (2.06 bpw ternary linears) + Q6_K tied embed/lm_head",
+    "params_b": 4.02,
+    "source": "huggingface superkaiii/Ternary-Bonsai-4B-GGUF"
+  },
+  "camelid_commit": "9594daf090cec749bfc4c02b5db6657362a4b18d",
+  "camelid_branch": "feat/cpu-ternary-lane",
+  "llamacpp_ref": "acd79d6",
+  "oracle": "llama.cpp llama-server acd79d6, CPU-only (-ngl 0 -t 8), greedy (temperature 0, top_k 1), cache_prompt=false; /completion return_tokens",
+  "methodology": "Both engines run the IDENTICAL TQ2_0 GGUF on CPU, greedy. Camelid bench-generate output_token_ids vs llama.cpp /completion tokens, raw completion (BOS added by both, no chat template), 24 generated tokens per prompt.",
+  "parity": {
+    "prompts": 4,
+    "generated_tokens_per_prompt": 24,
+    "results": [
+      { "prompt": "The capital of France is", "first_divergent_token_index": -1, "match": true },
+      { "prompt": "Once upon a time", "first_divergent_token_index": -1, "match": true },
+      { "prompt": "The quick brown fox", "first_divergent_token_index": -1, "match": true },
+      { "prompt": "2 + 2 =", "first_divergent_token_index": 4, "match": false,
+        "note": "near-tie in a degenerate repeating continuation: camelid token 17 ('2') vs llama 19 ('4') after both correctly emit '2 + 2 = 4,'. Both numerically valid digit continuations." }
+    ],
+    "summary": "3/4 prompts greedy-match llama.cpp exactly for 24 tokens; 1 diverges at a near-tie (the low-bit precision floor, same class as the gemma4 Q4_0 lane). Prompt-token parity is implied by the from-token-0 match on the 3 exact prompts.",
+    "verdict": "greedy-token parity with documented near-tie divergence; NOT bit-exact (a quantized lane against a quantized oracle)."
+  },
+  "perf": {
+    "harness": "CUDA_VISIBLE_DEVICES=-1 bench-generate / llama-bench -ngl 0 -t 8, i7-11800H",
+    "camelid_decode_tok_s": 11.34,
+    "llamacpp_decode_tok_s": 21.25,
+    "camelid_vs_llamacpp_decode": 0.53,
+    "peak_rss_gb": 3.09,
+    "note": "Camelid is 0.53x llama.cpp on decode — the documented general forward-pass gap, not a ternary-kernel deficit (the TQ2_0 AVX2 dot is ~11% of decode; the Q6_K streamed head ~22%). This lane is a RAM-fitting, coherent, parity-checked FEATURE (a 4B ternary model in 3 GB), not a throughput win over llama.cpp.",
+    "decode_history": "scalar 2.23 -> AVX2+tiled 2.23 (TQ dot not the bottleneck) -> Q6_K streamed head 11.34 tok/s (5.1x; logits 415->18.6 ms/token)"
+  }
+}

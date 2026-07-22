@@ -1,0 +1,5 @@
+model.run via local
+provider: camelid
+model: qwen3-4b
+outputs: 1
+PONG

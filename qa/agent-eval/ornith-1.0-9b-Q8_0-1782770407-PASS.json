@@ -1,0 +1,31 @@
+{
+  "cases": [
+    {
+      "case": "write_greeting",
+      "final_answer": "I created the file `greeting.txt` with the contents \"hello there\".",
+      "goal": "Create a file named greeting.txt whose exact contents are: hello there\nUse the write_file tool ONCE, then reply in words that you created it. Do not call any further tools and do not read the file back.",
+      "loop_end": "Answered",
+      "passed": true,
+      "tool_calls": [
+        "write_file(greeting.txt, 11 bytes)"
+      ],
+      "tool_results": [
+        {
+          "ok": true,
+          "output": "wrote 11 bytes to <home>\\AppData\\Local\\Temp\\camelid-agent-eval-26596\\greeting.txt",
+          "tool": "write_file"
+        }
+      ]
+    }
+  ],
+  "gguf": "<home>\\Camelid\\models\\ornith-1.0-9b-Q8_0.gguf",
+  "gguf_bytes": 9527500992,
+  "host_loadavg_1m": null,
+  "model_id": "Ornith 1.0 9B",
+  "note": "battery complete",
+  "outcome": "PASS",
+  "promotion_eligible": true,
+  "quantization": "Q8_0",
+  "schema": "camelid.agent_eval/v1",
+  "timestamp_unix": 1782770407
+}

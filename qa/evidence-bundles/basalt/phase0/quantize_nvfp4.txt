@@ -1,0 +1,550 @@
+ggml_cuda_init: found 1 CUDA devices (Total VRAM: 6143 MiB):
+  Device 0: NVIDIA GeForce RTX 3060 Laptop GPU, compute capability 8.6, VMM: yes, VRAM: 6143 MiB
+llama_print_build_info: build = 1 (acd79d6)
+llama_print_build_info: built with MSVC 19.44.35228.0 for Windows AMD64
+llama_quantize: quantizing '<camelid>/models/Qwen3-0.6B-Q8_0.gguf' to '<camelid>/models/qwen3-0.6b-NVFP4-basalt-refusal.gguf' as Q8_0
+llama_model_loader: loaded meta data with 28 key-value pairs and 310 tensors from <camelid>/models/Qwen3-0.6B-Q8_0.gguf (version GGUF V3 (latest))
+validate_override: Using metadata override (  int) 'general.file_type' = 39
+llama_model_loader: Dumping metadata keys/values. Note: KV overrides do not apply in this output.
+llama_model_loader: - kv   0:                       general.architecture str              = qwen3
+llama_model_loader: - kv   1:                               general.type str              = model
+llama_model_loader: - kv   2:                               general.name str              = Qwen3 0.6B Instruct
+llama_model_loader: - kv   3:                           general.finetune str              = Instruct
+llama_model_loader: - kv   4:                           general.basename str              = Qwen3
+llama_model_loader: - kv   5:                         general.size_label str              = 0.6B
+llama_model_loader: - kv   6:                          qwen3.block_count u32              = 28
+llama_model_loader: - kv   7:                       qwen3.context_length u32              = 40960
+llama_model_loader: - kv   8:                     qwen3.embedding_length u32              = 1024
+llama_model_loader: - kv   9:                  qwen3.feed_forward_length u32              = 3072
+llama_model_loader: - kv  10:                 qwen3.attention.head_count u32              = 16
+llama_model_loader: - kv  11:              qwen3.attention.head_count_kv u32              = 8
+llama_model_loader: - kv  12:                       qwen3.rope.freq_base f32              = 1000000.000000
+llama_model_loader: - kv  13:     qwen3.attention.layer_norm_rms_epsilon f32              = 0.000001
+llama_model_loader: - kv  14:                 qwen3.attention.key_length u32              = 128
+llama_model_loader: - kv  15:               qwen3.attention.value_length u32              = 128
+llama_model_loader: - kv  16:                       tokenizer.ggml.model str              = gpt2
+llama_model_loader: - kv  17:                         tokenizer.ggml.pre str              = qwen2
+llama_model_loader: - kv  18:                      tokenizer.ggml.tokens arr[str,151936]  = ["!", "\"", "#", "$", "%", "&", "'", ...
+llama_model_loader: - kv  19:                  tokenizer.ggml.token_type arr[i32,151936]  = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, ...
+llama_model_loader: - kv  20:                      tokenizer.ggml.merges arr[str,151387]  = ["Ġ Ġ", "ĠĠ ĠĠ", "i n", "Ġ t",...
+llama_model_loader: - kv  21:                tokenizer.ggml.eos_token_id u32              = 151645
+llama_model_loader: - kv  22:            tokenizer.ggml.padding_token_id u32              = 151643
+llama_model_loader: - kv  23:                tokenizer.ggml.bos_token_id u32              = 151643
+llama_model_loader: - kv  24:               tokenizer.ggml.add_bos_token bool             = false
+llama_model_loader: - kv  25:                    tokenizer.chat_template str              = {%- if tools %}\n    {{- '<|im_start|>...
+llama_model_loader: - kv  26:               general.quantization_version u32              = 2
+llama_model_loader: - kv  27:                          general.file_type u32              = 7
+llama_model_loader: - type  f32:  113 tensors
+llama_model_loader: - type q8_0:  197 tensors
+llama_tensor_get_type: token_embd.weight                    - applying manual override: q8_0 -> nvfp4
+llama_tensor_get_type: blk.0.attn_k.weight                  - applying manual override: q8_0 -> nvfp4
+llama_tensor_get_type: blk.0.attn_output.weight             - applying manual override: q8_0 -> nvfp4
+llama_tensor_get_type: blk.0.attn_q.weight                  - applying manual override: q8_0 -> nvfp4
+llama_tensor_get_type: blk.0.attn_v.weight                  - applying manual override: q8_0 -> nvfp4
+llama_tensor_get_type: blk.0.ffn_down.weight                - applying manual override: q8_0 -> nvfp4
+llama_tensor_get_type: blk.0.ffn_gate.weight                - applying manual override: q8_0 -> nvfp4
+llama_tensor_get_type: blk.0.ffn_up.weight                  - applying manual override: q8_0 -> nvfp4
+llama_tensor_get_type: blk.1.attn_k.weight                  - applying manual override: q8_0 -> nvfp4
+llama_tensor_get_type: blk.1.attn_output.weight             - applying manual override: q8_0 -> nvfp4
+llama_tensor_get_type: blk.1.attn_q.weight                  - applying manual override: q8_0 -> nvfp4
+llama_tensor_get_type: blk.1.attn_v.weight                  - applying manual override: q8_0 -> nvfp4
+llama_tensor_get_type: blk.1.ffn_down.weight                - applying manual override: q8_0 -> nvfp4
+llama_tensor_get_type: blk.1.ffn_gate.weight                - applying manual override: q8_0 -> nvfp4
+llama_tensor_get_type: blk.1.ffn_up.weight                  - applying manual override: q8_0 -> nvfp4
+llama_tensor_get_type: blk.2.attn_k.weight                  - applying manual override: q8_0 -> nvfp4
+llama_tensor_get_type: blk.2.attn_output.weight             - applying manual override: q8_0 -> nvfp4
+llama_tensor_get_type: blk.2.attn_q.weight                  - applying manual override: q8_0 -> nvfp4
+llama_tensor_get_type: blk.2.attn_v.weight                  - applying manual override: q8_0 -> nvfp4
+llama_tensor_get_type: blk.2.ffn_down.weight                - applying manual override: q8_0 -> nvfp4
+llama_tensor_get_type: blk.2.ffn_gate.weight                - applying manual override: q8_0 -> nvfp4
+llama_tensor_get_type: blk.2.ffn_up.weight                  - applying manual override: q8_0 -> nvfp4
+llama_tensor_get_type: blk.3.attn_k.weight                  - applying manual override: q8_0 -> nvfp4
+llama_tensor_get_type: blk.3.attn_output.weight             - applying manual override: q8_0 -> nvfp4
+llama_tensor_get_type: blk.3.attn_q.weight                  - applying manual override: q8_0 -> nvfp4
+llama_tensor_get_type: blk.3.attn_v.weight                  - applying manual override: q8_0 -> nvfp4
+llama_tensor_get_type: blk.3.ffn_down.weight                - applying manual override: q8_0 -> nvfp4
+llama_tensor_get_type: blk.3.ffn_gate.weight                - applying manual override: q8_0 -> nvfp4
+llama_tensor_get_type: blk.3.ffn_up.weight                  - applying manual override: q8_0 -> nvfp4
+llama_tensor_get_type: blk.4.attn_k.weight                  - applying manual override: q8_0 -> nvfp4
+llama_tensor_get_type: blk.4.attn_output.weight             - applying manual override: q8_0 -> nvfp4
+llama_tensor_get_type: blk.4.attn_q.weight                  - applying manual override: q8_0 -> nvfp4
+llama_tensor_get_type: blk.4.attn_v.weight                  - applying manual override: q8_0 -> nvfp4
+llama_tensor_get_type: blk.4.ffn_down.weight                - applying manual override: q8_0 -> nvfp4
+llama_tensor_get_type: blk.4.ffn_gate.weight                - applying manual override: q8_0 -> nvfp4
+llama_tensor_get_type: blk.4.ffn_up.weight                  - applying manual override: q8_0 -> nvfp4
+llama_tensor_get_type: blk.5.attn_k.weight                  - applying manual override: q8_0 -> nvfp4
+llama_tensor_get_type: blk.5.attn_output.weight             - applying manual override: q8_0 -> nvfp4
+llama_tensor_get_type: blk.5.attn_q.weight                  - applying manual override: q8_0 -> nvfp4
+llama_tensor_get_type: blk.5.attn_v.weight                  - applying manual override: q8_0 -> nvfp4
+llama_tensor_get_type: blk.5.ffn_down.weight                - applying manual override: q8_0 -> nvfp4
+llama_tensor_get_type: blk.5.ffn_gate.weight                - applying manual override: q8_0 -> nvfp4
+llama_tensor_get_type: blk.5.ffn_up.weight                  - applying manual override: q8_0 -> nvfp4
+llama_tensor_get_type: blk.6.attn_k.weight                  - applying manual override: q8_0 -> nvfp4
+llama_tensor_get_type: blk.6.attn_output.weight             - applying manual override: q8_0 -> nvfp4
+llama_tensor_get_type: blk.6.attn_q.weight                  - applying manual override: q8_0 -> nvfp4
+llama_tensor_get_type: blk.6.attn_v.weight                  - applying manual override: q8_0 -> nvfp4
+llama_tensor_get_type: blk.6.ffn_down.weight                - applying manual override: q8_0 -> nvfp4
+llama_tensor_get_type: blk.6.ffn_gate.weight                - applying manual override: q8_0 -> nvfp4
+llama_tensor_get_type: blk.6.ffn_up.weight                  - applying manual override: q8_0 -> nvfp4
+llama_tensor_get_type: blk.7.attn_k.weight                  - applying manual override: q8_0 -> nvfp4
+llama_tensor_get_type: blk.7.attn_output.weight             - applying manual override: q8_0 -> nvfp4
+llama_tensor_get_type: blk.7.attn_q.weight                  - applying manual override: q8_0 -> nvfp4
+llama_tensor_get_type: blk.7.attn_v.weight                  - applying manual override: q8_0 -> nvfp4
+llama_tensor_get_type: blk.7.ffn_down.weight                - applying manual override: q8_0 -> nvfp4
+llama_tensor_get_type: blk.7.ffn_gate.weight                - applying manual override: q8_0 -> nvfp4
+llama_tensor_get_type: blk.7.ffn_up.weight                  - applying manual override: q8_0 -> nvfp4
+llama_tensor_get_type: blk.8.attn_k.weight                  - applying manual override: q8_0 -> nvfp4
+llama_tensor_get_type: blk.8.attn_output.weight             - applying manual override: q8_0 -> nvfp4
+llama_tensor_get_type: blk.8.attn_q.weight                  - applying manual override: q8_0 -> nvfp4
+llama_tensor_get_type: blk.8.attn_v.weight                  - applying manual override: q8_0 -> nvfp4
+llama_tensor_get_type: blk.8.ffn_down.weight                - applying manual override: q8_0 -> nvfp4
+llama_tensor_get_type: blk.8.ffn_gate.weight                - applying manual override: q8_0 -> nvfp4
+llama_tensor_get_type: blk.8.ffn_up.weight                  - applying manual override: q8_0 -> nvfp4
+llama_tensor_get_type: blk.9.attn_k.weight                  - applying manual override: q8_0 -> nvfp4
+llama_tensor_get_type: blk.9.attn_output.weight             - applying manual override: q8_0 -> nvfp4
+llama_tensor_get_type: blk.9.attn_q.weight                  - applying manual override: q8_0 -> nvfp4
+llama_tensor_get_type: blk.9.attn_v.weight                  - applying manual override: q8_0 -> nvfp4
+llama_tensor_get_type: blk.9.ffn_down.weight                - applying manual override: q8_0 -> nvfp4
+llama_tensor_get_type: blk.9.ffn_gate.weight                - applying manual override: q8_0 -> nvfp4
+llama_tensor_get_type: blk.9.ffn_up.weight                  - applying manual override: q8_0 -> nvfp4
+llama_tensor_get_type: blk.10.attn_k.weight                 - applying manual override: q8_0 -> nvfp4
+llama_tensor_get_type: blk.10.attn_output.weight            - applying manual override: q8_0 -> nvfp4
+llama_tensor_get_type: blk.10.attn_q.weight                 - applying manual override: q8_0 -> nvfp4
+llama_tensor_get_type: blk.10.attn_v.weight                 - applying manual override: q8_0 -> nvfp4
+llama_tensor_get_type: blk.10.ffn_down.weight               - applying manual override: q8_0 -> nvfp4
+llama_tensor_get_type: blk.10.ffn_gate.weight               - applying manual override: q8_0 -> nvfp4
+llama_tensor_get_type: blk.10.ffn_up.weight                 - applying manual override: q8_0 -> nvfp4
+llama_tensor_get_type: blk.11.attn_k.weight                 - applying manual override: q8_0 -> nvfp4
+llama_tensor_get_type: blk.11.attn_output.weight            - applying manual override: q8_0 -> nvfp4
+llama_tensor_get_type: blk.11.attn_q.weight                 - applying manual override: q8_0 -> nvfp4
+llama_tensor_get_type: blk.11.attn_v.weight                 - applying manual override: q8_0 -> nvfp4
+llama_tensor_get_type: blk.11.ffn_down.weight               - applying manual override: q8_0 -> nvfp4
+llama_tensor_get_type: blk.11.ffn_gate.weight               - applying manual override: q8_0 -> nvfp4
+llama_tensor_get_type: blk.11.ffn_up.weight                 - applying manual override: q8_0 -> nvfp4
+llama_tensor_get_type: blk.12.attn_k.weight                 - applying manual override: q8_0 -> nvfp4
+llama_tensor_get_type: blk.12.attn_output.weight            - applying manual override: q8_0 -> nvfp4
+llama_tensor_get_type: blk.12.attn_q.weight                 - applying manual override: q8_0 -> nvfp4
+llama_tensor_get_type: blk.12.attn_v.weight                 - applying manual override: q8_0 -> nvfp4
+llama_tensor_get_type: blk.12.ffn_down.weight               - applying manual override: q8_0 -> nvfp4
+llama_tensor_get_type: blk.12.ffn_gate.weight               - applying manual override: q8_0 -> nvfp4
+llama_tensor_get_type: blk.12.ffn_up.weight                 - applying manual override: q8_0 -> nvfp4
+llama_tensor_get_type: blk.13.attn_k.weight                 - applying manual override: q8_0 -> nvfp4
+llama_tensor_get_type: blk.13.attn_output.weight            - applying manual override: q8_0 -> nvfp4
+llama_tensor_get_type: blk.13.attn_q.weight                 - applying manual override: q8_0 -> nvfp4
+llama_tensor_get_type: blk.13.attn_v.weight                 - applying manual override: q8_0 -> nvfp4
+llama_tensor_get_type: blk.13.ffn_down.weight               - applying manual override: q8_0 -> nvfp4
+llama_tensor_get_type: blk.13.ffn_gate.weight               - applying manual override: q8_0 -> nvfp4
+llama_tensor_get_type: blk.13.ffn_up.weight                 - applying manual override: q8_0 -> nvfp4
+llama_tensor_get_type: blk.14.attn_k.weight                 - applying manual override: q8_0 -> nvfp4
+llama_tensor_get_type: blk.14.attn_output.weight            - applying manual override: q8_0 -> nvfp4
+llama_tensor_get_type: blk.14.attn_q.weight                 - applying manual override: q8_0 -> nvfp4
+llama_tensor_get_type: blk.14.attn_v.weight                 - applying manual override: q8_0 -> nvfp4
+llama_tensor_get_type: blk.14.ffn_down.weight               - applying manual override: q8_0 -> nvfp4
+llama_tensor_get_type: blk.14.ffn_gate.weight               - applying manual override: q8_0 -> nvfp4
+llama_tensor_get_type: blk.14.ffn_up.weight                 - applying manual override: q8_0 -> nvfp4
+llama_tensor_get_type: blk.15.attn_k.weight                 - applying manual override: q8_0 -> nvfp4
+llama_tensor_get_type: blk.15.attn_output.weight            - applying manual override: q8_0 -> nvfp4
+llama_tensor_get_type: blk.15.attn_q.weight                 - applying manual override: q8_0 -> nvfp4
+llama_tensor_get_type: blk.15.attn_v.weight                 - applying manual override: q8_0 -> nvfp4
+llama_tensor_get_type: blk.15.ffn_down.weight               - applying manual override: q8_0 -> nvfp4
+llama_tensor_get_type: blk.15.ffn_gate.weight               - applying manual override: q8_0 -> nvfp4
+llama_tensor_get_type: blk.15.ffn_up.weight                 - applying manual override: q8_0 -> nvfp4
+llama_tensor_get_type: blk.16.attn_k.weight                 - applying manual override: q8_0 -> nvfp4
+llama_tensor_get_type: blk.16.attn_output.weight            - applying manual override: q8_0 -> nvfp4
+llama_tensor_get_type: blk.16.attn_q.weight                 - applying manual override: q8_0 -> nvfp4
+llama_tensor_get_type: blk.16.attn_v.weight                 - applying manual override: q8_0 -> nvfp4
+llama_tensor_get_type: blk.16.ffn_down.weight               - applying manual override: q8_0 -> nvfp4
+llama_tensor_get_type: blk.16.ffn_gate.weight               - applying manual override: q8_0 -> nvfp4
+llama_tensor_get_type: blk.16.ffn_up.weight                 - applying manual override: q8_0 -> nvfp4
+llama_tensor_get_type: blk.17.attn_k.weight                 - applying manual override: q8_0 -> nvfp4
+llama_tensor_get_type: blk.17.attn_output.weight            - applying manual override: q8_0 -> nvfp4
+llama_tensor_get_type: blk.17.attn_q.weight                 - applying manual override: q8_0 -> nvfp4
+llama_tensor_get_type: blk.17.attn_v.weight                 - applying manual override: q8_0 -> nvfp4
+llama_tensor_get_type: blk.17.ffn_down.weight               - applying manual override: q8_0 -> nvfp4
+llama_tensor_get_type: blk.17.ffn_gate.weight               - applying manual override: q8_0 -> nvfp4
+llama_tensor_get_type: blk.17.ffn_up.weight                 - applying manual override: q8_0 -> nvfp4
+llama_tensor_get_type: blk.18.attn_k.weight                 - applying manual override: q8_0 -> nvfp4
+llama_tensor_get_type: blk.18.attn_output.weight            - applying manual override: q8_0 -> nvfp4
+llama_tensor_get_type: blk.18.attn_q.weight                 - applying manual override: q8_0 -> nvfp4
+llama_tensor_get_type: blk.18.attn_v.weight                 - applying manual override: q8_0 -> nvfp4
+llama_tensor_get_type: blk.18.ffn_down.weight               - applying manual override: q8_0 -> nvfp4
+llama_tensor_get_type: blk.18.ffn_gate.weight               - applying manual override: q8_0 -> nvfp4
+llama_tensor_get_type: blk.18.ffn_up.weight                 - applying manual override: q8_0 -> nvfp4
+llama_tensor_get_type: blk.19.attn_k.weight                 - applying manual override: q8_0 -> nvfp4
+llama_tensor_get_type: blk.19.attn_output.weight            - applying manual override: q8_0 -> nvfp4
+llama_tensor_get_type: blk.19.attn_q.weight                 - applying manual override: q8_0 -> nvfp4
+llama_tensor_get_type: blk.19.attn_v.weight                 - applying manual override: q8_0 -> nvfp4
+llama_tensor_get_type: blk.19.ffn_down.weight               - applying manual override: q8_0 -> nvfp4
+llama_tensor_get_type: blk.19.ffn_gate.weight               - applying manual override: q8_0 -> nvfp4
+llama_tensor_get_type: blk.19.ffn_up.weight                 - applying manual override: q8_0 -> nvfp4
+llama_tensor_get_type: blk.20.attn_k.weight                 - applying manual override: q8_0 -> nvfp4
+llama_tensor_get_type: blk.20.attn_output.weight            - applying manual override: q8_0 -> nvfp4
+llama_tensor_get_type: blk.20.attn_q.weight                 - applying manual override: q8_0 -> nvfp4
+llama_tensor_get_type: blk.20.attn_v.weight                 - applying manual override: q8_0 -> nvfp4
+llama_tensor_get_type: blk.20.ffn_down.weight               - applying manual override: q8_0 -> nvfp4
+llama_tensor_get_type: blk.20.ffn_gate.weight               - applying manual override: q8_0 -> nvfp4
+llama_tensor_get_type: blk.20.ffn_up.weight                 - applying manual override: q8_0 -> nvfp4
+llama_tensor_get_type: blk.21.attn_k.weight                 - applying manual override: q8_0 -> nvfp4
+llama_tensor_get_type: blk.21.attn_output.weight            - applying manual override: q8_0 -> nvfp4
+llama_tensor_get_type: blk.21.attn_q.weight                 - applying manual override: q8_0 -> nvfp4
+llama_tensor_get_type: blk.21.attn_v.weight                 - applying manual override: q8_0 -> nvfp4
+llama_tensor_get_type: blk.21.ffn_down.weight               - applying manual override: q8_0 -> nvfp4
+llama_tensor_get_type: blk.21.ffn_gate.weight               - applying manual override: q8_0 -> nvfp4
+llama_tensor_get_type: blk.21.ffn_up.weight                 - applying manual override: q8_0 -> nvfp4
+llama_tensor_get_type: blk.22.attn_k.weight                 - applying manual override: q8_0 -> nvfp4
+llama_tensor_get_type: blk.22.attn_output.weight            - applying manual override: q8_0 -> nvfp4
+llama_tensor_get_type: blk.22.attn_q.weight                 - applying manual override: q8_0 -> nvfp4
+llama_tensor_get_type: blk.22.attn_v.weight                 - applying manual override: q8_0 -> nvfp4
+llama_tensor_get_type: blk.22.ffn_down.weight               - applying manual override: q8_0 -> nvfp4
+llama_tensor_get_type: blk.22.ffn_gate.weight               - applying manual override: q8_0 -> nvfp4
+llama_tensor_get_type: blk.22.ffn_up.weight                 - applying manual override: q8_0 -> nvfp4
+llama_tensor_get_type: blk.23.attn_k.weight                 - applying manual override: q8_0 -> nvfp4
+llama_tensor_get_type: blk.23.attn_output.weight            - applying manual override: q8_0 -> nvfp4
+llama_tensor_get_type: blk.23.attn_q.weight                 - applying manual override: q8_0 -> nvfp4
+llama_tensor_get_type: blk.23.attn_v.weight                 - applying manual override: q8_0 -> nvfp4
+llama_tensor_get_type: blk.23.ffn_down.weight               - applying manual override: q8_0 -> nvfp4
+llama_tensor_get_type: blk.23.ffn_gate.weight               - applying manual override: q8_0 -> nvfp4
+llama_tensor_get_type: blk.23.ffn_up.weight                 - applying manual override: q8_0 -> nvfp4
+llama_tensor_get_type: blk.24.attn_k.weight                 - applying manual override: q8_0 -> nvfp4
+llama_tensor_get_type: blk.24.attn_output.weight            - applying manual override: q8_0 -> nvfp4
+llama_tensor_get_type: blk.24.attn_q.weight                 - applying manual override: q8_0 -> nvfp4
+llama_tensor_get_type: blk.24.attn_v.weight                 - applying manual override: q8_0 -> nvfp4
+llama_tensor_get_type: blk.24.ffn_down.weight               - applying manual override: q8_0 -> nvfp4
+llama_tensor_get_type: blk.24.ffn_gate.weight               - applying manual override: q8_0 -> nvfp4
+llama_tensor_get_type: blk.24.ffn_up.weight                 - applying manual override: q8_0 -> nvfp4
+llama_tensor_get_type: blk.25.attn_k.weight                 - applying manual override: q8_0 -> nvfp4
+llama_tensor_get_type: blk.25.attn_output.weight            - applying manual override: q8_0 -> nvfp4
+llama_tensor_get_type: blk.25.attn_q.weight                 - applying manual override: q8_0 -> nvfp4
+llama_tensor_get_type: blk.25.attn_v.weight                 - applying manual override: q8_0 -> nvfp4
+llama_tensor_get_type: blk.25.ffn_down.weight               - applying manual override: q8_0 -> nvfp4
+llama_tensor_get_type: blk.25.ffn_gate.weight               - applying manual override: q8_0 -> nvfp4
+llama_tensor_get_type: blk.25.ffn_up.weight                 - applying manual override: q8_0 -> nvfp4
+llama_tensor_get_type: blk.26.attn_k.weight                 - applying manual override: q8_0 -> nvfp4
+llama_tensor_get_type: blk.26.attn_output.weight            - applying manual override: q8_0 -> nvfp4
+llama_tensor_get_type: blk.26.attn_q.weight                 - applying manual override: q8_0 -> nvfp4
+llama_tensor_get_type: blk.26.attn_v.weight                 - applying manual override: q8_0 -> nvfp4
+llama_tensor_get_type: blk.26.ffn_down.weight               - applying manual override: q8_0 -> nvfp4
+llama_tensor_get_type: blk.26.ffn_gate.weight               - applying manual override: q8_0 -> nvfp4
+llama_tensor_get_type: blk.26.ffn_up.weight                 - applying manual override: q8_0 -> nvfp4
+llama_tensor_get_type: blk.27.attn_k.weight                 - applying manual override: q8_0 -> nvfp4
+llama_tensor_get_type: blk.27.attn_output.weight            - applying manual override: q8_0 -> nvfp4
+llama_tensor_get_type: blk.27.attn_q.weight                 - applying manual override: q8_0 -> nvfp4
+llama_tensor_get_type: blk.27.attn_v.weight                 - applying manual override: q8_0 -> nvfp4
+llama_tensor_get_type: blk.27.ffn_down.weight               - applying manual override: q8_0 -> nvfp4
+llama_tensor_get_type: blk.27.ffn_gate.weight               - applying manual override: q8_0 -> nvfp4
+llama_tensor_get_type: blk.27.ffn_up.weight                 - applying manual override: q8_0 -> nvfp4
+[   1/ 310] output_norm.weight                   - [  1024,      1,      1,      1], type =    f32, size =    0.004 MiB
+[   2/ 310] token_embd.weight                    - [  1024, 151936,      1,      1], type =   q8_0, converting to nvfp4 .. size =   157.65 MiB ->    83.46 MiB
+[   3/ 310] blk.0.attn_k.weight                  - [  1024,   1024,      1,      1], type =   q8_0, converting to nvfp4 .. size =     1.06 MiB ->     0.56 MiB
+[   4/ 310] blk.0.attn_k_norm.weight             - [   128,      1,      1,      1], type =    f32, size =    0.000 MiB
+[   5/ 310] blk.0.attn_norm.weight               - [  1024,      1,      1,      1], type =    f32, size =    0.004 MiB
+[   6/ 310] blk.0.attn_output.weight             - [  2048,   1024,      1,      1], type =   q8_0, converting to nvfp4 .. size =     2.12 MiB ->     1.12 MiB
+[   7/ 310] blk.0.attn_q.weight                  - [  1024,   2048,      1,      1], type =   q8_0, converting to nvfp4 .. size =     2.12 MiB ->     1.12 MiB
+[   8/ 310] blk.0.attn_q_norm.weight             - [   128,      1,      1,      1], type =    f32, size =    0.000 MiB
+[   9/ 310] blk.0.attn_v.weight                  - [  1024,   1024,      1,      1], type =   q8_0, converting to nvfp4 .. size =     1.06 MiB ->     0.56 MiB
+[  10/ 310] blk.0.ffn_down.weight                - [  3072,   1024,      1,      1], type =   q8_0, converting to nvfp4 .. size =     3.19 MiB ->     1.69 MiB
+[  11/ 310] blk.0.ffn_gate.weight                - [  1024,   3072,      1,      1], type =   q8_0, converting to nvfp4 .. size =     3.19 MiB ->     1.69 MiB
+[  12/ 310] blk.0.ffn_norm.weight                - [  1024,      1,      1,      1], type =    f32, size =    0.004 MiB
+[  13/ 310] blk.0.ffn_up.weight                  - [  1024,   3072,      1,      1], type =   q8_0, converting to nvfp4 .. size =     3.19 MiB ->     1.69 MiB
+[  14/ 310] blk.1.attn_k.weight                  - [  1024,   1024,      1,      1], type =   q8_0, converting to nvfp4 .. size =     1.06 MiB ->     0.56 MiB
+[  15/ 310] blk.1.attn_k_norm.weight             - [   128,      1,      1,      1], type =    f32, size =    0.000 MiB
+[  16/ 310] blk.1.attn_norm.weight               - [  1024,      1,      1,      1], type =    f32, size =    0.004 MiB
+[  17/ 310] blk.1.attn_output.weight             - [  2048,   1024,      1,      1], type =   q8_0, converting to nvfp4 .. size =     2.12 MiB ->     1.12 MiB
+[  18/ 310] blk.1.attn_q.weight                  - [  1024,   2048,      1,      1], type =   q8_0, converting to nvfp4 .. size =     2.12 MiB ->     1.12 MiB
+[  19/ 310] blk.1.attn_q_norm.weight             - [   128,      1,      1,      1], type =    f32, size =    0.000 MiB
+[  20/ 310] blk.1.attn_v.weight                  - [  1024,   1024,      1,      1], type =   q8_0, converting to nvfp4 .. size =     1.06 MiB ->     0.56 MiB
+[  21/ 310] blk.1.ffn_down.weight                - [  3072,   1024,      1,      1], type =   q8_0, converting to nvfp4 .. size =     3.19 MiB ->     1.69 MiB
+[  22/ 310] blk.1.ffn_gate.weight                - [  1024,   3072,      1,      1], type =   q8_0, converting to nvfp4 .. size =     3.19 MiB ->     1.69 MiB
+[  23/ 310] blk.1.ffn_norm.weight                - [  1024,      1,      1,      1], type =    f32, size =    0.004 MiB
+[  24/ 310] blk.1.ffn_up.weight                  - [  1024,   3072,      1,      1], type =   q8_0, converting to nvfp4 .. size =     3.19 MiB ->     1.69 MiB
+[  25/ 310] blk.2.attn_k.weight                  - [  1024,   1024,      1,      1], type =   q8_0, converting to nvfp4 .. size =     1.06 MiB ->     0.56 MiB
+[  26/ 310] blk.2.attn_k_norm.weight             - [   128,      1,      1,      1], type =    f32, size =    0.000 MiB
+[  27/ 310] blk.2.attn_norm.weight               - [  1024,      1,      1,      1], type =    f32, size =    0.004 MiB
+[  28/ 310] blk.2.attn_output.weight             - [  2048,   1024,      1,      1], type =   q8_0, converting to nvfp4 .. size =     2.12 MiB ->     1.12 MiB
+[  29/ 310] blk.2.attn_q.weight                  - [  1024,   2048,      1,      1], type =   q8_0, converting to nvfp4 .. size =     2.12 MiB ->     1.12 MiB
+[  30/ 310] blk.2.attn_q_norm.weight             - [   128,      1,      1,      1], type =    f32, size =    0.000 MiB
+[  31/ 310] blk.2.attn_v.weight                  - [  1024,   1024,      1,      1], type =   q8_0, converting to nvfp4 .. size =     1.06 MiB ->     0.56 MiB
+[  32/ 310] blk.2.ffn_down.weight                - [  3072,   1024,      1,      1], type =   q8_0, converting to nvfp4 .. size =     3.19 MiB ->     1.69 MiB
+[  33/ 310] blk.2.ffn_gate.weight                - [  1024,   3072,      1,      1], type =   q8_0, converting to nvfp4 .. size =     3.19 MiB ->     1.69 MiB
+[  34/ 310] blk.2.ffn_norm.weight                - [  1024,      1,      1,      1], type =    f32, size =    0.004 MiB
+[  35/ 310] blk.2.ffn_up.weight                  - [  1024,   3072,      1,      1], type =   q8_0, converting to nvfp4 .. size =     3.19 MiB ->     1.69 MiB
+[  36/ 310] blk.3.attn_k.weight                  - [  1024,   1024,      1,      1], type =   q8_0, converting to nvfp4 .. size =     1.06 MiB ->     0.56 MiB
+[  37/ 310] blk.3.attn_k_norm.weight             - [   128,      1,      1,      1], type =    f32, size =    0.000 MiB
+[  38/ 310] blk.3.attn_norm.weight               - [  1024,      1,      1,      1], type =    f32, size =    0.004 MiB
+[  39/ 310] blk.3.attn_output.weight             - [  2048,   1024,      1,      1], type =   q8_0, converting to nvfp4 .. size =     2.12 MiB ->     1.12 MiB
+[  40/ 310] blk.3.attn_q.weight                  - [  1024,   2048,      1,      1], type =   q8_0, converting to nvfp4 .. size =     2.12 MiB ->     1.12 MiB
+[  41/ 310] blk.3.attn_q_norm.weight             - [   128,      1,      1,      1], type =    f32, size =    0.000 MiB
+[  42/ 310] blk.3.attn_v.weight                  - [  1024,   1024,      1,      1], type =   q8_0, converting to nvfp4 .. size =     1.06 MiB ->     0.56 MiB
+[  43/ 310] blk.3.ffn_down.weight                - [  3072,   1024,      1,      1], type =   q8_0, converting to nvfp4 .. size =     3.19 MiB ->     1.69 MiB
+[  44/ 310] blk.3.ffn_gate.weight                - [  1024,   3072,      1,      1], type =   q8_0, converting to nvfp4 .. size =     3.19 MiB ->     1.69 MiB
+[  45/ 310] blk.3.ffn_norm.weight                - [  1024,      1,      1,      1], type =    f32, size =    0.004 MiB
+[  46/ 310] blk.3.ffn_up.weight                  - [  1024,   3072,      1,      1], type =   q8_0, converting to nvfp4 .. size =     3.19 MiB ->     1.69 MiB
+[  47/ 310] blk.4.attn_k.weight                  - [  1024,   1024,      1,      1], type =   q8_0, converting to nvfp4 .. size =     1.06 MiB ->     0.56 MiB
+[  48/ 310] blk.4.attn_k_norm.weight             - [   128,      1,      1,      1], type =    f32, size =    0.000 MiB
+[  49/ 310] blk.4.attn_norm.weight               - [  1024,      1,      1,      1], type =    f32, size =    0.004 MiB
+[  50/ 310] blk.4.attn_output.weight             - [  2048,   1024,      1,      1], type =   q8_0, converting to nvfp4 .. size =     2.12 MiB ->     1.12 MiB
+[  51/ 310] blk.4.attn_q.weight                  - [  1024,   2048,      1,      1], type =   q8_0, converting to nvfp4 .. size =     2.12 MiB ->     1.12 MiB
+[  52/ 310] blk.4.attn_q_norm.weight             - [   128,      1,      1,      1], type =    f32, size =    0.000 MiB
+[  53/ 310] blk.4.attn_v.weight                  - [  1024,   1024,      1,      1], type =   q8_0, converting to nvfp4 .. size =     1.06 MiB ->     0.56 MiB
+[  54/ 310] blk.4.ffn_down.weight                - [  3072,   1024,      1,      1], type =   q8_0, converting to nvfp4 .. size =     3.19 MiB ->     1.69 MiB
+[  55/ 310] blk.4.ffn_gate.weight                - [  1024,   3072,      1,      1], type =   q8_0, converting to nvfp4 .. size =     3.19 MiB ->     1.69 MiB
+[  56/ 310] blk.4.ffn_norm.weight                - [  1024,      1,      1,      1], type =    f32, size =    0.004 MiB
+[  57/ 310] blk.4.ffn_up.weight                  - [  1024,   3072,      1,      1], type =   q8_0, converting to nvfp4 .. size =     3.19 MiB ->     1.69 MiB
+[  58/ 310] blk.5.attn_k.weight                  - [  1024,   1024,      1,      1], type =   q8_0, converting to nvfp4 .. size =     1.06 MiB ->     0.56 MiB
+[  59/ 310] blk.5.attn_k_norm.weight             - [   128,      1,      1,      1], type =    f32, size =    0.000 MiB
+[  60/ 310] blk.5.attn_norm.weight               - [  1024,      1,      1,      1], type =    f32, size =    0.004 MiB
+[  61/ 310] blk.5.attn_output.weight             - [  2048,   1024,      1,      1], type =   q8_0, converting to nvfp4 .. size =     2.12 MiB ->     1.12 MiB
+[  62/ 310] blk.5.attn_q.weight                  - [  1024,   2048,      1,      1], type =   q8_0, converting to nvfp4 .. size =     2.12 MiB ->     1.12 MiB
+[  63/ 310] blk.5.attn_q_norm.weight             - [   128,      1,      1,      1], type =    f32, size =    0.000 MiB
+[  64/ 310] blk.5.attn_v.weight                  - [  1024,   1024,      1,      1], type =   q8_0, converting to nvfp4 .. size =     1.06 MiB ->     0.56 MiB
+[  65/ 310] blk.5.ffn_down.weight                - [  3072,   1024,      1,      1], type =   q8_0, converting to nvfp4 .. size =     3.19 MiB ->     1.69 MiB
+[  66/ 310] blk.5.ffn_gate.weight                - [  1024,   3072,      1,      1], type =   q8_0, converting to nvfp4 .. size =     3.19 MiB ->     1.69 MiB
+[  67/ 310] blk.5.ffn_norm.weight                - [  1024,      1,      1,      1], type =    f32, size =    0.004 MiB
+[  68/ 310] blk.5.ffn_up.weight                  - [  1024,   3072,      1,      1], type =   q8_0, converting to nvfp4 .. size =     3.19 MiB ->     1.69 MiB
+[  69/ 310] blk.6.attn_k.weight                  - [  1024,   1024,      1,      1], type =   q8_0, converting to nvfp4 .. size =     1.06 MiB ->     0.56 MiB
+[  70/ 310] blk.6.attn_k_norm.weight             - [   128,      1,      1,      1], type =    f32, size =    0.000 MiB
+[  71/ 310] blk.6.attn_norm.weight               - [  1024,      1,      1,      1], type =    f32, size =    0.004 MiB
+[  72/ 310] blk.6.attn_output.weight             - [  2048,   1024,      1,      1], type =   q8_0, converting to nvfp4 .. size =     2.12 MiB ->     1.12 MiB
+[  73/ 310] blk.6.attn_q.weight                  - [  1024,   2048,      1,      1], type =   q8_0, converting to nvfp4 .. size =     2.12 MiB ->     1.12 MiB
+[  74/ 310] blk.6.attn_q_norm.weight             - [   128,      1,      1,      1], type =    f32, size =    0.000 MiB
+[  75/ 310] blk.6.attn_v.weight                  - [  1024,   1024,      1,      1], type =   q8_0, converting to nvfp4 .. size =     1.06 MiB ->     0.56 MiB
+[  76/ 310] blk.6.ffn_down.weight                - [  3072,   1024,      1,      1], type =   q8_0, converting to nvfp4 .. size =     3.19 MiB ->     1.69 MiB
+[  77/ 310] blk.6.ffn_gate.weight                - [  1024,   3072,      1,      1], type =   q8_0, converting to nvfp4 .. size =     3.19 MiB ->     1.69 MiB
+[  78/ 310] blk.6.ffn_norm.weight                - [  1024,      1,      1,      1], type =    f32, size =    0.004 MiB
+[  79/ 310] blk.6.ffn_up.weight                  - [  1024,   3072,      1,      1], type =   q8_0, converting to nvfp4 .. size =     3.19 MiB ->     1.69 MiB
+[  80/ 310] blk.7.attn_k.weight                  - [  1024,   1024,      1,      1], type =   q8_0, converting to nvfp4 .. size =     1.06 MiB ->     0.56 MiB
+[  81/ 310] blk.7.attn_k_norm.weight             - [   128,      1,      1,      1], type =    f32, size =    0.000 MiB
+[  82/ 310] blk.7.attn_norm.weight               - [  1024,      1,      1,      1], type =    f32, size =    0.004 MiB
+[  83/ 310] blk.7.attn_output.weight             - [  2048,   1024,      1,      1], type =   q8_0, converting to nvfp4 .. size =     2.12 MiB ->     1.12 MiB
+[  84/ 310] blk.7.attn_q.weight                  - [  1024,   2048,      1,      1], type =   q8_0, converting to nvfp4 .. size =     2.12 MiB ->     1.12 MiB
+[  85/ 310] blk.7.attn_q_norm.weight             - [   128,      1,      1,      1], type =    f32, size =    0.000 MiB
+[  86/ 310] blk.7.attn_v.weight                  - [  1024,   1024,      1,      1], type =   q8_0, converting to nvfp4 .. size =     1.06 MiB ->     0.56 MiB
+[  87/ 310] blk.7.ffn_down.weight                - [  3072,   1024,      1,      1], type =   q8_0, converting to nvfp4 .. size =     3.19 MiB ->     1.69 MiB
+[  88/ 310] blk.7.ffn_gate.weight                - [  1024,   3072,      1,      1], type =   q8_0, converting to nvfp4 .. size =     3.19 MiB ->     1.69 MiB
+[  89/ 310] blk.7.ffn_norm.weight                - [  1024,      1,      1,      1], type =    f32, size =    0.004 MiB
+[  90/ 310] blk.7.ffn_up.weight                  - [  1024,   3072,      1,      1], type =   q8_0, converting to nvfp4 .. size =     3.19 MiB ->     1.69 MiB
+[  91/ 310] blk.8.attn_k.weight                  - [  1024,   1024,      1,      1], type =   q8_0, converting to nvfp4 .. size =     1.06 MiB ->     0.56 MiB
+[  92/ 310] blk.8.attn_k_norm.weight             - [   128,      1,      1,      1], type =    f32, size =    0.000 MiB
+[  93/ 310] blk.8.attn_norm.weight               - [  1024,      1,      1,      1], type =    f32, size =    0.004 MiB
+[  94/ 310] blk.8.attn_output.weight             - [  2048,   1024,      1,      1], type =   q8_0, converting to nvfp4 .. size =     2.12 MiB ->     1.12 MiB
+[  95/ 310] blk.8.attn_q.weight                  - [  1024,   2048,      1,      1], type =   q8_0, converting to nvfp4 .. size =     2.12 MiB ->     1.12 MiB
+[  96/ 310] blk.8.attn_q_norm.weight             - [   128,      1,      1,      1], type =    f32, size =    0.000 MiB
+[  97/ 310] blk.8.attn_v.weight                  - [  1024,   1024,      1,      1], type =   q8_0, converting to nvfp4 .. size =     1.06 MiB ->     0.56 MiB
+[  98/ 310] blk.8.ffn_down.weight                - [  3072,   1024,      1,      1], type =   q8_0, converting to nvfp4 .. size =     3.19 MiB ->     1.69 MiB
+[  99/ 310] blk.8.ffn_gate.weight                - [  1024,   3072,      1,      1], type =   q8_0, converting to nvfp4 .. size =     3.19 MiB ->     1.69 MiB
+[ 100/ 310] blk.8.ffn_norm.weight                - [  1024,      1,      1,      1], type =    f32, size =    0.004 MiB
+[ 101/ 310] blk.8.ffn_up.weight                  - [  1024,   3072,      1,      1], type =   q8_0, converting to nvfp4 .. size =     3.19 MiB ->     1.69 MiB
+[ 102/ 310] blk.9.attn_k.weight                  - [  1024,   1024,      1,      1], type =   q8_0, converting to nvfp4 .. size =     1.06 MiB ->     0.56 MiB
+[ 103/ 310] blk.9.attn_k_norm.weight             - [   128,      1,      1,      1], type =    f32, size =    0.000 MiB
+[ 104/ 310] blk.9.attn_norm.weight               - [  1024,      1,      1,      1], type =    f32, size =    0.004 MiB
+[ 105/ 310] blk.9.attn_output.weight             - [  2048,   1024,      1,      1], type =   q8_0, converting to nvfp4 .. size =     2.12 MiB ->     1.12 MiB
+[ 106/ 310] blk.9.attn_q.weight                  - [  1024,   2048,      1,      1], type =   q8_0, converting to nvfp4 .. size =     2.12 MiB ->     1.12 MiB
+[ 107/ 310] blk.9.attn_q_norm.weight             - [   128,      1,      1,      1], type =    f32, size =    0.000 MiB
+[ 108/ 310] blk.9.attn_v.weight                  - [  1024,   1024,      1,      1], type =   q8_0, converting to nvfp4 .. size =     1.06 MiB ->     0.56 MiB
+[ 109/ 310] blk.9.ffn_down.weight                - [  3072,   1024,      1,      1], type =   q8_0, converting to nvfp4 .. size =     3.19 MiB ->     1.69 MiB
+[ 110/ 310] blk.9.ffn_gate.weight                - [  1024,   3072,      1,      1], type =   q8_0, converting to nvfp4 .. size =     3.19 MiB ->     1.69 MiB
+[ 111/ 310] blk.9.ffn_norm.weight                - [  1024,      1,      1,      1], type =    f32, size =    0.004 MiB
+[ 112/ 310] blk.9.ffn_up.weight                  - [  1024,   3072,      1,      1], type =   q8_0, converting to nvfp4 .. size =     3.19 MiB ->     1.69 MiB
+[ 113/ 310] blk.10.attn_k.weight                 - [  1024,   1024,      1,      1], type =   q8_0, converting to nvfp4 .. size =     1.06 MiB ->     0.56 MiB
+[ 114/ 310] blk.10.attn_k_norm.weight            - [   128,      1,      1,      1], type =    f32, size =    0.000 MiB
+[ 115/ 310] blk.10.attn_norm.weight              - [  1024,      1,      1,      1], type =    f32, size =    0.004 MiB
+[ 116/ 310] blk.10.attn_output.weight            - [  2048,   1024,      1,      1], type =   q8_0, converting to nvfp4 .. size =     2.12 MiB ->     1.12 MiB
+[ 117/ 310] blk.10.attn_q.weight                 - [  1024,   2048,      1,      1], type =   q8_0, converting to nvfp4 .. size =     2.12 MiB ->     1.12 MiB
+[ 118/ 310] blk.10.attn_q_norm.weight            - [   128,      1,      1,      1], type =    f32, size =    0.000 MiB
+[ 119/ 310] blk.10.attn_v.weight                 - [  1024,   1024,      1,      1], type =   q8_0, converting to nvfp4 .. size =     1.06 MiB ->     0.56 MiB
+[ 120/ 310] blk.10.ffn_down.weight               - [  3072,   1024,      1,      1], type =   q8_0, converting to nvfp4 .. size =     3.19 MiB ->     1.69 MiB
+[ 121/ 310] blk.10.ffn_gate.weight               - [  1024,   3072,      1,      1], type =   q8_0, converting to nvfp4 .. size =     3.19 MiB ->     1.69 MiB
+[ 122/ 310] blk.10.ffn_norm.weight               - [  1024,      1,      1,      1], type =    f32, size =    0.004 MiB
+[ 123/ 310] blk.10.ffn_up.weight                 - [  1024,   3072,      1,      1], type =   q8_0, converting to nvfp4 .. size =     3.19 MiB ->     1.69 MiB
+[ 124/ 310] blk.11.attn_k.weight                 - [  1024,   1024,      1,      1], type =   q8_0, converting to nvfp4 .. size =     1.06 MiB ->     0.56 MiB
+[ 125/ 310] blk.11.attn_k_norm.weight            - [   128,      1,      1,      1], type =    f32, size =    0.000 MiB
+[ 126/ 310] blk.11.attn_norm.weight              - [  1024,      1,      1,      1], type =    f32, size =    0.004 MiB
+[ 127/ 310] blk.11.attn_output.weight            - [  2048,   1024,      1,      1], type =   q8_0, converting to nvfp4 .. size =     2.12 MiB ->     1.12 MiB
+[ 128/ 310] blk.11.attn_q.weight                 - [  1024,   2048,      1,      1], type =   q8_0, converting to nvfp4 .. size =     2.12 MiB ->     1.12 MiB
+[ 129/ 310] blk.11.attn_q_norm.weight            - [   128,      1,      1,      1], type =    f32, size =    0.000 MiB
+[ 130/ 310] blk.11.attn_v.weight                 - [  1024,   1024,      1,      1], type =   q8_0, converting to nvfp4 .. size =     1.06 MiB ->     0.56 MiB
+[ 131/ 310] blk.11.ffn_down.weight               - [  3072,   1024,      1,      1], type =   q8_0, converting to nvfp4 .. size =     3.19 MiB ->     1.69 MiB
+[ 132/ 310] blk.11.ffn_gate.weight               - [  1024,   3072,      1,      1], type =   q8_0, converting to nvfp4 .. size =     3.19 MiB ->     1.69 MiB
+[ 133/ 310] blk.11.ffn_norm.weight               - [  1024,      1,      1,      1], type =    f32, size =    0.004 MiB
+[ 134/ 310] blk.11.ffn_up.weight                 - [  1024,   3072,      1,      1], type =   q8_0, converting to nvfp4 .. size =     3.19 MiB ->     1.69 MiB
+[ 135/ 310] blk.12.attn_k.weight                 - [  1024,   1024,      1,      1], type =   q8_0, converting to nvfp4 .. size =     1.06 MiB ->     0.56 MiB
+[ 136/ 310] blk.12.attn_k_norm.weight            - [   128,      1,      1,      1], type =    f32, size =    0.000 MiB
+[ 137/ 310] blk.12.attn_norm.weight              - [  1024,      1,      1,      1], type =    f32, size =    0.004 MiB
+[ 138/ 310] blk.12.attn_output.weight            - [  2048,   1024,      1,      1], type =   q8_0, converting to nvfp4 .. size =     2.12 MiB ->     1.12 MiB
+[ 139/ 310] blk.12.attn_q.weight                 - [  1024,   2048,      1,      1], type =   q8_0, converting to nvfp4 .. size =     2.12 MiB ->     1.12 MiB
+[ 140/ 310] blk.12.attn_q_norm.weight            - [   128,      1,      1,      1], type =    f32, size =    0.000 MiB
+[ 141/ 310] blk.12.attn_v.weight                 - [  1024,   1024,      1,      1], type =   q8_0, converting to nvfp4 .. size =     1.06 MiB ->     0.56 MiB
+[ 142/ 310] blk.12.ffn_down.weight               - [  3072,   1024,      1,      1], type =   q8_0, converting to nvfp4 .. size =     3.19 MiB ->     1.69 MiB
+[ 143/ 310] blk.12.ffn_gate.weight               - [  1024,   3072,      1,      1], type =   q8_0, converting to nvfp4 .. size =     3.19 MiB ->     1.69 MiB
+[ 144/ 310] blk.12.ffn_norm.weight               - [  1024,      1,      1,      1], type =    f32, size =    0.004 MiB
+[ 145/ 310] blk.12.ffn_up.weight                 - [  1024,   3072,      1,      1], type =   q8_0, converting to nvfp4 .. size =     3.19 MiB ->     1.69 MiB
+[ 146/ 310] blk.13.attn_k.weight                 - [  1024,   1024,      1,      1], type =   q8_0, converting to nvfp4 .. size =     1.06 MiB ->     0.56 MiB
+[ 147/ 310] blk.13.attn_k_norm.weight            - [   128,      1,      1,      1], type =    f32, size =    0.000 MiB
+[ 148/ 310] blk.13.attn_norm.weight              - [  1024,      1,      1,      1], type =    f32, size =    0.004 MiB
+[ 149/ 310] blk.13.attn_output.weight            - [  2048,   1024,      1,      1], type =   q8_0, converting to nvfp4 .. size =     2.12 MiB ->     1.12 MiB
+[ 150/ 310] blk.13.attn_q.weight                 - [  1024,   2048,      1,      1], type =   q8_0, converting to nvfp4 .. size =     2.12 MiB ->     1.12 MiB
+[ 151/ 310] blk.13.attn_q_norm.weight            - [   128,      1,      1,      1], type =    f32, size =    0.000 MiB
+[ 152/ 310] blk.13.attn_v.weight                 - [  1024,   1024,      1,      1], type =   q8_0, converting to nvfp4 .. size =     1.06 MiB ->     0.56 MiB
+[ 153/ 310] blk.13.ffn_down.weight               - [  3072,   1024,      1,      1], type =   q8_0, converting to nvfp4 .. size =     3.19 MiB ->     1.69 MiB
+[ 154/ 310] blk.13.ffn_gate.weight               - [  1024,   3072,      1,      1], type =   q8_0, converting to nvfp4 .. size =     3.19 MiB ->     1.69 MiB
+[ 155/ 310] blk.13.ffn_norm.weight               - [  1024,      1,      1,      1], type =    f32, size =    0.004 MiB
+[ 156/ 310] blk.13.ffn_up.weight                 - [  1024,   3072,      1,      1], type =   q8_0, converting to nvfp4 .. size =     3.19 MiB ->     1.69 MiB
+[ 157/ 310] blk.14.attn_k.weight                 - [  1024,   1024,      1,      1], type =   q8_0, converting to nvfp4 .. size =     1.06 MiB ->     0.56 MiB
+[ 158/ 310] blk.14.attn_k_norm.weight            - [   128,      1,      1,      1], type =    f32, size =    0.000 MiB
+[ 159/ 310] blk.14.attn_norm.weight              - [  1024,      1,      1,      1], type =    f32, size =    0.004 MiB
+[ 160/ 310] blk.14.attn_output.weight            - [  2048,   1024,      1,      1], type =   q8_0, converting to nvfp4 .. size =     2.12 MiB ->     1.12 MiB
+[ 161/ 310] blk.14.attn_q.weight                 - [  1024,   2048,      1,      1], type =   q8_0, converting to nvfp4 .. size =     2.12 MiB ->     1.12 MiB
+[ 162/ 310] blk.14.attn_q_norm.weight            - [   128,      1,      1,      1], type =    f32, size =    0.000 MiB
+[ 163/ 310] blk.14.attn_v.weight                 - [  1024,   1024,      1,      1], type =   q8_0, converting to nvfp4 .. size =     1.06 MiB ->     0.56 MiB
+[ 164/ 310] blk.14.ffn_down.weight               - [  3072,   1024,      1,      1], type =   q8_0, converting to nvfp4 .. size =     3.19 MiB ->     1.69 MiB
+[ 165/ 310] blk.14.ffn_gate.weight               - [  1024,   3072,      1,      1], type =   q8_0, converting to nvfp4 .. size =     3.19 MiB ->     1.69 MiB
+[ 166/ 310] blk.14.ffn_norm.weight               - [  1024,      1,      1,      1], type =    f32, size =    0.004 MiB
+[ 167/ 310] blk.14.ffn_up.weight                 - [  1024,   3072,      1,      1], type =   q8_0, converting to nvfp4 .. size =     3.19 MiB ->     1.69 MiB
+[ 168/ 310] blk.15.attn_k.weight                 - [  1024,   1024,      1,      1], type =   q8_0, converting to nvfp4 .. size =     1.06 MiB ->     0.56 MiB
+[ 169/ 310] blk.15.attn_k_norm.weight            - [   128,      1,      1,      1], type =    f32, size =    0.000 MiB
+[ 170/ 310] blk.15.attn_norm.weight              - [  1024,      1,      1,      1], type =    f32, size =    0.004 MiB
+[ 171/ 310] blk.15.attn_output.weight            - [  2048,   1024,      1,      1], type =   q8_0, converting to nvfp4 .. size =     2.12 MiB ->     1.12 MiB
+[ 172/ 310] blk.15.attn_q.weight                 - [  1024,   2048,      1,      1], type =   q8_0, converting to nvfp4 .. size =     2.12 MiB ->     1.12 MiB
+[ 173/ 310] blk.15.attn_q_norm.weight            - [   128,      1,      1,      1], type =    f32, size =    0.000 MiB
+[ 174/ 310] blk.15.attn_v.weight                 - [  1024,   1024,      1,      1], type =   q8_0, converting to nvfp4 .. size =     1.06 MiB ->     0.56 MiB
+[ 175/ 310] blk.15.ffn_down.weight               - [  3072,   1024,      1,      1], type =   q8_0, converting to nvfp4 .. size =     3.19 MiB ->     1.69 MiB
+[ 176/ 310] blk.15.ffn_gate.weight               - [  1024,   3072,      1,      1], type =   q8_0, converting to nvfp4 .. size =     3.19 MiB ->     1.69 MiB
+[ 177/ 310] blk.15.ffn_norm.weight               - [  1024,      1,      1,      1], type =    f32, size =    0.004 MiB
+[ 178/ 310] blk.15.ffn_up.weight                 - [  1024,   3072,      1,      1], type =   q8_0, converting to nvfp4 .. size =     3.19 MiB ->     1.69 MiB
+[ 179/ 310] blk.16.attn_k.weight                 - [  1024,   1024,      1,      1], type =   q8_0, converting to nvfp4 .. size =     1.06 MiB ->     0.56 MiB
+[ 180/ 310] blk.16.attn_k_norm.weight            - [   128,      1,      1,      1], type =    f32, size =    0.000 MiB
+[ 181/ 310] blk.16.attn_norm.weight              - [  1024,      1,      1,      1], type =    f32, size =    0.004 MiB
+[ 182/ 310] blk.16.attn_output.weight            - [  2048,   1024,      1,      1], type =   q8_0, converting to nvfp4 .. size =     2.12 MiB ->     1.12 MiB
+[ 183/ 310] blk.16.attn_q.weight                 - [  1024,   2048,      1,      1], type =   q8_0, converting to nvfp4 .. size =     2.12 MiB ->     1.12 MiB
+[ 184/ 310] blk.16.attn_q_norm.weight            - [   128,      1,      1,      1], type =    f32, size =    0.000 MiB
+[ 185/ 310] blk.16.attn_v.weight                 - [  1024,   1024,      1,      1], type =   q8_0, converting to nvfp4 .. size =     1.06 MiB ->     0.56 MiB
+[ 186/ 310] blk.16.ffn_down.weight               - [  3072,   1024,      1,      1], type =   q8_0, converting to nvfp4 .. size =     3.19 MiB ->     1.69 MiB
+[ 187/ 310] blk.16.ffn_gate.weight               - [  1024,   3072,      1,      1], type =   q8_0, converting to nvfp4 .. size =     3.19 MiB ->     1.69 MiB
+[ 188/ 310] blk.16.ffn_norm.weight               - [  1024,      1,      1,      1], type =    f32, size =    0.004 MiB
+[ 189/ 310] blk.16.ffn_up.weight                 - [  1024,   3072,      1,      1], type =   q8_0, converting to nvfp4 .. size =     3.19 MiB ->     1.69 MiB
+[ 190/ 310] blk.17.attn_k.weight                 - [  1024,   1024,      1,      1], type =   q8_0, converting to nvfp4 .. size =     1.06 MiB ->     0.56 MiB
+[ 191/ 310] blk.17.attn_k_norm.weight            - [   128,      1,      1,      1], type =    f32, size =    0.000 MiB
+[ 192/ 310] blk.17.attn_norm.weight              - [  1024,      1,      1,      1], type =    f32, size =    0.004 MiB
+[ 193/ 310] blk.17.attn_output.weight            - [  2048,   1024,      1,      1], type =   q8_0, converting to nvfp4 .. size =     2.12 MiB ->     1.12 MiB
+[ 194/ 310] blk.17.attn_q.weight                 - [  1024,   2048,      1,      1], type =   q8_0, converting to nvfp4 .. size =     2.12 MiB ->     1.12 MiB
+[ 195/ 310] blk.17.attn_q_norm.weight            - [   128,      1,      1,      1], type =    f32, size =    0.000 MiB
+[ 196/ 310] blk.17.attn_v.weight                 - [  1024,   1024,      1,      1], type =   q8_0, converting to nvfp4 .. size =     1.06 MiB ->     0.56 MiB
+[ 197/ 310] blk.17.ffn_down.weight               - [  3072,   1024,      1,      1], type =   q8_0, converting to nvfp4 .. size =     3.19 MiB ->     1.69 MiB
+[ 198/ 310] blk.17.ffn_gate.weight               - [  1024,   3072,      1,      1], type =   q8_0, converting to nvfp4 .. size =     3.19 MiB ->     1.69 MiB
+[ 199/ 310] blk.17.ffn_norm.weight               - [  1024,      1,      1,      1], type =    f32, size =    0.004 MiB
+[ 200/ 310] blk.17.ffn_up.weight                 - [  1024,   3072,      1,      1], type =   q8_0, converting to nvfp4 .. size =     3.19 MiB ->     1.69 MiB
+[ 201/ 310] blk.18.attn_k.weight                 - [  1024,   1024,      1,      1], type =   q8_0, converting to nvfp4 .. size =     1.06 MiB ->     0.56 MiB
+[ 202/ 310] blk.18.attn_k_norm.weight            - [   128,      1,      1,      1], type =    f32, size =    0.000 MiB
+[ 203/ 310] blk.18.attn_norm.weight              - [  1024,      1,      1,      1], type =    f32, size =    0.004 MiB
+[ 204/ 310] blk.18.attn_output.weight            - [  2048,   1024,      1,      1], type =   q8_0, converting to nvfp4 .. size =     2.12 MiB ->     1.12 MiB
+[ 205/ 310] blk.18.attn_q.weight                 - [  1024,   2048,      1,      1], type =   q8_0, converting to nvfp4 .. size =     2.12 MiB ->     1.12 MiB
+[ 206/ 310] blk.18.attn_q_norm.weight            - [   128,      1,      1,      1], type =    f32, size =    0.000 MiB
+[ 207/ 310] blk.18.attn_v.weight                 - [  1024,   1024,      1,      1], type =   q8_0, converting to nvfp4 .. size =     1.06 MiB ->     0.56 MiB
+[ 208/ 310] blk.18.ffn_down.weight               - [  3072,   1024,      1,      1], type =   q8_0, converting to nvfp4 .. size =     3.19 MiB ->     1.69 MiB
+[ 209/ 310] blk.18.ffn_gate.weight               - [  1024,   3072,      1,      1], type =   q8_0, converting to nvfp4 .. size =     3.19 MiB ->     1.69 MiB
+[ 210/ 310] blk.18.ffn_norm.weight               - [  1024,      1,      1,      1], type =    f32, size =    0.004 MiB
+[ 211/ 310] blk.18.ffn_up.weight                 - [  1024,   3072,      1,      1], type =   q8_0, converting to nvfp4 .. size =     3.19 MiB ->     1.69 MiB
+[ 212/ 310] blk.19.attn_k.weight                 - [  1024,   1024,      1,      1], type =   q8_0, converting to nvfp4 .. size =     1.06 MiB ->     0.56 MiB
+[ 213/ 310] blk.19.attn_k_norm.weight            - [   128,      1,      1,      1], type =    f32, size =    0.000 MiB
+[ 214/ 310] blk.19.attn_norm.weight              - [  1024,      1,      1,      1], type =    f32, size =    0.004 MiB
+[ 215/ 310] blk.19.attn_output.weight            - [  2048,   1024,      1,      1], type =   q8_0, converting to nvfp4 .. size =     2.12 MiB ->     1.12 MiB
+[ 216/ 310] blk.19.attn_q.weight                 - [  1024,   2048,      1,      1], type =   q8_0, converting to nvfp4 .. size =     2.12 MiB ->     1.12 MiB
+[ 217/ 310] blk.19.attn_q_norm.weight            - [   128,      1,      1,      1], type =    f32, size =    0.000 MiB
+[ 218/ 310] blk.19.attn_v.weight                 - [  1024,   1024,      1,      1], type =   q8_0, converting to nvfp4 .. size =     1.06 MiB ->     0.56 MiB
+[ 219/ 310] blk.19.ffn_down.weight               - [  3072,   1024,      1,      1], type =   q8_0, converting to nvfp4 .. size =     3.19 MiB ->     1.69 MiB
+[ 220/ 310] blk.19.ffn_gate.weight               - [  1024,   3072,      1,      1], type =   q8_0, converting to nvfp4 .. size =     3.19 MiB ->     1.69 MiB
+[ 221/ 310] blk.19.ffn_norm.weight               - [  1024,      1,      1,      1], type =    f32, size =    0.004 MiB
+[ 222/ 310] blk.19.ffn_up.weight                 - [  1024,   3072,      1,      1], type =   q8_0, converting to nvfp4 .. size =     3.19 MiB ->     1.69 MiB
+[ 223/ 310] blk.20.attn_k.weight                 - [  1024,   1024,      1,      1], type =   q8_0, converting to nvfp4 .. size =     1.06 MiB ->     0.56 MiB
+[ 224/ 310] blk.20.attn_k_norm.weight            - [   128,      1,      1,      1], type =    f32, size =    0.000 MiB
+[ 225/ 310] blk.20.attn_norm.weight              - [  1024,      1,      1,      1], type =    f32, size =    0.004 MiB
+[ 226/ 310] blk.20.attn_output.weight            - [  2048,   1024,      1,      1], type =   q8_0, converting to nvfp4 .. size =     2.12 MiB ->     1.12 MiB
+[ 227/ 310] blk.20.attn_q.weight                 - [  1024,   2048,      1,      1], type =   q8_0, converting to nvfp4 .. size =     2.12 MiB ->     1.12 MiB
+[ 228/ 310] blk.20.attn_q_norm.weight            - [   128,      1,      1,      1], type =    f32, size =    0.000 MiB
+[ 229/ 310] blk.20.attn_v.weight                 - [  1024,   1024,      1,      1], type =   q8_0, converting to nvfp4 .. size =     1.06 MiB ->     0.56 MiB
+[ 230/ 310] blk.20.ffn_down.weight               - [  3072,   1024,      1,      1], type =   q8_0, converting to nvfp4 .. size =     3.19 MiB ->     1.69 MiB
+[ 231/ 310] blk.20.ffn_gate.weight               - [  1024,   3072,      1,      1], type =   q8_0, converting to nvfp4 .. size =     3.19 MiB ->     1.69 MiB
+[ 232/ 310] blk.20.ffn_norm.weight               - [  1024,      1,      1,      1], type =    f32, size =    0.004 MiB
+[ 233/ 310] blk.20.ffn_up.weight                 - [  1024,   3072,      1,      1], type =   q8_0, converting to nvfp4 .. size =     3.19 MiB ->     1.69 MiB
+[ 234/ 310] blk.21.attn_k.weight                 - [  1024,   1024,      1,      1], type =   q8_0, converting to nvfp4 .. size =     1.06 MiB ->     0.56 MiB
+[ 235/ 310] blk.21.attn_k_norm.weight            - [   128,      1,      1,      1], type =    f32, size =    0.000 MiB
+[ 236/ 310] blk.21.attn_norm.weight              - [  1024,      1,      1,      1], type =    f32, size =    0.004 MiB
+[ 237/ 310] blk.21.attn_output.weight            - [  2048,   1024,      1,      1], type =   q8_0, converting to nvfp4 .. size =     2.12 MiB ->     1.12 MiB
+[ 238/ 310] blk.21.attn_q.weight                 - [  1024,   2048,      1,      1], type =   q8_0, converting to nvfp4 .. size =     2.12 MiB ->     1.12 MiB
+[ 239/ 310] blk.21.attn_q_norm.weight            - [   128,      1,      1,      1], type =    f32, size =    0.000 MiB
+[ 240/ 310] blk.21.attn_v.weight                 - [  1024,   1024,      1,      1], type =   q8_0, converting to nvfp4 .. size =     1.06 MiB ->     0.56 MiB
+[ 241/ 310] blk.21.ffn_down.weight               - [  3072,   1024,      1,      1], type =   q8_0, converting to nvfp4 .. size =     3.19 MiB ->     1.69 MiB
+[ 242/ 310] blk.21.ffn_gate.weight               - [  1024,   3072,      1,      1], type =   q8_0, converting to nvfp4 .. size =     3.19 MiB ->     1.69 MiB
+[ 243/ 310] blk.21.ffn_norm.weight               - [  1024,      1,      1,      1], type =    f32, size =    0.004 MiB
+[ 244/ 310] blk.21.ffn_up.weight                 - [  1024,   3072,      1,      1], type =   q8_0, converting to nvfp4 .. size =     3.19 MiB ->     1.69 MiB
+[ 245/ 310] blk.22.attn_k.weight                 - [  1024,   1024,      1,      1], type =   q8_0, converting to nvfp4 .. size =     1.06 MiB ->     0.56 MiB
+[ 246/ 310] blk.22.attn_k_norm.weight            - [   128,      1,      1,      1], type =    f32, size =    0.000 MiB
+[ 247/ 310] blk.22.attn_norm.weight              - [  1024,      1,      1,      1], type =    f32, size =    0.004 MiB
+[ 248/ 310] blk.22.attn_output.weight            - [  2048,   1024,      1,      1], type =   q8_0, converting to nvfp4 .. size =     2.12 MiB ->     1.12 MiB
+[ 249/ 310] blk.22.attn_q.weight                 - [  1024,   2048,      1,      1], type =   q8_0, converting to nvfp4 .. size =     2.12 MiB ->     1.12 MiB
+[ 250/ 310] blk.22.attn_q_norm.weight            - [   128,      1,      1,      1], type =    f32, size =    0.000 MiB
+[ 251/ 310] blk.22.attn_v.weight                 - [  1024,   1024,      1,      1], type =   q8_0, converting to nvfp4 .. size =     1.06 MiB ->     0.56 MiB
+[ 252/ 310] blk.22.ffn_down.weight               - [  3072,   1024,      1,      1], type =   q8_0, converting to nvfp4 .. size =     3.19 MiB ->     1.69 MiB
+[ 253/ 310] blk.22.ffn_gate.weight               - [  1024,   3072,      1,      1], type =   q8_0, converting to nvfp4 .. size =     3.19 MiB ->     1.69 MiB
+[ 254/ 310] blk.22.ffn_norm.weight               - [  1024,      1,      1,      1], type =    f32, size =    0.004 MiB
+[ 255/ 310] blk.22.ffn_up.weight                 - [  1024,   3072,      1,      1], type =   q8_0, converting to nvfp4 .. size =     3.19 MiB ->     1.69 MiB
+[ 256/ 310] blk.23.attn_k.weight                 - [  1024,   1024,      1,      1], type =   q8_0, converting to nvfp4 .. size =     1.06 MiB ->     0.56 MiB
+[ 257/ 310] blk.23.attn_k_norm.weight            - [   128,      1,      1,      1], type =    f32, size =    0.000 MiB
+[ 258/ 310] blk.23.attn_norm.weight              - [  1024,      1,      1,      1], type =    f32, size =    0.004 MiB
+[ 259/ 310] blk.23.attn_output.weight            - [  2048,   1024,      1,      1], type =   q8_0, converting to nvfp4 .. size =     2.12 MiB ->     1.12 MiB
+[ 260/ 310] blk.23.attn_q.weight                 - [  1024,   2048,      1,      1], type =   q8_0, converting to nvfp4 .. size =     2.12 MiB ->     1.12 MiB
+[ 261/ 310] blk.23.attn_q_norm.weight            - [   128,      1,      1,      1], type =    f32, size =    0.000 MiB
+[ 262/ 310] blk.23.attn_v.weight                 - [  1024,   1024,      1,      1], type =   q8_0, converting to nvfp4 .. size =     1.06 MiB ->     0.56 MiB
+[ 263/ 310] blk.23.ffn_down.weight               - [  3072,   1024,      1,      1], type =   q8_0, converting to nvfp4 .. size =     3.19 MiB ->     1.69 MiB
+[ 264/ 310] blk.23.ffn_gate.weight               - [  1024,   3072,      1,      1], type =   q8_0, converting to nvfp4 .. size =     3.19 MiB ->     1.69 MiB
+[ 265/ 310] blk.23.ffn_norm.weight               - [  1024,      1,      1,      1], type =    f32, size =    0.004 MiB
+[ 266/ 310] blk.23.ffn_up.weight                 - [  1024,   3072,      1,      1], type =   q8_0, converting to nvfp4 .. size =     3.19 MiB ->     1.69 MiB
+[ 267/ 310] blk.24.attn_k.weight                 - [  1024,   1024,      1,      1], type =   q8_0, converting to nvfp4 .. size =     1.06 MiB ->     0.56 MiB
+[ 268/ 310] blk.24.attn_k_norm.weight            - [   128,      1,      1,      1], type =    f32, size =    0.000 MiB
+[ 269/ 310] blk.24.attn_norm.weight              - [  1024,      1,      1,      1], type =    f32, size =    0.004 MiB
+[ 270/ 310] blk.24.attn_output.weight            - [  2048,   1024,      1,      1], type =   q8_0, converting to nvfp4 .. size =     2.12 MiB ->     1.12 MiB
+[ 271/ 310] blk.24.attn_q.weight                 - [  1024,   2048,      1,      1], type =   q8_0, converting to nvfp4 .. size =     2.12 MiB ->     1.12 MiB
+[ 272/ 310] blk.24.attn_q_norm.weight            - [   128,      1,      1,      1], type =    f32, size =    0.000 MiB
+[ 273/ 310] blk.24.attn_v.weight                 - [  1024,   1024,      1,      1], type =   q8_0, converting to nvfp4 .. size =     1.06 MiB ->     0.56 MiB
+[ 274/ 310] blk.24.ffn_down.weight               - [  3072,   1024,      1,      1], type =   q8_0, converting to nvfp4 .. size =     3.19 MiB ->     1.69 MiB
+[ 275/ 310] blk.24.ffn_gate.weight               - [  1024,   3072,      1,      1], type =   q8_0, converting to nvfp4 .. size =     3.19 MiB ->     1.69 MiB
+[ 276/ 310] blk.24.ffn_norm.weight               - [  1024,      1,      1,      1], type =    f32, size =    0.004 MiB
+[ 277/ 310] blk.24.ffn_up.weight                 - [  1024,   3072,      1,      1], type =   q8_0, converting to nvfp4 .. size =     3.19 MiB ->     1.69 MiB
+[ 278/ 310] blk.25.attn_k.weight                 - [  1024,   1024,      1,      1], type =   q8_0, converting to nvfp4 .. size =     1.06 MiB ->     0.56 MiB
+[ 279/ 310] blk.25.attn_k_norm.weight            - [   128,      1,      1,      1], type =    f32, size =    0.000 MiB
+[ 280/ 310] blk.25.attn_norm.weight              - [  1024,      1,      1,      1], type =    f32, size =    0.004 MiB
+[ 281/ 310] blk.25.attn_output.weight            - [  2048,   1024,      1,      1], type =   q8_0, converting to nvfp4 .. size =     2.12 MiB ->     1.12 MiB
+[ 282/ 310] blk.25.attn_q.weight                 - [  1024,   2048,      1,      1], type =   q8_0, converting to nvfp4 .. size =     2.12 MiB ->     1.12 MiB
+[ 283/ 310] blk.25.attn_q_norm.weight            - [   128,      1,      1,      1], type =    f32, size =    0.000 MiB
+[ 284/ 310] blk.25.attn_v.weight                 - [  1024,   1024,      1,      1], type =   q8_0, converting to nvfp4 .. size =     1.06 MiB ->     0.56 MiB
+[ 285/ 310] blk.25.ffn_down.weight               - [  3072,   1024,      1,      1], type =   q8_0, converting to nvfp4 .. size =     3.19 MiB ->     1.69 MiB
+[ 286/ 310] blk.25.ffn_gate.weight               - [  1024,   3072,      1,      1], type =   q8_0, converting to nvfp4 .. size =     3.19 MiB ->     1.69 MiB
+[ 287/ 310] blk.25.ffn_norm.weight               - [  1024,      1,      1,      1], type =    f32, size =    0.004 MiB
+[ 288/ 310] blk.25.ffn_up.weight                 - [  1024,   3072,      1,      1], type =   q8_0, converting to nvfp4 .. size =     3.19 MiB ->     1.69 MiB
+[ 289/ 310] blk.26.attn_k.weight                 - [  1024,   1024,      1,      1], type =   q8_0, converting to nvfp4 .. size =     1.06 MiB ->     0.56 MiB
+[ 290/ 310] blk.26.attn_k_norm.weight            - [   128,      1,      1,      1], type =    f32, size =    0.000 MiB
+[ 291/ 310] blk.26.attn_norm.weight              - [  1024,      1,      1,      1], type =    f32, size =    0.004 MiB
+[ 292/ 310] blk.26.attn_output.weight            - [  2048,   1024,      1,      1], type =   q8_0, converting to nvfp4 .. size =     2.12 MiB ->     1.12 MiB
+[ 293/ 310] blk.26.attn_q.weight                 - [  1024,   2048,      1,      1], type =   q8_0, converting to nvfp4 .. size =     2.12 MiB ->     1.12 MiB
+[ 294/ 310] blk.26.attn_q_norm.weight            - [   128,      1,      1,      1], type =    f32, size =    0.000 MiB
+[ 295/ 310] blk.26.attn_v.weight                 - [  1024,   1024,      1,      1], type =   q8_0, converting to nvfp4 .. size =     1.06 MiB ->     0.56 MiB
+[ 296/ 310] blk.26.ffn_down.weight               - [  3072,   1024,      1,      1], type =   q8_0, converting to nvfp4 .. size =     3.19 MiB ->     1.69 MiB
+[ 297/ 310] blk.26.ffn_gate.weight               - [  1024,   3072,      1,      1], type =   q8_0, converting to nvfp4 .. size =     3.19 MiB ->     1.69 MiB
+[ 298/ 310] blk.26.ffn_norm.weight               - [  1024,      1,      1,      1], type =    f32, size =    0.004 MiB
+[ 299/ 310] blk.26.ffn_up.weight                 - [  1024,   3072,      1,      1], type =   q8_0, converting to nvfp4 .. size =     3.19 MiB ->     1.69 MiB
+[ 300/ 310] blk.27.attn_k.weight                 - [  1024,   1024,      1,      1], type =   q8_0, converting to nvfp4 .. size =     1.06 MiB ->     0.56 MiB
+[ 301/ 310] blk.27.attn_k_norm.weight            - [   128,      1,      1,      1], type =    f32, size =    0.000 MiB
+[ 302/ 310] blk.27.attn_norm.weight              - [  1024,      1,      1,      1], type =    f32, size =    0.004 MiB
+[ 303/ 310] blk.27.attn_output.weight            - [  2048,   1024,      1,      1], type =   q8_0, converting to nvfp4 .. size =     2.12 MiB ->     1.12 MiB
+[ 304/ 310] blk.27.attn_q.weight                 - [  1024,   2048,      1,      1], type =   q8_0, converting to nvfp4 .. size =     2.12 MiB ->     1.12 MiB
+[ 305/ 310] blk.27.attn_q_norm.weight            - [   128,      1,      1,      1], type =    f32, size =    0.000 MiB
+[ 306/ 310] blk.27.attn_v.weight                 - [  1024,   1024,      1,      1], type =   q8_0, converting to nvfp4 .. size =     1.06 MiB ->     0.56 MiB
+[ 307/ 310] blk.27.ffn_down.weight               - [  3072,   1024,      1,      1], type =   q8_0, converting to nvfp4 .. size =     3.19 MiB ->     1.69 MiB
+[ 308/ 310] blk.27.ffn_gate.weight               - [  1024,   3072,      1,      1], type =   q8_0, converting to nvfp4 .. size =     3.19 MiB ->     1.69 MiB
+[ 309/ 310] blk.27.ffn_norm.weight               - [  1024,      1,      1,      1], type =    f32, size =    0.004 MiB
+[ 310/ 310] blk.27.ffn_up.weight                 - [  1024,   3072,      1,      1], type =   q8_0, converting to nvfp4 .. size =     3.19 MiB ->     1.69 MiB
+llama_model_quantize_impl: model size  =   604.15 MiB (8.50 BPW)
+llama_model_quantize_impl: quant size  =   319.96 MiB (4.50 BPW)
+
+llama_quantize: quantize time =  3557.29 ms
+llama_quantize:    total time =  3557.29 ms

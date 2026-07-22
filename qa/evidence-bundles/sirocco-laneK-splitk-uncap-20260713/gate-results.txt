@@ -1,0 +1,44 @@
+SIROCCO Lane K — SPLITK_MAX uncap (16 -> 32) : correctness gate log
+RTX 3060 Laptop (GA106, CC 8.6, 30 SM), 6 GB, CUDA 12.9, WDDM, Win11
+Model: Llama-3.2-1B-Instruct-Q8_0.gguf (16 layers, n_kv=8, head_dim=64), greedy (temp 0)
+
+===============================================================================
+GATE 1 — decode == spec-verify bit-identity (device test, --ignored)
+  cargo test --release --lib splitk_spec_verify_bit_identical -- --ignored
+  Sweep widened to cross the OLD cap: pc = {512,513,768,769,1024,2000,3840,3841,
+  4096,4097,4864,5504}; 4097->17 splits (first past old cap 16), 4864->19, 5504->22.
+  (Ceiling is the tree emulation's 48KB dynamic-shared budget at pc<=5568, NOT the
+   real split-K decode path, which streams positions and runs to 32k.)
+  RESULT: test result: ok. 1 passed
+  => decode path is bit-identical to the unchanged attention_batched /
+     attention_tree_batched spec-verify kernels at the new 17..22 split counts
+     => lossless speculative decode preserved.
+
+===============================================================================
+GATE 2a — reassociation robustness (isolate the change), ctx=6602
+  Same binary except SPLITK_MAX; old n_splits=16 vs new n_splits=26 (a genuinely
+  different split-K partial-sum grouping). 96 greedy tokens each.
+  RESULT: GATE 2a PASS: 96/96 greedy tokens identical (old 16 vs new 26 @ ctx6602)
+  => uncapping does not move a single greedy token.
+
+===============================================================================
+GATE 2b — saturated split (n_splits=32) vs CPU oracle, multi-prompt
+  New GPU decode (n_splits saturated at 32) vs the CPU reference (ground truth),
+  three distinct high-ctx prompts (matches the multi-prompt bar the rejected #8
+  dp4a q6k change was held to and failed 8/8):
+    prompt A (varied)    : ctx=8802  n_splits=32 -> PASS (64/64 GPU==oracle)
+    prompt B (technical) : ctx=10232 n_splits=32 -> PASS (64/64 GPU==oracle)
+    prompt C (narrative) : ctx=12211 n_splits=32 -> PASS (64/64 GPU==oracle)
+  RESULT: MULTI-PROMPT GATE 2: PASS (all prompts token-identical to oracle)
+
+===============================================================================
+Why token-parity is safe here (and was NOT for #8 dp4a q6k):
+  - #8 changed the GEMV ARITHMETIC (integer dp4a requant, different f32-tail
+    association PER LAYER) -> systematic precision loss compounding across 16
+    layers -> flipped greedy tokens on every prompt.
+  - This change touches NO GEMV. It only raises the split COUNT of the attention
+    online-softmax reduction, which is split-invariant up to one f32 rounding per
+    attention op. It additionally passes the bit-identical decode==spec-verify gate
+    (Gate 1) that the dp4a kernel could never satisfy.
+  Below the SPLITK_THRESHOLD (ctx<=512) n_splits is unchanged -> byte-identical to
+  the old build; zero headline (ctx~0) regression.

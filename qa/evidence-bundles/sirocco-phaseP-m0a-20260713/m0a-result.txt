@@ -1,0 +1,16 @@
+SIROCCO Phase P — M0a TRAFFIC-REALITY kill gate (RTX 3060 Laptop, CC 8.6, ~3MB L2, 271 GB/s peak)
+m0a-traffic.cu lifts attention_batched's read pattern (uint4 K-dot + scalar weighted-V), grid =
+(k_tokens * n_heads) blocks (one per query-token,head), each re-streaming the full prefix K+V.
+Times k=8 vs k=1 at base=8000. Ratio ~8 => re-reads miss to DRAM (flash win real); ~1 => L2 absorbs.
+
+M0a TRAFFIC-REALITY @ base=8000
+  Llama-3.2-1B (32/8, hd64)    t(k=1)=0.422ms t(k=8)=1.357ms  RATIO=3.22  | k=8 naive-traffic BW=386 GB/s (min-read 16.4 MB, naive 524 MB)
+  Llama-3.2-3B (24/8, hd128)   t(k=1)=0.514ms t(k=8)=1.901ms  RATIO=3.70  | k=8 naive-traffic BW=414 GB/s (min-read 32.8 MB, naive 786 MB)
+
+VERDICT: marginal-to-positive GO. Ratio 3.2-3.7 is between the strong-GO(>=5) and KILL(<=2) bars,
+but the naive-traffic BW (386-414 GB/s) EXCEEDS the 271 GB/s DRAM peak -> the kernel demands more
+read bandwidth than DRAM supplies, so ~70% of the re-reads hit DRAM (~30% absorbed by the 3MB L2).
+The re-read traffic is REAL (not a KILL); the realized flash win is BELOW the on-paper 24x -> plan
+for ~2-4x prefill, not 5-6x. Proceed to the decisive gate M0b (token-parity).
+Note: k=1 (32 blocks) underfills the 30 SMs, biasing the ratio toward KILL -> a 3.2-3.7 that already
+clears 2 despite that bias is a genuine (if not spectacular) traffic signal.

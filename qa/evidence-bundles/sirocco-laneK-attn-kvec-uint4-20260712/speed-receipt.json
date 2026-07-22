@@ -1,0 +1,40 @@
+{
+  "schema": "camelid.speed-receipt/v1",
+  "campaign": "SIROCCO",
+  "lane": "K",
+  "row_id": "llama_3_2_1b_instruct_q8_0",
+  "generated_utc": "20260712",
+  "host": "i7-11800H (16T) / RTX 3060 Laptop 6 GiB (GA106, CC 8.6) / Win11 / driver 576.83 / CUDA 12.9 / WDDM",
+  "camelid_ref": "branch sirocco-laneK-coalesced off main@334653d8",
+  "model": "Llama-3.2-1B-Instruct-Q8_0.gguf",
+  "model_sha256": "3f87a880027e7b9ea8e0da9e4009584336f352af444a0e6e5c20721ac4c7ffd1",
+  "optimization": {
+    "name": "uint4 f16 K-cache read (attention decode)",
+    "change": "widen scalar u16 f16 K read to uint4 (128-bit, 8 keys/load), same d-order accumulation",
+    "kernels": ["attention_decode", "attention_decode_sw", "attn_sk_scores"],
+    "diff": "src/cuda_resident.rs, 45 insertions / 4 deletions",
+    "byte_identical": true,
+    "byte_identical_reason": "fmad=false + preserved operation order => same bits; alignment exact (head_dim%8==0 -> 16B-aligned rows; guard falls back to scalar otherwise)",
+    "designed_by": "10-agent design workflow (4 proposals -> judge -> 4 adversarial refuters); chose uint4 byte-identical read"
+  },
+  "correctness": {
+    "splitk_spec_verify_bit_identical": "PASS (ran 1.44s, not skipped; asserts decode == attention_batched == attention_tree_batched bit-identical, pc 512..4096)",
+    "implication": "decode == spec-verify bit-identical => LOSSLESS SPECULATIVE DECODE PRESERVED (the property CAMELID_ATTN_COALESCED breaks)",
+    "runtime_parity_gate": "green (GPU-resident, no CPU fallback)",
+    "ctx0_output": "unchanged ([11,358,2846,3411])",
+    "G_ge_2_coverage": "test exercises attention_decode at pc=512/G=4 (closes the runtime-probe G=1 blind spot the adversarial reviewer flagged)"
+  },
+  "measurements": {
+    "clock_state": "monitored-boost; interleaved A/B (thermal-robust deltas)",
+    "ctx0_no_regression_tok_s": [131.76, 131.06],
+    "ctx1542_split_k": {
+      "uint4_bit_identical": [94.70, 93.93, 91.62],
+      "coalesced_token_parity": [90.23, 88.04, 83.46],
+      "uint4_vs_coalesced_pct": [5.0, 6.7, 9.8],
+      "scalar_baseline_this_session": "~84-86",
+      "uint4_vs_scalar_pct": "~10"
+    }
+  },
+  "verdict": "STRICTLY DOMINATES the coalesced kernel: faster AND byte-identical (preserves lossless spec-decode). Ship default-on; recommend deprecating CAMELID_ATTN_COALESCED.",
+  "followups": ["uint4 weighted-V read (needs mandatory G>=2 device test, NOT the runtime probe)", "uint4 split-K V read (attn_sk_partial)"]
+}

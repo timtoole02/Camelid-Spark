@@ -1,0 +1,137 @@
+{
+  "schema": "camelid.generation_timing_summary.v1",
+  "generated_utc": "2026-06-11T00:55:10.168Z",
+  "inputs": [
+    {
+      "path": "/tmp/12b-promotion-smoke-4/completion.response.json",
+      "file": "completion.response.json",
+      "model": "gemma4_12b_it_q8_0",
+      "object": "text_completion",
+      "prompt_tokens": 0,
+      "completion_tokens": 6,
+      "timings_ms": {
+        "tokenize": 0,
+        "weight_load": 0,
+        "weight_cache_hit": false,
+        "prompt_cache_hit": false,
+        "session_create": 0,
+        "generate": 207854.91812500003,
+        "forward_total": 207854.91812500003,
+        "embedding": 0,
+        "layers_total": 0,
+        "final_norm": 0,
+        "logits": 0,
+        "sample": 0,
+        "prompt_eval_prompt_tokens": 0,
+        "prompt_eval_prefill_tokens": 0,
+        "prefill_forward_total": 0,
+        "prefill_layers_total": 0,
+        "first_token_forward_total": 0,
+        "first_token_layers_total": 0,
+        "first_token_logits": 0
+      },
+      "layer_count": 0,
+      "buckets_ms": {
+        "linear_hot_path": 0,
+        "attention_projection": 0,
+        "ffn_projection": 0,
+        "non_linear_layer": 0,
+        "attention_context": 0,
+        "ffn_activation": 0
+      },
+      "shares": {
+        "linear_hot_path_of_forward": 0,
+        "linear_hot_path_of_layers": null,
+        "attention_projection_of_forward": 0,
+        "ffn_projection_of_forward": 0,
+        "logits_of_forward": 0
+      },
+      "slowest_layers": [],
+      "top_bottlenecks": [
+        {
+          "path": "generation.logits",
+          "ms": 0
+        }
+      ]
+    },
+    {
+      "path": "/tmp/12b-promotion-smoke-4/chat.response.json",
+      "file": "chat.response.json",
+      "model": "gemma4_12b_it_q8_0",
+      "object": "chat.completion",
+      "prompt_tokens": 0,
+      "completion_tokens": 5,
+      "timings_ms": {
+        "tokenize": 0,
+        "weight_load": 0,
+        "weight_cache_hit": false,
+        "prompt_cache_hit": false,
+        "session_create": 0,
+        "generate": 4892.879583,
+        "forward_total": 4892.879583,
+        "embedding": 0,
+        "layers_total": 0,
+        "final_norm": 0,
+        "logits": 0,
+        "sample": 0,
+        "prompt_eval_prompt_tokens": 0,
+        "prompt_eval_prefill_tokens": 0,
+        "prefill_forward_total": 0,
+        "prefill_layers_total": 0,
+        "first_token_forward_total": 0,
+        "first_token_layers_total": 0,
+        "first_token_logits": 0
+      },
+      "layer_count": 0,
+      "buckets_ms": {
+        "linear_hot_path": 0,
+        "attention_projection": 0,
+        "ffn_projection": 0,
+        "non_linear_layer": 0,
+        "attention_context": 0,
+        "ffn_activation": 0
+      },
+      "shares": {
+        "linear_hot_path_of_forward": 0,
+        "linear_hot_path_of_layers": null,
+        "attention_projection_of_forward": 0,
+        "ffn_projection_of_forward": 0,
+        "logits_of_forward": 0
+      },
+      "slowest_layers": [],
+      "top_bottlenecks": [
+        {
+          "path": "generation.logits",
+          "ms": 0
+        }
+      ]
+    }
+  ],
+  "aggregate": {
+    "input_count": 2,
+    "max_forward_total_ms": 207854.91812500003,
+    "avg_forward_total_ms": 106373.89885400001,
+    "avg_generate_ms": 106373.89885400001,
+    "avg_weight_load_ms": 0,
+    "avg_linear_hot_path_ms": 0,
+    "avg_linear_hot_path_share": 0,
+    "max_logits_ms": 0,
+    "top_bottlenecks": [
+      {
+        "path": "generation.logits",
+        "ms": 0,
+        "input": "completion.response.json"
+      },
+      {
+        "path": "generation.logits",
+        "ms": 0,
+        "input": "chat.response.json"
+      }
+    ]
+  },
+  "notes": [
+    "Summarizes Camelid response-local timing diagnostics; use alongside RSS/process samples for performance claims.",
+    "The linear hot-path bucket is attention Q/K/V/O plus FFN gate/up/down layer timing. On lazy Q8_0 runs this is the primary file-backed Q8 reader/dot cost surface.",
+    "This report is measurement evidence only and does not broaden support beyond exact rows validated by parity/API/frontend artifacts."
+  ]
+}

@@ -1,0 +1,22 @@
+## repo
+<ubuntu-worktree>
+## buildqa/clippy-needless-range-loop-58d09b5e-20260518T2100Z...origin/buildqa/clippy-needless-range-loop-58d09b5e-20260518T2100Z
+7e4709ffbb737434f68035a39f07c5f1302c274d
+rustc 1.75.0 (82e1608df 2023-12-21) (built from a source tarball)
+cargo 1.75.0
+## cargo fmt --check
+## cargo check --all-targets --all-features
+## cargo clippy --all-targets --all-features -- -D warnings
+error: failed to parse lock file at: <ubuntu-worktree>/Cargo.lock
+
+Caused by:
+  lock file version 4 requires `-Znext-lockfile-bump`
+error: failed to parse lock file at: <ubuntu-worktree>/Cargo.lock
+
+Caused by:
+  lock file version 4 requires `-Znext-lockfile-bump`
+## cargo test --all-targets --all-features
+error: failed to parse lock file at: <ubuntu-worktree>/Cargo.lock
+
+Caused by:
+  lock file version 4 requires `-Znext-lockfile-bump`

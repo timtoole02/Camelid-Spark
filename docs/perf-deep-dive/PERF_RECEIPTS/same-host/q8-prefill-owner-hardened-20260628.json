@@ -1,0 +1,34 @@
+{
+  "schema": "camelid.q8-prefill-owner-hardened/v1",
+  "generated_utc": "2026-06-28",
+  "lane": "Lane 1 — unified tiled Q8_0 prefill owner, DEFINITIVE hardened measurement (v1+v2+v3)",
+  "host": "win i7-11800H (8C/16T Tiger Lake, AVX-512 + AVX512-VNNI; RTX 3060 6GB hidden)",
+  "camelid_head": "51018c00 + feat/q8-prefill-owner-lane1 (v1+v2+v3, 4x8 default-on)",
+  "llama_pin": "acd79d6",
+  "ubuntu_host": "PENDING (Windows-only per Tim; promotion to default still needs both hosts)",
+
+  "method": "camelid bench-owner-sweep: load model ONCE, measure 4 owner configs INTERLEAVED per round (env read per linear call -> no reload), 2 warmup + 8 measured rounds. owner-sweep-stats.mjs: per-round PAIRED ratios (cancels thermal drift) + bootstrap 95% CI; 'significant' iff CI excludes 1.0. CUDA hidden, greedy, ~516/530-tok prompt.",
+  "why_hardened": "The cross-invocation A/B could NOT resolve the ~3% 4x8 effect (same config swung 0.897->1.044 across runs, ~10% noise) and wrongly called v3 a NULL. The in-process paired harness resolves it cleanly.",
+
+  "results_paired_median_ratio_vs_off": {
+    "llama-3.2-3b-q8": {
+      "off_tok_s": 25.62,
+      "owner_avx2":    { "tok_s": 26.76, "ratio": 1.049, "ci95": [1.038, 1.058], "rounds": "7/8", "verdict": "SIGNIFICANT +4.9%" },
+      "owner_vnni4x4": { "tok_s": 28.11, "ratio": 1.099, "ci95": [1.084, 1.113], "rounds": "8/8", "verdict": "SIGNIFICANT +9.9%" },
+      "owner_vnni4x8": { "tok_s": 29.00, "ratio": 1.135, "ci95": [1.120, 1.150], "rounds": "8/8", "verdict": "SIGNIFICANT +13.5%", "vs_llama": 0.892 },
+      "4x8_vs_4x4":    { "ratio": 1.033, "ci95": [1.014, 1.040], "rounds": "7/8", "verdict": "SIGNIFICANT +3.3%" }
+    },
+    "qwen3-4b-q8": {
+      "off_tok_s": 18.56,
+      "owner_avx2":    { "tok_s": 19.73, "ratio": 1.064, "ci95": [1.050, 1.067], "rounds": "8/8", "verdict": "SIGNIFICANT +6.4%" },
+      "owner_vnni4x4": { "tok_s": 20.58, "ratio": 1.111, "ci95": [1.106, 1.119], "rounds": "8/8", "verdict": "SIGNIFICANT +11.1%" },
+      "owner_vnni4x8": { "tok_s": 21.39, "ratio": 1.158, "ci95": [1.143, 1.162], "rounds": "8/8", "verdict": "SIGNIFICANT +15.8%", "vs_llama": 0.805 },
+      "4x8_vs_4x4":    { "ratio": 1.038, "ci95": [1.034, 1.045], "rounds": "8/8", "verdict": "SIGNIFICANT +3.8%" }
+    }
+  },
+
+  "verdict": "REPRODUCIBLE WIN, bit-exact. The full owner (4x8 VNNI, now default-on within the owner) lands +13.5% (3B) / +15.8% (4B) prefill over the shipping default -> 0.78x->0.89x (3B) and 0.67x->0.81x (4B) of llama.cpp. Every step significant (CI excludes 1.0). v3 (4x8) is a SIGNIFICANT +3.3%/+3.8% over v2, NOT a null -- the prior null was thermal noise the hardened paired harness eliminates. Owner stays default-off overall; promotion to default needs the Ubuntu host (both-host treaty).",
+
+  "supersedes": "q8-prefill-owner-v3-4x8-20260628.json (the 'honest null' verdict, which was a measurement artifact).",
+  "next_v4": "GotoBLAS 2D cache blocking + cross-projection single-quant (attn_norm 3x->1x, ffn_norm 2x->1x). Both bit-exact-preservable; now measurable via the hardened harness."
+}

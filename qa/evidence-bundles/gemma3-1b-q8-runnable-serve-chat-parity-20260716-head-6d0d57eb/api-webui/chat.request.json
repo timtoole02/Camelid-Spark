@@ -1,0 +1,12 @@
+{
+  "model": "gemma_3_1b_it_q8_0",
+  "messages": [
+    {
+      "role": "user",
+      "content": "hello"
+    }
+  ],
+  "max_tokens": 1,
+  "stream": false,
+  "temperature": 0
+}

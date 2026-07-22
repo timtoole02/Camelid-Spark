@@ -1,0 +1,26 @@
+[gemma4-master] layers 0..24 local, 24.. on <link-local-peer>:5005; loading...
+[gemma4-master] done in 342.6s; stats: {"prompt_tokens":9,"generated_tokens":28,"activation_payload_bytes_per_step":15384,"ttft_ms":158347.941833,"decode_tokens_per_s":6.166388034165599,"total_wire_round_trips":37,"local_step_ms_avg":4320.016301783784,"wire_step_ms_avg":82.37773537837839}
+[gemma4-master] token_ids: [100, 45518, 107, 101, 16520, 11707, 20568, 506, 6784, 236764, 107, 7315, 1933, 101853, 8091, 657, 506, 20015, 236764, 107, 39300, 532, 9551, 236772, 101960, 524, 12556, 236761]
+A haiku about the sea:
+<|channel>thought
+<channel|>Blue waves kiss the sand,
+Endless tides pull at the shore,
+Deep and salt-kissed soul.
+      342.58 real        20.23 user         8.31 sys
+          6897451008  maximum resident set size
+                   0  average shared memory size
+                   0  average unshared data size
+                   0  average unshared stack size
+              400357  page reclaims
+              766882  page faults
+                   0  swaps
+                  21  block input operations
+                   0  block output operations
+                 112  messages sent
+                  38  messages received
+                   0  signals received
+                 186  voluntary context switches
+              376273  involuntary context switches
+        385889170089  instructions retired
+         85534391867  cycles elapsed
+           324085312  peak memory footprint

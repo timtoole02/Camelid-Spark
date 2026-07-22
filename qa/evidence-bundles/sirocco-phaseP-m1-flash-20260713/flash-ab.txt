@@ -1,0 +1,7 @@
+=== flash prefill A/B (off=split-K attention_batched, on=flash) ===
+  ctx=2092  OFF=7575.7ms  FLASH=6251.9ms  speedup=1.21x
+  ctx=4072  OFF=23007.1ms  FLASH=13379.1ms  speedup=1.72x
+  ctx=6602  OFF=64084.9ms  FLASH=29413.0ms  speedup=2.18x
+=== flash A/B at high ctx (peak magnitude) ===
+  ctx=8802  OFF=132594.0ms  FLASH=43044.4ms  speedup=3.08x
+  ctx=12211  OFF=728627.8ms  FLASH=63359.4ms  speedup=11.50x

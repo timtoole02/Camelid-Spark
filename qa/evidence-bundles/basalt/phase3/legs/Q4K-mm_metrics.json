@@ -1,0 +1,169 @@
+{
+ "sha": "8038abba5a1cfc7c7ec3dd2a27998b526340cea0",
+ "row": "Q4K-mm",
+ "positions": 296,
+ "matches": 274,
+ "agreement_pct": 92.6,
+ "kl_nats": {
+  "mean": 0.06458846224820616,
+  "median": 0.0019495700584268936,
+  "p95_nearest_rank": 0.37175675285288473,
+  "max": 1.5143226136351364,
+  "max_location": {
+   "prompt_id": "rust-fn",
+   "step": 2
+  }
+ },
+ "per_prompt": {
+  "capital-france": {
+   "matches": 12,
+   "positions": 13
+  },
+  "count-primes": {
+   "matches": 23,
+   "positions": 24
+  },
+  "haiku-sea": {
+   "matches": 19,
+   "positions": 19
+  },
+  "rust-fn": {
+   "matches": 22,
+   "positions": 24
+  },
+  "translate-de": {
+   "matches": 13,
+   "positions": 16
+  },
+  "primary-colors": {
+   "matches": 43,
+   "positions": 50
+  },
+  "village-story": {
+   "matches": 42,
+   "positions": 50
+  },
+  "water-cycle": {
+   "matches": 50,
+   "positions": 50
+  },
+  "pancake-recipe": {
+   "matches": 50,
+   "positions": 50
+  }
+ },
+ "mismatch_positions": [
+  {
+   "prompt_id": "capital-france",
+   "step": 2,
+   "kl": 0.6899217291143367
+  },
+  {
+   "prompt_id": "count-primes",
+   "step": 18,
+   "kl": 0.14293861501695554
+  },
+  {
+   "prompt_id": "rust-fn",
+   "step": 2,
+   "kl": 1.5143226136351364
+  },
+  {
+   "prompt_id": "rust-fn",
+   "step": 8,
+   "kl": 0.19388761906170385
+  },
+  {
+   "prompt_id": "translate-de",
+   "step": 0,
+   "kl": 0.01538898720092439
+  },
+  {
+   "prompt_id": "translate-de",
+   "step": 2,
+   "kl": 0.13168257468889166
+  },
+  {
+   "prompt_id": "translate-de",
+   "step": 7,
+   "kl": 0.4241339165891089
+  },
+  {
+   "prompt_id": "primary-colors",
+   "step": 8,
+   "kl": 0.00487168286454835
+  },
+  {
+   "prompt_id": "primary-colors",
+   "step": 10,
+   "kl": 0.37175675285288473
+  },
+  {
+   "prompt_id": "primary-colors",
+   "step": 14,
+   "kl": 0.15571439424620134
+  },
+  {
+   "prompt_id": "primary-colors",
+   "step": 18,
+   "kl": 0.22308960199083328
+  },
+  {
+   "prompt_id": "primary-colors",
+   "step": 22,
+   "kl": 0.39987911966775824
+  },
+  {
+   "prompt_id": "primary-colors",
+   "step": 26,
+   "kl": 0.12268461327526595
+  },
+  {
+   "prompt_id": "primary-colors",
+   "step": 38,
+   "kl": 0.13092460314002805
+  },
+  {
+   "prompt_id": "village-story",
+   "step": 3,
+   "kl": 0.37164071299649837
+  },
+  {
+   "prompt_id": "village-story",
+   "step": 15,
+   "kl": 0.8811208493925361
+  },
+  {
+   "prompt_id": "village-story",
+   "step": 19,
+   "kl": 0.5629149267943724
+  },
+  {
+   "prompt_id": "village-story",
+   "step": 22,
+   "kl": 0.7454664249193803
+  },
+  {
+   "prompt_id": "village-story",
+   "step": 25,
+   "kl": 0.375036466050067
+  },
+  {
+   "prompt_id": "village-story",
+   "step": 37,
+   "kl": 0.07646973592110674
+  },
+  {
+   "prompt_id": "village-story",
+   "step": 38,
+   "kl": 0.11116236471145695
+  },
+  {
+   "prompt_id": "village-story",
+   "step": 46,
+   "kl": 0.15346234836959768
+  }
+ ],
+ "self_row_bin_identity": "n/a",
+ "top32_excerpts": "retained in legC/Q4K-mm/dump-<prompt>/meta.json (per-step top-32 id,logit)"
+}

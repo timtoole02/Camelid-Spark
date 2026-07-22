@@ -1,0 +1,106 @@
+{
+  "generated_utc": "2026-07-08T15:02:10.208Z",
+  "model": "<home>/models/Qwen3-4B-Q8_0.gguf",
+  "model_id": "qwen3-4b-q8",
+  "facts": 24,
+  "decode_tokens": 64,
+  "repeats": 5,
+  "threads": "8",
+  "llama_ctx": "1536",
+  "cuda_visible_devices": "-1",
+  "host": "win i7-11800H",
+  "camelid_head": "71bc6ee0-dirty-qkvgqa",
+  "llama_pin": "b9918-0512ef1e5",
+  "repeats_detail": [
+    {
+      "rep": 1,
+      "camelid": {
+        "prefill_tok_s": 14,
+        "prompt_tokens": 550,
+        "decode_tok_s": 7.15,
+        "decode_text": "1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,2"
+      },
+      "llama": {
+        "prefill_tok_s": 31.29,
+        "prompt_tokens": 546,
+        "decode_tok_s": 7.38,
+        "decode_text": ""
+      }
+    },
+    {
+      "rep": 2,
+      "camelid": {
+        "prefill_tok_s": 11.77,
+        "prompt_tokens": 550,
+        "decode_tok_s": 8.56,
+        "decode_text": "1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,2"
+      },
+      "llama": {
+        "prefill_tok_s": 38.86,
+        "prompt_tokens": 546,
+        "decode_tok_s": 7.12,
+        "decode_text": ""
+      }
+    },
+    {
+      "rep": 3,
+      "camelid": {
+        "prefill_tok_s": 16.63,
+        "prompt_tokens": 550,
+        "decode_tok_s": 8.59,
+        "decode_text": "1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,2"
+      },
+      "llama": {
+        "prefill_tok_s": 38.25,
+        "prompt_tokens": 546,
+        "decode_tok_s": 7.33,
+        "decode_text": ""
+      }
+    },
+    {
+      "rep": 4,
+      "camelid": {
+        "prefill_tok_s": 16.06,
+        "prompt_tokens": 550,
+        "decode_tok_s": 8.56,
+        "decode_text": "1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,2"
+      },
+      "llama": {
+        "prefill_tok_s": 38.4,
+        "prompt_tokens": 546,
+        "decode_tok_s": 7.54,
+        "decode_text": ""
+      }
+    },
+    {
+      "rep": 5,
+      "camelid": {
+        "prefill_tok_s": 17.28,
+        "prompt_tokens": 550,
+        "decode_tok_s": 8.83,
+        "decode_text": "1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,2"
+      },
+      "llama": {
+        "prefill_tok_s": 38.43,
+        "prompt_tokens": 547,
+        "decode_tok_s": 6.44,
+        "decode_text": ""
+      }
+    }
+  ],
+  "parity": {
+    "level": "decode-text (same prompt, temp=0; each engine applies its own chat template)",
+    "camelid_text": "1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,2",
+    "llama_text": "",
+    "identical": false,
+    "first_divergent_char_index": 0
+  },
+  "median": {
+    "camelid_prefill_tok_s": 16.06,
+    "camelid_decode_tok_s": 8.56,
+    "llama_prefill_tok_s": 38.4,
+    "llama_decode_tok_s": 7.33,
+    "prefill_ratio": 0.42,
+    "decode_ratio": 1.17
+  }
+}

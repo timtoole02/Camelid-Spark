@@ -1,0 +1,61 @@
+diff --git a/src/cuda_resident.rs b/src/cuda_resident.rs
+index 6275da97..d17295a9 100644
+--- a/src/cuda_resident.rs
++++ b/src/cuda_resident.rs
+@@ -1820,6 +1820,37 @@ extern "C" __global__ void attention_batched(
+         scores[p] = dot * scale;
+     }
+     __syncthreads();
++#ifdef FLASH_PROBE
++    // SIROCCO Phase P M0b PROBE (compile-gated by CAMELID_FLASH_PROBE): flash online-softmax rescale,
++    // single pass over the RAW scores with running (m,l,acc) -- reproduces the EXACT float reassociation
++    // a tiled flash kernel introduces, with ZERO tiling. Serial on tid==0 for (m,l); parallel replay for
++    // acc. Probe-only (breaks verify bit-identity by design); bench-generate uses attention_batched only
++    // in prefill, so this isolates the prefill-attention reassociation's token effect. Early-return so
++    // the baseline two-pass below is untouched when the macro is undefined.
++    {
++        __shared__ float sp_m, sp_l;
++        if (tid == 0) {
++            float m = -3.4e38f, l = 0.0f;
++            for (int p = 0; p < position_count; p++) {
++                float s = scores[p]; float mn = fmaxf(m, s);
++                l = l * expf(m - mn) + expf(s - mn); m = mn;
++            }
++            sp_m = m; sp_l = l;
++        }
++        __syncthreads();
++        float invl = 1.0f / sp_l;
++        for (int did = tid; did < head_dim; did += blockDim.x) {
++            float mm = -3.4e38f, a = 0.0f;
++            for (int p = 0; p < position_count; p++) {
++                float s = scores[p]; float mn = fmaxf(mm, s);
++                a = a * expf(mm - mn) + expf(s - mn) * f16_bits_to_f32(vbase[(long)p * head_dim + did]);
++                mm = mn;
++            }
++            out[(long)t * q_per_token + (long)head * head_dim + did] = a * invl;
++        }
++        return;
++    }
++#endif
+     __shared__ float s_max, s_sum;
+     if (tid == 0) {
+         float m = scores[0];
+@@ -2678,11 +2709,17 @@ impl CudaResidentKernels {
+         let stream = ctx
+             .new_stream()
+             .map_err(|e| format!("engine stream: {e}"))?;
+-        let opts = CompileOptions {
++        let mut opts = CompileOptions {
+             fmad: Some(false),
+             arch: Some("compute_61"),
+             ..Default::default()
+         };
++        // SIROCCO Phase P M0b: compile the flash online-rescale probe branch in attention_batched only
++        // when CAMELID_FLASH_PROBE is set. Probe-only (deliberately breaks verify bit-identity); used to
++        // measure whether flash's softmax reassociation flips greedy tokens across the prefill layer stack.
++        if std::env::var("CAMELID_FLASH_PROBE").is_ok() {
++            opts.options.push("--define-macro=FLASH_PROBE=1".to_string());
++        }
+         let ptx: Ptx = cudarc::nvrtc::compile_ptx_with_opts(KERNELS, opts)
+             .map_err(|e| format!("nvrtc: {e}"))?;
+         let m = ctx

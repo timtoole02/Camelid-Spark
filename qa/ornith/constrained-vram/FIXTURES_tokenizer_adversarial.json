@@ -1,0 +1,22 @@
+[
+  "Hello, world! This is plain ASCII text with punctuation: it's fine; isn't it?",
+  "def main() -> int:\n    return sum(x**2 for x in range(10))  # comment\n",
+  "Hello \ud83d\udc4b world \ud83c\udf0d\u2728 family: \ud83d\udc68\u200d\ud83d\udc69\u200d\ud83d\udc67\u200d\ud83d\udc66 flag: \ud83c\uddeb\ud83c\uddf7",
+  "\u4f60\u597d\uff0c\u4e16\u754c\u3002\u65e5\u672c\u8a9e\u306e\u30c6\u30ad\u30b9\u30c8\u3002\ud55c\uad6d\uc5b4 \ud14d\uc2a4\ud2b8.",
+  "tab\there\t\tdouble  spaces   triple\nline\r\nwindows line  \ntrailing spaces  ",
+  " leading space, and a lone newline follows\n",
+  "1234567890 3.14159 0x1A2B v2.5.1-rc3 100,000",
+  "<|im_start|>user\nhello<|im_end|>\n<|im_start|>assistant\n",
+  "<think>\nThe user wants X, so I should Y.\n</think>\nThe answer is 42.",
+  "<tool_call>\n<function=read_file>\n<parameter=path>src/main.rs</parameter>\n</function>\n</tool_call>",
+  "cafe\u0301 nai\u0308ve re\u0301sume\u0301 (NFD combining marks)",
+  "caf\u00e9 na\u00efve r\u00e9sum\u00e9 (NFC precomposed)",
+  "Vi\u1ec7t Nam (NFC) vs Vie\u0323\u0302t Nam (NFD)",
+  "\u0928\u092e\u0938\u094d\u0924\u0947 \u0926\u0941\u0928\u093f\u092f\u093e (Devanagari with matras)",
+  "\u0645\u064f\u062d\u064e\u0645\u0651\u064e\u062f (Arabic with harakat)",
+  "caf\u00e9 \u2615 costs \u20ac5.50 \u2014 \u00abtr\u00e8s bien\u00bb!",
+  "zalgo: Z\u0323\u0301a\u0300\u0316l\u0342g\u0301o\u0302\u0324 text",
+  "mixed: \u4e2d\u6587 with English \u3068\u65e5\u672c\u8a9e and \ud55c\uad6d\uc5b4, plus emoji \ud83c\udf89 and digits 42",
+  " ",
+  "\n"
+]

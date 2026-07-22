@@ -1,0 +1,62 @@
+[
+ {
+  "w": "code",
+  "cam": 50.19,
+  "lla": 97.77,
+  "ratio": 0.513,
+  "cam_path": "ngram-g2",
+  "cam_accept": 84.2,
+  "lla_accept": 67.857,
+  "lla_vs_raw": 1.794
+ },
+ {
+  "w": "json",
+  "cam": 47.53,
+  "lla": 108.7,
+  "ratio": 0.437,
+  "cam_path": "ngram-g4",
+  "cam_accept": 65.5,
+  "lla_accept": 79.167,
+  "lla_vs_raw": 1.994
+ },
+ {
+  "w": "extraction",
+  "cam": 32.49,
+  "lla": 76.25,
+  "ratio": 0.426,
+  "cam_path": "ngram-g2",
+  "cam_accept": 46.2,
+  "lla_accept": 52,
+  "lla_vs_raw": 1.399
+ },
+ {
+  "w": "chat",
+  "cam": 32.07,
+  "lla": 49.5,
+  "ratio": 0.648,
+  "cam_path": "ngram-g4",
+  "cam_accept": 50,
+  "lla_accept": 27.744,
+  "lla_vs_raw": 0.908
+ },
+ {
+  "w": "creative",
+  "cam": 31.73,
+  "lla": 37.73,
+  "ratio": 0.841,
+  "cam_path": "ngram-g2",
+  "cam_accept": 0,
+  "lla_accept": 18.16,
+  "lla_vs_raw": 0.692
+ },
+ {
+  "w": "adversarial",
+  "cam": 32.59,
+  "lla": 45.27,
+  "ratio": 0.72,
+  "cam_path": "ngram-g2",
+  "cam_accept": 53.8,
+  "lla_accept": 24.709,
+  "lla_vs_raw": 0.831
+ }
+]

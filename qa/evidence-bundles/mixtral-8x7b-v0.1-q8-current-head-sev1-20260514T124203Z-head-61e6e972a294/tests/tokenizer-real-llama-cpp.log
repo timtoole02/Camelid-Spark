@@ -1,0 +1,20 @@
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.05s
+     Running tests/tokenizer.rs (target/debug/deps/tokenizer-9632e8184f7c3482)
+
+running 1 test
+
+thread 'encodes_mixtral_real_prompts_like_llama_cpp_when_available' panicked at tests/tokenizer.rs:278:9:
+assertion `left == right` failed: Mixtral tokenizer parity failed for raw_hello; expected IDs are from llama.cpp llama-tokenize against the exact Mixtral-8x7B-Instruct-v0.1.Q8_0 GGUF metadata
+  left: [1, 22557]
+ right: [1, 16230]
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+test encodes_mixtral_real_prompts_like_llama_cpp_when_available ... FAILED
+
+failures:
+
+failures:
+    encodes_mixtral_real_prompts_like_llama_cpp_when_available
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 23 filtered out; finished in 0.07s
+
+error: test failed, to rerun pass `--test tokenizer`

@@ -1,0 +1,18 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "provider": {
+    "camelid": {
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "Camelid Local",
+      "options": {
+        "baseURL": "http://127.0.0.1:8182/v1",
+        "apiKey": "camelid-local"
+      },
+      "models": {
+        "qwen3-4b": { "name": "Qwen3 4B (Camelid local)" }
+      }
+    }
+  },
+  "model": "camelid/qwen3-4b",
+  "tools": { "*": false }
+}

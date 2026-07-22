@@ -1,0 +1,63 @@
+﻿
+
+Complete this Python module. Write a class `LRUCache` with `__init__(self, capacity)`, `get(self, key)`, and `put(self, key, value)` using an OrderedDict, then a short usage example. Only output code:
+
+from collections import OrderedDict
+
+class LRUCache: 
+    def __init__(self, capacity):
+        # Initialize the cache with the given capacity
+        self.cache = OrderedDict()
+        self.capacity = capacity
+
+    def get(self, key):
+        # Return the value of the key if it exists in the cache, else return -1
+        if key in self.cache:
+            # Move the accessed key to the end to mark it as most recently used
+            self.cache.move_to_end(key)
+            return self.cache[key]
+        else:
+            return -1
+
+    def put(self, key, value):
+        # Add or update the key-value pair in the cache
+        #
+
+
+
+
+0.00.022.061 I common_init_result: fitting params to device memory ...
+0.00.022.066 I common_init_result: (for bugs during this step try to reproduce them with -fit off, or provide --verbose logs if the bug only occurs with -fit on)
+0.00.678.708 W common_fit_params: failed to fit params to free device memory: n_gpu_layers already set by user to 99, abort
+0.01.037.999 W load: control-looking token: 128247 '</s>' was not control-type; this is probably a bug in the model. its type will be overridden
+0.03.397.722 W llama_context: n_ctx_seq (2048) < n_ctx_train (40960) -- the full capacity of the model will not be utilized
+0.03.416.735 I common_init_from_params: warming up the model with an empty run - please wait ... (--no-warmup to disable)
+0.03.470.602 I common_init_result: fitting params to device memory ...
+0.03.470.607 I common_init_result: (for bugs during this step try to reproduce them with -fit off, or provide --verbose logs if the bug only occurs with -fit on)
+0.03.763.778 W common_fit_params: failed to fit params to free device memory: n_gpu_layers already set by user to 99, abort
+0.04.000.318 W load: control-looking token: 128247 '</s>' was not control-type; this is probably a bug in the model. its type will be overridden
+0.04.358.301 W llama_context: n_ctx_seq (2048) < n_ctx_train (40960) -- the full capacity of the model will not be utilized
+0.04.373.844 I common_init_from_params: warming up the model with an empty run - please wait ... (--no-warmup to disable)
+0.06.182.987 I encoded   63 tokens in    0.078 seconds, speed:  810.060 t/s
+0.06.182.989 I decoded  129 tokens in    1.709 seconds, speed:   75.482 t/s
+0.06.182.989 I 
+0.06.182.989 I n_draft   = 8
+0.06.182.989 I n_predict = 129
+0.06.182.989 I n_drafted = 208
+0.06.182.990 I n_accept  = 102
+0.06.182.990 I accept    = 49.038%
+0.06.182.990 I 
+0.06.182.990 I draft:
+
+0.06.182.995 I 
+0.06.182.996 I target:
+
+0.06.182.997 I common_perf_print:    sampling time =      29.01 ms
+0.06.182.997 I common_perf_print:    samplers time =      11.76 ms /   129 tokens
+0.06.182.998 I common_perf_print:        load time =    2557.51 ms
+0.06.182.999 I common_perf_print: prompt eval time =     778.42 ms /   297 tokens (    2.62 ms per token,   381.54 tokens per second)
+0.06.183.001 I common_perf_print:        eval time =       0.00 ms /     1 runs   (    0.00 ms per token,      inf tokens per second)
+0.06.183.002 I common_perf_print:       total time =    -372.65 ms /   298 tokens
+0.06.183.003 I common_perf_print: unaccounted time =   -1180.09 ms / 316.7 %      (total - sampling - prompt eval - eval) / (total)
+0.06.183.003 I common_perf_print:    graphs reused =         25
+

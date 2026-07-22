@@ -1,0 +1,22 @@
+{
+  "schema": "camelid.qwen3.chatml_parity_bundle.v1",
+  "generated_utc": "2026-06-14T03:29:05Z",
+  "row_id": "qwen3_0_6b_instruct_q8_0",
+  "display_name": "Qwen3 0.6B Instruct Q8_0",
+  "exact_support_status": "chatml_thinking_disabled_chat_parity_proven",
+  "model": {
+    "id": "Qwen3 0.6B Instruct",
+    "source": "Qwen/Qwen3-0.6B-GGUF/Qwen3-0.6B-Q8_0.gguf",
+    "sha256": "9465e63a22add5354d9bb4b99e90117043c7124007664907259bd16d043bb031",
+    "arch": "qwen3", "quant": "Q8_0",
+    "n_layer": 28, "n_head": 16, "n_head_kv": 8,
+    "embedding_length": 1024, "head_dim": 128,
+    "head_dim_note": "EXPLICIT: head_dim 128 != embedding/head_count (1024/16=64); sourced from attention.key_length",
+    "tied_embeddings": true, "rope_freq_base": 1000000.0, "qk_norm": true
+  },
+  "comparator": {"engine": "llama.cpp", "version": "1 (5d56eff)", "flags": "-ngl 0 -ctk f32 -ctv f32 -fa off --no-repack"},
+  "camelid": {"backend": "cpu_reference", "server_rss_mb_after_generation": 307, "rope_pairing": "split_half (NEOX)"},
+  "mode": "chatml_thinking_disabled_greedy",
+  "all_pass": true,
+  "artifacts": ["qwen3-0.6b-chatml-chat-parity.json"]
+}

@@ -1,0 +1,23 @@
+	Command being timed: "node scripts/run-llama3-prompt-pack.mjs --pack target/tpm-llama32-1b-context8192-head-aaf9207d1669-20260513T182739Z/llama32-1b-context8192-pack.json --out-dir target/tpm-llama32-1b-context8192-head-aaf9207d1669-20260513T182739Z/pack --model $CAMELID_MODEL_DIR/Llama-3.2-1B-Instruct-Q8_0.gguf --model-id llama32-1b-q8-current-head-aaf9207d1669 --prefix llama32-1b-q8-current-head-aaf9207d1669 --backend http://canonical-private-ubuntu-validation-host:19751 --llama-url http://canonical-private-ubuntu-validation-host:19753 --wait-ms 3600000 --llama-flash-attn off --require-prompt-match --require-generated-match --start-llama-server --llama-server $CAMELID_LLAMA_CPP_BIN/llama-server --llama-tokenize $CAMELID_LLAMA_CPP_BIN/llama-tokenize"
+	User time (seconds): 222.63
+	System time (seconds): 7.50
+	Percent of CPU this job got: 60%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 6:17.57
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 3806876
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 0
+	Minor (reclaiming a frame) page faults: 2438093
+	Voluntary context switches: 1689
+	Involuntary context switches: 888
+	Swaps: 0
+	File system inputs: 0
+	File system outputs: 1248
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0

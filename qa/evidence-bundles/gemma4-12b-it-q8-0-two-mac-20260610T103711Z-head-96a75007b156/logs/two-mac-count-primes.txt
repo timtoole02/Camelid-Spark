@@ -1,0 +1,22 @@
+[gemma4-master] layers 0..24 local, 24.. on <link-local-peer>:5005; loading...
+[gemma4-master] done in 347.6s; stats: {"prompt_tokens":7,"generated_tokens":24,"activation_payload_bytes_per_step":15384,"ttft_ms":158167.976416,"decode_tokens_per_s":6.753464157782871,"total_wire_round_trips":31,"local_step_ms_avg":5136.983711096773,"wire_step_ms_avg":79.8405040967742}
+[gemma4-master] token_ids: [1171, 3493, 8355, 4945, 659, 1171, 3493, 8355, 4945, 659, 1171, 1171, 3493, 8355, 4945, 659, 1171, 3493, 8355, 4945, 659, 1171, 3493, 8355]
+The first five prime numbers are first five prime numbers are first five prime numbers are first first five prime numbers are first five prime numbers are first five prime
+      347.64 real        17.22 user         7.95 sys
+          6774800384  maximum resident set size
+                   0  average shared memory size
+                   0  average unshared data size
+                   0  average unshared stack size
+              386298  page reclaims
+              780843  page faults
+                   0  swaps
+                  19  block input operations
+                   0  block output operations
+                  94  messages sent
+                  32  messages received
+                   0  signals received
+                 169  voluntary context switches
+              314437  involuntary context switches
+        327849609179  instructions retired
+         74128589016  cycles elapsed
+           321922600  peak memory footprint

@@ -1,0 +1,56 @@
+{
+  "schema": "camelid.model-promotion.smoke-bundle.v1",
+  "generated_utc": "2026-06-11T09:15:04.707Z",
+  "api_base": "http://127.0.0.1:8231",
+  "frontend_url": "http://127.0.0.1:4175",
+  "model_path": "<models-dir>/gemma-4-26B_q4_0-it.gguf",
+  "model_id": "gemma4_26b_a4b_it_q4_0",
+  "message": "What is the capital of France? Answer in one word.",
+  "max_tokens": 8,
+  "temperature": 0,
+  "allow_guarded_chat": false,
+  "skip_frontend": false,
+  "steps": {
+    "health_before": {
+      "ok": true,
+      "path": "/tmp/ss26-smoke/health-before.json"
+    },
+    "load": {
+      "ok": true,
+      "path": "/tmp/ss26-smoke/load.response.json"
+    },
+    "current_model": {
+      "ok": true,
+      "path": "/tmp/ss26-smoke/current-model.json"
+    },
+    "v1_models": {
+      "ok": true,
+      "path": "/tmp/ss26-smoke/v1-models.json"
+    },
+    "capabilities": {
+      "ok": true,
+      "path": "/tmp/ss26-smoke/capabilities.json"
+    },
+    "v1_completions": {
+      "ok": true,
+      "path": "/tmp/ss26-smoke/completion.response.json"
+    },
+    "v1_chat_completions": {
+      "ok": true,
+      "path": "/tmp/ss26-smoke/chat.response.json"
+    },
+    "generation_timings": {
+      "ok": true,
+      "path": "/tmp/ss26-smoke/generation-timings.run.json"
+    },
+    "health_after": {
+      "ok": true,
+      "path": "/tmp/ss26-smoke/health-after.json"
+    },
+    "frontend_smoke": {
+      "ok": true,
+      "path": "/tmp/ss26-smoke/frontend.summary.json"
+    }
+  },
+  "passed": true
+}

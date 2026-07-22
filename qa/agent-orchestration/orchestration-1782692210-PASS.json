@@ -1,0 +1,47 @@
+{
+  "schema": "camelid.agent-orchestration-receipt/v1",
+  "receipt_id": "2fc635febd5328f8f767639fe02ecbbfbe49ca8d77225b3d1971492a6070210d",
+  "created_unix": 1782692210,
+  "feature": "subagent-orchestration: spawn_subagent + check_subagent_status (stub round-trip + caps/depth/reaping)",
+  "outcome": "PASS",
+  "host": {
+    "os": "windows",
+    "arch": "x86_64",
+    "hostname": "DESKTOP-RLET2RK"
+  },
+  "cases": [
+    {
+      "name": "spawn_run_collect_roundtrip",
+      "observed": "spawn=Ok(\"spawned subagent \\\"rt-1\\\" (depth 1); poll it with check_subagent_status\") | status: completed | note: loop ended: Answered | tool_calls: list_dir(.) | answer: | ROUNDTRIP-OK",
+      "verdict": "PASS"
+    },
+    {
+      "name": "concurrency_cap_enforced",
+      "observed": "a=Ok(\"spawned subagent \\\"cap-a\\\" (depth 1); poll it with check_subagent_status\") b=Err(\"subagent concurrency cap reached (1/1); wait for one to finish (check_subagent_status)\")",
+      "verdict": "PASS"
+    },
+    {
+      "name": "depth_limit_enforced",
+      "observed": "d=Err(\"subagent depth limit reached (1 >= 1); deeper spawning is disabled\")",
+      "verdict": "PASS"
+    },
+    {
+      "name": "timeout_reaps_to_inconclusive",
+      "observed": "status: inconclusive | note: subagent timed out and was terminated | tool_calls:  | answer: | ",
+      "verdict": "PASS"
+    },
+    {
+      "name": "subtask_id_traversal_rejected",
+      "observed": "t=Err(\"invalid subtask_id \\\"../escape\\\" (allowed: ^[a-z0-9-]{1,64}$)\")",
+      "verdict": "PASS"
+    },
+    {
+      "name": "malformed_result_handled",
+      "observed": "status: failed | note: result file is malformed (key must be a string at line 1 column 3)",
+      "verdict": "PASS"
+    }
+  ],
+  "note": "6/6 orchestration mechanics cases passed",
+  "promotes_capability": false,
+  "claims_speedup": false
+}

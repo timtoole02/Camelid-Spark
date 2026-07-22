@@ -1,0 +1,27 @@
+{
+  "config_id": "two-mac-tinyllama-q8",
+  "model": "tinyllama-1.1b-chat-v1.0.Q8_0.gguf",
+  "gguf_sha256": "a4c9bb1dbaa372f6381a035fa5c02ef087aaa1ff1f843a56a22328114f03fc59",
+  "block_count": 22,
+  "nodes": [
+    {
+      "id": "mac-m4-coordinator",
+      "host": "192.168.x.x",
+      "port": null,
+      "role": "coordinator",
+      "layer_range": [0, 11],
+      "owns": ["token_embedding", "decoder_layers[0,11)", "output_norm+output (reference only)"]
+    },
+    {
+      "id": "mini2",
+      "host": "192.168.x.x",
+      "port": 9311,
+      "role": "shard",
+      "layer_range": [11, 22],
+      "owns": ["decoder_layers[11,22)", "output_norm+output", "sampling (greedy argmax)"]
+    }
+  ],
+  "link": "LAN 192.168.x.x/24 (Wi-Fi). Thunderbolt bridge 169.254.0.0/16 also present but its link-local address flapped during testing; LAN used for the gated runs.",
+  "reference": "single-node-camelid",
+  "receipt": "two-mac-tinyllama-q8.json"
+}

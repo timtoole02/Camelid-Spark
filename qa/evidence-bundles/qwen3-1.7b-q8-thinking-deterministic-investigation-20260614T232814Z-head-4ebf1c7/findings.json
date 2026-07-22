@@ -1,0 +1,97 @@
+{
+  "CORRECTION_NOTICE": "CORRECTION (later artifact-free re-measurement): the 'two_mechanisms' decode-vs-prefill attribution below was a MEASUREMENT ARTIFACT (the prefill side was fed a detokenized prefix with parse_special=false, mis-tokenizing the <think>/<|im_start|> special tokens). Re-measured with EXACT token ids (camelid_prompt_token_ids), camelid decode == camelid prefill (capital@73 gap 0.003, not 0.7; 3/3 captured probes agree). The divergence vs llama.cpp is ENTIRELY cross-implementation rounding, NOT decode-vs-prefill. The VERDICT (full-trace parity not achievable via a shared-order config) STANDS and is strengthened. See correction-decode-vs-prefill-artifact.json.",
+  "schema": "camelid.qwen3.thinking_deterministic_parity_investigation.v1",
+  "row_id": "qwen3_1_7b_instruct_q8_0",
+  "question": "Can Qwen3 thinking-mode full-trace token-parity vs the pinned llama.cpp reference be achieved via a shared deterministic reduction-order configuration (promoting the leading-trace claim)?",
+  "verdict": "NO \u2014 not achievable as a configuration. The block-level reduction order is already shared and stable; the residual divergence is fixed per-kernel f32 arithmetic (camelid decode-vs-prefill, and camelid-vs-ggml SIMD), not a reduction-order knob. Leading-trace claim retained; no semantic-agreement fallback used.",
+  "H1_mechanism": {
+    "within_engine_reduction_order_noise": "~0 \u2014 both camelid --deterministic and the ggml reference are reduction-order-STABLE: ggml top-2 gaps were bit-identical under -t 1 vs -t 8, and camelid --deterministic is bit-exact across runs/threads by design (DECISIONS.md D9). So the divergence is NOT explained by within-engine reduction-order noise.",
+    "divergent_position_gaps_logit": [
+      0.1656,
+      0.0218,
+      0.1796,
+      0.0775
+    ],
+    "gap_range": "0.0218 - 0.1796 logit (small near-ties)",
+    "kill_condition": "TRIGGERED in spirit: the perturbation that flips these near-ties is far larger than within-engine reduction-order noise (~0). It is accumulated cross-kernel f32 divergence: camelid prefill vs decode differs by ~0.71 logit on the landmarks/sites pair at capital-of-France token 73 (prefill: +0.7064 landmarks; decode: picks sites), and camelid prefill vs ggml differs by ~0.54 logit on the same pair (camelid +0.7064 vs reference +0.1656). These are real numerical differences > reduction-order noise."
+  },
+  "two_mechanisms": {
+    "dominant_decode_vs_prefill": "3 of 4 probes (capital@73, 2+2@205, hello@26): camelid PREFILL of the agreed prefix reproduces the reference argmax, but camelid incremental DECODE flips it. camelid prefill matches the reference forward pass; the autoregressive decode path diverges (different kernels GEMV-vs-GEMM + step-wise KV accumulation). This is camelid-internal.",
+    "cross_implementation": "1 of 4 probes (primary-color@27, gap 0.0218 \u2014 razor-thin): camelid PREFILL also disagrees with the reference, i.e. fixed camelid-vs-ggml kernel-arithmetic rounding across 28 layers."
+  },
+  "deterministic_mode_finding": "camelid --deterministic produces the EXACT same divergence points (73/27/205/26) as the cpu_reference path used in the shipped leading-trace bundle. The cpu_reference path was already on the order-stable CPU kernels; --deterministic does not move the cross-engine divergence. So a deterministic shared-order config does not help.",
+  "why_not_a_config": "The shared block-level reduction order (per-output serial K, ascending Q8_0 blocks, --no-repack layout) is already adopted by both sides. The residual is (a) camelid decode kernels != camelid prefill kernels and (b) camelid CPU dot (i8mm/dotprod/vDSP) != ggml vec_dot \u2014 fixed per-kernel f32 arithmetic, ISA/implementation-dependent (DECISIONS.md D9 explicitly notes values are ISA-dependent). Making them argmax-identical over a full trace requires reimplementing camelid decode to bit-match its prefill AND camelid kernels to bit-match ggml \u2014 reimplementation (path a), not a shared-order configuration.",
+  "even_if_decode_equaled_prefill": "Full-trace parity would STILL fail: primary-color@27 is a cross-implementation razor-tie (0.0218 logit) that flips regardless of decode/prefill unification.",
+  "actionable_engineering_lead": "The dominant divergence source is camelid decode-vs-prefill numerical inconsistency (~0.7 logit by token 73, accumulated over decode steps; argmax-consistent for tokens 0..72 then flips). The reference (ggml) does not show this decode-vs-prefill flip here. Aligning camelid decode numerics to its prefill path would shrink long-generation divergence (affects all long greedy generation, not just thinking mode) \u2014 this is the real numerical discrepancy the kill condition points to.",
+  "probes": [
+    {
+      "prompt": "What is the capital of France?",
+      "first_divergence_token": 73,
+      "reference_top2_gap_logit": 0.1656,
+      "reference_top2": [
+        {
+          "tok": " landmarks",
+          "logprob": -1.1564
+        },
+        {
+          "tok": " sites",
+          "logprob": -1.322
+        }
+      ],
+      "camelid_prefill_argmax_matches_reference_at_divergence": true,
+      "mechanism": "camelid decode-vs-prefill (prefill matches reference, decode flips)"
+    },
+    {
+      "prompt": "Name a primary color.",
+      "first_divergence_token": 27,
+      "reference_top2_gap_logit": 0.0218,
+      "reference_top2": [
+        {
+          "tok": " In",
+          "logprob": -1.0941
+        },
+        {
+          "tok": " The",
+          "logprob": -1.1159
+        }
+      ],
+      "camelid_prefill_argmax_matches_reference_at_divergence": false,
+      "mechanism": "camelid-vs-llama.cpp cross-implementation (prefill also differs)"
+    },
+    {
+      "prompt": "What is 2+2?",
+      "first_divergence_token": 205,
+      "reference_top2_gap_logit": 0.1796,
+      "reference_top2": [
+        {
+          "tok": " different",
+          "logprob": -0.7147
+        },
+        {
+          "tok": " binary",
+          "logprob": -0.8943
+        }
+      ],
+      "camelid_prefill_argmax_matches_reference_at_divergence": true,
+      "mechanism": "camelid decode-vs-prefill (prefill matches reference, decode flips)"
+    },
+    {
+      "prompt": "Say hello.",
+      "first_divergence_token": 26,
+      "reference_top2_gap_logit": 0.0775,
+      "reference_top2": [
+        {
+          "tok": " that",
+          "logprob": -0.6552
+        },
+        {
+          "tok": " this",
+          "logprob": -0.7326
+        }
+      ],
+      "camelid_prefill_argmax_matches_reference_at_divergence": true,
+      "mechanism": "camelid decode-vs-prefill (prefill matches reference, decode flips)"
+    }
+  ],
+  "outcome": "Leading-trace thinking-mode claim retained unchanged. No promotion. No path-(b) semantic/text-level agreement used."
+}

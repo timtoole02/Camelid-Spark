@@ -1,0 +1,23 @@
+{
+  "schema": "camelid.q8-prefill-owner-v4a/v1",
+  "generated_utc": "2026-06-28",
+  "lane": "Lane 1 v4(a) — in-register SIMD reduction in the VNNI microkernel — REGRESSION, REVERTED",
+  "host": "win i7-11800H (Tiger Lake, AVX-512 + AVX512-VNNI)",
+  "status": "REVERTED — not committed. Negative receipt kept so this is not re-attempted.",
+
+  "what_was_tried": "Replace the VNNI microkernel's per-block reduction (store the 16-lane __m512i to [i32;16] on the stack, then 4 scalar pair-sums) with an IN-REGISTER reduction: _mm512_extracti64x4 + _mm256_add + _mm_hadd x2 + cvtepi32_ps + scale, no memory store. Bit-identical (property test PASS across all 3 microkernels).",
+
+  "hypothesis": "Strictly fewer instructions (no 64-byte store + scalar reads) => faster.",
+
+  "result": "REGRESSION. Hardened paired sweep (camelid bench-owner-sweep, median-of-8, vnni4x8/off ratio — comparable across binaries since it normalizes vs the unchanged off path):",
+  "measured": {
+    "llama-3.2-3b-q8": { "vnni4x8_over_off_before": 1.135, "vnni4x8_over_off_after": 1.096, "delta": "-3.4%" },
+    "qwen3-4b-q8":     { "vnni4x8_over_off_before": 1.158, "vnni4x8_over_off_after": 1.111, "delta": "-4.1%" },
+    "control": "owner_avx2/off (UNCHANGED code) held steady 1.049->1.046 / 1.064->1.061, confirming the runs are comparable and the regression is real, not drift."
+  },
+
+  "why": "The 'strictly fewer ops' intuition failed on this microarchitecture: the in-register reduction is a long DEPENDENT chain (extract -> add -> hadd -> hadd -> unpack -> cvt -> mul -> mul -> load -> add -> store) with high-latency _mm_hadd_epi32 and an AVX-512 <-> AVX2 (256-bit) transition per lane. The store+scalar version lets the CPU retire the store and pipeline the independent scalar int-adds (and the compiler autovectorizes them), which is faster here. Fewer instructions != fewer cycles when the critical path lengthens.",
+
+  "decision": "REVERTED. The store+scalar reduction stays. The VNNI microkernel is at a local optimum on this box.",
+  "value": "Demonstrates why the hardened in-process PAIRED harness was necessary: it caught a plausible 'optimization' that is actually a -3.5% regression, which the noisy cross-invocation A/B could never have resolved."
+}

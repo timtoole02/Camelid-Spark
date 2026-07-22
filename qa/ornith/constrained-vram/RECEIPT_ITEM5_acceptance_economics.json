@@ -1,0 +1,202 @@
+{
+  "schema": "camelid.parity-receipt/v1",
+  "gate": "ITEM5_acceptance_economics",
+  "lane": "ornith-9b-constrained-vram",
+  "date": "2026-07-03T01:43:18.836Z",
+  "method": "teacher-forced greedy agreement over the frozen 20-trace corpus (12,092 tokens): both models consume identical prefixes (the trace tokens) and their per-position greedy argmax streams are compared. Draft = Q3_K_M on the Camelid resident GPU engine; verifier = Q8_0 on the Camelid CPU int8x18 path (the fast-kernel verifier candidate; Q6_K subset equivalence check separate). Verify cost = measured marginal batched-prefill time for +k tokens.",
+  "agreement": {
+    "positions": 12072,
+    "overall_top1_agreement": 0.8675,
+    "per_trace": [
+      {
+        "trace": 1,
+        "positions": 143,
+        "agreement": 0.8182
+      },
+      {
+        "trace": 2,
+        "positions": 484,
+        "agreement": 0.8636
+      },
+      {
+        "trace": 3,
+        "positions": 214,
+        "agreement": 0.8364
+      },
+      {
+        "trace": 4,
+        "positions": 408,
+        "agreement": 0.7941
+      },
+      {
+        "trace": 5,
+        "positions": 357,
+        "agreement": 0.8543
+      },
+      {
+        "trace": 6,
+        "positions": 863,
+        "agreement": 0.8331
+      },
+      {
+        "trace": 7,
+        "positions": 522,
+        "agreement": 0.7625
+      },
+      {
+        "trace": 8,
+        "positions": 488,
+        "agreement": 0.8811
+      },
+      {
+        "trace": 9,
+        "positions": 177,
+        "agreement": 0.8136
+      },
+      {
+        "trace": 10,
+        "positions": 336,
+        "agreement": 0.8244
+      },
+      {
+        "trace": 11,
+        "positions": 816,
+        "agreement": 0.9436
+      },
+      {
+        "trace": 12,
+        "positions": 948,
+        "agreement": 0.9525
+      },
+      {
+        "trace": 13,
+        "positions": 982,
+        "agreement": 0.8849
+      },
+      {
+        "trace": 14,
+        "positions": 813,
+        "agreement": 0.9188
+      },
+      {
+        "trace": 15,
+        "positions": 928,
+        "agreement": 0.8922
+      },
+      {
+        "trace": 16,
+        "positions": 866,
+        "agreement": 0.9088
+      },
+      {
+        "trace": 17,
+        "positions": 923,
+        "agreement": 0.9339
+      },
+      {
+        "trace": 18,
+        "positions": 527,
+        "agreement": 0.7647
+      },
+      {
+        "trace": 19,
+        "positions": 697,
+        "agreement": 0.7805
+      },
+      {
+        "trace": 20,
+        "positions": 580,
+        "agreement": 0.7741
+      }
+    ],
+    "disagreement_gap_leq3_fraction": 0.533
+  },
+  "run_stats": {
+    "4": {
+      "rounds": 3280,
+      "mean_accepted_run": 2.681,
+      "mean_tokens_per_round": 3.681,
+      "full_window_rate": 0.553
+    },
+    "6": {
+      "rounds": 2678,
+      "mean_accepted_run": 3.508,
+      "mean_tokens_per_round": 4.508,
+      "full_window_rate": 0.44
+    },
+    "8": {
+      "rounds": 2356,
+      "mean_accepted_run": 4.124,
+      "mean_tokens_per_round": 5.124,
+      "full_window_rate": 0.354
+    },
+    "12": {
+      "rounds": 2018,
+      "mean_accepted_run": 4.983,
+      "mean_tokens_per_round": 5.983,
+      "full_window_rate": 0.226
+    }
+  },
+  "verify_cost": {
+    "base_prefill_secs_at_prefix": 18.7002,
+    "marginal_secs_per_k": {
+      "4": 0.6227,
+      "6": 0.9909,
+      "8": 1.2398,
+      "12": 1.9504
+    }
+  },
+  "rates": {
+    "draft_gpu_tok_s": 10.06,
+    "baseline_tok_s": 10.72,
+    "baseline_desc": "llama.cpp acd79d6 Q6_K -ngl 22 partial offload, tg64 (best measured verifier-quality baseline on this box)"
+  },
+  "net_model": {
+    "4": {
+      "draft_window_secs": 0.3976,
+      "verify_marginal_secs": 0.6227,
+      "round_secs_pipelined": 0.6227,
+      "net_tok_s": 5.91,
+      "speedup_vs_baseline": 0.55
+    },
+    "6": {
+      "draft_window_secs": 0.5964,
+      "verify_marginal_secs": 0.9909,
+      "round_secs_pipelined": 0.9909,
+      "net_tok_s": 4.55,
+      "speedup_vs_baseline": 0.42
+    },
+    "8": {
+      "draft_window_secs": 0.7952,
+      "verify_marginal_secs": 1.2398,
+      "round_secs_pipelined": 1.2398,
+      "net_tok_s": 4.13,
+      "speedup_vs_baseline": 0.39
+    },
+    "12": {
+      "draft_window_secs": 1.1928,
+      "verify_marginal_secs": 1.9504,
+      "round_secs_pipelined": 1.9504,
+      "net_tok_s": 3.07,
+      "speedup_vs_baseline": 0.29
+    }
+  },
+  "thresholds": {
+    "min_speedup": 1.2,
+    "min_acceptance": 0.8
+  },
+  "go_windows": [],
+  "result": "NO-GO",
+  "q6k_verifier_option": {
+    "agreement": "not measured — dominated before measurement completed",
+    "verify_cost": "DNF: the Q6_K batched 120-token prefill on the runnable CPU lane (generic dequant; no fast K-quant kernel) did not complete ONE measurement in >20 minutes, vs Q8_0 at ~19s. Q8_0 strictly dominates as the verifier: higher fidelity than Q6_K, in-RAM (9.5GB/15.7GB), and owns the only fast CPU kernel (int8x18 maddubs)."
+  },
+  "sensitivity": {
+    "to_flip_GO_at_k4": "net >= 12.86 tok/s requires round <= 0.286s: draft >= 14 tok/s AND verify(k=4) <= 0.286s — BOTH legs must ~2x",
+    "draft_leg": "GPU headroom real (llama.cpp decodes Q4_K_M at ~40 tok/s on this silicon vs our 10.06 on Q3_K_M) — a kernel-perf item could plausibly reach 20+ tok/s",
+    "verify_leg": "CPU batched verify measured 0.157 s/token (slope, warm); the pure weights-bandwidth floor for a k-token batch is ~0.31s (9.5GB @ ~31GB/s) — verify(k=4) can at BEST halve to ~0.31s, still > 0.286s",
+    "conclusion": "Even with an optimistic 2x draft AND bandwidth-floor verify, net(k=4) = 3.68/0.31 = 11.9 tok/s < 12.86 bar. The Inverted-Bactrian premise does not close on this box against the llama.cpp Q6_K-partial baseline. NO-GO is structural, not a tuning shortfall."
+  },
+  "camelid_internal_framing": "net 5.91 tok/s at Q8_0-verified output = 1.8x Camelid's own Q8_0 CPU lane (~3.3 tok/s). A real capability point, but NOT the conductor bar; not promoted.",
+  "conductor_disposition": "Per Item 5 kill criterion: NO-GO receipt written; the Item 4 full-residency Q3_K_M@16K lane (RECEIPT_ITEM4_residency.json) is the promoted deliverable; Items 6-7 do not run. The conductor records a clean NO-GO as a successful outcome."
+}

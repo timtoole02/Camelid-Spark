@@ -1,0 +1,31 @@
+{
+  "schema": "camelid.capability-receipt/v1",
+  "capability_id": "logprobs.top_logprobs",
+  "capability": "logprobs/top_logprobs at temp=0 (any causal LM)",
+  "row": "llama-3.2-1b-instruct-q8_0",
+  "model_label": "Llama 3.2 1B Instruct Q8_0",
+  "oracle_class": "D",
+  "verdict": "validated",
+  "generated": "2026-06-25",
+  "platform": {
+    "os": "windows",
+    "target": "x86_64-pc-windows-msvc",
+    "backend": "cpu",
+    "oracle": "llama.cpp acd79d6 (MSVC, Windows AMD64)"
+  },
+  "gguf": {
+    "filename": "Llama-3.2-1B-Instruct-Q8_0.gguf",
+    "sha256": "3f87a880027e7b9ea8e0da9e4009584336f352af444a0e6e5c20721ac4c7ffd1"
+  },
+  "harness": {
+    "repo_head": "12f202d0a2e1182f0d76ff656f632e2b9e17252e",
+    "branch": "feat/capability-conductor",
+    "working_tree": "Produced with the capability-conductor sampling + n_choices diff UNCOMMITTED on branch feat/capability-conductor (base 12f202d0). Re-seal against the commit once landed.",
+    "binary": "target/release/camelid.exe",
+    "e2e_harness": "qa/capability/smoke.sh (TinyLlama/1B/3B, Windows CPU, CUDA_VISIBLE_DEVICES=-1)"
+  },
+  "evidence": {
+    "kind": "invariant_unit + contract_e2e + oracle_token_parity",
+    "summary": "unit: step_logprob_values is log-softmax (uniform -> ln(1/n); chosen == logit - logsumexp), top is argmax + normalized (sum exp = 1), build_{chat,completion}_logprobs shapes, request validation (logprobs:true accepted, top_logprobs requires it, cap=20). e2e per row (chat logprobs.content[] + completions logprobs.{tokens,token_logprobs,top_logprobs,text_offset}): greedy (temperature=0) invariant holds — chosen token == top_logprobs[0] every step, all logprobs <= 0, top sorted desc, arrays aligned. class-D oracle vs llama.cpp acd79d6 on TinyLlama (/v1/completions, same prompt, greedy): generated token IDs and the top-3 alternative set are BIT-EXACT; logprob VALUES agree within the cross-implementation f32 reduction-order envelope (observed max |delta| ~5.4e-2, compounding over steps — the documented frontier, not bit-exact). Non-streaming single-choice; logprobs+stream and logprobs+n>1 fail closed (typed 400)."
+  }
+}

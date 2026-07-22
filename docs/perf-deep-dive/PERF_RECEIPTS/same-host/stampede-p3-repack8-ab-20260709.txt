@@ -1,0 +1,7 @@
+single-engine four-leg A/B (repack8-prefill-ab.mjs pattern), camelid ffada00f+repack8 (working tree), 3B Q4_K_M, CUDA hidden, no concurrent llama-server, bench-memory-safety compliant (9.2GB free pre-run, no orphans before/after). Counters per record: owner_taken/repack8_taken/repack8_built(last request):
+off            : 13.75, 13.87, 13.91, 13.92 | median 13.89 | 0/0/0
+owner+vnni     : 26.28, 26.30, 26.32, 26.37 | median 26.31 | 392/0/0
+owner+repack8  : 39.11, 39.13, 39.22, 39.29 | median 39.18 | 392/336/0 (built fired on the warmup request; steady-state shows the cached pack)
+off (drift)    : 13.23, 13.47, 13.65, 13.66 | median 13.56 | 0/0/0
+vnni/off: 1.895x | repack8/off: 2.821x | repack8/vnni: 1.489x | drift: 0.976x
+GATE (ship opt-in at repack8/vnni >= 1.15x): PASS at 1.489x. Q4_K_M row ~0.41-0.43x of llama.cpp b9918 (90.76 server / 96.14 bench receipts), from 0.15x at campaign start.

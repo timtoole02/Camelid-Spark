@@ -1,0 +1,5 @@
+# Transient run logs from the speed-campaign harness (regenerated each run; not evidence).
+# The committed evidence lives in qa/evidence-bundles/<bundle>/ (manifest + README + raw logs).
+*.log
+*.log.err
+*.err

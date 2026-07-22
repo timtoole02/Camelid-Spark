@@ -1,0 +1,22 @@
+{
+  "schema": "camelid.speed-receipt.v1",
+  "campaign": "kquant-decode-conductor Phase 2 follow-up",
+  "experiment": "Q6_K 8-lane AVX2 row dot (CAMELID_X86_Q6K_AVX2) vs the scalar oracle, CPU K-quant decode",
+  "generated_utc": "20260628T022001Z",
+  "host": "i7-11800H (16T, Tiger Lake AVX2+AVX-512) / Win11 / 15.7 GiB DDR4",
+  "cpu_lane": "CUDA hidden (CUDA_VISIBLE_DEVICES=-1, CAMELID_CUDA_RESIDENT_{DECODE,PREFILL}=0); K-quant CPU decode default-on",
+  "model": "Qwen3-4B-Q4_K_M.gguf (Q6_K rows: attn_v, ffn_down, tied lm_head)",
+  "command": "bench-generate --max-tokens 96 --iterations 3 --warmup",
+  "parity": {
+    "byte_identical": true,
+    "evidence": "output_token_ids SHA-256 == 777cf33dd34d for ALL iterations, flag OFF and ON. Unit-proven by q6_k_wire_row_dot_avx2_bit_identical (bit-for-bit vs the 8-lane scalar oracle across nblk=1/2/5/11).",
+    "first_divergent_token_index": -1
+  },
+  "measurements": {
+    "q6_k_scalar_default": { "tokens_per_second_per_iter": [6.43, 6.34, 6.30], "median": 6.34 },
+    "q6_k_avx2": { "tokens_per_second_per_iter": [5.00, 4.96, 5.03], "median": 5.00 }
+  },
+  "verdict": "REGRESSION (-21% median, 6.34 -> 5.00 tok/s). The hand-written AVX2 (128-bit cvtepi8->mullo16->extract128->mullo32) is SLOWER than the autovectorized scalar oracle, which the x86-64-v3 + AVX-512 build already vectorizes well; and CPU decode is DRAM-bandwidth-bound (the 6-bit rebuild + weight reads dominate, not the integer dot). Same pattern as the Q8 gated-SIMD regression (-8..-11%) and the Phase-3 prefetch null.",
+  "decision": "CAMELID_X86_Q6K_AVX2 stays DEFAULT-OFF. The kernel + bit-identical test are retained as (a) proof the 8-lane order is AVX2-reproducible bit-for-bit, (b) a parity-guarded regression guard, (c) ready for a non-bandwidth-bound host where it may help. NOT promoted.",
+  "note": "This closes the conductor's Q6_K-AVX2 ask: the kernel exists, is parity-proven, and is measured — and the measurement says do not enable it on this box. The honest-null/negative IS the deliverable."
+}

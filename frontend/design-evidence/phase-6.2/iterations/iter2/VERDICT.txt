@@ -1,0 +1,1 @@
+iter2: peak 17.7% at TTFT, filaments sharper; but completed ink exits the right edge (0.68% after end) — bench current too strong vs swirl

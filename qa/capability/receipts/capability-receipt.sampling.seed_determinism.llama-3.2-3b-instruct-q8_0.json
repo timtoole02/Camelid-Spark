@@ -1,0 +1,31 @@
+{
+  "schema": "camelid.capability-receipt/v1",
+  "capability_id": "sampling.seed_determinism",
+  "capability": "fixed seed reproduces token-for-token across runs",
+  "row": "llama-3.2-3b-instruct-q8_0",
+  "model_label": "Llama 3.2 3B Instruct Q8_0",
+  "oracle_class": "I",
+  "verdict": "validated",
+  "generated": "2026-06-25",
+  "platform": {
+    "os": "windows",
+    "target": "x86_64-pc-windows-msvc",
+    "backend": "cpu",
+    "oracle": "llama.cpp acd79d6 (MSVC, Windows AMD64)"
+  },
+  "gguf": {
+    "filename": "Llama-3.2-3B-Instruct-Q8_0.gguf",
+    "sha256": "f34112a11b7dad74ab517dedf6dcf00d624c9adac2dc0c72c719ca0478554ef2"
+  },
+  "harness": {
+    "repo_head": "12f202d0a2e1182f0d76ff656f632e2b9e17252e",
+    "branch": "feat/capability-conductor",
+    "working_tree": "Produced with the capability-conductor sampling + n_choices diff UNCOMMITTED on branch feat/capability-conductor (base 12f202d0). Re-seal against the commit once landed.",
+    "binary": "target/release/camelid.exe",
+    "e2e_harness": "qa/capability/smoke.sh (TinyLlama/1B/3B, Windows CPU, CUDA_VISIBLE_DEVICES=-1)"
+  },
+  "evidence": {
+    "kind": "invariant_tests + contract_e2e",
+    "summary": "class-I invariant test seeded_sampling_advances_per_decode_step (per-step RNG advance + token-for-token reproducibility; regression for the fixed-per-seed degenerate sampler); e2e per row: two identical temperature=0.8 seed=42 requests returned byte-identical text (TinyLlama \"Yes, I can definitely help\", 1B \"\\\"Cloud\\\"\", 3B \"FROG\")."
+  }
+}

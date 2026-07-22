@@ -1,0 +1,58 @@
+{
+ "sha": "8038abba5a1cfc7c7ec3dd2a27998b526340cea0",
+ "row": "Q8_0",
+ "positions": 296,
+ "matches": 296,
+ "agreement_pct": 100,
+ "kl_nats": {
+  "mean": 0,
+  "median": 0,
+  "p95_nearest_rank": 0,
+  "max": 0,
+  "max_location": {
+   "prompt_id": "capital-france",
+   "step": 0
+  }
+ },
+ "per_prompt": {
+  "capital-france": {
+   "matches": 13,
+   "positions": 13
+  },
+  "count-primes": {
+   "matches": 24,
+   "positions": 24
+  },
+  "haiku-sea": {
+   "matches": 19,
+   "positions": 19
+  },
+  "rust-fn": {
+   "matches": 24,
+   "positions": 24
+  },
+  "translate-de": {
+   "matches": 16,
+   "positions": 16
+  },
+  "primary-colors": {
+   "matches": 50,
+   "positions": 50
+  },
+  "village-story": {
+   "matches": 50,
+   "positions": 50
+  },
+  "water-cycle": {
+   "matches": 50,
+   "positions": 50
+  },
+  "pancake-recipe": {
+   "matches": 50,
+   "positions": 50
+  }
+ },
+ "mismatch_positions": [],
+ "self_row_bin_identity": "296/296 forced-run bins byte-identical to Leg A free-run bins",
+ "top32_excerpts": "retained in legC/Q8_0/dump-<prompt>/meta.json (per-step top-32 id,logit)"
+}

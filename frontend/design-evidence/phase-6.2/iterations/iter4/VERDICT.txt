@@ -1,0 +1,1 @@
+iter4: REAL advection (blend bug fixed) — sinuous ribbon w/ billowing fronts + tail filaments; core blows to white (248,253,255), color lost

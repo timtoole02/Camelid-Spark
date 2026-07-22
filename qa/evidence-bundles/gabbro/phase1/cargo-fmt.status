@@ -1,0 +1,1 @@
+PASS (exit 0) — cargo fmt --manifest-path Cargo.toml --all --check @ 510fa51 on Apple M4

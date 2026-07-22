@@ -1,0 +1,21 @@
+{
+ "schema": "camelid.remote-validation-bundle.v1",
+ "generated_utc": "20260605T172541Z",
+ "source_head": "e29c40e",
+ "row": "Mixtral-8x7B-Instruct-v0.1.Q8_0.gguf",
+ "model_sha256": "cdca4a8c09dfd722702f781d479695cda0d45e1bd1cd602ba1b6085ad921fc5f",
+ "validation_kind": "mixtral_tokenizer_fixture_reconciliation_and_safe_plan_timing",
+ "passed": true,
+ "support_claim": "none; Mixtral support posture unchanged (active validation / partial backend runtime only)",
+ "findings": {
+  "tokenizer": "The 2026-05-14 sev1 raw_hello parity failure was a fixture-capture defect, not a runtime defect. Against the SAME artifact that lane pinned (sha cdca4a8c...), current llama.cpp llama-tokenize emits [1, 22557] (' Hello', SPM space prefix applied) for raw 'Hello', and Camelid's encodes_mixtral_real_prompts_like_llama_cpp_when_available passes with the corrected pack (raw_hello = [1, 22557]; the in-template cases were already consistent). Verified on this host with both outputs captured in this bundle.",
+  "safe_plan_timing": "On a 16GB Apple M4 host, serve places this unpromoted row on the safe cpu_reference plan; a 10-12 token greedy chat could not finish within a 15-minute (then 58-minute) wall clock with file-backed experts, reproducing the recorded long-generation 'hang' class as planner-selected reference-path cost rather than a deadlock. The generation-timeout guard returned controlled 503s as designed (captured response in this bundle).",
+  "reference_loadability": "Current llama.cpp (brew) refuses to GENERATE with this split-expert tensor naming ('missing tensor blk.0.ffn_down_exps.weight', reproduced locally), matching the sev1 lane's reference failure; any future Gate 9A rerun needs a pinned older llama.cpp or a merged-naming requant on the reference side. Tokenization works."
+ },
+ "artifacts": {
+  "llama_tokenize_raw_hello": "llama-tokenize-raw-hello.txt",
+  "camelid_real_tokenizer_test": "camelid-real-tokenizer-test.txt",
+  "serve_timeout_response": "serve-cpu-reference-timeout.response.json"
+ },
+ "open_blockers": "Gate 9A 50-token generation divergence remains the recorded parity blocker (prior step-logit evidence shows llama.cpp's own decode and forced-prefill paths disagree at the divergence point); file-backed expert generation cost remains the continuation blocker. Both stay open; no posture change."
+}

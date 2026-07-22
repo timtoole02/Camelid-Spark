@@ -1,0 +1,32 @@
+Smoke target API: http://127.0.0.1:8231
+Smoke target frontend: http://127.0.0.1:4175
+  frontend_http_200_ms=26
+✓ frontend returned HTTP 200
+  model_load_ms=151
+✓ loaded requested GGUF: <models-dir>/gemma-4-26B_q4_0-it.gguf
+  model_id=gemma4_26b_a4b_it_q4_0; tokenizer=available; dense tensors not bound
+  chat_template=metadata_unparsed; source=tokenizer.chat_template; length=16934
+  health_ms=1
+✓ health ok; generation_ready=true; active_model_id=gemma4_26b_a4b_it_q4_0
+  models_ms=0
+✓ /v1/models returned 1 model(s): gemma4_26b_a4b_it_q4_0
+  current_model_ms=111
+  capabilities_ms=1
+✓ /api/capabilities returned support gate: Current exact-row support: TinyLlama Q8_0 current gate; Llama 3.2 1B Instruct Q8_0 has checked bounded 512/1024/2048/4096/8192 packs; Llama 3.2 3B Instruct Q8_0 is supported_exact_row_smoke with canonical Ubuntu main-lane API/WebUI refresh at source head e9f926ed1a65 plus checked bounded 512/1024/2048 packs; and Llama 3 8B Instruct Q8_0 has checked bounded 512/1024/2048 packs where row-specific PASS artifacts exist. Mistral 7B Instruct v0.3 Q8_0 is supported_exact_row_smoke: checked tokenizer/template, parity (including GPU-vs-CPU greedy continuations on the exact row), bounded 512/1024/2048/4096/8192 context artifacts, and a support-promotion API/WebUI smoke bundle. Mixtral-8x7B-Instruct-v0.1.Q8_0.gguf has bounded one-token backend MoE runtime evidence only; later 5-token/API/WebUI/RSS promotion-candidate artifacts are superseded by Gate 9A 50-token divergence and a longer-continuation hang, so broad/API/WebUI/frontend readiness remains unsupported. These are exact bounded lanes only; no model-native/larger context beyond the checked packs, arbitrary-template behavior, production throughput, portability, neighboring-row, or broad-family support is implied.; compatibility_rows=14; supported_model_families=3; planned_model_families=5; guarded_api_features=9
+✓ WebUI chat gate model=gemma4_26b_a4b_it_q4_0; quant=Q4_0; gemma4_26b_a4b_it_q4_0: supported exact row smoke; contract_supported=true
+  WebUI contract note=gemma4_a4b_moe_decoder · Q4_0 · the exact tracked gemma-4-26B_q4_0-it.gguf (14,439,361,440 bytes, general.architecture=gemma4, A4B MoE: 30 layers, 128 experts top-8, dense shared-expert MLP + sparse expert branch, Q4_0 expert/dense weights + Q6_K tied head, parsed from the GGUF) runs as two-Mac distributed layer sharding (master layers 0..15 local + worker 15..30 + head on the second 16GB M4; model staged over Thunderbolt with full-file sha256 verified identical). On the committed basic_v1 pack vs the pinned plain-f32 reference (llama.cpp 5d56eff --no-repack -fa off -ctk f32 -ctv f32 -ub 1): count-primes (24 tok) and translate-de (16 tok) are full-budget token-identical, and capital-france/haiku-sea/rust-fn match a probe-verified prefix then flip at knife-edge near-ties (camelid top-2 gaps 0.138/0.203/0.419, the reference token is camelid's immediate #2 in all three). Distributed output equals single-node camelid (f32 wire). The distributed SERVE lane answers /v1/chat/completions (non-streaming and SSE) and /v1/completions end-to-end across the pair. Evidence: qa/evidence-bundles/gemma4-26b-it-q4-0-qat-distributed-parity-20260611T084039Z-head-b117d40cb7c3 and the distributed-serve smoke bundle. Camelid supports exact-row text-token generation + serve smoke for this row only, and only through the two-Mac distributed lane; no single-node, bounded-context, performance, portability, multimodal, or full support is implied. Match source: exact /api/capabilities row id match; runtime generation still requires loaded_now=true and generation_ready=true.
+  chat_completion_stream_ms=26304
+✓ streaming chat published 9 visible update(s) before final completion in 26.30s: "Hello! How can I help you today?"
+  stream_events=bytes,role,content,content,content,content,content,content,content,content,content,finish,done
+  chat_completion_ms=2187
+  backend_generated_token_ids=[100]
+  backend_tokenize_ms=undefined
+  backend_weight_load_ms=undefined
+  backend_weight_cache_hit=undefined
+  backend_session_create_ms=undefined
+  backend_generate_ms=2184.73225
+  backend_forward_total_ms=2184.73225
+  backend_layers_total_ms=undefined
+  backend_logits_ms=undefined
+  backend_sample_ms=undefined
+✓ chat completion 1/1 returned in 2.19s: ""

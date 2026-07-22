@@ -1,0 +1,35 @@
+{
+  "schema": "camelid.agent-orchestration-bench/v1",
+  "receipt_id": "7c26a31bde23e41020565031beddfc74e959897cc08bd19b973d8399c06e3388",
+  "created_unix": 1782702313,
+  "rung": 4,
+  "host": {
+    "os": "windows",
+    "arch": "x86_64",
+    "hostname": "DESKTOP-RLET2RK"
+  },
+  "model_id": "Qwen3 4B Instruct",
+  "workloads": [
+    {
+      "name": "io_bound_sleep",
+      "subagents": 3,
+      "sequential_ms": 6344,
+      "concurrent_ms": 2123,
+      "speedup": 2.9882242110221386,
+      "note": "3 canned subagents each sleeping 2000ms (an I/O proxy); the sleeps overlap when concurrent"
+    },
+    {
+      "name": "inference_bound_generation",
+      "subagents": 2,
+      "sequential_ms": 38813,
+      "concurrent_ms": 20704,
+      "speedup": 1.8746619010819165,
+      "note": "2 real subagents that SHARE the one resident model (GPU-monitor-verified: a single ~4.7GB model). Decoding serialises, so any concurrent speedup is OVERHEAD AMORTISATION (per-subagent process startup/connect overlaps), NOT inference parallelism. Noisy on the 6GB box (~1.5-2.9x observed across runs)."
+    }
+  ],
+  "verdict": "I/O-bound: 2.99x measured — the subagents' I/O (here sleeps) genuinely overlaps when concurrent | inference-bound: 1.87x measured, but this is OVERHEAD AMORTISATION (per-subagent process startup overlaps), NOT inference parallelism — the subagents share ONE resident model so decoding serialises; noisy on the 6GB box | A throughput speedup is claimed ONLY for the I/O-bound workload and never generalises. Subagent orchestration cannot parallelise model inference on a single resident model — it is isolation-first; the inference-bound gain is overhead amortisation only.",
+  "speedup_claimed_for": "io_bound_sleep",
+  "notes": [
+    "GPU-monitor evidence: during the inference run the subagents share ONE resident model (a single ~4.7GB footprint, no per-subagent load), so inference decode serialises — the inference-bound gain is overhead amortisation, not parallel inference."
+  ]
+}

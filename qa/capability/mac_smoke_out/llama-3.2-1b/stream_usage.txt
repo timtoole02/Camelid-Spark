@@ -1,0 +1,16 @@
+data: {"id":"chatcmpl-2a85a51d-acd9-4581-9ef5-b7cb385a8a68","object":"chat.completion.chunk","created":0,"model":"Llama 3.2 1B Instruct","choices":[{"index":0,"delta":{"role":"assistant"},"finish_reason":null}]}
+
+data: {"id":"chatcmpl-2a85a51d-acd9-4581-9ef5-b7cb385a8a68","object":"chat.completion.chunk","created":0,"model":"Llama 3.2 1B Instruct","choices":[{"index":0,"delta":{"content":"How"},"finish_reason":null}]}
+
+data: {"id":"chatcmpl-2a85a51d-acd9-4581-9ef5-b7cb385a8a68","object":"chat.completion.chunk","created":0,"model":"Llama 3.2 1B Instruct","choices":[{"index":0,"delta":{"content":" can"},"finish_reason":null}]}
+
+data: {"id":"chatcmpl-2a85a51d-acd9-4581-9ef5-b7cb385a8a68","object":"chat.completion.chunk","created":0,"model":"Llama 3.2 1B Instruct","choices":[{"index":0,"delta":{"content":" I"},"finish_reason":null}]}
+
+data: {"id":"chatcmpl-2a85a51d-acd9-4581-9ef5-b7cb385a8a68","object":"chat.completion.chunk","created":0,"model":"Llama 3.2 1B Instruct","choices":[{"index":0,"delta":{"content":" assist"},"finish_reason":null}]}
+
+data: {"id":"chatcmpl-2a85a51d-acd9-4581-9ef5-b7cb385a8a68","object":"chat.completion.chunk","created":0,"model":"Llama 3.2 1B Instruct","choices":[{"index":0,"delta":{},"finish_reason":"length"}]}
+
+data: {"id":"chatcmpl-2a85a51d-acd9-4581-9ef5-b7cb385a8a68","object":"chat.completion.chunk","created":0,"model":"Llama 3.2 1B Instruct","choices":[],"usage":{"prompt_tokens":11,"completion_tokens":4,"total_tokens":15}}
+
+data: [DONE]
+

@@ -1,0 +1,96 @@
+{
+  "schema": "camelid.chat_template_shape_pack/v1",
+  "pack_id": "gemma3-chat-template-shapes-v1",
+  "purpose": "Byte-locks render_gemma3_prompt (MUSTER M-A1) against the gemma-3-1b-it GGUF tokenizer.chat_template as rendered by the pinned oracle. expected_prompt strings captured from llama.cpp llama-server --jinja /apply-template (version 9632, acd79d603, add_generation_prompt=true) on the exact row GGUF (sha256 b205840c5dcef55078e37d344677869a714ffd42a4ae448c48dcfb52e4bb10d5), solo session, 2026-07-16. Committed BEFORE any parity run per MUSTER_CONDUCTOR.md 6.1.",
+  "oracle": "llama.cpp 9632 (acd79d603) /apply-template --jinja",
+  "shapes": [
+    {
+      "id": "user-only",
+      "messages": [
+        {
+          "role": "user",
+          "content": "What is the capital of France?"
+        }
+      ],
+      "expected_prompt": "<start_of_turn>user\nWhat is the capital of France?<end_of_turn>\n<start_of_turn>model\n"
+    },
+    {
+      "id": "system-fold",
+      "messages": [
+        {
+          "role": "system",
+          "content": "You are a concise assistant."
+        },
+        {
+          "role": "user",
+          "content": "Name the largest ocean."
+        }
+      ],
+      "expected_prompt": "<start_of_turn>user\nYou are a concise assistant.\n\nName the largest ocean.<end_of_turn>\n<start_of_turn>model\n"
+    },
+    {
+      "id": "multi-turn",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Hi there."
+        },
+        {
+          "role": "assistant",
+          "content": "Hello! How can I help?"
+        },
+        {
+          "role": "user",
+          "content": "Say hello again."
+        }
+      ],
+      "expected_prompt": "<start_of_turn>user\nHi there.<end_of_turn>\n<start_of_turn>model\nHello! How can I help?<end_of_turn>\n<start_of_turn>user\nSay hello again.<end_of_turn>\n<start_of_turn>model\n"
+    },
+    {
+      "id": "system-multi-turn",
+      "messages": [
+        {
+          "role": "system",
+          "content": "Answer in one word."
+        },
+        {
+          "role": "user",
+          "content": "Color of the sky?"
+        },
+        {
+          "role": "assistant",
+          "content": "Blue."
+        },
+        {
+          "role": "user",
+          "content": "Color of grass?"
+        }
+      ],
+      "expected_prompt": "<start_of_turn>user\nAnswer in one word.\n\nColor of the sky?<end_of_turn>\n<start_of_turn>model\nBlue.<end_of_turn>\n<start_of_turn>user\nColor of grass?<end_of_turn>\n<start_of_turn>model\n"
+    },
+    {
+      "id": "content-trim",
+      "messages": [
+        {
+          "role": "user",
+          "content": "  What is 2+2?  \n"
+        }
+      ],
+      "expected_prompt": "<start_of_turn>user\nWhat is 2+2?<end_of_turn>\n<start_of_turn>model\n"
+    },
+    {
+      "id": "system-prefix-untrimmed",
+      "messages": [
+        {
+          "role": "system",
+          "content": "Be brief.\n"
+        },
+        {
+          "role": "user",
+          "content": "Define gravity."
+        }
+      ],
+      "expected_prompt": "<start_of_turn>user\nBe brief.\n\n\nDefine gravity.<end_of_turn>\n<start_of_turn>model\n"
+    }
+  ]
+}

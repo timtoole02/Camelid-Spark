@@ -1,0 +1,24 @@
+[gemma4-master] layers 0..24 local, 24.. on <link-local-peer>:5005; loading...
+[gemma4-master] done in 466.1s; stats: {"prompt_tokens":6,"generated_tokens":22,"activation_payload_bytes_per_step":15384,"ttft_ms":160139.42833300002,"decode_tokens_per_s":6.379099671861375,"total_wire_round_trips":28,"local_step_ms_avg":5722.741739642858,"wire_step_ms_avg":119.68864878571428}
+[gemma4-master] token_ids: [9079, 236761, 107, 100, 45518, 107, 101, 6372, 563, 4338, 236761, 9079, 563, 506, 5279, 532, 1346, 129093, 3207, 529, 7001, 236761]
+The capital of France is Paris.
+<|channel>thought
+<channel|>That is correct. Paris is the capital and most populous city of France.
+      467.48 real        15.58 user         8.71 sys
+          6437715968  maximum resident set size
+                   0  average shared memory size
+                   0  average unshared data size
+                   0  average unshared stack size
+              112395  page reclaims
+             1049542  page faults
+                   0  swaps
+                  21  block input operations
+                   0  block output operations
+                  85  messages sent
+                  29  messages received
+                   0  signals received
+                 188  voluntary context switches
+              349899  involuntary context switches
+        300361729448  instructions retired
+         70081712664  cycles elapsed
+           320955968  peak memory footprint

@@ -1,0 +1,12 @@
+{
+  "schema": "camelid.chat_gate_prompt_pack/v1",
+  "pack_id": "phi3-chat-gate-pack-v1",
+  "purpose": "MUSTER M-A2 chat-parity gate pack for the exact row Phi-3-mini-4k-instruct-Q8_0.gguf (sha256 0ac8ee48aeebf7d1b354691fd1e29e91c32ad88bbad10ad45ac880dcd4372a47), to be driven by scripts/chat-parity-phi3.mjs at greedy 1/5/50 on the optimized CPU lane. Prompt construction is deliberately conservative per the recon's LIVE SPM merge-order caveat (phi3 chat prompts tokenize through the divergent segment-merge path with parse_special=true; the known divergence classes — rare words, multi-space runs, emoji/byte-fallback — are all avoided): plain-English single-sentence prompts only. The file carries no sliding-window key (verified at Phase 2 inspect), so no window ceiling constrains these sequences. Stop ids for content-token stripping: <|end|>=32007, <|endoftext|>=32000. Committed BEFORE oracle capture per MUSTER_CONDUCTOR.md 6.1.",
+  "prompts": [
+    "What is the capital of France?",
+    "Say hello in one short sentence.",
+    "Name the largest ocean on Earth.",
+    "What color is the sky on a clear day?",
+    "Count from one to five in words."
+  ]
+}

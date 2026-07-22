@@ -1,0 +1,25 @@
+{
+  "comparison": "camelid GPU (CAMELID_QWEN35_CUDA=1) vs camelid CPU (generic dequant), same Q4_K_M, greedy n=64",
+  "rows": [
+    {
+      "id": 0,
+      "first_divergence": -1
+    },
+    {
+      "id": 1,
+      "first_divergence": -1
+    },
+    {
+      "id": 2,
+      "first_divergence": 53
+    },
+    {
+      "id": 3,
+      "first_divergence": 48
+    },
+    {
+      "id": 4,
+      "first_divergence": -1
+    }
+  ]
+}

@@ -1,0 +1,76 @@
+{
+  "schema": "camelid.qwen3.chatml_chat_parity.v1",
+  "row_id": "qwen3_1_7b_instruct_q8_0",
+  "display_name": "Qwen3 1.7B Instruct Q8_0",
+  "mode": "chatml_thinking_disabled_greedy",
+  "comparator": "llama.cpp /completion (ChatML specials parsed), -ctk f32 -ctv f32 -fa off --no-repack",
+  "camelid_base": "http://127.0.0.1:8185",
+  "llama_base": "http://127.0.0.1:8090",
+  "token_counts": [
+    1
+  ],
+  "all_pass": true,
+  "results": [
+    {
+      "prompt": "Name a primary color.",
+      "chatml_rendered": "<|im_start|>user\nName a primary color.<|im_end|>\n<|im_start|>assistant\n<think>\n\n</think>\n\n",
+      "reference_prompt_tokens": [
+        151644,
+        872,
+        198,
+        675,
+        264,
+        6028,
+        1894,
+        13,
+        151645,
+        198,
+        151644,
+        77091,
+        198,
+        151667,
+        271,
+        151668,
+        271
+      ],
+      "camelid_prompt_tokens": [
+        151644,
+        872,
+        198,
+        675,
+        264,
+        6028,
+        1894,
+        13,
+        151645,
+        198,
+        151644,
+        77091,
+        198,
+        151667,
+        271,
+        151668,
+        271
+      ],
+      "prompt_token_match": true,
+      "generations": {
+        "1": {
+          "reference_text": "Red",
+          "reference_tokens": [
+            6033
+          ],
+          "reference_content_tokens": [
+            6033
+          ],
+          "camelid_text": "Red",
+          "camelid_content_tokens": [
+            6033
+          ],
+          "text_match": true,
+          "token_match": true,
+          "stopped_early_at_eos": false
+        }
+      }
+    }
+  ]
+}

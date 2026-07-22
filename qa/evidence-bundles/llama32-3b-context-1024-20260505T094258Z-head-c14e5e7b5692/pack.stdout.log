@@ -1,0 +1,9 @@
+pack=$CAMELID_WORKTREE/qa/prompt-packs/llama3-context-1024-smoke.json
+out_dir=target/llama32-3b-context-1024-20260505T094258Z-head-c14e5e7b5692/pack
+model=$CAMELID_MODEL_DIR/Llama-3.2-3B-Instruct-Q8_0.gguf
+model_id=llama32-3b-q8
+prompt_count=1
+prompt_tokens_all_match=true
+generated_tokens_all_match=true
+generated_text_all_match=true
+summary_json=target/llama32-3b-context-1024-20260505T094258Z-head-c14e5e7b5692/pack/summary.json

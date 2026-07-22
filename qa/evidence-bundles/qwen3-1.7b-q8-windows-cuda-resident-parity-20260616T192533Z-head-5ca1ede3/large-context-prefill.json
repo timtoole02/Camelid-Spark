@@ -1,0 +1,14 @@
+{
+  "schema": "camelid.qwen3.cuda_resident.large_context_prefill.v1",
+  "row_id": "qwen3_1_7b_instruct_q8_0",
+  "description": "Large-context single-shot GPU-resident prefill check: a multi-thousand-token registry prompt with a planted secret, recalled greedily. Confirms the GPU prefill path engages and is correct at scale.",
+  "prompt_tokens": 5938,
+  "task": "recall the planted secret passphrase from the long context",
+  "gpu_cuda_resident_answer": "QUOKKA-7",
+  "reference_llama_answer": "QUOKKA-7",
+  "match": true,
+  "resident_kv_cap_positions_on_this_gpu": 12633,
+  "gpu_prefill_path": "q8_0_cuda_resident_prefill (single-shot, one forward per token; resident in VRAM)",
+  "vram_note": "On this RTX 3060 Laptop (6 GB), the engine sized the resident KV cap to 12633 positions (weights 1845 MiB + 229376 B/pos + 512 MiB headroom). Contexts up to ~12.6k tokens prefill GPU-resident; the mac bundle scale of 15373 tokens EXCEEDS this 6 GB card and would fall back to the CPU per-token beyond the cap by design. This is a VRAM ceiling of the 6 GB laptop card, not a correctness limit.",
+  "throughput_note": "GPU single-shot prefill is one-forward-per-token (no batched prefill kernel), so ~5.9k tokens took ~188 s on this card; this is a TTFT/throughput characteristic, not a parity issue."
+}

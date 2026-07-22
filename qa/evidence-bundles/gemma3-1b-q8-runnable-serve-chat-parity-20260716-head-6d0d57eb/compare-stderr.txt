@@ -1,0 +1,33 @@
+wrote target/muster-ma1-20260716/gemma3-parity.json
+
+=== "What is the capital of France?" ===
+  prompt-token parity (cross-engine): PASS
+  n=1: text PASS | tokens PASS | camelid="The"
+  n=5: text PASS | tokens PASS | camelid="The capital of France is"
+  n=50: text PASS | tokens PASS | camelid="The capital of France is **Paris**. \n\nIt’s a common misconception that Paris is the *only* capital, but it’s the official and most widely recognized one."
+
+=== "Say hello in one short sentence." ===
+  prompt-token parity (cross-engine): PASS
+  n=1: text PASS | tokens PASS | camelid="Hello"
+  n=5: text PASS | tokens PASS | camelid="Hello there!"
+  n=50: text PASS | tokens PASS | camelid="Hello there!"
+
+=== "Name the largest ocean on Earth." ===
+  prompt-token parity (cross-engine): PASS
+  n=1: text PASS | tokens PASS | camelid="The"
+  n=5: text PASS | tokens PASS | camelid="The largest ocean on Earth"
+  n=50: text PASS | tokens PASS | camelid="The largest ocean on Earth is the **Pacific Ocean**. \n\nIt covers approximately 63 million square miles (165.25 million square kilometers) and is the deepest and most diverse ocean."
+
+=== "What color is the sky on a clear day?" ===
+  prompt-token parity (cross-engine): PASS
+  n=1: text PASS | tokens PASS | camelid="This"
+  n=5: text PASS | tokens PASS | camelid="This is a classic question"
+  n=50: text FAIL | tokens FAIL | camelid="This is a classic question! The color of the sky on a clear day is often described as **blue**. \n\nHowever, it's a bit more complex than just blue! Here's a breakdown of why it's not *just"
+
+=== "Count from one to five in words." ===
+  prompt-token parity (cross-engine): PASS
+  n=1: text PASS | tokens PASS | camelid="Okay"
+  n=5: text PASS | tokens PASS | camelid="Okay, here we go"
+  n=50: text PASS | tokens PASS | camelid="Okay, here we go!\n\nOne, two, three, four, five!"
+
+ALL_PASS: false

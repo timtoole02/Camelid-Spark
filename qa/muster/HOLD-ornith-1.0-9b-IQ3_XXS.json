@@ -1,0 +1,27 @@
+{
+  "schema": "camelid.muster_hold_receipt/v1",
+  "campaign": "MUSTER (MUSTER_CONDUCTOR.md)",
+  "muster_id": "M-B6",
+  "verdict": "HOLD",
+  "sealed_at_gate": "Gate 1 (recon-proven, MUSTER_RECON.md; sign-off 2026-07-16, sealed in Phase 2)",
+  "file": {
+    "filename": "ornith-1.0-9b-IQ3_XXS.gguf",
+    "sha256": "0be488edfb63d7bd112a15b947d8a24fcb184a6678cddb6cc23d0e828b9aa7ae",
+    "size_bytes": 3938165280,
+    "arch": "unparseable through Camelid at this head (sibling series: qwen35)",
+    "quant": "IQ3_XXS mix (in-house bf16+imatrix requant produced at llama.cpp acd79d6)",
+    "provenance": "In-house requant: source ornith-1.0-9b-bf16.gguf (sha256 27bc753487eed85539c3aef63dd602b79cd060401b928c9ff7d30d5556eca260) + committed imatrix qa/ornith/constrained-vram/imatrix_ornith_agentic.gguf, quantized at the pinned llama.cpp build (QUANT_QUALITY_TABLE.md provenance rows). Not an HF upload; the upstream repo carries no IQ3_XXS file (tree verified 2026-07-16)."
+  },
+  "named_blockers": [
+    {
+      "id": "gguf-reader-format-gap",
+      "kind": "camelid_gap",
+      "statement": "GGUF parse fails closed before admission: tensor token_embd.weight carries GGML type id 21 (upstream IQ3_S — the embedding member of the IQ3_XXS mix recipe), which has no arm in GgufTensorType::from_id (src/gguf/reader.rs:66-92; the map covers ids 0-3, 6-15, 20, 23-28, 30, 34-35); layout() returns None for Unknown (reader.rs:123) and tensor_nbytes fails closed (reader.rs:530-535) with: 'unsupported GGUF feature: tensor token_embd.weight has unknown or removed GGML type Unknown(21)'. The whole IQ2/IQ3/IQ1 family (ids 16-19, 21-22, 29) is unmapped, so mapping id 21 alone only moves the failure to the next IQ3 tensor. A fix is a format campaign — reader map + layout + dequant-parity evidence + kernels per the src/tensor/wire_dequant.rs:47-51 discipline and the IQ4_XS PR #455 precedent — not a patch. Reproduced live twice during Phase 1 recon (2026-07-16, camelid inspect AND camelid plan-offload, metadata-only) and re-verified by the adversarial pass, matching the Phase 0 /api/models/local scan reject."
+    }
+  ],
+  "oracle_side_control": "llama.cpp acd79d603 (build 9632) runs this exact file — llama-perplexity PPL 2.5323±0.0332 and 16K llama-server residency at 4,281 MiB peak were measured at the pin (qa/ornith/constrained-vram/QUANT_QUALITY_TABLE.md:24) — isolating the blocker entirely to Camelid format coverage; not an oracle or file-integrity problem.",
+  "chip_consequence": "The file can never reach runtimeReady (a load requires a parse), so the Experimental-unverified chat chip is unreachable for it at this head (frontend/src/lib/chatGate.js); only the static Models-page NotAnchoredRow renders for the scanned file.",
+  "exit_condition": "HOLD until an IQ3 lane earns its own campaign. The recorded compression follow-up preference is IQ2_XXS on the PR #455 rails, not IQ3 (QUANT_QUALITY_TABLE.md:54-56); contract posture already honest (src/api/mod.rs IQ4_XS quant item names IQ3_XXS/IQ2_*/IQ1_* unimplemented-fail-closed; COMPATIBILITY.md Ornith non-claim).",
+  "environment": "head b80788c9 tree (Gate 1 sealed); Windows 11 build 26220",
+  "date": "2026-07-16"
+}

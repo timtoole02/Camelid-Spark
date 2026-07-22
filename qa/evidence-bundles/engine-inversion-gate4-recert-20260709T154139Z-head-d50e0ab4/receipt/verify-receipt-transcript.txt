@@ -1,0 +1,20 @@
+$ camelid verify-receipt tinyllama-oracle-receipt.json --gguf <home>/models/tinyllama-1.1b-chat-v1.0.Q8_0.gguf --llama-server <home>/tools/llama-cpp/llama-server.exe
+(candidate binary at head d50e0ab4; receipt captured live from the candidate server,
+ sealed via `camelid seal-receipt`, request served through the ENGINE-ROUTED replay path)
+
+PASS self-digest: receipt_id matches the canonical body (2691f637929b7f8d23f8bd8c043dea49305a461fc7e66b694a88c6f9680e05bc)
+PASS lane-identity: --gguf sha256 matches lane.gguf_sha256 (a4c9bb1dbaa372f6381a035fa5c02ef087aaa1ff1f843a56a22328114f03fc59)
+PASS reproducibility: receipt records a deterministic (greedy) run
+PASS camelid-rerun: prompt tokens (18), generated tokens (25), and text match the receipt
+=== reference pass (llama.cpp) ===
+PASS self-digest / PASS lane-identity / PASS reproducibility
+INFO reference-rerun: local llama-server reports "version: 9632 (acd79d603)"; receipt made against "b9632-acd79d603"
+PASS reference-rerun: generated tokens (25) and text match llama.cpp (first_divergent_token_index=-1)
+
+RECEIPT VERIFIED (self-digest, lane identity, Camelid replay, and llama.cpp reference re-run all passed across isolated passes)
+
+Capture-time oracle parity (scripts/chat-parity-tinyllama.mjs, live llama-server):
+generated_text_match=true
+first_generated_text_diff_index=-1
+backend_usage={"prompt_tokens":18,"completion_tokens":25,"total_tokens":43}
+llama_usage matches (25/25 greedy tokens identical)

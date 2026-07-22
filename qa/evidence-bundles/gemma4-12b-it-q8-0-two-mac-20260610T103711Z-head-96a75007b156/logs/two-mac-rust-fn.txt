@@ -1,0 +1,25 @@
+[gemma4-master] layers 0..24 local, 24.. on <lan-peer>:5005; loading...
+[gemma4-master] done in 495.7s; stats: {"prompt_tokens":21,"generated_tokens":24,"activation_payload_bytes_per_step":15384,"ttft_ms":161327.78362499998,"decode_tokens_per_s":6.206395089981821,"total_wire_round_trips":45,"local_step_ms_avg":3555.571729644447,"wire_step_ms_avg":115.41898422222222}
+[gemma4-master] token_ids: [107, 140, 1184, 1123, 578, 496, 900, 518, 236793, 107, 140, 1184, 1123, 236779, 236770, 578, 496, 900, 518, 236793, 107, 140, 236781, 236779]
+fn add(a: i32, b: i32) -> i32 {
+    let x = a + b;
+    let x_1 = a + b;
+    x_
+      495.76 real        24.78 user        10.36 sys
+          6776635392  maximum resident set size
+                   0  average shared memory size
+                   0  average unshared data size
+                   0  average unshared stack size
+               52845  page reclaims
+             1113687  page faults
+                   0  swaps
+                  23  block input operations
+                   0  block output operations
+                 136  messages sent
+                  46  messages received
+                   0  signals received
+                 200  voluntary context switches
+              424499  involuntary context switches
+        466060255935  instructions retired
+        102740999231  cycles elapsed
+           327018072  peak memory footprint

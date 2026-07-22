@@ -1,0 +1,17 @@
+{
+  "streaming_usage": {
+    "prompt_tokens": 25,
+    "completion_tokens": 2,
+    "total_tokens": 27
+  },
+  "nonstreaming_usage": {
+    "prompt_tokens": 25,
+    "completion_tokens": 2,
+    "total_tokens": 27
+  },
+  "streamed_text": "4",
+  "nonstreaming_text": "4",
+  "outputs_identical": true,
+  "usage_integers_identical": true,
+  "VERDICT": "PASS — streaming usage == non-streaming usage"
+}

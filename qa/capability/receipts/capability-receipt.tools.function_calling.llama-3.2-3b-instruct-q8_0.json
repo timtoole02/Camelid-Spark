@@ -1,0 +1,31 @@
+{
+  "schema": "camelid.capability-receipt/v1",
+  "capability_id": "tools.function_calling",
+  "capability": "native tool/function calling — REQUIRES tool-call branch or tool/ipython control tokens in THIS model template",
+  "row": "llama-3.2-3b-instruct-q8_0",
+  "model_label": "Llama 3.2 3B Instruct Q8_0",
+  "oracle_class": "B",
+  "verdict": "validated",
+  "generated": "2026-06-25",
+  "platform": {
+    "os": "windows",
+    "target": "x86_64-pc-windows-msvc",
+    "backend": "cpu",
+    "oracle": "llama.cpp acd79d6 (MSVC, Windows AMD64)"
+  },
+  "gguf": {
+    "filename": "Llama-3.2-3B-Instruct-Q8_0.gguf",
+    "sha256": "f34112a11b7dad74ab517dedf6dcf00d624c9adac2dc0c72c719ca0478554ef2"
+  },
+  "harness": {
+    "repo_head": "12f202d0a2e1182f0d76ff656f632e2b9e17252e",
+    "branch": "feat/capability-conductor",
+    "working_tree": "Produced with the capability-conductor sampling + n_choices diff UNCOMMITTED on branch feat/capability-conductor (base 12f202d0). Re-seal against the commit once landed.",
+    "binary": "target/release/camelid.exe",
+    "e2e_harness": "qa/capability/smoke.sh (TinyLlama/1B/3B, Windows CPU, CUDA_VISIBLE_DEVICES=-1)"
+  },
+  "evidence": {
+    "kind": "invariant_unit + behavioral_battery",
+    "summary": "unit: parse_tool_calls extracts the Llama 3.x {name, parameters|arguments} form (tolerates <|python_tag|> prefix + trailing junk; prose / no-name -> None); tool_choice:none suppresses. e2e behavioral battery on Llama 3.2 1B/3B (qa/capability/tools_smoke.sh): tools rendered into the model template on input, output parsed back to OpenAI tool_calls — 6/6 prompts produced structurally-valid tool calls (function name + JSON-string arguments), finish_reason=\"tool_calls\", content emptied; tool_choice:\"none\" suppresses parsing. 3B arguments are semantically correct; 1B is structurally valid but semantically imperfect (model limitation, not the parser). Non-streaming single-choice. TinyLlama / Llama 3 8B stay n/a (template has no tool branch)."
+  }
+}

@@ -1,0 +1,51 @@
+BASALT Phase 4 — NVFP4 dequant-in-kernel CUDA decode GEMV: unit-level bit-parity gate receipts
+Captured: 2026-07-17T16:15:17Z   branch: basalt/phase4-cuda-decode   base HEAD (pre-commit): 38021453e7da408d700b8d6ba591c0d38e42409e
+Host: Windows 11, RTX 3060 Laptop (sm_86), CUDA 12.9. Host paths sanitized (<cam-basalt>/<home>).
+Scope: implementation + unit bit-parity gate ONLY (no model load, no benchmark; CERT + perf table = later G4 step).
+
+================================================================================
+LEG 1 — cargo test --features cuda --lib nvfp4_gemv -- --ignored --nocapture --test-threads=1
+  (the NVFP4 GEMV oracle bit-parity gate + sentinel-decode + residual-fusion + even-bpr refusal)
+================================================================================
+   Compiling camelid v0.3.1 (<cam-basalt>)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 9.76s
+     Running unittests src\lib.rs (target\debug\deps\camelid-57ade021aacdb7b1.exe)
+
+running 4 tests
+test cuda_resident::tests::nvfp4_gemv_decodes_ue4m3_sentinels_pin_cpu_bitwise ... ok
+test cuda_resident::tests::nvfp4_gemv_fuses_residual_add ... ok
+test cuda_resident::tests::nvfp4_gemv_matches_oracle ... nvfp4_gemv_matches_oracle: 46/46 rows bit-identical, worst rel diff 0.000e0
+ok
+test cuda_resident::tests::nvfp4_gemv_requires_even_q8_blocks ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 889 filtered out; finished in 1.80s
+
+
+================================================================================
+LEG 2 — cargo test --test invariant_matrix_binding  (R3 meta-test: 6 L3 open:P4 cells closed)
+================================================================================
+   Compiling camelid v0.3.1 (<cam-basalt>)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 15.24s
+     Running tests\invariant_matrix_binding.rs (target\debug\deps\invariant_matrix_binding-6543ca8856f740a0.exe)
+
+running 9 tests
+test k_div_fixture_trips_parse_refusal ... ok
+test pilot_admit_fixture_is_the_platform_gate_twin ... ok
+test unknown_type_fixture_trips_parse_refusal ... ok
+test sidecar_admit_fixture_trips_d_b2_at_admission ... ok
+test open_cells_reference_only_unlanded_phases ... ok
+test s2_fixtures_are_byte_pinned_and_listed_in_sha256sums ... ok
+test matrix_validates_against_schema_and_is_fully_populated ... ok
+test na_cells_carry_live_structural_anchors ... ok
+test enforced_cells_bind_test_fns_to_source_text ... ok
+
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+
+================================================================================
+OTHER GATE LEGS (summaries, run same session):
+  cargo build --features cuda ............. Finished dev profile (ok)
+  cargo fmt --check ...................... clean (exit 0)
+  cargo clippy --all-targets --all-features -- -D warnings ... Finished (exit 0)
+  cargo test (no cuda) .................... lib 833 passed; 0 failed; 60 ignored + all integration bins 0 failed
+================================================================================

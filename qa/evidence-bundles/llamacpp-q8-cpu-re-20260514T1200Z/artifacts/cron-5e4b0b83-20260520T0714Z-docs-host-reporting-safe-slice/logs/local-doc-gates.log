@@ -1,0 +1,5 @@
+PASS: no stale Ubuntu host-failure status phrases found in public docs scan set.
+ docs/performance/ubuntu-x86-q8.md                                       | 1 +
+ .../cron-5e4b0b83-20260520T0322Z-host-reporting-context-guard/README.md | 2 +-
+ .../commands/local-doc-gates.command.txt                                | 2 +-
+ 3 files changed, 3 insertions(+), 2 deletions(-)

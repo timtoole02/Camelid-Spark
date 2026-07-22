@@ -1,0 +1,11 @@
+file://<validation-host-home>/work/camelid-mixtral-sev1-20260514T123044Z-head-61e6e972a294/frontend/node_modules/rolldown/dist/shared/rolldown-build-DSxL8qiP.mjs:9
+import { formatWithOptions, styleText } from "node:util";
+                            ^^^^^^^^^
+SyntaxError: The requested module 'node:util' does not provide an export named 'styleText'
+    at ModuleJob._instantiate (node:internal/modules/esm/module_job:123:21)
+    at async ModuleJob.run (node:internal/modules/esm/module_job:191:5)
+    at async ModuleLoader.import (node:internal/modules/esm/loader:336:24)
+    at async loadESM (node:internal/process/esm_loader:34:7)
+    at async handleMainPromise (node:internal/modules/run_main:106:12)
+
+Node.js v18.19.1

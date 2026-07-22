@@ -1,0 +1,9 @@
+== repo state ==
+2026-05-19T16:30:22Z
+15332aff6266380933223c25f1fe61dbc20ad850
+## buildqa/clippy-needless-range-loop-58d09b5e-20260518T2100Z...origin/buildqa/clippy-needless-range-loop-58d09b5e-20260518T2100Z
+?? qa/evidence-bundles/llamacpp-q8-cpu-re-20260514T1200Z/artifacts/cron-58d09b5e-20260519T1630Z-ci-qa-guard/
+rustc 1.95.0 (59807616e 2026-04-14) (Homebrew)
+cargo 1.95.0 (f2d3ce0bd 2026-03-21) (Homebrew)
+v22.22.2
+10.9.7

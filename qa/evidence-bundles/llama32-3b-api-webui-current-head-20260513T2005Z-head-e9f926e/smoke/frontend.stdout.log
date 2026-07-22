@@ -1,0 +1,33 @@
+Smoke target API: http://127.0.0.1:19281
+Smoke target frontend: http://127.0.0.1:19275
+  frontend_http_200_ms=27
+✓ frontend returned HTTP 200
+  model_load_ms=701
+✓ loaded requested GGUF: <canonical-model-store>/Llama-3.2-3B-Instruct-Q8_0.gguf
+  model_id=llama32-3b-q8-current-e9f926e; tokenizer=available; dense tensors bound
+  chat_template=llama3_instruct; source=tokenizer.chat_template; length=3827
+  health_ms=8
+✓ health ok; generation_ready=true; active_model_id=llama32-3b-q8-current-e9f926e
+  models_ms=1
+✓ /v1/models returned 1 model(s): llama32-3b-q8-current-e9f926e
+  current_model_ms=90
+  capabilities_ms=14
+✓ /api/capabilities returned support gate: Current exact-row support: TinyLlama Q8_0 current gate; Llama 3.2 1B Instruct Q8_0 has checked bounded 512/1024/2048/4096/8192 packs, while Llama 3.2 3B Instruct Q8_0 and Llama 3 8B Instruct Q8_0 have checked bounded 512/1024/2048 packs where row-specific PASS artifacts exist. Mistral-7B-Instruct-v0.3.Q8_0.gguf now has fail-closed current-head API/WebUI/RSS evidence plus checked 512/1024/2048/4096/8192 validation evidence, but remains active_validation_unsupported with WebUI chat blocked by contract. Mixtral-8x7B-Instruct-v0.1.Q8_0.gguf has bounded one-token backend MoE runtime evidence only; later 5-token/API/WebUI/RSS promotion-candidate artifacts are superseded by Gate 9A 50-token divergence and a longer-continuation hang, so broad/API/WebUI/frontend readiness remains unsupported. These are exact bounded lanes only; no model-native/larger context beyond the checked packs, arbitrary-template behavior, throughput, portability, neighboring-row, or broad-family support is implied.; compatibility_rows=10; supported_model_families=2; planned_model_families=6; guarded_api_features=2
+✓ WebUI chat gate model=llama32-3b-q8-current-e9f926e; quant=Q8_0; llama32_3b_instruct_q8_0: supported exact row smoke; contract_supported=true
+  WebUI contract note=llama_bpe_decoder · Q8_0 · the exact tracked Llama-3.2-3B-Instruct-Q8_0 GGUF has exact-row load, completion, chat-completion, frontend-smoke, five-prompt API smoke evidence, compact prompt-token/deterministic 1-token/5-token/bounded 50-token parity, broader three-prompt 50-token parity, first bounded 512-context parity, second bounded 1024-context parity, third bounded 2048-context parity, bounded compact template-shape coverage, and bounded unique-chat perf/RSS evidence; Camelid supports exact-row smoke for this row only, not broader/full support. Match source: exact model-size + quant match; runtime generation still requires loaded_now=true and generation_ready=true.
+  chat_completion_stream_ms=4844
+✓ streaming chat published 4 visible update(s) before final completion in 4.84s: "Hello! How can"
+  stream_events=bytes,role,content,content,content,content,finish,done
+  chat_completion_ms=45
+  backend_prompt_token_ids=[128000,128006,882,128007,271,15339,128009,128006,78191,128007,271]
+  backend_generated_token_ids=[9906]
+  backend_tokenize_ms=5
+  backend_weight_load_ms=0
+  backend_weight_cache_hit=true
+  backend_session_create_ms=0
+  backend_generate_ms=5
+  backend_forward_total_ms=0
+  backend_layers_total_ms=0
+  backend_logits_ms=0
+  backend_sample_ms=0.284
+✓ chat completion 1/1 returned in 0.04s: "Hello"

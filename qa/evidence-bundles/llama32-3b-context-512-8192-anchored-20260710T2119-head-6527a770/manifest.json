@@ -1,0 +1,46 @@
+{
+  "schema": "camelid.llama32_3b_q8_context_512_8192_public_evidence.v1",
+  "generated_utc": "2026-07-10T21:19:13.579Z",
+  "git_head": "6527a770",
+  "row_id": "llama32_3b_instruct_q8_0",
+  "model": {
+    "filename": "Llama-3.2-3B-Instruct-Q8_0.gguf",
+    "size_bytes": 3421898816,
+    "sha256": "f34112a11b7dad74ab517dedf6dcf00d624c9adac2dc0c72c719ca0478554ef2",
+    "quantization": "Q8_0",
+    "architecture": "llama"
+  },
+  "row_identity_note": "ANCHOR-FORWARD: this GGUF (sha256 f34112a1...) is the canonical file for the llama32_3b_instruct_q8_0 row going forward; it is the same file pinned by the June 2026 capability-matrix receipts (qa/capability/receipts/*llama-3.2-3b*). The May 2026 context evidence was produced against a DIFFERENT upload of the same model name (sha256 b5607b50...) on the Ubuntu validation lane — the 1024/2048 packs in the llama32-3b-context-* bundles and the 512 pack inside the four-row-context-512-20260505T051510Z-head-b403884 bundle — and remains historical evidence for that file. This bundle re-validates the FULL 512-8192 ladder against the current canonical file so the promoted context claim rests on a single file identity. The 1B row has the same split (May/Ubuntu-era 432f310a..., which also remains the live file in the macOS capability manifest, vs this box's 3f87a880...); its ladder re-run is deferred, with the split disclosed in the COMPATIBILITY.md update that ships alongside this bundle.",
+  "comparator": "llama.cpp acd79d603 (Windows CPU-only build 9632, llama-server.exe sha256 6c787bf07ac1d7e1bbaa1ee176c3ef0df58ea86494c8c1b1d2d9f4a9176b19ae) /completion, greedy (temp 0/top_k 1/seed 0), -ngl 0 -ctk f32 -ctv f32 -fa off --no-repack; two solo capture sessions: -c 4608 (512-4096 buckets) and -c 8600 (8192 bucket)",
+  "camelid_backend": "q8_0 runtime, RTX 3060 Laptop 6 GiB: FULLY GPU-resident for the entire ladder. VRAM sizing (CAMELID_RESIDENT_TRACE): weights 3446 MiB resident (28/28 layers; resident layout exceeds the 3263 MiB file by ~5.6% because Q8_0 blocks repack 34->36 bytes for the resident engine), headroom 512 MiB, kv 114688 B/pos -> resident cap 10631 positions; the largest prompt (8049 tokens + BOS = 8050 positions) is under the cap, so no CPU-fallback tail was used on any bucket (contrast: the 4B-Q8_0 row caps at 2090 positions on this card). GPU prefill wall-clock, single run, informational only (includes first-generation init cost; NOT a throughput claim): 408 tok in 5.1s / 885 in 6.7s / 1893 in 18.0s / 3978 in 76.6s / 8049 in 359.7s.",
+  "execution_note": "Single-model runs only: the llama.cpp oracle was captured alone (reference-out) in two sessions, each server killed before the next engine started; camelid then ran alone (reference-in) against the committed oracle. Engines never co-resident. Free-RAM gated before each leg (bench memory-safety rules).",
+  "prompt_note": "Recall text from qa/gemma4/prompt_packs/context_*_v1.json, deterministically extended with repeated fact/fill lines and converged via llama.cpp /tokenize to sit under each window with 50-token generation margin; the exact prompt bytes accompany this bundle in context-prompts-512-8192.json and were identical for both engines.",
+  "buckets": [
+    {
+      "target_window": 512,
+      "actual_llama3_tokens": 408
+    },
+    {
+      "target_window": 1024,
+      "actual_llama3_tokens": 885
+    },
+    {
+      "target_window": 2048,
+      "actual_llama3_tokens": 1893
+    },
+    {
+      "target_window": 4096,
+      "actual_llama3_tokens": 3978
+    },
+    {
+      "target_window": 8192,
+      "actual_llama3_tokens": 8049
+    }
+  ],
+  "all_pass": true,
+  "token_counts": [
+    50
+  ],
+  "claim_boundary": "Bounded 512/1024/2048/4096/8192-context (408/885/1893/3978/8049 llama3 tokens) raw-decode greedy parity for the exact Llama 3.2 3B Instruct Q8_0 row ONLY (sha256 f34112a1...): camelid is token-AND-text-identical to the pinned llama.cpp acd79d603 oracle at 50 generated tokens on all five buckets, fully GPU-resident on this 6 GiB card. NOT claimed: model-native/larger context beyond 8192, chat-template behavior (raw prompts only), other Llama sizes/quants/uploads, production throughput, or portability. The May 2026 3B bundles remain historical evidence for the prior upload (see row_identity_note).",
+  "token_count_note": "actual_llama3_tokens are no-BOS llama.cpp /tokenize counts of the committed prompt bytes (re-derivable with the pinned build); each engine additionally prepends BOS, so the engines process N+1 positions — the largest bucket occupies 8050 resident positions, still under the 10631-position cap."
+}

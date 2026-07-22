@@ -1,0 +1,127 @@
+{
+  "schema": "camelid.qwen3.chatml_oracle.v1",
+  "comparator": "llama.cpp /completion (ChatML specials parsed), -ctk f32 -ctv f32 -fa off --no-repack",
+  "llama_base": "http://127.0.0.1:8090",
+  "token_counts": [
+    1,
+    5,
+    50
+  ],
+  "prompts": [
+    "What is the capital of France?",
+    "Say hello.",
+    "What is 2+2?"
+  ],
+  "captured": [
+    {
+      "prompt": "What is the capital of France?",
+      "chatml_rendered": "<|im_start|>user\nWhat is the capital of France?<|im_end|>\n<|im_start|>assistant\n<think>\n\n</think>\n\n",
+      "generations": {
+        "1": {
+          "reference_text": "The",
+          "reference_tokens": [
+            785
+          ]
+        },
+        "5": {
+          "reference_text": "The capital of France is",
+          "reference_tokens": [
+            785,
+            6722,
+            315,
+            9625,
+            374
+          ]
+        },
+        "50": {
+          "reference_text": "The capital of France is Paris.",
+          "reference_tokens": [
+            785,
+            6722,
+            315,
+            9625,
+            374,
+            12095,
+            13,
+            151645
+          ]
+        }
+      }
+    },
+    {
+      "prompt": "Say hello.",
+      "chatml_rendered": "<|im_start|>user\nSay hello.<|im_end|>\n<|im_start|>assistant\n<think>\n\n</think>\n\n",
+      "generations": {
+        "1": {
+          "reference_text": "Hello",
+          "reference_tokens": [
+            9707
+          ]
+        },
+        "5": {
+          "reference_text": "Hello! How can I",
+          "reference_tokens": [
+            9707,
+            0,
+            2585,
+            646,
+            358
+          ]
+        },
+        "50": {
+          "reference_text": "Hello! How can I assist you today? 😊",
+          "reference_tokens": [
+            9707,
+            0,
+            2585,
+            646,
+            358,
+            7789,
+            498,
+            3351,
+            30,
+            26525,
+            232,
+            151645
+          ]
+        }
+      }
+    },
+    {
+      "prompt": "What is 2+2?",
+      "chatml_rendered": "<|im_start|>user\nWhat is 2+2?<|im_end|>\n<|im_start|>assistant\n<think>\n\n</think>\n\n",
+      "generations": {
+        "1": {
+          "reference_text": "2",
+          "reference_tokens": [
+            17
+          ]
+        },
+        "5": {
+          "reference_text": "2 + 2 equals",
+          "reference_tokens": [
+            17,
+            488,
+            220,
+            17,
+            16819
+          ]
+        },
+        "50": {
+          "reference_text": "2 + 2 equals 4.",
+          "reference_tokens": [
+            17,
+            488,
+            220,
+            17,
+            16819,
+            220,
+            19,
+            13,
+            151645
+          ]
+        }
+      }
+    }
+  ]
+}

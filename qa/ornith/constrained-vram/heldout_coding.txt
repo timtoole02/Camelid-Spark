@@ -1,0 +1,4223 @@
+use std::collections::{BTreeSet, BinaryHeap, HashMap};
+
+use crate::{gguf::GgufFile, BackendError, Result};
+
+pub type TokenId = u32;
+
+const SPM_SPACE: char = '▁';
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum TokenizerModel {
+    LlamaSpm,
+    Gpt2Bpe,
+}
+
+impl TokenizerModel {
+    pub fn as_summary_model(self) -> &'static str {
+        match self {
+            Self::LlamaSpm => "llama_spm",
+            Self::Gpt2Bpe => "gpt2_bpe",
+        }
+    }
+}
+
+/// GPT-2/BPE pre-tokenizer dialect (`tokenizer.ggml.pre`). The byte-level BPE
+/// merge step is identical across these; the pre-tokenization regex that splits
+/// raw text into pieces differs in exactly one branch — digit grouping.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+pub enum BpePreTokenizer {
+    /// llama.cpp `llama-bpe` (Llama 3 / GPT-4 tiktoken): digits group in runs of
+    /// up to three (`\p{N}{1,3}`).
+    #[default]
+    Llama3,
+    /// llama.cpp `qwen2` (Qwen2/Qwen3): each digit is its own piece (`\p{N}`).
+    /// Byte-for-byte identical to `llama-bpe` in every other branch — verified
+    /// against `llama-vocab.cpp` LLAMA_VOCAB_PRE_TYPE_LLAMA3 vs _QWEN2.
+    Qwen2,
+    /// llama.cpp `qwen35` (Qwen3.5 / Ornith): single-digit grouping like `qwen2`,
+    /// and `LLAMA_VOCAB_PRE_TYPE_QWEN35`'s regex additionally folds Unicode
+    /// combining marks `\p{M}` into the letter class (`\p{L}+` → `[\p{L}\p{M}]+`
+    /// and the punctuation class excludes `\p{M}`). Mark-folding is implemented
+    /// via a generated `\p{M}` range table (`mark_ranges.rs.inc`) — see
+    /// [`fold_marks`](Self::fold_marks). Byte-exactness vs the oracle is held by
+    /// the ITEM1 tokenizer gate (qa/ornith/constrained-vram), which covers NFD,
+    /// Devanagari (incl. virama clusters), Arabic harakat, and zalgo inputs.
+    Qwen35,
+}
+
+impl BpePreTokenizer {
+    /// Maximum number of consecutive digits the pre-tokenizer keeps in one piece.
+    fn digit_group_max(self) -> usize {
+        match self {
+            Self::Llama3 => 3,
+            Self::Qwen2 | Self::Qwen35 => 1,
+        }
+    }
+
+    /// Whether `\p{M}` combining marks fold into the letter class (and are
+    /// excluded from the punctuation class) — the qwen35 regex dialect.
+    fn fold_marks(self) -> bool {
+        matches!(self, Self::Qwen35)
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum TokenKind {
+    Undefined,
+    Normal,
+    Unknown,
+    Control,
+    UserDefined,
+    Unused,
+    Byte,
+}
+
+impl TokenKind {
+    fn from_i32(value: i32) -> Result<Self> {
+        Ok(match value {
+            0 => Self::Undefined,
+            1 => Self::Normal,
+            2 => Self::Unknown,
+            3 => Self::Control,
+            4 => Self::UserDefined,
+            5 => Self::Unused,
+            6 => Self::Byte,
+            other => {
+                return Err(BackendError::InvalidTokenizerMetadata(format!(
+                    "unknown tokenizer token type {other}"
+                )))
+            }
+        })
+    }
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct Token {
+    pub id: TokenId,
+    pub text: String,
+    pub score: f32,
+    pub kind: TokenKind,
+}
+
+/// True for `<|...|>` chat-control markers (e.g. Phi-3's `<|end|>`/`<|assistant|>`,
+/// ChatML's `<|im_start|>`) carried as `UserDefined` tokens. These are turn
+/// scaffolding, never user-visible content, so they are stripped from decoded
+/// output under `remove_special` — exactly like `Control` tokens. Content-bearing
+/// `UserDefined` tokens that are NOT this shape (e.g. Qwen3's `<think>`/`</think>`,
+/// which begin `<` but not `<|`) are preserved.
+fn is_chat_control_marker(token: &Token) -> bool {
+    token.kind == TokenKind::UserDefined
+        && token.text.starts_with("<|")
+        && token.text.ends_with("|>")
+}
+
+#[derive(Debug, Clone, Default)]
+pub struct BpeRegistry {
+    ranks: HashMap<(String, String), usize>,
+}
+
+impl BpeRegistry {
+    fn from_merges(merges: Vec<String>) -> Self {
+        let ranks = merges
+            .into_iter()
+            .enumerate()
+            .filter_map(|(rank, merge)| {
+                let (left, right) = merge.split_once(' ')?;
+                Some(((left.to_string(), right.to_string()), rank))
+            })
+            .collect();
+        Self { ranks }
+    }
+
+    pub fn len(&self) -> usize {
+        self.ranks.len()
+    }
+
+    pub fn is_empty(&self) -> bool {
+        self.ranks.is_empty()
+    }
+
+    fn rank(&self, left: &str, right: &str) -> Option<usize> {
+        self.ranks
+            .get(&(left.to_string(), right.to_string()))
+            .copied()
+    }
+
+    fn ranks(&self) -> &HashMap<(String, String), usize> {
+        &self.ranks
+    }
+
+    fn merge_symbols(&self, mut symbols: Vec<String>) -> Vec<String> {
+        while symbols.len() > 1 {
+            let mut heap = BinaryHeap::new();
+            for idx in 0..symbols.len() - 1 {
+                if let Some(rank) = self.rank(&symbols[idx], &symbols[idx + 1]) {
+                    heap.push(BpeMergeCandidate { rank, index: idx });
+                }
+            }
+
+            let Some(best) = heap.pop() else { break };
+            let left = symbols[best.index].clone();
+            let right = symbols[best.index + 1].clone();
+            let mut merged = Vec::with_capacity(symbols.len() - 1);
+            let mut idx = 0;
+            while idx < symbols.len() {
+                if idx + 1 < symbols.len() && symbols[idx] == left && symbols[idx + 1] == right {
+                    merged.push(format!("{}{}", symbols[idx], symbols[idx + 1]));
+                    idx += 2;
+                } else {
+                    merged.push(symbols[idx].clone());
+                    idx += 1;
+                }
+            }
+            symbols = merged;
+        }
+        symbols
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+struct BpeMergeCandidate {
+    rank: usize,
+    index: usize,
+}
+
+impl Ord for BpeMergeCandidate {
+    fn cmp(&self, other: &Self) -> std::cmp::Ordering {
+        other
+            .rank
+            .cmp(&self.rank)
+            .then_with(|| other.index.cmp(&self.index))
+    }
+}
+
+impl PartialOrd for BpeMergeCandidate {
+    fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
+        Some(self.cmp(other))
+    }
+}
+
+#[derive(Debug, Clone, Default, PartialEq, Eq)]
+pub struct SpecialTokens {
+    pub bos: Option<TokenId>,
+    pub eos: Option<TokenId>,
+    pub eot: Option<TokenId>,
+    pub eom: Option<TokenId>,
+    pub unk: Option<TokenId>,
+    pub sep: Option<TokenId>,
+    pub pad: Option<TokenId>,
+    pub mask: Option<TokenId>,
+    pub eog: BTreeSet<TokenId>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct TokenizerConfig {
+    pub add_bos: bool,
+    pub add_eos: bool,
+    pub add_sep: bool,
+    pub add_space_prefix: bool,
+    pub remove_extra_whitespaces: bool,
+}
+
+#[derive(Debug, Clone)]
+pub struct Tokenizer {
+    pub model: TokenizerModel,
+    /// GPT-2/BPE pre-tokenizer dialect. Only consulted on the [`TokenizerModel::Gpt2Bpe`]
+    /// path; defaults to [`BpePreTokenizer::Llama3`] and is ignored for SPM.
+    pub bpe_pre_tokenizer: BpePreTokenizer,
+    pub tokens: Vec<Token>,
+    pub token_to_id: HashMap<String, TokenId>,
+    pub byte_token_to_id: HashMap<u8, TokenId>,
+    pub bpe_ranks: HashMap<(String, String), usize>,
+    pub bpe_registry: BpeRegistry,
+    pub special: SpecialTokens,
+    pub config: TokenizerConfig,
+    pub chat_template: Option<String>,
+}
+
+impl Tokenizer {
+    pub fn from_gguf(file: &GgufFile) -> Result<Self> {
+        let model_name = file
+            .metadata_string("tokenizer.ggml.model")
+            .ok_or(BackendError::TokenizerNotAvailable)?;
+        let model = match model_name {
+            // Gemma uses a SentencePiece (unigram) tokenizer, the same mechanism as
+            // Llama SPM — tokens, scores, and the bos/eos/unk ids are all read from
+            // the GGUF below. (Gemma sets tokenizer.ggml.add_space_prefix=0; exact
+            // leading-space parity is a follow-up, construction works on the SPM path.)
+            "llama" | "gemma4" => TokenizerModel::LlamaSpm,
+            "gpt2" => TokenizerModel::Gpt2Bpe,
+            other => {
+                return Err(BackendError::UnsupportedTokenizer(format!(
+                    "unsupported tokenizer model {other:?}; currently supported: llama/SPM, gemma4/SPM, and GPT-2/BPE llama-bpe"
+                )))
+            }
+        };
+        let bpe_pre_tokenizer = if model == TokenizerModel::Gpt2Bpe {
+            let pre_tokenizer = file.metadata_string("tokenizer.ggml.pre");
+            match pre_tokenizer {
+                Some("llama-bpe") => BpePreTokenizer::Llama3,
+                // Qwen2/Qwen3 differ from llama-bpe only in digit grouping
+                // (single digit vs runs of three); the byte-BPE merge step is
+                // identical. Verified against llama.cpp llama-vocab.cpp.
+                Some("qwen2") => BpePreTokenizer::Qwen2,
+                // Qwen3.5 / Ornith: same single-digit split as qwen2; its `\p{M}`
+                // mark-folding is a documented deferral (see `BpePreTokenizer::Qwen35`).
+                Some("qwen35") => BpePreTokenizer::Qwen35,
+                other => {
+                    return Err(BackendError::UnsupportedTokenizer(format!(
+                        "unsupported GPT-2/BPE pre-tokenizer {other:?}; currently supported: llama-bpe, qwen2, qwen35"
+                    )))
+                }
+            }
+        } else {
+            BpePreTokenizer::default()
+        };
+
+        let token_texts = file.metadata_array_strings("tokenizer.ggml.tokens")?;
+        if token_texts.is_empty() {
+            return Err(BackendError::InvalidTokenizerMetadata(
+                "tokenizer.ggml.tokens must not be empty".to_string(),
+            ));
+        }
+
+        let scores = file
+            .metadata_array_f32_optional("tokenizer.ggml.scores")?
+            .unwrap_or_else(|| vec![0.0; token_texts.len()]);
+        if scores.len() < token_texts.len() {
+            return Err(BackendError::InvalidTokenizerMetadata(format!(
+                "tokenizer.ggml.scores length {} is shorter than token count {}",
+                scores.len(),
+                token_texts.len()
+            )));
+        }
+
+        let kinds_raw = file
+            .metadata_array_i32_optional("tokenizer.ggml.token_type")?
+            .unwrap_or_else(|| vec![1; token_texts.len()]);
+        if kinds_raw.len() < token_texts.len() {
+            return Err(BackendError::InvalidTokenizerMetadata(format!(
+                "tokenizer.ggml.token_type length {} is shorter than token count {}",
+                kinds_raw.len(),
+                token_texts.len()
+            )));
+        }
+
+        let bpe_registry = BpeRegistry::from_merges(
+            file.metadata_array_strings_optional("tokenizer.ggml.merges")?
+                .unwrap_or_default(),
+        );
+        let bpe_ranks = bpe_registry.ranks().clone();
+
+        let mut tokens = Vec::with_capacity(token_texts.len());
+        let mut token_to_id = HashMap::with_capacity(token_texts.len());
+        let mut byte_token_to_id = HashMap::new();
+        for (idx, text) in token_texts.into_iter().enumerate() {
+            let id = idx as TokenId;
+            let kind = TokenKind::from_i32(kinds_raw[idx])?;
+            if let Some(byte) = parse_byte_token(&text) {
+                byte_token_to_id.insert(byte, id);
+            }
+            token_to_id.insert(text.clone(), id);
+            tokens.push(Token {
+                id,
+                text,
+                score: scores[idx],
+                kind,
+            });
+        }
+
+        let default_bos = match model {
+            TokenizerModel::LlamaSpm => Some(1),
+            TokenizerModel::Gpt2Bpe => token_to_id.get("<|begin_of_text|>").copied(),
+        };
+        let default_eos = match model {
+            TokenizerModel::LlamaSpm => Some(2),
+            TokenizerModel::Gpt2Bpe => token_to_id.get("<|end_of_text|>").copied(),
+        };
+        let default_unk = match model {
+            TokenizerModel::LlamaSpm => Some(0),
+            TokenizerModel::Gpt2Bpe => None,
+        };
+
+        let bos = file
+            .metadata_u32("tokenizer.ggml.bos_token_id")
+            .or(default_bos);
+        let eos = file
+            .metadata_u32("tokenizer.ggml.eos_token_id")
+            .or(default_eos);
+        let unk = file
+            .metadata_u32("tokenizer.ggml.unknown_token_id")
+            .or(default_unk);
+        let eot = file
+            .metadata_u32("tokenizer.ggml.eot_token_id")
+            .or_else(|| token_to_id.get("<|eot_id|>").copied());
+        let eom = file.metadata_u32("tokenizer.ggml.eom_token_id");
+        let sep = file
+            .metadata_u32("tokenizer.ggml.separator_token_id")
+            .or_else(|| file.metadata_u32("tokenizer.ggml.seperator_token_id"));
+        let pad = file.metadata_u32("tokenizer.ggml.padding_token_id");
+        let mask = file.metadata_u32("tokenizer.ggml.mask_token_id");
+        // Well-known end-of-turn markers used by chat templates. Some GGUFs set
+        // `eos` to a generic `<|endoftext|>` but END EACH CHAT TURN with a distinct
+        // token and never populate `eot_token_id` — notably Phi-3 (`<|end|>`), so
+        // without this its chat turns never stop and the model rambles into new
+        // turns. llama.cpp likewise flags these as EOG. Purely additive: only ids
+        // that genuinely exist in this vocab are added, and a supported row's
+        // turn-end is already its `eos`/`eot`, so its stop set is unchanged.
+        const EOG_MARKER_TEXTS: &[&str] = &[
+            "<|end|>",       // Phi-3
+            "<|eot_id|>",    // Llama 3
+            "<|im_end|>",    // ChatML / Qwen
+            "<end_of_turn>", // Gemma
+            "<|eom_id|>",
+        ];
+        let mut eog: std::collections::BTreeSet<TokenId> =
+            [eos, eot, eom].into_iter().flatten().collect();
+        for marker in EOG_MARKER_TEXTS {
+            if let Some(&id) = token_to_id.get(*marker) {
+                eog.insert(id);
+            }
+        }
+
+        validate_token_id("bos", bos, tokens.len())?;
+        validate_token_id("eos", eos, tokens.len())?;
+        validate_token_id("unk", unk, tokens.len())?;
+        validate_token_id("eot", eot, tokens.len())?;
+        validate_token_id("eom", eom, tokens.len())?;
+        validate_token_id("sep", sep, tokens.len())?;
+        validate_token_id("pad", pad, tokens.len())?;
+        validate_token_id("mask", mask, tokens.len())?;
+
+        Ok(Self {
+            model,
+            bpe_pre_tokenizer,
+            tokens,
+            token_to_id,
+            byte_token_to_id,
+            bpe_ranks,
+            bpe_registry,
+            special: SpecialTokens {
+                bos,
+                eos,
+                eot,
+                eom,
+                unk,
+                sep,
+                pad,
+                mask,
+                eog,
+            },
+            config: TokenizerConfig {
+                // Gemma 4 workaround (matches llama.cpp PR #21500): some gemma4
+                // exports — notably the 26B A4B QAT GGUF — ship an incorrect
+                // `add_bos_token = false`, but the model is always run with a
+                // leading BOS. llama.cpp force-overrides it to true for gemma4;
+                // do the same so the prompt token stream matches the reference
+                // (without this, the BOS is dropped and the whole forward
+                // diverges). E-series/12B already ship true, so this is a no-op
+                // for them.
+                add_bos: if model_name == "gemma4" {
+                    true
+                } else {
+                    file.metadata_bool("tokenizer.ggml.add_bos_token")
+                        .unwrap_or(true)
+                },
+                add_eos: file
+                    .metadata_bool("tokenizer.ggml.add_eos_token")
+                    .unwrap_or(false),
+                add_sep: file
+                    .metadata_bool("tokenizer.ggml.add_sep_token")
+                    .unwrap_or(false),
+                add_space_prefix: file
+                    .metadata_bool("tokenizer.ggml.add_space_prefix")
+                    .unwrap_or(true),
+                remove_extra_whitespaces: file
+                    .metadata_bool("tokenizer.ggml.remove_extra_whitespaces")
+                    .unwrap_or(false),
+            },
+            chat_template: file
+                .metadata_string("tokenizer.chat_template")
+                .map(str::to_owned),
+        })
+    }
+
+    pub fn token_text(&self, id: Option<TokenId>) -> Option<&str> {
+        id.and_then(|id| self.tokens.get(id as usize))
+            .map(|token| token.text.as_str())
+    }
+
+    pub fn token_id(&self, text: &str) -> Option<TokenId> {
+        self.token_to_id.get(text).copied()
+    }
+
+    pub fn encode(
+        &self,
+        text: &str,
+        add_special: bool,
+        parse_special: bool,
+    ) -> Result<Vec<TokenId>> {
+        let mut out = Vec::new();
+        if add_special && self.config.add_bos {
+            if let Some(bos) = self.special.bos {
+                out.push(bos);
+            }
+        }
+
+        match self.model {
+            TokenizerModel::LlamaSpm => {
+                let normalized = self.normalize_spm_text(text, parse_special);
+                if !normalized.is_empty() {
+                    out.extend(self.encode_piece(&normalized, parse_special)?);
+                }
+            }
+            TokenizerModel::Gpt2Bpe => {
+                if !text.is_empty() {
+                    out.extend(self.encode_bpe_text(text, parse_special)?);
+                }
+            }
+        }
+
+        if add_special && self.config.add_eos {
+            if let Some(eos) = self.special.eos {
+                out.push(eos);
+            }
+        }
+        Ok(out)
+    }
+
+    pub fn decode(&self, token_ids: &[TokenId], remove_special: bool) -> Result<String> {
+        if self.model == TokenizerModel::Gpt2Bpe {
+            return self.decode_bpe(token_ids, remove_special);
+        }
+
+        let mut bytes = Vec::new();
+        let mut text = String::new();
+
+        for id in token_ids {
+            if remove_special && self.is_special(*id) {
+                continue;
+            }
+            let token = self.tokens.get(*id as usize).ok_or_else(|| {
+                BackendError::InvalidTokenizerMetadata(format!("token id {id} out of range"))
+            })?;
+            if remove_special && (token.kind == TokenKind::Control || is_chat_control_marker(token))
+            {
+                continue;
+            }
+            if let Some(byte) = parse_byte_token(&token.text) {
+                bytes.push(byte);
+                continue;
+            }
+            flush_bytes(&mut bytes, &mut text)?;
+            text.push_str(&token.text.replace(SPM_SPACE, " "));
+        }
+        flush_bytes(&mut bytes, &mut text)?;
+        Ok(text)
+    }
+
+    /// Chat prompts are tokenized with special-token parsing for every model:
+    /// llama-server tokenizes rendered chat templates with specials enabled,
+    /// so a template's control markers (e.g. SPM `</s>` between turns) must
+    /// become control token ids, not literal text. The committed TinyLlama
+    /// parity evidence records exactly this shape (`..., 12199, 2, 29871,
+    /// ...`). Raw completion text is unaffected and keeps
+    /// `parse_special: false` — special parsing does not spread to raw text.
+    pub fn chat_prompt_parse_special(&self) -> bool {
+        true
+    }
+
+    fn encode_bpe_text(&self, text: &str, parse_special: bool) -> Result<Vec<TokenId>> {
+        let mut out = Vec::new();
+        let mut byte_start = 0;
+
+        while byte_start < text.len() {
+            // llama.cpp's special-token partition runs in BOTH modes: USER_DEFINED
+            // ("added") tokens are matched in raw text unconditionally; only
+            // CONTROL tokens are gated by `parse_special`. Verified against the
+            // qwen35 oracle (ITEM1 tokenizer gate): `--no-parse-special` still
+            // yields single ids for <think>/<tool_call> (USER_DEFINED), while
+            // <|im_start|> (CONTROL) tokenizes as text.
+            if let Some((token_text, token_len)) =
+                self.longest_control_token_at(text, byte_start, parse_special)
+            {
+                if let Some(id) = self.token_to_id.get(token_text) {
+                    out.push(*id);
+                    byte_start += token_len;
+                    continue;
+                }
+            }
+
+            let byte_end = self
+                .next_control_token_start(text, byte_start, parse_special)
+                .unwrap_or(text.len());
+
+            for segment in bpe_pretokenize_with(
+                &text[byte_start..byte_end],
+                self.bpe_pre_tokenizer.digit_group_max(),
+                self.bpe_pre_tokenizer.fold_marks(),
+            ) {
+                self.encode_bpe_segment(segment, &mut out)?;
+            }
+            byte_start = byte_end;
+        }
+
+        Ok(out)
+    }
+
+    fn encode_bpe_segment(&self, segment: &str, out: &mut Vec<TokenId>) -> Result<()> {
+        if segment.is_empty() {
+            return Ok(());
+        }
+
+        let mut symbols: Vec<String> = segment
+            .as_bytes()
+            .iter()
+            .map(|byte| bpe_byte_to_char(*byte).to_string())
+            .collect();
+
+        symbols = self.bpe_registry.merge_symbols(symbols);
+
+        for symbol in symbols {
+            let id = self.token_to_id.get(&symbol).copied().ok_or_else(|| {
+                BackendError::InvalidTokenizerMetadata(format!(
+                    "GPT-2/BPE token {symbol:?} is missing from tokenizer.ggml.tokens"
+                ))
+            })?;
+            out.push(id);
+        }
+        Ok(())
+    }
+
+    fn decode_bpe(&self, token_ids: &[TokenId], remove_special: bool) -> Result<String> {
+        let mut bytes = Vec::new();
+        for id in token_ids {
+            if remove_special && self.is_special(*id) {
+                continue;
+            }
+            let token = self.tokens.get(*id as usize).ok_or_else(|| {
+                BackendError::InvalidTokenizerMetadata(format!("token id {id} out of range"))
+            })?;
+            if remove_special && (token.kind == TokenKind::Control || is_chat_control_marker(token))
+            {
+                continue;
+            }
+            for ch in token.text.chars() {
+                if let Some(byte) = bpe_char_to_byte(ch) {
+                    bytes.push(byte);
+                } else if !remove_special || token.kind != TokenKind::Control {
+                    return Err(BackendError::InvalidTokenizerMetadata(format!(
+                        "GPT-2/BPE token {:?} contains non-byte character {ch:?}",
+                        token.text
+                    )));
+                }
+            }
+        }
+
+        // A generated sequence can stop mid-multi-byte-character — e.g. truncated by
+        // max_tokens partway through an emoji — leaving valid byte-tokens that don't yet
+        // form complete UTF-8. That is normal model output, not corrupt tokenizer
+        // metadata, so return the valid UTF-8 prefix and hold back the incomplete
+        // trailing bytes instead of failing the whole request (the strict decode
+        // surfaced as a 503 that hung the chat UI). Holding the bytes back — rather than
+        // emitting a U+FFFD — lets the streaming re-decode append the character cleanly
+        // once the next token completes it (a transient U+FFFD would break the
+        // strip_prefix delta diff and duplicate the line). For complete sequences the
+        // valid prefix is the whole string, byte-for-byte identical to a strict decode,
+        // so token-AND-text parity is unaffected.
+        match std::str::from_utf8(&bytes) {
+            Ok(text) => Ok(text.to_string()),
+            Err(err) => Ok(std::str::from_utf8(&bytes[..err.valid_up_to()])
+                .unwrap_or("")
+                .to_string()),
+        }
+    }
+
+    fn normalize_spm_text(&self, text: &str, parse_special: bool) -> String {
+        let mut normalized = String::new();
+        if text.is_empty() {
+            return normalized;
+        }
+        // Always prepend the dummy `▁` when add_space_prefix is set, including when
+        // the text already begins with whitespace. This matches HF's SentencePiece
+        // (Metaspace) tokenizer, which prepends unconditionally — verified bit-exact
+        // against HF `tokenizers` for llama SPM (tests/runnable_tokenizer.rs). A prior
+        // `!text.starts_with(char::is_whitespace)` guard suppressed the prefix on
+        // leading-whitespace input and diverged from HF on those cases (RA-5).
+        if self.config.add_space_prefix
+            && !(parse_special && self.longest_control_token_at(text, 0, true).is_some())
+        {
+            normalized.push(SPM_SPACE);
+        }
+        for ch in text.chars() {
+            if ch == ' ' {
+                normalized.push(SPM_SPACE);
+            } else {
+                normalized.push(ch);
+            }
+        }
+        if parse_special {
+            normalized
+        } else {
+            self.add_dummy_prefix_after_control_tokens(&normalized)
+        }
+    }
+
+    fn add_dummy_prefix_after_control_tokens(&self, text: &str) -> String {
+        if !self.config.add_space_prefix || text.is_empty() {
+            return text.to_string();
+        }
+
+        let mut normalized = String::with_capacity(text.len());
+        let mut byte_start = 0;
+        while byte_start < text.len() {
+            if let Some((token_text, token_len)) =
+                self.longest_control_token_at(text, byte_start, true)
+            {
+                normalized.push_str(token_text);
+                byte_start += token_len;
+
+                let rest = &text[byte_start..];
+                let next_is_control = self
+                    .longest_control_token_at(text, byte_start, true)
+                    .is_some();
+                let should_insert_dummy_prefix =
+                    self.should_insert_dummy_after_control(token_text, rest, next_is_control);
+                if should_insert_dummy_prefix {
+                    normalized.push(SPM_SPACE);
+                }
+                continue;
+            }
+
+            let ch = text[byte_start..]
+                .chars()
+                .next()
+                .expect("byte_start is in-bounds");
+            normalized.push(ch);
+            byte_start += ch.len_utf8();
+        }
+        normalized
+    }
+
+    fn should_insert_dummy_after_control(
+        &self,
+        token_text: &str,
+        rest: &str,
+        next_is_control: bool,
+    ) -> bool {
+        if rest.is_empty() || next_is_control {
+            return false;
+        }
+
+        if self
+            .token_text(self.special.bos)
+            .is_some_and(|bos| token_text == bos)
+            && rest.starts_with("[INST]")
+            && self.token_to_id.contains_key("[INST]")
+            && self.token_to_id.contains_key("[/INST]")
+        {
+            return false;
+        }
+
+        if token_text == "[INST]"
+            && self.token_to_id.contains_key("[INST]")
+            && self.token_to_id.contains_key("[/INST]")
+        {
+            return true;
+        }
+
+        !rest.starts_with(SPM_SPACE)
+    }
+
+    /// Longest special token whose text starts at `byte_start`. USER_DEFINED
+    /// ("added") tokens always participate; CONTROL tokens only when
+    /// `include_control` (llama.cpp's `parse_special` partition rule).
+    fn longest_control_token_at<'a>(
+        &'a self,
+        text: &str,
+        byte_start: usize,
+        include_control: bool,
+    ) -> Option<(&'a str, usize)> {
+        if !text.is_char_boundary(byte_start) {
+            return None;
+        }
+
+        // USER_DEFINED ("added") tokens always match, mirroring llama.cpp's
+        // special-token partition. Qwen3/qwen35 mark <think>/</think>
+        // (and many <|...|> markers) as USER_DEFINED (type 4) rather than CONTROL
+        // (type 3); without matching USER_DEFINED, a rendered ChatML template's
+        // literal "</think>" tokenizes as text instead of the single special
+        // token, and chat generation diverges from the reference. CONTROL tokens
+        // participate only under `include_control` (= `parse_special`).
+        self.tokens
+            .iter()
+            .filter(|token| {
+                matches!(token.kind, TokenKind::UserDefined)
+                    || (include_control && matches!(token.kind, TokenKind::Control))
+            })
+            .filter(|token| !token.text.is_empty())
+            .filter(|token| text[byte_start..].starts_with(&token.text))
+            .max_by_key(|token| token.text.len())
+            .map(|token| (token.text.as_str(), token.text.len()))
+    }
+
+    fn encode_piece(&self, piece: &str, parse_special: bool) -> Result<Vec<TokenId>> {
+        if self.bpe_ranks.is_empty() && !parse_special {
+            return self.encode_piece_greedy(piece);
+        }
+
+        let mut out = Vec::new();
+        let mut byte_start = 0;
+        while byte_start < piece.len() {
+            if parse_special {
+                if let Some((token_text, token_len)) =
+                    self.longest_control_token_at(piece, byte_start, true)
+                {
+                    if let Some(id) = self.token_to_id.get(token_text) {
+                        out.push(*id);
+                        byte_start += token_len;
+                        let rest = &piece[byte_start..];
+                        let next_is_control = self
+                            .longest_control_token_at(piece, byte_start, true)
+                            .is_some();
+                        if self.config.add_space_prefix
+                            && self.should_insert_dummy_after_control(
+                                token_text,
+                                rest,
+                                next_is_control,
+                            )
+                        {
+                            if let Some(dummy_prefix) = self.token_to_id.get(&SPM_SPACE.to_string())
+                            {
+                                out.push(*dummy_prefix);
+                            }
+                        }
+                        continue;
+                    }
+                }
+            }
+
+            let byte_end = if parse_special {
+                self.next_control_token_start(piece, byte_start, true)
+                    .unwrap_or(piece.len())
+            } else {
+                piece.len()
+            };
+            if self.bpe_ranks.is_empty() {
+                if parse_special {
+                    self.encode_spm_segment(&piece[byte_start..byte_end], &mut out)?;
+                } else {
+                    out.extend(self.encode_piece_greedy(&piece[byte_start..byte_end])?);
+                }
+            } else {
+                self.encode_spm_segment(&piece[byte_start..byte_end], &mut out)?;
+            }
+            byte_start = byte_end;
+        }
+        Ok(out)
+    }
+
+    fn next_control_token_start(
+        &self,
+        text: &str,
+        byte_start: usize,
+        include_control: bool,
+    ) -> Option<usize> {
+        text[byte_start..]
+            .char_indices()
+            .map(|(offset, _)| byte_start + offset)
+            .find(|idx| {
+                self.longest_control_token_at(text, *idx, include_control)
+                    .is_some()
+            })
+    }
+
+    fn encode_spm_segment(&self, segment: &str, out: &mut Vec<TokenId>) -> Result<()> {
+        if segment.is_empty() {
+            return Ok(());
+        }
+
+        let symbols = if self.bpe_ranks.is_empty() {
+            self.merge_spm_symbols_by_score(segment)
+        } else {
+            self.bpe_registry
+                .merge_symbols(segment.chars().map(|ch| ch.to_string()).collect())
+        };
+
+        let mut unresolved = String::new();
+        for symbol in symbols {
+            // The multi-space (▁▁) deferral belongs to the score-merge path
+            // only. Rank-based BPE (merges present, e.g. the gemma4 family)
+            // merges multi-space runs into single vocab tokens — llama.cpp's
+            // GEMMA4 BPE emits e.g. ▁▁ / ▁▁▁ tokens, proven by the
+            // DiffusionGemma tokenizer-parity gate (tests/dg_tokenizer_parity.rs),
+            // and deferring them here diverges from the reference.
+            if self.bpe_ranks.is_empty() && symbol.contains("▁▁") {
+                unresolved.push_str(&symbol);
+                continue;
+            }
+
+            if let Some(id) = self.token_to_id.get(&symbol).copied() {
+                if !unresolved.is_empty() {
+                    out.extend(self.encode_piece_greedy(&unresolved)?);
+                    unresolved.clear();
+                }
+                out.push(id);
+            } else {
+                unresolved.push_str(&symbol);
+            }
+        }
+        if !unresolved.is_empty() {
+            out.extend(self.encode_piece_greedy(&unresolved)?);
+        }
+        Ok(())
+    }
+
+    fn merge_spm_symbols_by_score(&self, segment: &str) -> Vec<String> {
+        let mut symbols: Vec<String> = segment.chars().map(|ch| ch.to_string()).collect();
+
+        loop {
+            let mut best: Option<(f32, usize)> = None;
+            for idx in 0..symbols.len().saturating_sub(1) {
+                let candidate = format!("{}{}", symbols[idx], symbols[idx + 1]);
+                if candidate.contains("▁▁") {
+                    continue;
+                }
+                let Some(id) = self.token_to_id.get(&candidate).copied() else {
+                    continue;
+                };
+                let score = self.tokens[id as usize].score;
+                match best {
+                    Some((best_score, best_idx))
+                        if score < best_score || (score == best_score && idx >= best_idx) => {}
+                    _ => best = Some((score, idx)),
+                }
+            }
+
+            let Some((_, idx)) = best else { break };
+            symbols[idx] = format!("{}{}", symbols[idx], symbols[idx + 1]);
+            symbols.remove(idx + 1);
+        }
+
+        symbols
+    }
+
+    fn encode_unknown_symbol_bytes(&self, symbol: &str, out: &mut Vec<TokenId>) -> Result<()> {
+        for byte in symbol.as_bytes() {
+            let id = self
+                .byte_token_to_id
+                .get(byte)
+                .copied()
+                .or(self.special.unk);
+            match id {
+                Some(id) => out.push(id),
+                None => {
+                    return Err(BackendError::InvalidTokenizerMetadata(format!(
+                        "SPM byte fallback token <0x{byte:02X}> is missing"
+                    )))
+                }
+            }
+        }
+        Ok(())
+    }
+
+    fn encode_piece_greedy(&self, piece: &str) -> Result<Vec<TokenId>> {
+        let chars: Vec<(usize, char)> = piece.char_indices().collect();
+        let mut out = Vec::new();
+        let mut byte_start = 0;
+
+        while byte_start < piece.len() {
+            let mut best: Option<(usize, TokenId, f32)> = None;
+            for byte_end in piece[byte_start..]
+                .char_indices()
+                .skip(1)
+                .map(|(offset, _)| byte_start + offset)
+                .chain(std::iter::once(piece.len()))
+            {
+                let candidate = &piece[byte_start..byte_end];
+                if candidate.contains("▁▁") {
+                    continue;
+                }
+                if let Some(id) = self.token_to_id.get(candidate) {
+                    let score = self.tokens[*id as usize].score;
+                    let len = byte_end - byte_start;
+                    match best {
+                        Some((best_len, _, best_score))
+                            if len < best_len || (len == best_len && score <= best_score) => {}
+                        _ => best = Some((len, *id, score)),
+                    }
+                }
+            }
+
+            if let Some((len, id, _)) = best {
+                out.push(id);
+                byte_start += len;
+                continue;
+            }
+
+            let ch = chars
+                .iter()
+                .find(|(idx, _)| *idx == byte_start)
+                .map(|(_, ch)| *ch)
+                .ok_or_else(|| {
+                    BackendError::InvalidTokenizerMetadata(
+                        "internal UTF-8 tokenizer cursor error".to_string(),
+                    )
+                })?;
+            let mut buf = [0u8; 4];
+            self.encode_unknown_symbol_bytes(ch.encode_utf8(&mut buf), &mut out)?;
+            byte_start += ch.len_utf8();
+        }
+        Ok(out)
+    }
+
+    fn is_special(&self, id: TokenId) -> bool {
+        self.special.bos == Some(id)
+            || self.special.eos == Some(id)
+            || self.special.eot == Some(id)
+            || self.special.eom == Some(id)
+            || self.special.sep == Some(id)
+            || self.special.pad == Some(id)
+            || self.special.mask == Some(id)
+    }
+}
+
+#[cfg(test)]
+fn bpe_pretokenize(text: &str) -> Vec<&str> {
+    // Test-only convenience wrapper: the default llama-bpe digit grouping.
+    bpe_pretokenize_with(text, 3, false)
+}
+
+fn bpe_pretokenize_with(text: &str, digit_group_max: usize, fold_marks: bool) -> Vec<&str> {
+    // GPT-2/BPE pre-tokenizer, mirroring llama.cpp's tiktoken-style regex without
+    // pulling in a regex dependency:
+    //   (?i:'s|'t|'re|'ve|'m|'ll|'d)
+    //   | [^\r\n\p{L}\p{N}]?\p{L}+
+    //   | \p{N}{1,N}              (N = digit_group_max: 3 for llama-bpe, 1 for qwen2)
+    //   |  ?[^\s\p{L}\p{N}]+[\r\n]*
+    //   | \s*[\r\n]+
+    //   | \s+(?!\S)
+    //   | \s+
+    // Keep the branch order identical: the whitespace branches intentionally
+    // leave one prefix byte/char behind when that enables the next token to be
+    // an optional-prefix letters or punctuation segment. The ONLY dialect
+    // difference (llama-bpe vs qwen2) is the digit-run cap.
+    let mut segments = Vec::new();
+    let mut byte_start = 0;
+
+    while byte_start < text.len() {
+        let byte_end = next_llama_bpe_segment_end(text, byte_start, digit_group_max, fold_marks);
+        segments.push(&text[byte_start..byte_end]);
+        byte_start = byte_end;
+    }
+
+    segments
+}
+
+fn next_llama_bpe_segment_end(
+    text: &str,
+    byte_start: usize,
+    digit_group_max: usize,
+    fold_marks: bool,
+) -> usize {
+    if let Some(end) = consume_contraction(text, byte_start) {
+        return end;
+    }
+    if let Some(end) = consume_optional_prefix_letters(text, byte_start, fold_marks) {
+        return end;
+    }
+
+    let ch = next_char(text, byte_start).expect("byte_start is in-bounds");
+    if is_number(ch) {
+        return consume_digits(text, byte_start, digit_group_max);
+    }
+    if let Some(end) = consume_optional_space_punctuation(text, byte_start, fold_marks) {
+        return end;
+    }
+    if let Some(end) = consume_whitespace_with_newline(text, byte_start) {
+        return end;
+    }
+    if is_whitespace(ch) {
+        return consume_whitespace_before_nonspace(text, byte_start);
+    }
+
+    byte_start + ch.len_utf8()
+}
+
+fn consume_contraction(text: &str, byte_start: usize) -> Option<usize> {
+    ["'s", "'t", "'re", "'ve", "'m", "'ll", "'d"]
+        .into_iter()
+        .find_map(|suffix| {
+            text[byte_start..]
+                .get(..suffix.len())
+                .filter(|candidate| candidate.eq_ignore_ascii_case(suffix))
+                .map(|_| byte_start + suffix.len())
+        })
+}
+
+fn consume_optional_prefix_letters(
+    text: &str,
+    byte_start: usize,
+    fold_marks: bool,
+) -> Option<usize> {
+    let ch = next_char(text, byte_start).expect("byte_start is in-bounds");
+    if is_letter_class(ch, fold_marks) {
+        return Some(consume_letters(text, byte_start, fold_marks));
+    }
+    if ch == '\r' || ch == '\n' || is_number(ch) {
+        return None;
+    }
+
+    let next_idx = byte_start + ch.len_utf8();
+    let next = (next_idx < text.len()).then(|| next_char(text, next_idx))??;
+    is_letter_class(next, fold_marks).then(|| consume_letters(text, next_idx, fold_marks))
+}
+
+fn consume_optional_space_punctuation(
+    text: &str,
+    byte_start: usize,
+    fold_marks: bool,
+) -> Option<usize> {
+    let ch = next_char(text, byte_start).expect("byte_start is in-bounds");
+    let punctuation_start = if ch == ' ' {
+        let next_idx = byte_start + ch.len_utf8();
+        let next = (next_idx < text.len()).then(|| next_char(text, next_idx))??;
+        if is_punctuation_for_bpe(next, fold_marks) {
+            next_idx
+        } else {
+            return None;
+        }
+    } else if is_punctuation_for_bpe(ch, fold_marks) {
+        byte_start
+    } else {
+        return None;
+    };
+
+    let mut idx = punctuation_start;
+    while idx < text.len() {
+        let ch = next_char(text, idx).expect("idx is in-bounds");
+        if !is_punctuation_for_bpe(ch, fold_marks) {
+            break;
+        }
+        idx += ch.len_utf8();
+    }
+    while idx < text.len() {
+        let ch = next_char(text, idx).expect("idx is in-bounds");
+        if ch != '\n' && ch != '\r' {
+            break;
+        }
+        idx += ch.len_utf8();
+    }
+    Some(idx)
+}
+
+fn consume_whitespace_with_newline(text: &str, byte_start: usize) -> Option<usize> {
+    let ch = next_char(text, byte_start).expect("byte_start is in-bounds");
+    if !is_whitespace(ch) {
+        return None;
+    }
+
+    let mut idx = byte_start;
+    let mut last_newline_end = None;
+    while idx < text.len() {
+        let ch = next_char(text, idx).expect("idx is in-bounds");
+        if !is_whitespace(ch) {
+            break;
+        }
+        idx += ch.len_utf8();
+        if ch == '\n' || ch == '\r' {
+            last_newline_end = Some(idx);
+        }
+    }
+    last_newline_end
+}
+
+fn consume_whitespace_before_nonspace(text: &str, byte_start: usize) -> usize {
+    let whitespace_end = consume_whitespace(text, byte_start);
+    if whitespace_end == text.len() {
+        return whitespace_end;
+    }
+
+    // Implements \s+(?!\S): if a whitespace run is followed by a non-space,
+    // leave one horizontal space for the optional-prefix branch that follows.
+    let chars: Vec<(usize, char)> = text[byte_start..whitespace_end]
+        .char_indices()
+        .map(|(offset, ch)| (byte_start + offset, ch))
+        .collect();
+    if chars.len() > 1 {
+        chars[chars.len() - 1].0
+    } else {
+        whitespace_end
+    }
+}
+
+fn next_char(text: &str, byte_start: usize) -> Option<char> {
+    text[byte_start..].chars().next()
+}
+
+fn is_letter(ch: char) -> bool {
+    ch.is_alphabetic()
+}
+
+fn is_number(ch: char) -> bool {
+    ch.is_numeric()
+}
+
+fn is_whitespace(ch: char) -> bool {
+    ch.is_whitespace()
+}
+
+/// Unicode `\p{M}` (Mn | Mc | Me) via a generated inclusive-range table — the
+/// qwen35 pre-tokenizer folds these into the letter class. NOTE `is_letter`
+/// (Rust `is_alphabetic` = derived Alphabetic) already covers the
+/// Other_Alphabetic subset of marks (e.g. Devanagari matras, Arabic harakat);
+/// this table adds the rest (viramas, NFD accents, enclosing marks), matching
+/// the oracle's strict general-category `[\p{L}\p{M}]` on all gate fixtures.
+fn is_mark(ch: char) -> bool {
+    const MARK_RANGES: &[(u32, u32)] = include!("mark_ranges.rs.inc");
+    let cp = ch as u32;
+    MARK_RANGES
+        .binary_search_by(|&(lo, hi)| {
+            if hi < cp {
+                std::cmp::Ordering::Less
+            } else if lo > cp {
+                std::cmp::Ordering::Greater
+            } else {
+                std::cmp::Ordering::Equal
+            }
+        })
+        .is_ok()
+}
+
+/// The pre-tokenizer's letter class: `\p{L}` for llama-bpe/qwen2,
+/// `[\p{L}\p{M}]` for qwen35 (`fold_marks`).
+fn is_letter_class(ch: char, fold_marks: bool) -> bool {
+    is_letter(ch) || (fold_marks && is_mark(ch))
+}
+
+fn is_punctuation_for_bpe(ch: char, fold_marks: bool) -> bool {
+    !is_whitespace(ch) && !is_letter_class(ch, fold_marks) && !is_number(ch)
+}
+
+fn consume_letters(text: &str, byte_start: usize, fold_marks: bool) -> usize {
+    let mut idx = byte_start;
+    while idx < text.len() {
+        let ch = next_char(text, idx).expect("idx is in-bounds");
+        if !is_letter_class(ch, fold_marks) {
+            break;
+        }
+        idx += ch.len_utf8();
+    }
+    idx
+}
+
+fn consume_digits(text: &str, byte_start: usize, max_digits: usize) -> usize {
+    let mut idx = byte_start;
+    let mut count = 0;
+    while idx < text.len() && count < max_digits {
+        let ch = next_char(text, idx).expect("idx is in-bounds");
+        if !is_number(ch) {
+            break;
+        }
+        idx += ch.len_utf8();
+        count += 1;
+    }
+    idx
+}
+
+fn consume_whitespace(text: &str, byte_start: usize) -> usize {
+    let mut idx = byte_start;
+    while idx < text.len() {
+        let ch = next_char(text, idx).expect("idx is in-bounds");
+        if !is_whitespace(ch) {
+            break;
+        }
+        idx += ch.len_utf8();
+    }
+    idx
+}
+
+fn bpe_byte_to_char(byte: u8) -> char {
+    let byte = u32::from(byte);
+    if (33..=126).contains(&byte) || (161..=172).contains(&byte) || (174..=255).contains(&byte) {
+        return char::from_u32(byte).expect("visible byte maps to Unicode scalar");
+    }
+
+    let offset = (0..byte)
+        .filter(|candidate| {
+            !((33..=126).contains(candidate)
+                || (161..=172).contains(candidate)
+                || (174..=255).contains(candidate))
+        })
+        .count() as u32;
+    char::from_u32(256 + offset).expect("GPT-2 byte fallback maps to Unicode scalar")
+}
+
+fn bpe_char_to_byte(ch: char) -> Option<u8> {
+    (0..=u8::MAX).find(|byte| bpe_byte_to_char(*byte) == ch)
+}
+
+fn validate_token_id(name: &str, id: Option<TokenId>, len: usize) -> Result<()> {
+    if let Some(id) = id {
+        if id as usize >= len {
+            return Err(BackendError::InvalidTokenizerMetadata(format!(
+                "{name} token id {id} out of range for vocab size {len}"
+            )));
+        }
+    }
+    Ok(())
+}
+
+fn parse_byte_token(text: &str) -> Option<u8> {
+    let hex = text.strip_prefix("<0x")?.strip_suffix('>')?;
+    if hex.len() != 2 {
+        return None;
+    }
+    u8::from_str_radix(hex, 16).ok()
+}
+
+fn flush_bytes(bytes: &mut Vec<u8>, text: &mut String) -> Result<()> {
+    if bytes.is_empty() {
+        return Ok(());
+    }
+    // SPM byte-fallback can likewise end mid-character when generation is truncated;
+    // push the valid UTF-8 prefix and hold back any incomplete trailing bytes rather
+    // than erroring. Identical to a strict decode for complete sequences (parity-safe).
+    let taken = std::mem::take(bytes);
+    match std::str::from_utf8(&taken) {
+        Ok(decoded) => text.push_str(decoded),
+        Err(err) => text.push_str(std::str::from_utf8(&taken[..err.valid_up_to()]).unwrap_or("")),
+    }
+    Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::{
+        bpe_pretokenize, bpe_pretokenize_with, is_chat_control_marker, is_mark, BpeRegistry, Token,
+        TokenKind,
+    };
+
+    fn tok(text: &str, kind: TokenKind) -> Token {
+        Token {
+            id: 0,
+            text: text.to_string(),
+            score: 0.0,
+            kind,
+        }
+    }
+
+    #[test]
+    fn chat_control_markers_are_stripped_but_think_tags_are_kept() {
+        // Phi-3 / ChatML <|...|> markers are turn scaffolding → strippable.
+        assert!(is_chat_control_marker(&tok(
+            "<|end|>",
+            TokenKind::UserDefined
+        )));
+        assert!(is_chat_control_marker(&tok(
+            "<|assistant|>",
+            TokenKind::UserDefined
+        )));
+        assert!(is_chat_control_marker(&tok(
+            "<|im_end|>",
+            TokenKind::UserDefined
+        )));
+        // Qwen3 reasoning tags are content (and <...>, not <|...|>) → preserved.
+        assert!(!is_chat_control_marker(&tok(
+            "<think>",
+            TokenKind::UserDefined
+        )));
+        assert!(!is_chat_control_marker(&tok(
+            "</think>",
+            TokenKind::UserDefined
+        )));
+        // Normal/content tokens are never markers regardless of shape.
+        assert!(!is_chat_control_marker(&tok("<|end|>", TokenKind::Normal)));
+        assert!(!is_chat_control_marker(&tok(
+            "hello",
+            TokenKind::UserDefined
+        )));
+    }
+
+    #[test]
+    fn bpe_registry_uses_ranked_heap_priority_for_merges() {
+        let registry = BpeRegistry::from_merges(vec![
+            "a b".to_string(),
+            "ab c".to_string(),
+            "c d".to_string(),
+            "abc d".to_string(),
+        ]);
+
+        assert_eq!(registry.len(), 4);
+        assert_eq!(
+            registry.merge_symbols(vec![
+                "a".to_string(),
+                "b".to_string(),
+                "c".to_string(),
+                "d".to_string(),
+            ]),
+            vec!["abcd".to_string()]
+        );
+    }
+
+    #[test]
+    fn bpe_registry_prefers_lowest_rank_over_leftmost_pair() {
+        let registry = BpeRegistry::from_merges(vec![
+            "b c".to_string(),
+            "bc d".to_string(),
+            "a b".to_string(),
+        ]);
+
+        assert_eq!(
+            registry.merge_symbols(vec![
+                "a".to_string(),
+                "b".to_string(),
+                "c".to_string(),
+                "d".to_string(),
+            ]),
+            vec!["a".to_string(), "bcd".to_string()]
+        );
+    }
+
+    #[test]
+    fn llama_bpe_pretokenizer_matches_core_llama3_shapes() {
+        assert_eq!(bpe_pretokenize("hello world"), vec!["hello", " world"]);
+        assert_eq!(bpe_pretokenize("it's"), vec!["it", "'s"]);
+        assert_eq!(bpe_pretokenize("WE'LL"), vec!["WE", "'LL"]);
+        assert_eq!(bpe_pretokenize("1234"), vec!["123", "4"]);
+        assert_eq!(bpe_pretokenize("  hello"), vec![" ", " hello"]);
+        assert_eq!(bpe_pretokenize(" !\n\n"), vec![" !\n\n"]);
+        assert_eq!(bpe_pretokenize("foo...bar"), vec!["foo", "...", "bar"]);
+        assert_eq!(bpe_pretokenize("hi\n  "), vec!["hi", "\n", "  "]);
+    }
+
+    #[test]
+    fn llama_bpe_pretokenizer_matches_llama3_regex_edge_cases() {
+        let cases = [
+            ("!hello", vec!["!hello"]),
+            ("\thello", vec!["\thello"]),
+            ("  \thello", vec!["  ", "\thello"]),
+            ("don't", vec!["don", "'t"]),
+            ("can'T", vec!["can", "'T"]),
+            ("abc12345def", vec!["abc", "123", "45", "def"]),
+            ("café déjà", vec!["café", " déjà"]),
+            ("!!!\r\nnext", vec!["!!!\r\n", "next"]),
+            ("line\r\n  next", vec!["line", "\r\n", " ", " next"]),
+            ("tabs\t\tword", vec!["tabs", "\t", "\tword"]),
+            ("\t!!!", vec!["\t", "!!!"]),
+            ("  !!!", vec![" ", " !!!"]),
+            ("hello🙂world", vec!["hello", "🙂world"]),
+            ("1२٣4", vec!["1२٣", "4"]),
+            ("   ", vec!["   "]),
+            ("\r\nhello", vec!["\r\n", "hello"]),
+        ];
+
+        for (input, expected) in cases {
+            assert_eq!(bpe_pretokenize(input), expected, "input {input:?}");
+        }
+    }
+
+    #[test]
+    fn qwen2_pretokenizer_splits_digits_singly_but_matches_llama3_otherwise() {
+        // The ONLY difference between the qwen2 (digit cap 1) and llama-bpe
+        // (digit cap 3) pre-tokenizers is digit grouping: qwen2 emits each digit
+        // as its own piece (`\p{N}`), llama-bpe groups runs of up to three
+        // (`\p{N}{1,3}`). Verified against llama.cpp llama-vocab.cpp
+        // LLAMA_VOCAB_PRE_TYPE_QWEN2 vs LLAMA_VOCAB_PRE_TYPE_LLAMA3.
+        const QWEN2: usize = 1;
+        const LLAMA3: usize = 3;
+
+        // Digits split one-at-a-time under qwen2 …
+        assert_eq!(
+            bpe_pretokenize_with("1234", QWEN2, false),
+            vec!["1", "2", "3", "4"]
+        );
+        assert_eq!(
+            bpe_pretokenize_with("abc12345def", QWEN2, false),
+            vec!["abc", "1", "2", "3", "4", "5", "def"]
+        );
+        // … while the rest of the grammar is byte-for-byte identical to llama-bpe.
+        for input in [
+            "hello world",
+            "it's",
+            "WE'LL",
+            "  hello",
+            "foo...bar",
+            "café déjà",
+            "line\r\n  next",
+            "hello🙂world",
+        ] {
+            assert_eq!(
+                bpe_pretokenize_with(input, QWEN2, false),
+                bpe_pretokenize_with(input, LLAMA3, false),
+                "non-digit input {input:?} must tokenize identically under both dialects"
+            );
+        }
+    }
+
+    #[test]
+    fn qwen35_pretokenizer_folds_combining_marks_into_letter_runs() {
+        // qwen35's regex letter branch is `[\p{L}\p{M}]+` and its punctuation
+        // class excludes `\p{M}` (llama-vocab.cpp LLAMA_VOCAB_PRE_TYPE_QWEN35).
+        // Byte-exactness vs the oracle is held by the ITEM1 tokenizer gate
+        // (qa/ornith/constrained-vram/RECEIPT_ITEM1_tokenizer.json); these lock
+        // the split behavior at the unit level.
+        const QWEN35: usize = 1;
+
+        // NFD: base letter + U+0301 combining acute stays one letter run.
+        assert_eq!(
+            bpe_pretokenize_with("cafe\u{301} bar", QWEN35, true),
+            vec!["cafe\u{301}", " bar"]
+        );
+        // Without folding (qwen2), the bare accent splits off as punctuation.
+        assert_eq!(
+            bpe_pretokenize_with("cafe\u{301} bar", QWEN35, false),
+            vec!["cafe", "\u{301}", " bar"]
+        );
+        // Devanagari virama (U+094D, Mn but NOT Other_Alphabetic — invisible to
+        // `char::is_alphabetic`) must not break a cluster: नमस्ते is one run.
+        assert_eq!(
+            bpe_pretokenize_with("\u{928}\u{92E}\u{938}\u{94D}\u{924}\u{947}", QWEN35, true),
+            vec!["\u{928}\u{92E}\u{938}\u{94D}\u{924}\u{947}"]
+        );
+        // A mark with no preceding letter still starts a letter-class run.
+        assert_eq!(
+            bpe_pretokenize_with("\u{301}x", QWEN35, true),
+            vec!["\u{301}x"]
+        );
+        // Punctuation runs stop at a mark (punctuation class excludes \p{M}).
+        assert_eq!(
+            bpe_pretokenize_with("!!\u{301}!!", QWEN35, true),
+            vec!["!!", "\u{301}", "!!"]
+        );
+    }
+
+    #[test]
+    fn is_mark_matches_unicode_m_category_samples() {
+        assert!(is_mark('\u{301}')); // combining acute (Mn)
+        assert!(is_mark('\u{94D}')); // Devanagari virama (Mn)
+        assert!(is_mark('\u{93E}')); // Devanagari matra (Mc)
+        assert!(is_mark('\u{20DD}')); // enclosing circle (Me)
+        assert!(!is_mark('a'));
+        assert!(!is_mark('!'));
+        assert!(!is_mark(' '));
+        assert!(!is_mark('\u{4E2D}')); // CJK letter
+    }
+}
+//! Smoke-admission: a per-model "does it actually run cleanly here" check.
+//!
+//! This is **distinct from Phase 5 oracle qualification**. Oracle qualification
+//! proves the runnable graph for an (architecture, quant, tokenizer) combo is
+//! numerically equivalent to HF transformers — that is a one-time, per-architecture
+//! gate. Smoke-admission is per-*model-file*: it confirms THIS GGUF admits, loads,
+//! and executes deterministically without blowing up, and that greedy decode is not
+//! degenerate. It attests deterministic execution, NOT parity.
+//!
+//! Guardrail: smoke-admission runs ONLY on combos that are already oracle-qualified
+//! (so a green smoke can never be mistaken for "this architecture is correct" — that
+//! claim is the oracle's). Any GGUF on a non-anchored combo is refused with
+//! `combo not yet anchored`.
+//!
+//! A pass emits a **runnable** receipt (`execution_lane = Runnable`, never copper),
+//! whose parity block is `not_compared` — honest that no reference was consulted.
+
+use std::collections::HashSet;
+
+use crate::error::{BackendError, Result};
+use crate::gguf::{read_metadata, GgufFile, GgufTensorType};
+use crate::receipt::{
+    rfc3339_utc_now, sha256_file_hex, ExecutionLane, LaneIdentity, ParityBlock, ParityReceipt,
+    ReceiptRequest, ReceiptResult, ReferenceIdentity, RECEIPT_SCHEMA_V1,
+};
+use crate::tokenizer::Tokenizer;
+
+use super::admit::{self, TokenizerFamily};
+use super::RunnableModel;
+
+const SMOKE_PROMPT: &str = "What is the capital of France?";
+const GEN_TOKENS: usize = 24;
+/// A working LM's logits sit in roughly [-30, 30]; anything past this is a blow-up.
+const SANE_LOGIT_ABS: f32 = 200.0;
+/// Minimum distinct tokens over the generation before we call it degenerate.
+const MIN_DISTINCT: usize = 6;
+
+/// The (architecture, tokenizer-family, quant) combos that have been oracle-qualified
+/// (HF-anchored), plus phi3 which is implemented + coherence-validated with HF parity
+/// pending a larger-RAM machine (allowed per the runnable-lane memory policy). Smoke
+/// runs ONLY on these — everything else is "combo not yet anchored".
+fn is_oracle_qualified(arch: &str, tok: TokenizerFamily, quant: &str) -> bool {
+    matches!(
+        (arch, tok, quant),
+        ("llama", TokenizerFamily::Spm, "Q8_0")
+            | ("qwen3", TokenizerFamily::Bpe, "Q8_0")
+            | ("gemma3", TokenizerFamily::Spm, "Q8_0")
+            | ("phi3", TokenizerFamily::Spm, "Q8_0")
+    )
+}
+
+/// Public (architecture, quant) view of the oracle-qualified set — the tokenizer
+/// family is implied by the architecture for every anchored combo. Used by the API
+/// to classify local models and catalog entries without running a model.
+pub fn oracle_qualified(architecture: &str, quant: &str) -> bool {
+    matches!(
+        (architecture, quant),
+        ("llama", "Q8_0") | ("qwen3", "Q8_0") | ("gemma3", "Q8_0") | ("phi3", "Q8_0")
+    )
+}
+
+/// The headline quant of a GGUF: the most common quantized (non-F32) tensor type,
+/// e.g. `Q8_0`. Public so the API can label local models without loading them.
+pub fn headline_quant_of(gguf: &GgufFile) -> String {
+    headline_quant(gguf)
+}
+
+/// Result of a passing smoke-admission.
+pub struct SmokeReport {
+    pub architecture: String,
+    pub quant: String,
+    pub tokenizer: TokenizerFamily,
+    pub prompt_token_count: usize,
+    pub generated: Vec<u32>,
+    pub generated_text: String,
+    pub logit_min: f32,
+    pub logit_max: f32,
+    /// Runnable receipt (lane=runnable, never copper) attesting deterministic
+    /// execution — not parity.
+    pub receipt: ParityReceipt,
+}
+
+/// Run smoke-admission on a GGUF. `Ok` only when every check passes; the returned
+/// report carries the runnable receipt.
+pub fn smoke_admit(path: &str) -> Result<SmokeReport> {
+    let gguf = read_metadata(path)?;
+
+    // (1) covered-set admission gate (Phase 1).
+    let admitted = admit::admit(&gguf).map_err(BackendError::from)?;
+    let quant = headline_quant(&gguf);
+
+    // Oracle-qualified guardrail.
+    if !is_oracle_qualified(&admitted.architecture, admitted.tokenizer, &quant) {
+        return Err(BackendError::UnsupportedGguf(format!(
+            "combo not yet anchored: {}/{}/{:?}; smoke-admission runs only on \
+             oracle-qualified combos (llama/Q8_0/SPM, qwen3/Q8_0/BPE, gemma3/Q8_0/SPM, \
+             phi3/Q8_0/SPM)",
+            admitted.architecture, quant, admitted.tokenizer
+        )));
+    }
+
+    // (2) load: all tensors present, shapes consistent, dequant succeeds on every
+    // weight (RunnableModel::load fails closed otherwise).
+    let model = RunnableModel::load(path)?;
+    let tok = Tokenizer::from_gguf(&gguf)?;
+
+    // (3) greedy forward sanity on a fixed tiny prompt: finite logits, sane range.
+    let (text, add_special, parse_special) = build_prompt(&tok);
+    let prompt = tok.encode(&text, add_special, parse_special)?;
+    if prompt.is_empty() {
+        return Err(BackendError::InvalidTensorData(
+            "smoke: prompt tokenized to nothing".into(),
+        ));
+    }
+    let logits = model.forward_logits(&prompt)?;
+    if !logits.iter().all(|v| v.is_finite()) {
+        return Err(BackendError::InvalidTensorData(
+            "smoke: forward produced non-finite logits".into(),
+        ));
+    }
+    let logit_min = logits.iter().copied().fold(f32::INFINITY, f32::min);
+    let logit_max = logits.iter().copied().fold(f32::NEG_INFINITY, f32::max);
+    if !(logit_min > -SANE_LOGIT_ABS && logit_max < SANE_LOGIT_ABS) {
+        return Err(BackendError::InvalidTensorData(format!(
+            "smoke: logit range [{logit_min:.1}, {logit_max:.1}] is out of sane bounds"
+        )));
+    }
+
+    // (4) coherence: greedy decode, fail if degenerate.
+    let generated = model.generate(&prompt, GEN_TOKENS)?;
+    check_not_degenerate(&generated)?;
+    let generated_text = tok.decode(&generated, true).unwrap_or_default();
+
+    let receipt = build_runnable_receipt(
+        path,
+        &gguf,
+        admitted.tokenizer,
+        &text,
+        &prompt,
+        &generated,
+        &generated_text,
+    )?;
+
+    Ok(SmokeReport {
+        architecture: admitted.architecture,
+        quant,
+        tokenizer: admitted.tokenizer,
+        prompt_token_count: prompt.len(),
+        generated,
+        generated_text,
+        logit_min,
+        logit_max,
+        receipt,
+    })
+}
+
+/// The headline quant: the most common quantized (non-F32) tensor type, e.g. `Q8_0`.
+fn headline_quant(gguf: &GgufFile) -> String {
+    use std::collections::HashMap;
+    let mut counts: HashMap<GgufTensorType, usize> = HashMap::new();
+    for t in &gguf.tensors {
+        if t.tensor_type != GgufTensorType::F32 {
+            *counts.entry(t.tensor_type).or_default() += 1;
+        }
+    }
+    counts
+        .into_iter()
+        .max_by_key(|(_, c)| *c)
+        .map(|(tt, _)| format!("{tt:?}"))
+        .unwrap_or_else(|| "F32".to_string())
+}
+
+/// Build the smoke prompt. Instruction-tuned models degenerate on raw completion
+/// prompts, so render the GGUF's own chat template when present (gives each model a
+/// fair coherence test); fall back to a raw completion prompt otherwise.
+fn build_prompt(tok: &Tokenizer) -> (String, bool, bool) {
+    if let Some(tmpl) = tok.chat_template.as_deref() {
+        if let Some(rendered) = render_chat_template(tmpl, tok) {
+            // Chat templates emit their own BOS (`{{ bos_token }}`) and control
+            // markers, so don't add BOS again and DO parse specials.
+            return (rendered, false, true);
+        }
+    }
+    (SMOKE_PROMPT.to_string(), true, false)
+}
+
+/// Render a single-user-turn chat prompt from the GGUF Jinja chat template.
+/// Best-effort: returns None if the template uses constructs we don't support, in
+/// which case the caller falls back to a raw prompt.
+fn render_chat_template(tmpl: &str, tok: &Tokenizer) -> Option<String> {
+    let mut env = minijinja::Environment::new();
+    // Some templates guard with raise_exception; surface it as a render error so we
+    // fall back rather than panic.
+    env.add_function(
+        "raise_exception",
+        |msg: String| -> std::result::Result<String, minijinja::Error> {
+            Err(minijinja::Error::new(
+                minijinja::ErrorKind::InvalidOperation,
+                msg,
+            ))
+        },
+    );
+    env.add_template("chat", tmpl).ok()?;
+    let template = env.get_template("chat").ok()?;
+    let bos = tok.token_text(tok.special.bos).unwrap_or("");
+    let eos = tok.token_text(tok.special.eos).unwrap_or("");
+    let ctx = minijinja::context! {
+        messages => vec![minijinja::context!{ role => "user", content => SMOKE_PROMPT }],
+        add_generation_prompt => true,
+        bos_token => bos,
+        eos_token => eos,
+    };
+    let rendered = template.render(ctx).ok()?;
+    if rendered.trim().is_empty() {
+        None
+    } else {
+        Some(rendered)
+    }
+}
+
+/// Degeneracy check: too few distinct tokens, or a short repetition cycle in the
+/// tail, both signal a broken/garbage run rather than a working LM.
+fn check_not_degenerate(gen: &[u32]) -> Result<()> {
+    let distinct: HashSet<u32> = gen.iter().copied().collect();
+    if distinct.len() < MIN_DISTINCT {
+        return Err(BackendError::InvalidTensorData(format!(
+            "smoke: degenerate greedy output — only {} distinct tokens in {}",
+            distinct.len(),
+            gen.len()
+        )));
+    }
+    if let Some(period) = tail_cycle_period(gen, 4) {
+        return Err(BackendError::InvalidTensorData(format!(
+            "smoke: degenerate greedy output — tail is a period-{period} repetition loop"
+        )));
+    }
+    Ok(())
+}
+
+/// Detect a period-`p` (1..=max_period) repetition loop occupying the tail: the last
+/// three full periods are all identical. Returns the smallest such period.
+fn tail_cycle_period(gen: &[u32], max_period: usize) -> Option<usize> {
+    let n = gen.len();
+    for p in 1..=max_period {
+        if n < 3 * p {
+            continue;
+        }
+        let tail = &gen[n - 3 * p..];
+        if tail[..p] == tail[p..2 * p] && tail[p..2 * p] == tail[2 * p..] {
+            return Some(p);
+        }
+    }
+    None
+}
+
+#[allow(clippy::too_many_arguments)]
+fn build_runnable_receipt(
+    path: &str,
+    gguf: &GgufFile,
+    tok_family: TokenizerFamily,
+    prompt_text: &str,
+    prompt: &[u32],
+    generated: &[u32],
+    generated_text: &str,
+) -> Result<ParityReceipt> {
+    let gguf_sha = sha256_file_hex(std::path::Path::new(path))
+        .map_err(|e| BackendError::InvalidTensorData(format!("smoke: hash gguf: {e}")))?;
+    let model_id = std::path::Path::new(path)
+        .file_stem()
+        .map(|s| s.to_string_lossy().to_string())
+        .unwrap_or_else(|| "unknown".to_string());
+    let tok_kind = match tok_family {
+        TokenizerFamily::Spm => "llama_spm",
+        TokenizerFamily::Bpe => "gpt2_bpe",
+    };
+    let lane = LaneIdentity::capture(
+        &model_id,
+        std::path::Path::new(path),
+        gguf,
+        Some(tok_kind),
+        gguf_sha,
+    );
+    let mut receipt = ParityReceipt {
+        schema: RECEIPT_SCHEMA_V1.to_string(),
+        receipt_id: String::new(),
+        created_utc: rfc3339_utc_now(),
+        lane,
+        // No reference engine was consulted — smoke-admission is not a parity check.
+        reference: ReferenceIdentity {
+            tool: "none".to_string(),
+            binary: "runnable-smoke-admission".to_string(),
+            version: None,
+            commit: None,
+        },
+        request: ReceiptRequest {
+            endpoint: "runnable/smoke-admission".to_string(),
+            messages_or_prompt: serde_json::json!(prompt_text),
+            max_tokens: GEN_TOKENS as u32,
+            temperature: 0.0,
+            top_p: None,
+            top_k: None,
+            seed: None,
+            stop: vec![],
+        },
+        reproducible: true,
+        result: ReceiptResult {
+            prompt_token_ids: prompt.to_vec(),
+            generated_token_ids: generated.to_vec(),
+            generated_text: generated_text.to_string(),
+            completion_tokens: generated.len() as u32,
+            finish_reason: "length".to_string(),
+        },
+        // Honest: no reference comparison happened.
+        parity: ParityBlock::not_compared(),
+        // The load-bearing distinction: this is a runnable-lane receipt.
+        execution_lane: Some(ExecutionLane::Runnable),
+        execution_trace: None,
+        quality_tier: None,
+        signature: None,
+    };
+    receipt
+        .seal()
+        .map_err(|e| BackendError::InvalidTensorData(format!("smoke: seal receipt: {e}")))?;
+    Ok(receipt)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn oracle_qualified_gate() {
+        assert!(is_oracle_qualified("llama", TokenizerFamily::Spm, "Q8_0"));
+        assert!(is_oracle_qualified("qwen3", TokenizerFamily::Bpe, "Q8_0"));
+        assert!(is_oracle_qualified("gemma3", TokenizerFamily::Spm, "Q8_0"));
+        assert!(is_oracle_qualified("phi3", TokenizerFamily::Spm, "Q8_0"));
+        // Not anchored: a covered architecture we have not HF-anchored.
+        assert!(!is_oracle_qualified("gemma2", TokenizerFamily::Spm, "Q8_0"));
+        // Not anchored: anchored arch but a quant we did not anchor.
+        assert!(!is_oracle_qualified("llama", TokenizerFamily::Spm, "Q4K"));
+        // Not anchored: anchored arch but unexpected tokenizer family.
+        assert!(!is_oracle_qualified("llama", TokenizerFamily::Bpe, "Q8_0"));
+    }
+
+    #[test]
+    fn detects_repetition_loops() {
+        // period-1
+        assert_eq!(tail_cycle_period(&[1, 2, 3, 7, 7, 7], 4), Some(1));
+        // period-2
+        assert_eq!(tail_cycle_period(&[1, 2, 4, 5, 4, 5, 4, 5], 4), Some(2));
+        // period-4 (gemma raw-prompt failure shape)
+        assert_eq!(
+            tail_cycle_period(&[9, 8, 7, 6, 9, 8, 7, 6, 9, 8, 7, 6], 4),
+            Some(4)
+        );
+        // healthy, varied tail
+        assert_eq!(tail_cycle_period(&[1, 2, 3, 4, 5, 6, 7, 8, 9, 10], 4), None);
+    }
+
+    #[test]
+    fn degenerate_low_distinct_rejected() {
+        let gen = vec![5u32, 5, 5, 6, 5, 6, 5, 6];
+        assert!(check_not_degenerate(&gen).is_err());
+    }
+
+    #[test]
+    fn healthy_generation_accepted() {
+        let gen: Vec<u32> = (100..130).collect();
+        assert!(check_not_degenerate(&gen).is_ok());
+    }
+
+    /// Phase-1 G-LOAD coherence bring-up for a not-yet-anchored architecture
+    /// (Ornith / `qwen35`). Loads the GGUF, renders its chat template, greedy-decodes
+    /// 24 tokens, and asserts the output is coherent (finite logits, non-degenerate).
+    /// This is a COHERENCE check, NOT a parity claim — it deliberately bypasses the
+    /// `is_oracle_qualified` smoke guard (qwen35 is anchored only after Phase-3
+    /// parity). Ignored by default: needs the 9.5 GB Q8_0 file via
+    /// `CAMELID_ORNITH_GGUF`. Run with `--release -- --ignored --nocapture`.
+    #[test]
+    #[ignore = "needs the ~9.5GB Ornith qwen35 Q8_0 GGUF; set CAMELID_ORNITH_GGUF"]
+    fn ornith_qwen35_coherence_bringup() {
+        let path = std::env::var("CAMELID_ORNITH_GGUF")
+            .expect("set CAMELID_ORNITH_GGUF to the Ornith-1.0-9B Q8_0 GGUF path");
+        let gguf = read_metadata(&path).expect("read gguf metadata");
+        assert_eq!(
+            gguf.architecture(),
+            Some("qwen35"),
+            "expected a qwen35 GGUF"
+        );
+        let model = RunnableModel::load(&path).expect("load qwen35 runnable model");
+        let tok = Tokenizer::from_gguf(&gguf).expect("build tokenizer");
+
+        let (text, add_special, parse_special) = build_prompt(&tok);
+        let prompt = tok
+            .encode(&text, add_special, parse_special)
+            .expect("encode prompt");
+        assert!(!prompt.is_empty(), "prompt tokenized to nothing");
+
+        // Sanity: finite, in-range logits at the prompt's last position.
+        let logits = model.forward_logits(&prompt).expect("forward prompt");
+        assert!(
+            logits.iter().all(|v| v.is_finite()),
+            "non-finite logits — arch/loader bug"
+        );
+        let lo = logits.iter().copied().fold(f32::INFINITY, f32::min);
+        let hi = logits.iter().copied().fold(f32::NEG_INFINITY, f32::max);
+        assert!(
+            lo > -SANE_LOGIT_ABS && hi < SANE_LOGIT_ABS,
+            "logit range [{lo:.1},{hi:.1}] out of sane bounds — likely a math bug"
+        );
+
+        let generated = model.generate(&prompt, GEN_TOKENS).expect("greedy decode");
+        let out = tok.decode(&generated, true).unwrap_or_default();
+        eprintln!("=== ORNITH qwen35 G-LOAD ===\nPROMPT:\n{text}\n--- GEN ({GEN_TOKENS} tok) ---\n{out}\nTOKENS: {generated:?}\nlogit_range=[{lo:.2},{hi:.2}]");
+        check_not_degenerate(&generated).expect("coherent, non-degenerate generation");
+    }
+
+    /// Phase-3 parity helper: dump the rendered chat prompt + its qwen35 prompt token
+    /// IDs (tokenizer-only, no weights → fast). Feed these exact IDs to the llama.cpp
+    /// oracle so the parity comparison isolates the model forward from tokenization.
+    /// Ignored: needs `CAMELID_ORNITH_GGUF`. Run `--release -- --ignored --nocapture`.
+    #[test]
+    #[ignore = "needs the Ornith qwen35 GGUF metadata; set CAMELID_ORNITH_GGUF"]
+    fn ornith_qwen35_prompt_tokens() {
+        let path = std::env::var("CAMELID_ORNITH_GGUF")
+            .expect("set CAMELID_ORNITH_GGUF to the Ornith-1.0-9B Q8_0 GGUF path");
+        let gguf = read_metadata(&path).expect("read gguf metadata");
+        let tok = Tokenizer::from_gguf(&gguf).expect("build tokenizer");
+        let (text, add_special, parse_special) = build_prompt(&tok);
+        let prompt = tok
+            .encode(&text, add_special, parse_special)
+            .expect("encode prompt");
+        // Machine-parseable lines for the parity harness to scrape.
+        eprintln!(
+            "RENDERED_PROMPT_JSON={}",
+            serde_json::to_string(&text).unwrap()
+        );
+        eprintln!(
+            "PROMPT_TOKENS_JSON={}",
+            serde_json::to_string(&prompt).unwrap()
+        );
+        eprintln!(
+            "ADD_SPECIAL={add_special} PARSE_SPECIAL={parse_special} N_PROMPT={}",
+            prompt.len()
+        );
+    }
+
+    /// Phase-3 parity helper A (fast, tokenizer-only): tokenize each prompt in the
+    /// JSON-array env `CAMELID_PARITY_PROMPTS` with raw-completion conventions
+    /// (add_special=true, parse_special=false) and print the token-id arrays. Feed
+    /// these identical arrays to BOTH the llama.cpp oracle and camelid so the parity
+    /// comparison isolates the model forward.
+    #[test]
+    #[ignore = "needs CAMELID_ORNITH_GGUF (+ CAMELID_PARITY_PROMPTS)"]
+    fn ornith_qwen35_tokenize_set() {
+        let path = std::env::var("CAMELID_ORNITH_GGUF").expect("set CAMELID_ORNITH_GGUF");
+        let prompts: Vec<String> = serde_json::from_str(
+            &std::env::var("CAMELID_PARITY_PROMPTS")
+                .unwrap_or_else(|_| "[\"What is the capital of France?\"]".into()),
+        )
+        .expect("CAMELID_PARITY_PROMPTS must be a JSON array of strings");
+        let gguf = read_metadata(&path).expect("read gguf");
+        let tok = Tokenizer::from_gguf(&gguf).expect("tokenizer");
+        for (i, p) in prompts.iter().enumerate() {
+            let ids = tok.encode(p, true, false).expect("encode");
+            eprintln!(
+                "TOKSET[{i}] PROMPT={} TOKENS={}",
+                serde_json::to_string(p).unwrap(),
+                serde_json::to_string(&ids).unwrap()
+            );
+        }
+    }
+
+    /// Phase-3 parity helper B (slow, full forward): for each token-id array in the
+    /// JSON env `CAMELID_PARITY_TOKENS` (array of arrays of u32), greedy-decode
+    /// `CAMELID_PARITY_NPREDICT` (default 20) tokens and print the generated ids.
+    /// Run AFTER the llama-server oracle is shut down (both models can't fit RAM).
+    #[test]
+    #[ignore = "needs CAMELID_ORNITH_GGUF + CAMELID_PARITY_TOKENS (run with oracle server OFF)"]
+    fn ornith_qwen35_parity_gen() {
+        let path = std::env::var("CAMELID_ORNITH_GGUF").expect("set CAMELID_ORNITH_GGUF");
+        let token_sets: Vec<Vec<u32>> = serde_json::from_str(
+            &std::env::var("CAMELID_PARITY_TOKENS").expect("set CAMELID_PARITY_TOKENS"),
+        )
+        .expect("CAMELID_PARITY_TOKENS must be a JSON array of u32 arrays");
+        let n_predict: usize = std::env::var("CAMELID_PARITY_NPREDICT")
+            .ok()
+            .and_then(|s| s.parse().ok())
+            .unwrap_or(20);
+        let model = RunnableModel::load(&path).expect("load qwen35");
+        for (i, prompt) in token_sets.iter().enumerate() {
+            let gen = model.generate(prompt, n_predict).expect("greedy decode");
+            eprintln!("PARITY_GEN[{i}] {}", serde_json::to_string(&gen).unwrap());
+        }
+    }
+}
+//! Layer offloading — Phase 1: VRAM accounting and the layer→location split.
+//!
+//! A model too large for VRAM still runs with the GPU computing every layer: as
+//! many transformer layers as fit live in VRAM (resident); the rest live in system
+//! RAM and stream their weights to a GPU scratch buffer per forward pass. The split
+//! is computed from detected free VRAM — no manual flag. This is a *capacity*
+//! feature, not a speed one: offloaded layers pay a per-forward PCIe transfer.
+//!
+//! This module is the single source of truth for the split. It computes the byte
+//! budget and the `layer_resident` map; it performs NO compute and NO streaming
+//! (that is Phase 2+). Where a weight physically lives never changes the math, so
+//! parity is unaffected by the split ratio.
+
+use crate::gguf::GgufFile;
+use crate::model::LlamaModelConfig;
+use serde::Serialize;
+use std::sync::{Mutex, OnceLock};
+
+const MIB: u64 = 1024 * 1024;
+
+/// Honest run labeling for layer offloading (Phase 4). A model run that streams some
+/// layers from host RAM each forward is a *capacity* mode with materially lower
+/// throughput than an all-resident run; this status makes that visible everywhere a
+/// run is reported (load banner, bench record) so an offloaded run never reads like a
+/// native one. `None`/`source == "none"` means the model is fully resident.
+#[derive(Debug, Clone, Serialize)]
+pub struct OffloadRunStatus {
+    pub total_layers: usize,
+    pub layers_resident: usize,
+    pub layers_offloaded: usize,
+    /// Bytes streamed host->device per offloaded layer, per forward.
+    pub per_layer_bytes: u64,
+    /// Detected free VRAM at engine-build time.
+    pub free_vram_bytes: u64,
+    /// Measured copy-stream peak H2D throughput (GB/s), if probed at build.
+    pub pcie_gbps: Option<f64>,
+    /// How the split was decided: "forced" (CAMELID_OFFLOAD_FORCE_LAYERS), "auto"
+    /// (VRAM-driven), or "none" (fully resident).
+    pub source: &'static str,
+}
+
+impl OffloadRunStatus {
+    /// Fully-resident marker — nothing offloaded.
+    pub fn resident(total_layers: usize, free_vram_bytes: u64) -> Self {
+        Self {
+            total_layers,
+            layers_resident: total_layers,
+            layers_offloaded: 0,
+            per_layer_bytes: 0,
+            free_vram_bytes,
+            pcie_gbps: None,
+            source: "none",
+        }
+    }
+
+    /// One-line, human-facing summary for the load banner. Offloaded runs lead with a
+    /// clear capacity-mode warning and the measured PCIe rate; resident runs are terse.
+    pub fn describe(&self) -> String {
+        if self.layers_offloaded == 0 {
+            return format!(
+                "[gpu] all {} layers resident in VRAM ({} MiB free) — full GPU speed",
+                self.total_layers,
+                self.free_vram_bytes / MIB,
+            );
+        }
+        let pcie = match self.pcie_gbps {
+            Some(g) => format!("{g:.1} GB/s H2D"),
+            None => "unmeasured".to_string(),
+        };
+        format!(
+            "[gpu] CAPACITY MODE: {}/{} layers offloaded to host RAM ({} resident), \
+             streaming {} MiB/layer per forward over PCIe ({pcie}); expect REDUCED tok/s \
+             vs fully-resident. split={}",
+            self.layers_offloaded,
+            self.total_layers,
+            self.layers_resident,
+            self.per_layer_bytes / MIB,
+            self.source,
+        )
+    }
+}
+
+static OFFLOAD_RUN_STATUS: OnceLock<Mutex<Option<OffloadRunStatus>>> = OnceLock::new();
+
+fn status_cell() -> &'static Mutex<Option<OffloadRunStatus>> {
+    OFFLOAD_RUN_STATUS.get_or_init(|| Mutex::new(None))
+}
+
+/// Record the active engine's offload split (called once per resident-engine build).
+pub fn set_offload_run_status(status: Option<OffloadRunStatus>) {
+    *status_cell().lock().unwrap_or_else(|p| p.into_inner()) = status;
+}
+
+/// The active engine's offload split, if a resident engine has been built this process.
+pub fn offload_run_status() -> Option<OffloadRunStatus> {
+    status_cell()
+        .lock()
+        .unwrap_or_else(|p| p.into_inner())
+        .clone()
+}
+
+/// GPU-resident byte cost of one GGUF tensor. Q8_0 is stored on disk as 34-byte
+/// blocks (f16 scale + 32 i8) but the engine holds/uploads it as 36-byte blocks
+/// (f32 scale + 32 i8), so VRAM accounting must use 36. Other dtypes are the same
+/// in memory as on disk.
+fn tensor_gpu_bytes(desc: &crate::gguf::GgufTensorDescriptor) -> u64 {
+    use crate::gguf::GgufTensorType;
+    let elements: u64 = desc.dimensions.iter().product();
+    match desc.tensor_type {
+        GgufTensorType::Q8_0 => elements.div_ceil(32) * 36,
+        _ => desc.n_bytes,
+    }
+}
+
+/// f32 KV-cache bytes for ALL layers at `context` positions. Every layer computes
+/// on the GPU, so its K/V live in VRAM regardless of where its weights live.
+fn kv_cache_bytes(config: &LlamaModelConfig, context: u64) -> u64 {
+    let head_dim = config
+        .attention_key_length
+        .unwrap_or(config.embedding_length / config.attention_head_count.max(1))
+        as u64;
+    let n_kv = config.attention_head_count_kv as u64;
+    let n_layers = config.block_count as u64;
+    n_layers * n_kv * head_dim * 2 /*K,V*/ * 4 /*f32*/ * context
+}
+
+/// The planned split. `layer_resident[i] == true` means layer `i` lives in VRAM.
+#[derive(Debug, Clone)]
+pub struct OffloadPlan {
+    pub total_layers: usize,
+    pub layers_resident: usize,
+    pub layers_offloaded: usize,
+    pub layer_resident: Vec<bool>,
+    // Byte budget the decision came from.
+    pub free_vram: u64,
+    pub kv_cache: u64,
+    pub ends: u64,
+    pub safety: u64,
+    pub scratch: u64,
+    pub per_layer_max: u64,
+    pub total_layer_bytes: u64,
+    pub resident_budget: u64,
+    pub fits_fully: bool,
+    /// Set when even the fixed overhead + one streaming buffer will not fit; the
+    /// caller should refuse to run rather than thrash.
+    pub error: Option<String>,
+}
+
+impl OffloadPlan {
+    /// Build the split from a loaded GGUF (accurate: sums each layer's real tensor
+    /// bytes and the resident "ends" — token embedding, output projection, norms).
+    pub fn from_gguf(
+        gguf: &GgufFile,
+        config: &LlamaModelConfig,
+        free_vram: u64,
+        context: u64,
+        safety_mb: u64,
+    ) -> Self {
+        let n_layers = config.block_count as usize;
+        let mut layer_bytes = vec![0u64; n_layers];
+        let mut ends = 0u64;
+        for desc in &gguf.tensors {
+            let bytes = tensor_gpu_bytes(desc);
+            match parse_layer_index(&desc.name) {
+                Some(i) if i < n_layers => layer_bytes[i] += bytes,
+                _ => ends += bytes, // token_embd, output, output_norm, rope_freqs, ...
+            }
+        }
+        Self::compute(layer_bytes, ends, config, free_vram, context, safety_mb)
+    }
+
+    /// Build the split from architecture dims alone (when the GGUF file isn't
+    /// present). Estimates a uniform per-layer cost and assumes a separate (untied)
+    /// output projection — the conservative case.
+    pub fn from_dims(
+        config: &LlamaModelConfig,
+        free_vram: u64,
+        context: u64,
+        safety_mb: u64,
+    ) -> Self {
+        let hidden = config.embedding_length as u64;
+        let ffn = config.feed_forward_length as u64;
+        let n_heads = config.attention_head_count as u64;
+        let n_kv = config.attention_head_count_kv as u64;
+        let head_dim = config
+            .attention_key_length
+            .unwrap_or(config.embedding_length / config.attention_head_count.max(1))
+            as u64;
+        let vocab = config.vocab_size.unwrap_or(0) as u64;
+        let q_width = n_heads * head_dim;
+        let kv_width = n_kv * head_dim;
+        // Q8_0: 36 bytes per 32-element block = 1.125 B/elem. Norms are f32.
+        let q8 = |params: u64| params.div_ceil(32) * 36;
+        let attn = 2 * hidden * q_width + 2 * hidden * kv_width; // q,o + k,v
+        let ffn_p = 3 * hidden * ffn; // gate,up,down
+        let per_layer = q8(attn + ffn_p) + 2 * hidden * 4 /*attn_norm + ffn_norm, f32*/;
+        let layer_bytes = vec![per_layer; config.block_count as usize];
+        let ends = q8(vocab * hidden) /*token_embd*/ + q8(vocab * hidden) /*output*/ + hidden * 4;
+        Self::compute(layer_bytes, ends, config, free_vram, context, safety_mb)
+    }
+
+    fn compute(
+        layer_bytes: Vec<u64>,
+        ends: u64,
+        config: &LlamaModelConfig,
+        free_vram: u64,
+        context: u64,
+        safety_mb: u64,
+    ) -> Self {
+        let total_layers = layer_bytes.len();
+        let kv_cache = kv_cache_bytes(config, context);
+        let safety = safety_mb * MIB;
+        let per_layer_max = layer_bytes.iter().copied().max().unwrap_or(0);
+        let total_layer_bytes: u64 = layer_bytes.iter().sum();
+        let fixed = kv_cache + ends + safety; // always resident: KV + ends + safety
+
+        // Fits fully? Then nothing offloads and no streaming scratch is needed.
+        if free_vram >= fixed + total_layer_bytes {
+            return OffloadPlan {
+                total_layers,
+                layers_resident: total_layers,
+                layers_offloaded: 0,
+                layer_resident: vec![true; total_layers],
+                free_vram,
+                kv_cache,
+                ends,
+                safety,
+                scratch: 0,
+                per_layer_max,
+                total_layer_bytes,
+                resident_budget: free_vram.saturating_sub(fixed),
+                fits_fully: true,
+                error: None,
+            };
+        }
+
+        // Offloading: reserve one scratch buffer (the largest layer) to stream into.
+        let scratch = per_layer_max;
+        // Even fully offloaded (0 resident) needs fixed + scratch to fit.
+        if free_vram < fixed + scratch {
+            let need = fixed + scratch;
+            let short = need - free_vram;
+            return OffloadPlan {
+                total_layers,
+                layers_resident: 0,
+                layers_offloaded: total_layers,
+                layer_resident: vec![false; total_layers],
+                free_vram,
+                kv_cache,
+                ends,
+                safety,
+                scratch,
+                per_layer_max,
+                total_layer_bytes,
+                resident_budget: 0,
+                fits_fully: false,
+                error: Some(format!(
+                    "model cannot run even fully offloaded: need {} MiB (KV {} + ends {} + safety {} + 1 layer scratch {}) but only {} MiB free — short by {} MiB",
+                    need / MIB,
+                    kv_cache / MIB,
+                    ends / MIB,
+                    safety / MIB,
+                    scratch / MIB,
+                    free_vram / MIB,
+                    short / MIB,
+                )),
+            };
+        }
+
+        let resident_budget = free_vram - fixed - scratch;
+        // Greedily make the first layers resident until the budget is exhausted.
+        let mut used = 0u64;
+        let mut resident = 0usize;
+        for &b in &layer_bytes {
+            if used + b <= resident_budget {
+                used += b;
+                resident += 1;
+            } else {
+                break;
+            }
+        }
+        let layer_resident = (0..total_layers).map(|i| i < resident).collect();
+        OffloadPlan {
+            total_layers,
+            layers_resident: resident,
+            layers_offloaded: total_layers - resident,
+            layer_resident,
+            free_vram,
+            kv_cache,
+            ends,
+            safety,
+            scratch,
+            per_layer_max,
+            total_layer_bytes,
+            resident_budget,
+            fits_fully: false,
+            error: None,
+        }
+    }
+
+    /// Human-readable plan, for the load-time checkpoint and benchmark labels.
+    pub fn describe(&self) -> String {
+        if let Some(err) = &self.error {
+            return format!("[offload] PLAN FAILED: {err}");
+        }
+        let avg_layer = if self.total_layers > 0 {
+            self.total_layer_bytes / self.total_layers as u64
+        } else {
+            0
+        };
+        let mut s = String::new();
+        s.push_str(&format!(
+            "[offload] {} layers: {} resident in VRAM, {} offloaded to host{}\n",
+            self.total_layers,
+            self.layers_resident,
+            self.layers_offloaded,
+            if self.fits_fully {
+                " (fits fully — no offload)"
+            } else {
+                ""
+            }
+        ));
+        s.push_str("[offload] budget (MiB): ");
+        s.push_str(&format!(
+            "free {} = KV {} + ends {} + safety {} + scratch {} + resident-layers {} (of total-layers {})\n",
+            self.free_vram / MIB,
+            self.kv_cache / MIB,
+            self.ends / MIB,
+            self.safety / MIB,
+            self.scratch / MIB,
+            (self.layers_resident as u64 * avg_layer) / MIB,
+            self.total_layer_bytes / MIB,
+        ));
+        s.push_str(&format!(
+            "[offload] per-layer ~{} MiB | resident-weights budget {} MiB | {}",
+            avg_layer / MIB,
+            self.resident_budget / MIB,
+            if self.layers_offloaded > 0 {
+                format!(
+                    "expect REDUCED tok/s: {} of {} layers stream from host each forward",
+                    self.layers_offloaded, self.total_layers
+                )
+            } else {
+                "fully resident".to_string()
+            }
+        ));
+        s
+    }
+}
+
+/// Parse the layer index from a GGUF tensor name like `blk.12.attn_q.weight`.
+/// Returns `None` for non-layer tensors (token_embd, output, *_norm at the ends).
+fn parse_layer_index(name: &str) -> Option<usize> {
+    let rest = name.strip_prefix("blk.")?;
+    let idx_str = rest.split('.').next()?;
+    idx_str.parse::<usize>().ok()
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn parse_layer_index_handles_blk_and_ends() {
+        assert_eq!(parse_layer_index("blk.0.attn_q.weight"), Some(0));
+        assert_eq!(parse_layer_index("blk.27.ffn_down.weight"), Some(27));
+        assert_eq!(parse_layer_index("token_embd.weight"), None);
+        assert_eq!(parse_layer_index("output.weight"), None);
+        assert_eq!(parse_layer_index("output_norm.weight"), None);
+    }
+
+    #[test]
+    fn resident_status_reads_as_full_speed() {
+        let s = OffloadRunStatus::resident(28, 5 * 1024 * MIB);
+        assert_eq!(s.layers_offloaded, 0);
+        assert_eq!(s.source, "none");
+        let line = s.describe();
+        assert!(line.contains("all 28 layers resident"));
+        assert!(line.contains("full GPU speed"));
+        // A fully-resident run must never carry a capacity-mode warning.
+        assert!(!line.to_lowercase().contains("capacity mode"));
+        assert!(!line.contains("REDUCED"));
+    }
+
+    #[test]
+    fn offloaded_status_labels_capacity_mode_with_pcie() {
+        let s = OffloadRunStatus {
+            total_layers: 28,
+            layers_resident: 14,
+            layers_offloaded: 14,
+            per_layer_bytes: 108 * MIB,
+            free_vram_bytes: 2 * 1024 * MIB,
+            pcie_gbps: Some(11.9),
+            source: "forced",
+        };
+        let line = s.describe();
+        // The tradeoff must be visible: split, per-layer streaming, PCIe, and a warning.
+        assert!(line.contains("CAPACITY MODE"));
+        assert!(line.contains("14/28 layers offloaded"));
+        assert!(line.contains("108 MiB/layer"));
+        assert!(line.contains("11.9 GB/s"));
+        assert!(line.contains("REDUCED tok/s"));
+        assert!(line.contains("split=forced"));
+    }
+}
+#include "models.h"
+#include "llama-memory-recurrent.h"
+
+void llama_model_qwen35::load_arch_hparams(llama_model_loader & ml) {
+    ml.get_key(LLM_KV_ATTENTION_LAYERNORM_RMS_EPS,       hparams.f_norm_rms_eps);
+    ml.get_key_or_arr(LLM_KV_ROPE_DIMENSION_SECTIONS,    hparams.rope_sections, 4, true);
+
+    // Load linear attention (gated delta net) parameters
+    ml.get_key(LLM_KV_SSM_CONV_KERNEL,    hparams.ssm_d_conv);
+    ml.get_key(LLM_KV_SSM_INNER_SIZE,     hparams.ssm_d_inner);
+    ml.get_key(LLM_KV_SSM_STATE_SIZE,     hparams.ssm_d_state);
+    ml.get_key(LLM_KV_SSM_TIME_STEP_RANK, hparams.ssm_dt_rank);
+    ml.get_key(LLM_KV_SSM_GROUP_COUNT,    hparams.ssm_n_group);
+
+    // NextN/MTP (Qwen3.5/3.6): extra decoder block appended beyond the main stack
+    ml.get_key(LLM_KV_NEXTN_PREDICT_LAYERS, hparams.n_layer_nextn, false);
+    GGML_ASSERT(hparams.n_layer_nextn < hparams.n_layer_all && "n_layer_nextn must be < n_layer_impl");
+
+    // Mark recurrent layers (linear attention layers). MTP layers are dense
+    // attention-only and must be flagged non-recurrent.
+    if (!ml.get_key_or_arr(LLM_KV_ATTENTION_RECURRENT_LAYERS, hparams.is_recr_impl, hparams.n_layer_all, false)) {
+        uint32_t full_attn_interval = 4;
+        ml.get_key(LLM_KV_FULL_ATTENTION_INTERVAL, full_attn_interval, false);
+        for (uint32_t i = 0; i < hparams.n_layer_all; ++i) {
+            hparams.is_recr_impl[i] = (i < hparams.n_layer()) && ((i + 1) % full_attn_interval != 0);
+        }
+    }
+
+    switch (hparams.n_layer()) {
+        case 24: type = hparams.n_embd == 1024 ? LLM_TYPE_0_8B : LLM_TYPE_2B; break;
+        case 32: type = hparams.n_embd == 2560 ? LLM_TYPE_4B : LLM_TYPE_9B; break;
+        case 64: type = LLM_TYPE_27B; break;
+        default: type = LLM_TYPE_UNKNOWN;
+    }
+}
+
+void llama_model_qwen35::load_arch_tensors(llama_model_loader & ml) {
+    LLAMA_LOAD_LOCALS;
+
+    const bool mtp_only = (hparams.n_layer_nextn > 0) && (ml.get_weight("blk.0.attn_norm.weight") == nullptr);
+    const int trunk_flags = mtp_only ? TENSOR_NOT_REQUIRED : 0;
+
+    tok_embd = create_tensor(tn(LLM_TENSOR_TOKEN_EMBD, "weight"), { n_embd, n_vocab }, 0);
+
+    // output
+    output_norm = create_tensor(tn(LLM_TENSOR_OUTPUT_NORM, "weight"), { n_embd }, 0);
+    output = create_tensor(tn(LLM_TENSOR_OUTPUT, "weight"), { n_embd, n_vocab }, TENSOR_NOT_REQUIRED);
+
+    // if output is NULL, init from the input tok embed
+    if (output == NULL) {
+        output = create_tensor(tn(LLM_TENSOR_TOKEN_EMBD, "weight"), { n_embd, n_vocab }, TENSOR_DUPLICATED);
+    }
+
+    auto load_block_trunk = [&](int il, int flags) {
+        auto & layer = layers[il];
+
+        // Calculate dimensions from hyperparameters
+        const int64_t head_k_dim = hparams.ssm_d_state;
+        const int64_t head_v_dim = hparams.ssm_d_state;
+        const int64_t n_k_heads  = hparams.ssm_n_group;
+        const int64_t n_v_heads  = hparams.ssm_dt_rank;
+        const int64_t key_dim    = head_k_dim * n_k_heads;
+        const int64_t value_dim  = head_v_dim * n_v_heads;
+        const int64_t conv_dim   = key_dim * 2 + value_dim;
+
+        layer.attn_norm      = create_tensor(tn(LLM_TENSOR_ATTN_NORM,      "weight", il), { n_embd }, flags);
+        layer.attn_post_norm = create_tensor(tn(LLM_TENSOR_ATTN_POST_NORM, "weight", il), { n_embd }, flags);
+
+        if (!hparams.is_recr(il)) {
+            // Attention layers
+            create_tensor_qkv(layer, il, n_embd, n_embd_head_k * n_head * 2, n_embd_k_gqa, n_embd_v_gqa, flags);
+            layer.wo = create_tensor(tn(LLM_TENSOR_ATTN_OUT, "weight", il), { n_embd_head_k * n_head, n_embd }, flags);
+
+            // Q/K normalization for attention layers
+            layer.attn_q_norm = create_tensor(tn(LLM_TENSOR_ATTN_Q_NORM, "weight", il), { n_embd_head_k }, flags);
+            layer.attn_k_norm = create_tensor(tn(LLM_TENSOR_ATTN_K_NORM, "weight", il), { n_embd_head_k }, flags);
+        } else {
+            // Linear attention (gated delta net) specific tensors
+            // Create tensors with calculated dimensions
+            layer.wqkv           = create_tensor(tn(LLM_TENSOR_ATTN_QKV,       "weight", il), { n_embd, key_dim * 2 + value_dim }, TENSOR_NOT_REQUIRED);
+            layer.wqkv_gate      = create_tensor(tn(LLM_TENSOR_ATTN_GATE,      "weight", il), { n_embd, value_dim }, TENSOR_NOT_REQUIRED);
+            layer.ssm_conv1d     = create_tensor(tn(LLM_TENSOR_SSM_CONV1D,     "weight", il), { hparams.ssm_d_conv, conv_dim }, flags);
+            layer.ssm_dt         = create_tensor(tn(LLM_TENSOR_SSM_DT,         "bias",   il), { hparams.ssm_dt_rank }, flags);
+            layer.ssm_a          = create_tensor(tn(LLM_TENSOR_SSM_A_NOSCAN,             il), { hparams.ssm_dt_rank }, flags);
+            layer.ssm_beta       = create_tensor(tn(LLM_TENSOR_SSM_BETA,       "weight", il), { n_embd, n_v_heads }, flags);
+            layer.ssm_alpha      = create_tensor(tn(LLM_TENSOR_SSM_ALPHA,      "weight", il), { n_embd, n_v_heads }, flags);
+            layer.ssm_norm       = create_tensor(tn(LLM_TENSOR_SSM_NORM,       "weight", il), { head_v_dim }, flags);
+            layer.ssm_out        = create_tensor(tn(LLM_TENSOR_SSM_OUT,        "weight", il), { value_dim, n_embd }, flags);
+        }
+
+        layer.ffn_gate = create_tensor(tn(LLM_TENSOR_FFN_GATE, "weight", il), {n_embd,   n_ff}, flags);
+        layer.ffn_down = create_tensor(tn(LLM_TENSOR_FFN_DOWN, "weight", il), {  n_ff, n_embd}, flags);
+        layer.ffn_up   = create_tensor(tn(LLM_TENSOR_FFN_UP,   "weight", il), {n_embd,   n_ff}, flags);
+    };
+
+    auto load_block_mtp = [&](int il) {
+        auto & layer = layers[il];
+
+        // MTP block looks like a full-attention Qwen3.5 decoder block.
+        layer.attn_norm      = create_tensor(tn(LLM_TENSOR_ATTN_NORM,      "weight", il), { n_embd }, 0);
+        layer.attn_post_norm = create_tensor(tn(LLM_TENSOR_ATTN_POST_NORM, "weight", il), { n_embd }, 0);
+
+        create_tensor_qkv(layer, il, n_embd, n_embd_head_k * n_head * 2, n_embd_k_gqa, n_embd_v_gqa, 0);
+        layer.wo          = create_tensor(tn(LLM_TENSOR_ATTN_OUT,    "weight", il), { n_embd_head_k * n_head, n_embd }, 0);
+        layer.attn_q_norm = create_tensor(tn(LLM_TENSOR_ATTN_Q_NORM, "weight", il), { n_embd_head_k }, 0);
+        layer.attn_k_norm = create_tensor(tn(LLM_TENSOR_ATTN_K_NORM, "weight", il), { n_embd_head_k }, 0);
+
+        layer.ffn_gate = create_tensor(tn(LLM_TENSOR_FFN_GATE, "weight", il), {n_embd,   n_ff}, 0);
+        layer.ffn_down = create_tensor(tn(LLM_TENSOR_FFN_DOWN, "weight", il), {  n_ff, n_embd}, 0);
+        layer.ffn_up   = create_tensor(tn(LLM_TENSOR_FFN_UP,   "weight", il), {n_embd,   n_ff}, 0);
+
+        // NextN-specific tensors that define the MTP block.
+        layer.nextn.eh_proj          = create_tensor(tn(LLM_TENSOR_NEXTN_EH_PROJ,          "weight", il), { 2 * n_embd, n_embd }, 0);
+        layer.nextn.enorm            = create_tensor(tn(LLM_TENSOR_NEXTN_ENORM,            "weight", il), { n_embd },              0);
+        layer.nextn.hnorm            = create_tensor(tn(LLM_TENSOR_NEXTN_HNORM,            "weight", il), { n_embd },              0);
+        layer.nextn.embed_tokens     = create_tensor(tn(LLM_TENSOR_NEXTN_EMBED_TOKENS,     "weight", il), { n_embd, n_vocab },     TENSOR_NOT_REQUIRED);
+        layer.nextn.shared_head_head = create_tensor(tn(LLM_TENSOR_NEXTN_SHARED_HEAD_HEAD, "weight", il), { n_embd, n_vocab },     TENSOR_NOT_REQUIRED);
+        layer.nextn.shared_head_norm = create_tensor(tn(LLM_TENSOR_NEXTN_SHARED_HEAD_NORM, "weight", il), { n_embd },              TENSOR_NOT_REQUIRED);
+    };
+
+    for (int i = 0; i < n_layer; ++i) {
+        load_block_trunk(i, trunk_flags);
+    }
+    for (int i = n_layer; i < n_layer_all; ++i) {
+        load_block_mtp(i);
+    }
+}
+
+std::unique_ptr<llm_graph_context> llama_model_qwen35::build_arch_graph(const llm_graph_params & params) const {
+    if (params.gtype == LLM_GRAPH_TYPE_DECODER_MTP) {
+        return std::make_unique<graph_mtp>(*this, params);
+    }
+    return std::make_unique<graph>(*this, params);
+}
+
+llama_model_qwen35::graph::graph(const llama_model & model, const llm_graph_params & params) :
+    llm_build_delta_net_base(params), model(model) {
+    const int64_t n_embd_head = hparams.n_embd_head_v();
+
+    GGML_ASSERT(n_embd_head == hparams.n_embd_head_k());
+
+    int sections[4];
+    std::copy(std::begin(hparams.rope_sections), std::begin(hparams.rope_sections) + 4, sections);
+
+    ggml_tensor * cur;
+    ggml_tensor * inpL;
+
+    inpL = build_inp_embd(model.tok_embd);
+
+    cb(inpL, "model.input_embed", -1);
+
+    auto * inp = build_inp_mem_hybrid();
+
+    ggml_tensor * inp_pos     = build_inp_pos();
+    ggml_tensor * inp_out_ids = build_inp_out_ids();
+
+    // MTP/NextN layers are loaded as extra decoder blocks but not executed in the main pass.
+    for (int il = 0; il < n_layer; ++il) {
+        ggml_tensor * inpSA = inpL;
+
+        cur = build_norm(inpL, model.layers[il].attn_norm, nullptr, LLM_NORM_RMS, il);
+        cb(cur, "attn_norm", il);
+
+        ggml_build_forward_expand(gf, cur);
+
+        // Determine layer type and build appropriate attention mechanism
+        if (hparams.is_recr(il)) {
+            // Linear attention layer (gated delta net)
+            cur = build_layer_attn_linear(inp->get_recr(), cur, il);
+        } else {
+            // Full attention layer
+            cur = build_layer_attn(inp->get_attn(), cur, inp_pos, sections, il);
+        }
+
+        if (il == n_layer - 1 && inp_out_ids && cparams.embeddings_nextn_masked) {
+            cur   = ggml_get_rows(ctx0, cur,   inp_out_ids);
+            inpSA = ggml_get_rows(ctx0, inpSA, inp_out_ids);
+        }
+
+        // Residual connection
+        cur = ggml_add(ctx0, cur, inpSA);
+        cb(cur, "attn_residual", il);
+
+        // Save the tensor before post-attention norm for residual connection
+        ggml_tensor * ffn_residual = cur;
+
+        // Post-attention norm
+        ggml_tensor * attn_post_norm = build_norm(cur, model.layers[il].attn_post_norm, nullptr, LLM_NORM_RMS, il);
+        cb(attn_post_norm, "attn_post_norm", il);
+
+        // Dense FFN layer - without residual connection
+        cur = build_layer_ffn(attn_post_norm, il);
+        cb(cur, "ffn_out", il);
+
+        // Residual connection for FFN - add to the tensor from before post_attention_layernorm
+        cur = ggml_add(ctx0, cur, ffn_residual);
+        cb(cur, "post_ffn", il);
+
+        cur = build_cvec(cur, il);
+        cb(cur, "l_out", il);
+
+        // Input for next layer
+        inpL = cur;
+    }
+    cur = inpL;
+
+    cur = build_norm(cur, model.output_norm, nullptr, LLM_NORM_RMS, -1);
+
+    cb(cur, "h_nextn", -1);
+    res->t_h_nextn = cur;
+
+    if (!cparams.embeddings_nextn_masked && inp_out_ids) {
+        cur = ggml_get_rows(ctx0, cur, inp_out_ids);
+    }
+
+    cb(cur, "result_norm", -1);
+    res->t_embd = cur;
+
+    // LM head
+    cur = build_lora_mm(model.output, cur, model.output_s);
+
+    cb(cur, "result_output", -1);
+    res->t_logits = cur;
+
+    ggml_build_forward_expand(gf, cur);
+}
+
+std::pair<ggml_tensor *, ggml_tensor *> llama_model_qwen35::graph::build_qkvz(
+                ggml_tensor * input,
+                        int   il) {
+    const int64_t n_seqs       = ubatch.n_seqs;
+    const int64_t n_seq_tokens = ubatch.n_seq_tokens;
+
+    ggml_tensor * qkv_mixed = build_lora_mm(model.layers[il].wqkv, input, model.layers[il].wqkv_s);
+    qkv_mixed = ggml_reshape_3d(ctx0, qkv_mixed, qkv_mixed->ne[0], n_seq_tokens, n_seqs);
+    cb(qkv_mixed, "linear_attn_qkv_mixed", il);
+
+    ggml_tensor * z = build_lora_mm(model.layers[il].wqkv_gate, input, model.layers[il].wqkv_gate_s);
+    cb(z, "z", il);
+
+    return { qkv_mixed, z };
+}
+
+ggml_tensor * llama_model_qwen35::graph::build_norm_gated(
+        ggml_tensor * input,
+        ggml_tensor * weights,
+        ggml_tensor * gate,
+        int           layer) {
+    ggml_tensor * normalized = build_norm(input, weights, nullptr, LLM_NORM_RMS, layer);
+    ggml_tensor * gated_silu = ggml_silu(ctx0, gate);
+
+    return ggml_mul(ctx0, normalized, gated_silu);
+}
+
+ggml_tensor * llama_model_qwen35::graph::build_layer_attn(
+        llm_graph_input_attn_kv * inp,
+        ggml_tensor *             cur,
+        ggml_tensor *             inp_pos,
+        int *                     sections,
+        int                       il) {
+    const int64_t n_embd_head = hparams.n_embd_head_v();
+    GGML_ASSERT(n_embd_head == hparams.n_embd_head_k());
+
+    // Order: joint QG projection, QG split, Q norm, KV projection, K norm, RoPE, attention
+
+    // Qwen3Next uses a single Q projection that outputs query + gate
+    ggml_tensor * Qcur_full = build_lora_mm(model.layers[il].wq, cur, model.layers[il].wq_s); // [ (n_embd_head * 2) * n_head, n_tokens ]
+    cb(Qcur_full, "Qcur_full", il);
+
+    ggml_tensor * Qcur = ggml_view_3d(ctx0, Qcur_full, n_embd_head, n_head, n_tokens,
+        ggml_element_size(Qcur_full) * n_embd_head * 2,
+        ggml_element_size(Qcur_full) * n_embd_head * 2 * n_head, 0);
+    cb(Qcur, "Qcur_reshaped", il);
+
+    // Apply Q normalization
+    Qcur = build_norm(Qcur, model.layers[il].attn_q_norm, nullptr, LLM_NORM_RMS, il);
+    cb(Qcur, "Qcur_normed", il);
+
+    ggml_tensor * Kcur = build_lora_mm(model.layers[il].wk, cur, model.layers[il].wk_s);
+    cb(Kcur, "Kcur", il);
+
+    ggml_tensor * Vcur = build_lora_mm(model.layers[il].wv, cur, model.layers[il].wv_s);
+    cb(Vcur, "Vcur", il);
+
+    // Apply K normalization
+    Kcur = ggml_reshape_3d(ctx0, Kcur, n_embd_head, n_head_kv, n_tokens);
+    Kcur = build_norm(Kcur, model.layers[il].attn_k_norm, nullptr, LLM_NORM_RMS, il);
+    cb(Kcur, "Kcur_normed", il);
+
+    ggml_tensor * gate = ggml_view_3d(ctx0, Qcur_full, n_embd_head, n_head, n_tokens,
+        ggml_element_size(Qcur_full) * n_embd_head * 2,
+        ggml_element_size(Qcur_full) * n_embd_head * 2 * n_head,
+        ggml_element_size(Qcur_full) * n_embd_head);
+    gate = ggml_cont_2d(ctx0, gate, n_embd_head * n_head, n_tokens);
+    cb(gate, "gate_reshaped", il);
+
+    Vcur = ggml_reshape_3d(ctx0, Vcur, n_embd_head, n_head_kv, n_tokens);
+
+    // Apply MRoPE
+    Qcur = ggml_rope_multi(
+            ctx0, Qcur, inp_pos, nullptr,
+            n_rot, sections, rope_type, n_ctx_orig, freq_base, freq_scale,
+            ext_factor, attn_factor, beta_fast, beta_slow
+            );
+
+    Kcur = ggml_rope_multi(
+            ctx0, Kcur, inp_pos, nullptr,
+            n_rot, sections, rope_type, n_ctx_orig, freq_base, freq_scale,
+            ext_factor, attn_factor, beta_fast, beta_slow
+            );
+
+    cb(Qcur, "Qcur", il);
+    cb(Kcur, "Kcur", il);
+    cb(Vcur, "Vcur", il);
+
+    // Attention computation
+    const float kq_scale = hparams.f_attention_scale == 0.0f ? 1.0f / sqrtf(float(n_embd_head)) : hparams.f_attention_scale;
+
+    cur = build_attn(inp,
+                nullptr, nullptr, nullptr,
+                Qcur, Kcur, Vcur, nullptr, nullptr, nullptr, kq_scale, il);
+    cb(cur, "attn_pregate", il);
+
+    ggml_tensor * gate_sigmoid = ggml_sigmoid(ctx0, gate);
+    cb(gate_sigmoid, "gate_sigmoid", il);
+
+    cur = ggml_mul(ctx0, cur, gate_sigmoid);
+    cb(cur, "attn_gated", il);
+
+    cur = build_lora_mm(model.layers[il].wo, cur, model.layers[il].wo_s);
+    cb(cur, "attn_output", il);
+
+    return cur;
+}
+
+ggml_tensor * llama_model_qwen35::graph::build_layer_attn_linear(
+        llm_graph_input_rs * inp,
+        ggml_tensor *        cur,
+        int                  il) {
+    const auto * mctx_cur = inp->mctx;
+
+    const int64_t d_inner      = hparams.ssm_d_inner;
+    const int64_t n_seqs       = ubatch.n_seqs;
+    const int64_t head_k_dim   = hparams.ssm_d_state;
+    const int64_t num_k_heads  = hparams.ssm_n_group;
+    const int64_t num_v_heads  = hparams.ssm_dt_rank;
+    const int64_t head_v_dim   = d_inner / num_v_heads;
+    const int64_t n_seq_tokens = ubatch.n_seq_tokens;
+
+    GGML_ASSERT(n_seqs != 0);
+    GGML_ASSERT(ubatch.equal_seqs());
+    GGML_ASSERT(ubatch.n_tokens == n_seq_tokens * n_seqs);
+
+    // Input projections
+    auto qkvz = build_qkvz(cur, il);
+    ggml_tensor * qkv_mixed = qkvz.first;
+    ggml_tensor * z         = qkvz.second;
+
+    ggml_tensor * beta = build_lora_mm(model.layers[il].ssm_beta, cur, model.layers[il].ssm_beta_s);
+    beta = ggml_reshape_4d(ctx0, beta, 1, num_v_heads, n_seq_tokens, n_seqs);
+    cb(beta, "beta", il);
+
+    beta = ggml_sigmoid(ctx0, beta);
+    cb(beta, "beta_sigmoid", il);
+
+    ggml_tensor * alpha = build_lora_mm(model.layers[il].ssm_alpha, cur, model.layers[il].ssm_alpha_s);
+    alpha = ggml_reshape_3d(ctx0, alpha, num_v_heads, n_seq_tokens, n_seqs);
+    cb(alpha, "alpha", il);
+
+    ggml_tensor * alpha_biased   = ggml_add(ctx0, alpha, model.layers[il].ssm_dt);
+    ggml_tensor * alpha_softplus = ggml_softplus(ctx0, alpha_biased);
+    cb(alpha_softplus, "a_softplus", il);
+
+    ggml_tensor * gate = ggml_mul(ctx0, alpha_softplus, model.layers[il].ssm_a);  // -A_log.exp() * softplus
+    cb(gate, "gate", il);
+
+    gate = ggml_reshape_4d(ctx0, gate, 1, num_v_heads, n_seq_tokens, n_seqs);
+
+    ggml_tensor * conv_states_all = mctx_cur->get_r_l(il);
+    ggml_tensor * ssm_states_all  = mctx_cur->get_s_l(il);
+
+    ggml_tensor * conv_kernel      = model.layers[il].ssm_conv1d;
+    const int64_t conv_kernel_size = conv_kernel->ne[0];
+    const int64_t conv_channels    = d_inner + 2 * hparams.ssm_n_group * hparams.ssm_d_state;
+
+    ggml_tensor * conv_input = build_conv_state(inp, conv_states_all, qkv_mixed, conv_kernel_size, conv_channels, il);
+
+    ggml_tensor * state = build_rs(inp, ssm_states_all, hparams.n_embd_s(), n_seqs);
+    state = ggml_reshape_4d(ctx0, state, head_v_dim, head_v_dim, num_v_heads, n_seqs);
+    cb(state, "state_predelta", il);
+
+    ggml_tensor * conv_output_proper = ggml_ssm_conv(ctx0, conv_input, conv_kernel);
+    cb(conv_output_proper, "conv_output_raw", il);
+
+    ggml_tensor * conv_output_silu = ggml_silu(ctx0, conv_output_proper);
+    cb(conv_output_silu, "conv_output_silu", il);
+
+    ggml_tensor * conv_qkv_mix = conv_output_silu;
+
+    // Calculate the total conv dimension
+    int64_t qkv_dim = head_k_dim * num_k_heads * 2 + head_v_dim * num_v_heads;
+    int64_t nb1_qkv = ggml_row_size(conv_qkv_mix->type, qkv_dim);
+
+    // Extract the convolved Q, K, V from conv_output
+    ggml_tensor * q_conv = ggml_view_4d(ctx0, conv_qkv_mix, head_k_dim, num_k_heads, n_seq_tokens, n_seqs,
+            ggml_row_size(conv_qkv_mix->type, head_k_dim),
+            nb1_qkv,
+            nb1_qkv * n_seq_tokens,
+            0);
+
+    ggml_tensor * k_conv = ggml_view_4d(ctx0, conv_qkv_mix, head_k_dim, num_k_heads, n_seq_tokens, n_seqs,
+            ggml_row_size(conv_qkv_mix->type, head_k_dim),
+            nb1_qkv,
+            nb1_qkv * n_seq_tokens,
+            head_k_dim * num_k_heads * ggml_element_size(conv_qkv_mix));
+
+    ggml_tensor * v_conv = ggml_view_4d(ctx0, conv_qkv_mix, head_v_dim, num_v_heads, n_seq_tokens, n_seqs,
+            ggml_row_size(conv_qkv_mix->type, head_v_dim),
+            nb1_qkv,
+            nb1_qkv * n_seq_tokens,
+            ggml_row_size(conv_qkv_mix->type, 2 * head_k_dim * num_k_heads));
+
+    cb(q_conv, "q_conv", il);
+    cb(k_conv, "k_conv", il);
+    cb(v_conv, "v_conv", il);
+
+    const float eps_norm = hparams.f_norm_rms_eps;
+
+    q_conv = ggml_l2_norm(ctx0, q_conv, eps_norm);
+    k_conv = ggml_l2_norm(ctx0, k_conv, eps_norm);
+
+    //q_conv = ggml_cont_4d(ctx0, q_conv, head_k_dim, num_k_heads, n_seq_tokens, n_seqs);
+    //k_conv = ggml_cont_4d(ctx0, k_conv, head_k_dim, num_k_heads, n_seq_tokens, n_seqs);
+    //v_conv = ggml_cont_4d(ctx0, v_conv, head_v_dim, num_v_heads, n_seq_tokens, n_seqs);
+
+    // if head keys and value keys are different, repeat to force tensors into matching shapes
+    // note: need explicit repeat only if we are not using the fused GDN.
+    if (num_k_heads != num_v_heads && (!cparams.fused_gdn_ar || !cparams.fused_gdn_ch)) {
+        GGML_ASSERT(num_v_heads % num_k_heads == 0);
+        q_conv = ggml_repeat_4d(ctx0, q_conv, head_k_dim, num_v_heads, n_seq_tokens, n_seqs);
+        k_conv = ggml_repeat_4d(ctx0, k_conv, head_k_dim, num_v_heads, n_seq_tokens, n_seqs);
+    }
+
+    cb(q_conv, "q_conv_predelta", il);
+    cb(k_conv, "k_conv_predelta", il);
+    cb(v_conv, "v_conv_predelta", il);
+
+    ggml_tensor * output = build_recurrent_attn(inp, ssm_states_all, q_conv, k_conv, v_conv, gate, beta, state, il);
+
+    // z: [head_dim, n_heads, n_tokens, n_seqs] -> [n_heads * n_tokens * n_seqs, head_dim]
+    ggml_tensor * z_2d = ggml_reshape_4d(ctx0, z, head_v_dim, num_v_heads, n_seq_tokens, n_seqs);
+
+    // Apply gated normalization: self.norm(core_attn_out, z)
+    ggml_tensor * attn_out_norm = build_norm_gated(output, model.layers[il].ssm_norm, z_2d, il);
+
+    // Final reshape: [head_dim, n_heads, n_tokens, n_seqs] -> [n_tokens, n_seqs, n_heads * head_dim]
+    ggml_tensor * final_output = ggml_reshape_3d(ctx0, attn_out_norm, head_v_dim * num_v_heads, n_seq_tokens, n_seqs);
+    cb(final_output, "final_output", il);
+
+    // Output projection
+    cur = build_lora_mm(model.layers[il].ssm_out, final_output, model.layers[il].ssm_out_s);
+    cb(cur, "linear_attn_out", il);
+
+    // Reshape back to original dimensions
+    cur = ggml_reshape_2d(ctx0, cur, n_embd, n_seq_tokens * n_seqs);
+
+    return cur;
+}
+
+ggml_tensor * llama_model_qwen35::graph::build_layer_ffn(ggml_tensor * cur, const int il) {
+    // Qwen3.5 does not use MoE FFN
+    GGML_ASSERT(model.layers[il].ffn_gate_inp == nullptr);
+
+    cur = build_ffn(cur,
+        model.layers[il].ffn_up, NULL, model.layers[il].ffn_up_s,
+        model.layers[il].ffn_gate, NULL, model.layers[il].ffn_gate_s,
+        model.layers[il].ffn_down, NULL, model.layers[il].ffn_down_s,
+        NULL,
+        LLM_FFN_SILU, LLM_FFN_PAR, il);
+    cb(cur, "ffn_out", il);
+
+    return cur;
+}
+
+// LLM_GRAPH_TYPE_DECODER_MTP draft head for Qwen3.5/3.6 dense series
+llama_model_qwen35::graph_mtp::graph_mtp(const llama_model & model, const llm_graph_params & params)
+    : llm_graph_context(params) {
+    GGML_ASSERT(hparams.n_layer_nextn > 0 && "QWEN35 MTP requires n_layer_nextn > 0");
+    GGML_ASSERT(hparams.n_layer_nextn == 1 && "QWEN35 MTP currently only supports a single MTP block");
+
+    const int64_t n_embd_head = hparams.n_embd_head_v();
+    GGML_ASSERT(n_embd_head == hparams.n_embd_head_k());
+
+    // hparams.n_layer includes both main model layers and MTP layers. The MTP
+    // layer is stored immediately after the main layers in model.layers[].
+    const int il = hparams.n_layer();
+    const auto & layer = model.layers[il];
+
+    GGML_ASSERT(layer.nextn.eh_proj && "MTP block missing nextn.eh_proj");
+    GGML_ASSERT(layer.nextn.enorm   && "MTP block missing nextn.enorm");
+    GGML_ASSERT(layer.nextn.hnorm   && "MTP block missing nextn.hnorm");
+
+    int sections[4];
+    std::copy(std::begin(hparams.rope_sections), std::begin(hparams.rope_sections) + 4, sections);
+
+    // TODO: extract in a common llm_graph_context::build_inp_embd_h()
+    auto inp = std::make_unique<llm_graph_input_embd_h>(hparams.n_embd);
+
+    inp->tokens = ggml_new_tensor_1d(ctx0, GGML_TYPE_I32, n_tokens);
+    ggml_set_input(inp->tokens);
+
+    inp->embd = ggml_new_tensor_2d(ctx0, GGML_TYPE_F32, hparams.n_embd_inp(), n_tokens);
+    ggml_set_input(inp->embd);
+
+    // TODO: make static using `ggml_build_forward_select()`
+    //       see llm_graph_context::build_inp_embd() for reference
+    ggml_tensor * tok_embd;
+    if (ubatch.token) {
+        ggml_tensor * tok_embd_w = layer.nextn.embed_tokens ? layer.nextn.embed_tokens : model.tok_embd;
+
+        tok_embd = ggml_get_rows(ctx0, tok_embd_w, inp->tokens);
+    } else {
+        tok_embd = inp->embd;
+    }
+    cb(tok_embd, "mtp_tok_embd", il);
+
+    inp->h = ggml_new_tensor_2d(ctx0, GGML_TYPE_F32, hparams.n_embd, n_tokens);
+    ggml_set_input(inp->h);
+    ggml_set_name(inp->h, "mtp_h_input");
+
+    ggml_tensor * h_embd = inp->h;
+
+    res->add_input(std::move(inp));
+
+    ggml_tensor * inp_pos     = build_inp_pos();
+    ggml_tensor * inp_out_ids = build_inp_out_ids();
+
+    auto * inp_attn = build_attn_inp_kv();
+
+    ggml_tensor * h_norm = build_norm(h_embd, layer.nextn.hnorm, nullptr, LLM_NORM_RMS, il);
+    cb(h_norm, "mtp_hnorm", il);
+
+    ggml_tensor * e_norm = build_norm(tok_embd, layer.nextn.enorm, nullptr, LLM_NORM_RMS, il);
+    cb(e_norm, "mtp_enorm", il);
+
+    ggml_tensor * concat = ggml_concat(ctx0, e_norm, h_norm, /*dim=*/ 0);
+    cb(concat, "mtp_concat", il);
+
+    ggml_tensor * cur = build_lora_mm(layer.nextn.eh_proj, concat, layer.nextn.eh_proj_s);
+    cb(cur, "mtp_eh_proj", il);
+
+    ggml_tensor * inpSA = cur;
+
+    cur = build_norm(cur, layer.attn_norm, nullptr, LLM_NORM_RMS, il);
+    cb(cur, "mtp_attn_norm", il);
+
+    ggml_tensor * Qcur_full = build_lora_mm(layer.wq, cur, layer.wq_s);
+    cb(Qcur_full, "mtp_Qcur_full", il);
+
+    ggml_tensor * Qcur = ggml_view_3d(ctx0, Qcur_full,
+            n_embd_head, n_head, n_tokens,
+            ggml_element_size(Qcur_full) * n_embd_head * 2,
+            ggml_element_size(Qcur_full) * n_embd_head * 2 * n_head,
+            0);
+    Qcur = build_norm(Qcur, layer.attn_q_norm, nullptr, LLM_NORM_RMS, il);
+    cb(Qcur, "mtp_Qcur_normed", il);
+
+    ggml_tensor * gate = ggml_view_3d(ctx0, Qcur_full,
+            n_embd_head, n_head, n_tokens,
+            ggml_element_size(Qcur_full) * n_embd_head * 2,
+            ggml_element_size(Qcur_full) * n_embd_head * 2 * n_head,
+            ggml_element_size(Qcur_full) * n_embd_head);
+    gate = ggml_cont_2d(ctx0, gate, n_embd_head * n_head, n_tokens);
+    cb(gate, "mtp_gate", il);
+
+    ggml_tensor * Kcur = build_lora_mm(layer.wk, cur, layer.wk_s);
+    Kcur = ggml_reshape_3d(ctx0, Kcur, n_embd_head, n_head_kv, n_tokens);
+    Kcur = build_norm(Kcur, layer.attn_k_norm, nullptr, LLM_NORM_RMS, il);
+    cb(Kcur, "mtp_Kcur_normed", il);
+
+    ggml_tensor * Vcur = build_lora_mm(layer.wv, cur, layer.wv_s);
+    Vcur = ggml_reshape_3d(ctx0, Vcur, n_embd_head, n_head_kv, n_tokens);
+    cb(Vcur, "mtp_Vcur", il);
+
+    Qcur = ggml_rope_multi(ctx0, Qcur, inp_pos, nullptr,
+            n_rot, sections, rope_type, n_ctx_orig, freq_base, freq_scale,
+            ext_factor, attn_factor, beta_fast, beta_slow);
+    Kcur = ggml_rope_multi(ctx0, Kcur, inp_pos, nullptr,
+            n_rot, sections, rope_type, n_ctx_orig, freq_base, freq_scale,
+            ext_factor, attn_factor, beta_fast, beta_slow);
+
+    const float kq_scale = hparams.f_attention_scale == 0.0f
+            ? 1.0f / sqrtf(float(n_embd_head)) : hparams.f_attention_scale;
+
+    cur = build_attn(inp_attn,
+            nullptr, nullptr, nullptr,
+            Qcur, Kcur, Vcur, nullptr, nullptr, nullptr, kq_scale, il);
+    cb(cur, "mtp_attn_pregate", il);
+
+    cur = ggml_mul(ctx0, cur, ggml_sigmoid(ctx0, gate));
+    cur = build_lora_mm(layer.wo, cur, layer.wo_s);
+    cb(cur, "mtp_attn_out", il);
+
+    cur = ggml_add(ctx0, cur, inpSA);
+    cb(cur, "mtp_attn_residual", il);
+
+    ggml_tensor * ffn_residual = cur;
+    cur = build_norm(cur, layer.attn_post_norm, nullptr, LLM_NORM_RMS, il);
+    cb(cur, "mtp_attn_post_norm", il);
+
+    cur = build_ffn(cur,
+            layer.ffn_up,   nullptr, layer.ffn_up_s,
+            layer.ffn_gate, nullptr, layer.ffn_gate_s,
+            layer.ffn_down, nullptr, layer.ffn_down_s,
+            nullptr,
+            LLM_FFN_SILU, LLM_FFN_PAR, il);
+    cb(cur, "mtp_ffn_out", il);
+
+    cur = ggml_add(ctx0, cur, ffn_residual);
+    cb(cur, "mtp_post_ffn", il);
+
+    ggml_tensor * head_norm_w = layer.nextn.shared_head_norm
+            ? layer.nextn.shared_head_norm
+            : model.output_norm;
+    GGML_ASSERT(head_norm_w && "QWEN35 MTP: missing both nextn.shared_head_norm and output_norm");
+    cur = build_norm(cur, head_norm_w, nullptr, LLM_NORM_RMS, -1);
+
+    cb(cur, "h_nextn", -1);
+    res->t_h_nextn = cur;
+
+    cur = ggml_get_rows(ctx0, cur, inp_out_ids);
+    cb(cur, "mtp_shared_head_norm", -1);
+
+    ggml_tensor * head_w = layer.nextn.shared_head_head ? layer.nextn.shared_head_head : model.output;
+    ggml_tensor * head_s = layer.nextn.shared_head_head ? layer.nextn.shared_head_head_s : model.output_s;
+    GGML_ASSERT(head_w && "QWEN35 MTP: missing LM head (nextn.shared_head_head or model.output)");
+    cur = build_lora_mm(head_w, cur, head_s);
+    cb(cur, "result_output", -1);
+
+    res->t_logits = cur;
+    ggml_build_forward_expand(gf, cur);
+}
+#include "arg.h"
+#include "common.h"
+#include "imatrix-loader.h"
+#include "log.h"
+#include "llama.h"
+#include "gguf.h"
+
+#include <algorithm>
+#include <chrono>
+#include <clocale>
+#include <cmath>
+#include <cstdio>
+#include <cstring>
+#include <ctime>
+#include <thread>
+#include <mutex>
+#include <vector>
+#include <fstream>
+#include <unordered_map>
+#include <map>
+#include <regex>
+#include <numeric>
+
+#if defined(_MSC_VER)
+#pragma warning(disable: 4244 4267) // possible loss of data
+#endif
+
+static void print_usage(int, char ** argv) {
+    LOG("\nexample usage:\n");
+    LOG("\n    %s \\\n"
+            "       -m model.gguf -f some-text.txt [-o imatrix.gguf] [--output-format {gguf,dat}] [--no-ppl] \\\n"
+            "       [--process-output] [--chunk 123] [--save-frequency 0] [--output-frequency 10] \\\n"
+            "       [--in-file imatrix-prev-0.gguf --in-file imatrix-prev-1.gguf ...] [--parse-special] \\\n"
+            "       [--show-statistics] [...]\n" , argv[0]);
+    LOG("\n");
+}
+
+struct Stats {
+    std::vector<float>   values;
+    std::vector<int64_t> counts;
+};
+
+struct tensor_statistics {
+    std::string tensor;
+    Stats stats;
+    float total_sqract = 0.0f;
+    float mean_sqract  = 0.0f;
+    float max_sqract   = 0.0f;
+    float min_sqract   = 0.0f;
+    int elements       = 0;
+    float stddev       = 0.0f;
+    float active       = 0.0f;
+    float entropy      = 0.0f;
+    float zd           = 0.0f;
+    float cossim       = 0.0f;
+};
+
+class IMatrixCollector {
+public:
+    IMatrixCollector() = default;
+    void set_params(common_params params) { m_params = std::move(params); }
+    bool collect_imatrix(struct ggml_tensor * t, bool ask, void * user_data);
+    void save_imatrix_legacy(int32_t ncall = -1) const;
+    void save_imatrix(int32_t n_chunk = -1) const;
+    bool load_imatrix(const char * file_name);
+    const std::unordered_map<std::string, Stats> & get_mstats() const { return m_stats; }
+private:
+    std::unordered_map<std::string, Stats> m_stats;
+    common_params                          m_params;
+    std::mutex                             m_mutex;
+    std::vector<std::string>               m_datasets;
+    int32_t                                m_last_chunk = 0;
+    std::vector<char>                      m_src1_data;
+    std::vector<char>                      m_ids; // the expert ids from ggml_mul_mat_id
+};
+
+// remove any prefix and suffixes from the name
+// CUDA0#blk.0.attn_k.weight#0 => blk.0.attn_k.weight
+static std::string filter_tensor_name(const char * name) {
+    std::string wname;
+    const char * p = strchr(name, '#');
+    if (p != NULL) {
+        p = p + 1;
+        const char * q = strchr(p, '#');
+        if (q != NULL) {
+            wname = std::string(p, q - p);
+        } else {
+            wname = p;
+        }
+    } else {
+        wname = name;
+    }
+    return wname;
+}
+
+static void process_tensor_name(const std::string & input, std::string & layer, std::string & tensor) {
+    std::vector<std::string> name;
+    std::istringstream stream(input);
+    std::string item;
+
+    while (std::getline(stream, item, '.')) {
+        name.push_back(item);
+    }
+    for (size_t i = 0; i < name.size(); ++i) {
+        if (name[i] == "blk" && i + 1 < name.size()) {
+            layer = name[i + 1];
+            break;
+        }
+    }
+    for (size_t i = 0; i < name.size(); ++i) {
+        if (name[i] == "weight" && i > 0) {
+            tensor = name[i - 1];
+            break;
+        }
+    }
+
+    if (tensor.empty()) {
+        tensor = input;
+    }
+    if (layer.empty()) {
+        layer = "-";
+    }
+}
+
+static void compute_statistics(std::vector<tensor_statistics> & tstats, const std::string & name, const Stats & e) {
+    if (e.values.size() % e.counts.size() != 0) {
+        LOG_ERR("%s: activation size mismatch for tensor %s (%zu vs %zu)\n", __func__, name.c_str(), e.counts.size(), e.values.size());
+        return;
+    }
+    if (e.counts.empty()) {
+        LOG_ERR("%s: there are no activations for tensor %s. The imatrix may be suboptimal\n", __func__, name.c_str());
+        return;
+    }
+
+    const int n_mat = e.counts.size();
+    const int row_size = e.values.size() / n_mat;
+
+    std::vector<float> activations;
+    activations.reserve(e.values.size());
+
+    for (int i = 0; i < n_mat; ++i) {
+        if (e.counts[i] == 0) {
+            LOG_DBG("%s: skipping tensor %s due to zero count at index %d\n", __func__, name.c_str(), i);
+            continue;
+        }
+        for (int j = 0; j < row_size; ++j) {
+            activations.push_back(e.values[i*row_size + j] / e.counts[i]);
+        }
+    }
+
+    if (activations.empty()) {
+        LOG_ERR("%s: all counts are zero for tensor %s, skipping statistics computation\n", __func__, name.c_str());
+        return;
+    }
+
+    const float act_total     = std::accumulate(activations.begin(), activations.end(), 0.0f);
+    const float act_max       = *std::max_element(activations.begin(), activations.end());
+    const float act_min       = *std::min_element(activations.begin(), activations.end());
+    const float act_mean      = act_total / activations.size();
+    const float act_sqr_total = std::inner_product(activations.begin(), activations.end(), activations.begin(), 0.0f);
+    const float act_var       = (act_sqr_total / activations.size()) - (act_mean * act_mean);
+    const float act_dev       = std::sqrt(std::max(0.0f, act_var));
+    float threshold           = 1e-5f;
+    const int inactive_count  = std::count_if(activations.begin(), activations.end(),
+                                               [threshold](const float v) { return fabsf(v) <= threshold; });
+    const float active_ratio  = 1 - static_cast<float>(inactive_count) / activations.size();
+
+    float entropy = 0;
+    if (act_total > 0) {
+        for (const auto act : activations) {
+            if (const float p = act / act_total; p > 0) {
+                entropy -= p * std::log2(p);
+            }
+        }
+    }
+
+    int z_score = 0;
+    if (act_dev > 0.0f) {
+        for (const auto act : activations) {
+            if (const float p = (act - act_mean) / act_dev; p > 1) {
+                z_score++;
+            }
+        }
+    }
+
+    auto & ts = tstats.emplace_back();
+    ts.tensor     = name;
+    ts.stats      = e;
+    ts.total_sqract = act_total;
+    ts.mean_sqract  = act_mean;
+    ts.max_sqract   = act_max;
+    ts.min_sqract   = act_min;
+    ts.elements   = static_cast<int>(activations.size());
+    ts.stddev     = act_dev;
+    ts.active     = active_ratio;
+    ts.entropy    = entropy;
+    ts.zd         = static_cast<float>(z_score) / ts.elements;
+}
+
+static void compute_cossim(std::vector<tensor_statistics> & tstats) {
+    static const std::regex pattern(R"(blk\.(\d+)\.)");
+    for (auto & ts : tstats) {
+        if (std::smatch match; std::regex_search(ts.tensor, match, pattern)) {
+            const int blk = std::stoi(match[1]);
+            std::string tname(ts.tensor);
+            tname.replace(match.position(1), match.length(1), std::to_string(blk-1));
+            auto prev = std::find_if(tstats.begin(), tstats.end(),
+                [tname](const tensor_statistics & t) { return t.tensor == tname; });
+            if (prev != tstats.end()) {
+                const float dp = std::inner_product(ts.stats.values.begin(), ts.stats.values.end(),
+                    prev->stats.values.begin(), 0.0f);
+                const float curr_mag = std::sqrt(std::inner_product(ts.stats.values.begin(), ts.stats.values.end(),
+                    ts.stats.values.begin(), 0.0f));
+                const float prev_mag = std::sqrt(std::inner_product(prev->stats.values.begin(), prev->stats.values.end(),
+                    prev->stats.values.begin(), 0.0f));
+                const float cs = dp / (curr_mag * prev_mag);
+                ts.cossim = cs;
+            }
+        } else {
+            ts.cossim = 0;
+        }
+    }
+}
+
+bool IMatrixCollector::collect_imatrix(struct ggml_tensor * t, bool ask, void * user_data) {
+    GGML_UNUSED(user_data);
+
+    const struct ggml_tensor * src0 = t->src[0];
+    const struct ggml_tensor * src1 = t->src[1];
+    std::string wname = filter_tensor_name(src0->name);
+
+    const int32_t chunk_size = m_params.n_ctx / m_params.n_parallel;
+
+    // when ask is true, the scheduler wants to know if we are interested in data from this tensor
+    // if we return true, a follow-up call will be made with ask=false in which we can do the actual collection
+    if (ask) {
+        if (t->op == GGML_OP_MUL_MAT_ID) return true; // collect all indirect matrix multiplications
+        if (t->op != GGML_OP_MUL_MAT) return false;
+        // why are small batches ignored (<16 tokens)?
+        if (src1->ne[1] < 16 || src1->type != GGML_TYPE_F32) return false;
+        if (!(wname.substr(0, 4) == "blk." || (m_params.process_output && wname == "output.weight"))) return false;
+        return true;
+    }
+
+    std::lock_guard<std::mutex> lock(m_mutex);
+
+    // copy the data from the GPU memory if needed
+    const bool is_host = ggml_backend_buffer_is_host(src1->buffer);
+
+    if (!is_host) {
+        const size_t src1_nbytes = ggml_nbytes(src1);
+        m_src1_data.resize(src1_nbytes);
+        ggml_backend_tensor_get(src1, m_src1_data.data(), 0, src1_nbytes);
+    }
+
+    const char * data = is_host ? (const char *) src1->data : m_src1_data.data();
+    GGML_ASSERT(src1->nb[0] == ggml_element_size(src1));
+
+    // this has been adapted to the new format of storing merged experts in a single 3d tensor
+    // ref: https://github.com/ggml-org/llama.cpp/pull/6387
+    if (t->op == GGML_OP_MUL_MAT_ID) {
+        //   ids  -> [n_experts_used, n_tokens]
+        //   src1 -> [cols, n_expert_used, n_tokens]
+        const ggml_tensor * ids = t->src[2];
+        const int64_t n_as = src0->ne[2];
+        const int64_t n_ids = ids->ne[0];
+
+        // the top-k selected expert ids are stored in the ids tensor
+        // for simplicity, always copy ids to host, because it is small
+        // take into account that ids is not contiguous!
+
+        GGML_ASSERT(ids->ne[1] == src1->ne[2]);
+
+        // the extra dimension would need to be stored somewhere to be reflected in the imatrix file
+        if (ggml_nrows(src1) != src1->ne[1] * src1->ne[2]) {
+            LOG_ERR("%s: tensor has more than 3 dimensions: %s", __func__, wname.c_str());
+            GGML_ASSERT(false);
+        }
+
+        m_ids.resize(ggml_nbytes(ids));
+        ggml_backend_tensor_get(ids, m_ids.data(), 0, ggml_nbytes(ids));
+
+        auto & e = m_stats[wname];
+
+        if (e.counts.size() == 1 && n_as > 1) {
+            // broadcast, when loading an old imatrix
+            e.counts.resize(n_as, e.counts[0]);
+        }
+        if (e.values.empty()) {
+            e.values.resize(src1->ne[0]*n_as, 0);
+            e.counts.resize(n_as, 0);
+        }
+        else if (e.values.size() != (size_t)src1->ne[0]*n_as) {
+            LOG_ERR("%s: inconsistent size for %s (%d vs %d)\n", __func__, wname.c_str(), (int)e.values.size(), (int)(src1->ne[0]*n_as));
+            exit(1); //GGML_ABORT("fatal error");
+        }
+        else if (e.counts.size() != (size_t)n_as) {
+            LOG_ERR("%s: inconsistent expert count for %s (%d vs %d)\n", __func__, wname.c_str(), (int)e.counts.size(), (int)n_as);
+            exit(1); //GGML_ABORT("fatal error");
+        }
+        LOG_DBGV(2, "%s[%d]: %32s, %s, %5d x %5d, %d\n", __func__, m_last_chunk, wname.c_str(), ggml_op_name(t->op), (int)src1->ne[0], (int)src1->ne[2], (int)src1->type);
+        // loop over all possible experts, regardless if they are used or not in the batch
+        for (int64_t ex = 0; ex < n_as; ++ex) {
+            size_t e_start = ex*src1->ne[0];
+
+            for (int64_t idx = 0; idx < n_ids; ++idx) {
+                for (int64_t row = 0; row < src1->ne[2]; ++row) {
+                    const int excur = *(const int32_t *) (m_ids.data() + row*ids->nb[1] + idx*ids->nb[0]);
+
+                    GGML_ASSERT(excur >= 0 && excur < n_as); // sanity check
+
+                    if (excur != ex) continue;
+
+                    const int64_t i11 = idx % src1->ne[1];
+                    const int64_t i12 = row;
+                    const float * x = (const float *)(data + i11*src1->nb[1] + i12*src1->nb[2]);
+
+                    e.counts[ex]++;
+
+                    for (int64_t j = 0; j < src1->ne[0]; ++j) {
+                        e.values[e_start + j] += x[j] * x[j];
+                        if (!std::isfinite((float)e.values[e_start + j])) {
+                            LOG_ERR("%f detected in %s\n", (float)e.values[e_start + j], wname.c_str());
+                            exit(1);
+                        }
+                    }
+                }
+            }
+            const int32_t n_chunk = e.counts[ex] / chunk_size;
+            if (n_chunk > m_last_chunk) {
+                const int32_t chunk_step = n_chunk - m_last_chunk;
+                m_last_chunk = n_chunk;
+                if ((m_last_chunk % m_params.n_out_freq) / chunk_step == 0) {
+                    save_imatrix();
+                }
+                if (m_params.n_save_freq > 0 && (m_last_chunk % m_params.n_save_freq) / chunk_step == 0) {
+                    save_imatrix(m_last_chunk);
+                }
+            }
+        }
+    } else {
+        auto & e = m_stats[wname];
+        const int64_t n_mat = src0->ne[2] * src0->ne[3];
+
+        // use a single count per dense tensor
+        // (necessary when merging older GGUF-imatrix files with 3d tensors)
+        if (e.counts.size() > 1) {
+            bool all_equal = true;
+            for (size_t i = 1; i < e.counts.size(); ++i) {
+                if (e.counts[0] != e.counts[i]) {
+                    all_equal = false;
+                    break;
+                }
+            }
+            if (all_equal) {
+                e.counts.resize(1);
+            }
+        }
+        if (e.values.empty()) {
+            e.values.resize(src1->ne[0] * n_mat, 0);
+            e.counts.resize(1, 0);
+        }
+        else if (e.values.size() != (size_t)(src1->ne[0] * n_mat)) {
+            LOG_ERR("%s: inconsistent size for %s (%d vs %d)\n", __func__, wname.c_str(), (int)e.values.size(), (int)(src1->ne[0] * n_mat));
+            exit(1); //GGML_ABORT("fatal error");
+        }
+        LOG_DBGV(2, "%s[%d]: %32s, %s, %5d x %5d x %5d, %d\n", __func__, m_last_chunk, wname.c_str(), ggml_op_name(t->op), (int)src1->ne[0], (int)src1->ne[1], (int)src1->ne[2], (int)src1->type);
+
+        for (int64_t i3 = 0; i3 < src1->ne[3]; ++i3) {
+            for (int64_t i2 = 0; i2 < src1->ne[2]; ++i2) {
+                // handle 3D+ tensors, but flatten 3D+ activations when model tensor is 2D
+                const int64_t mat_id = (i3 % src0->ne[3]) * src0->ne[2] + (i2 % src0->ne[2]);
+                const int64_t mat_start = mat_id * src1->ne[0];
+
+                for (int64_t row = 0; row < src1->ne[1]; ++row) {
+                    const float * x = (const float *) (data + row * src1->nb[1] + i2 * src1->nb[2] + i3 * src1->nb[3]);
+                    for (int64_t j = 0; j < src1->ne[0]; ++j) {
+                        e.values[mat_start + j] += x[j] * x[j];
+                        if (!std::isfinite((float)e.values[j])) {
+                            LOG_ERR("%f detected in %s\n", (float)e.values[j], wname.c_str());
+                            exit(1);
+                        }
+                    }
+                }
+            }
+        }
+        // only 1 count in practice, except when a tensor is used for both MUL_MAT_ID and MUL_MAT
+        for (size_t i = 0; i < e.counts.size(); ++i) {
+            e.counts[i] += ggml_nrows(src1) / n_mat;
+            const int32_t n_chunk = e.counts[i] / chunk_size;
+            if (n_chunk > m_last_chunk) {
+                const int32_t chunk_step = n_chunk - m_last_chunk;
+                m_last_chunk = n_chunk;
+                if ((m_last_chunk % m_params.n_out_freq) / chunk_step == 0) {
+                    save_imatrix();
+                }
+                if (m_params.n_save_freq > 0 && (m_last_chunk % m_params.n_save_freq) / chunk_step == 0) {
+                    save_imatrix(m_last_chunk);
+                }
+            }
+        }
+    }
+
+    return true;
+}
+
+void IMatrixCollector::save_imatrix_legacy(int32_t ncall) const {
+    auto fname = m_params.out_file;
+
+    if (ncall > 0) {
+        fname += ".at_";
+        fname += std::to_string(ncall);
+    }
+
+    // warn when writing imatrix entries that do not have full data
+    // this can happen with MoE models where some of the experts end up not being exercised by the provided training data
+
+    int n_entries = 0;
+    std::vector<std::string> to_store;
+
+    bool is_first = true; // for printing
+    for (const auto & kv : m_stats) {
+        const int n_all = kv.second.counts.size();
+
+        if (n_all == 0) {
+            continue;
+        }
+
+        int n_zeros = 0;
+        for (const int c : kv.second.counts) {
+            if (c == 0) {
+                n_zeros++;
+            }
+        }
+
+        if (n_zeros != 0 && is_first) {
+            LOG_INF("\n");
+            is_first = false;
+        }
+
+        if (n_zeros == n_all) {
+            LOG_WRN("%s: entry '%40s' has no data - skipping\n", __func__, kv.first.c_str());
+            continue;
+        }
+
+        if (n_zeros > 0) {
+            LOG_WRN("%s: entry '%40s' has partial data (%.2f%%)\n", __func__, kv.first.c_str(), 100.0f * (n_all - n_zeros) / n_all);
+        }
+
+        n_entries++;
+        to_store.push_back(kv.first);
+    }
+
+    if (to_store.size() < m_stats.size()) {
+        LOG_WRN("%s: storing only %zu out of %zu entries\n", __func__, to_store.size(), m_stats.size());
+    }
+
+    // deterministic tensor name order
+    std::sort(to_store.begin(), to_store.end());
+
+    const int32_t chunk_size = m_params.n_ctx / m_params.n_parallel;
+
+    std::ofstream out(fname, std::ios::binary);
+    out.write((const char *) &n_entries, sizeof(n_entries));
+    for (const auto & name : to_store) {
+        const auto & stat = m_stats.at(name);
+        const int32_t len = name.size();
+        out.write((const char *) &len, sizeof(len));
+        out.write(name.c_str(), len);
+        // ceiling division to avoid accidental zeros
+        const int32_t ncall = (*std::max_element(stat.counts.begin(), stat.counts.end()) + (chunk_size - 1)) / chunk_size;
+        out.write((const char *) &ncall, sizeof(ncall));
+        const int32_t nval = stat.values.size();
+        const int32_t nmat = stat.counts.size();
+        out.write((const char *) &nval, sizeof(nval));
+        if (nval > 0 && nmat > 0) {
+            std::vector<float> tmp(nval);
+            for (int32_t i = 0; i < nval; i++) {
+                float count = static_cast<float>(stat.counts[i / (nval / nmat)]);
+                float value = stat.values[i];
+                if (count == 0.0f) {
+                    // store 1 for partial data
+                    value = 1.0f;
+                    count = 1.0f;
+                }
+                tmp[i] = (value / count) * static_cast<float>(ncall);
+            }
+            out.write((const char *) tmp.data(), nval * sizeof(float));
+        }
+    }
+
+    // Write the number of call the matrix was computed with
+    out.write((const char *) &m_last_chunk, sizeof(m_last_chunk));
+
+    // Write the input filename at the end of the file to later on specify it in quantize
+    {
+        const char * dataset_file = m_params.prompt_file.c_str();
+        int32_t len = m_params.prompt_file.size();
+        // When there is no prompt but there were other imatrix files loaded, use the last dataset
+        if (m_params.prompt_file.empty() && !m_datasets.empty()) {
+            const std::string & dataset_str = m_datasets[m_datasets.size() - 1];
+            dataset_file = dataset_str.c_str();
+            len = dataset_str.size();
+        }
+        out.write((const char *) &len, sizeof(len));
+        out.write(dataset_file, len);
+    }
+
+    LOGV(1, "\n");
+    LOG_DBGV(1, "%s: stored collected data after %d chunks in %s\n", __func__, m_last_chunk, fname.c_str());
+}
+
+void IMatrixCollector::save_imatrix(int32_t n_chunk) const {
+    auto fname = m_params.out_file;
+    int8_t use_legacy_format = m_params.imat_dat;
+
+    if (use_legacy_format > 0) {
+        this->save_imatrix_legacy(n_chunk);
+        return;
+    }
+    // only warn when `--output-format gguf` is not specified
+    if (use_legacy_format == 0 && !string_ends_with(fname, ".gguf")) {
+        LOG_WRN("\n%s: saving imatrix using GGUF format with a different suffix than .gguf\n", __func__);
+        LOG_WRN("%s: if you want the previous imatrix format, use --output-format dat\n", __func__);
+    }
+
+    if (n_chunk > 0) {
+        fname += ".at_";
+        fname += std::to_string(n_chunk);
+    }
+
+    // write imatrix entries even if they don't have full data. (can be corrected when reading)
+    // this can happen with MoE models where some of the experts end up not being exercised by the provided training data
+
+    std::vector<std::string> to_store;
+    size_t data_size = 0;
+
+    bool is_first = true; // for printing
+    for (const auto & kv : m_stats) {
+        const int n_all = kv.second.counts.size();
+
+        int n_zeros = 0;
+        for (const auto c : kv.second.counts) {
+            if (c == 0) {
+                n_zeros++;
+            }
+        }
+
+        if (n_zeros != 0 && is_first) {
+            LOG_INF("\n");
+            is_first = false;
+        }
+
+        if (n_zeros > 0) {
+            LOG_WRN("%s: entry '%40s' has partial data (%.2f%%)\n", __func__, kv.first.c_str(), 100.0f * (n_all - n_zeros) / n_all);
+        }
+
+        to_store.push_back(kv.first);
+        data_size += GGML_PAD(ggml_tensor_overhead() + sizeof(float) * kv.second.values.size(), GGML_MEM_ALIGN);
+        data_size += GGML_PAD(ggml_tensor_overhead() + sizeof(float) * kv.second.counts.size(), GGML_MEM_ALIGN);
+    }
+
+    // deterministic tensor name order
+    std::sort(to_store.begin(), to_store.end());
+
+    struct ggml_init_params params = {
+        /* .mem_size   = */ data_size,
+        /* .mem_buffer = */ NULL,
+        /* .no_alloc   = */ false,
+    };
+    struct ggml_context * ctx = ggml_init(params);
+    struct gguf_context * ctx_gguf = gguf_init_empty();
+
+    {
+        std::vector<const char *> datasets;
+        datasets.reserve(m_datasets.size() + 1);
+        for (size_t i = 0; i < m_datasets.size(); ++i) {
+            datasets.push_back(m_datasets[i].c_str());
+        }
+        if (!m_params.prompt_file.empty()) {
+            datasets.push_back(m_params.prompt_file.c_str());
+        }
+
+        gguf_set_val_str(ctx_gguf, "general.type", "imatrix");
+        // Write the dataset paths
+        gguf_set_arr_str(ctx_gguf, LLM_KV_IMATRIX_DATASETS, datasets.data(), datasets.size());
+        // Write the number of chunks the matrix was computed with
+        gguf_set_val_u32(ctx_gguf, LLM_KV_IMATRIX_CHUNK_COUNT, m_last_chunk);
+        gguf_set_val_u32(ctx_gguf, LLM_KV_IMATRIX_CHUNK_SIZE, m_params.n_ctx / m_params.n_parallel);
+    }
+
+    for (const auto & name : to_store) {
+        const auto & stat = m_stats.at(name);
+        const int32_t nval = (int32_t) stat.values.size();
+        const int32_t nmat = (int32_t) stat.counts.size();
+        if (nval > 0 && nmat > 0) {
+            struct ggml_tensor * in_sum2 = ggml_new_tensor_2d(ctx, GGML_TYPE_F32, nval / nmat, nmat);
+            struct ggml_tensor * counts  = ggml_new_tensor_2d(ctx, GGML_TYPE_F32, 1, nmat);
+            ggml_format_name(in_sum2, "%s.in_sum2", name.c_str());
+            ggml_format_name(counts, "%s.counts", name.c_str());
+
+            for (int32_t j = 0; j < nval; ++j) {
+                ((float *) in_sum2->data)[j] = (float) stat.values[j];
+            }
+            for (int32_t j = 0; j < nmat; ++j) {
+                ((float *) counts->data)[j] = (float) stat.counts[j];
+            }
+
+            gguf_add_tensor(ctx_gguf, in_sum2);
+            gguf_add_tensor(ctx_gguf, counts);
+        }
+    }
+
+    gguf_write_to_file(ctx_gguf, fname.c_str(), false);
+
+    LOGV(1, "\n");
+    LOG_DBGV(1, "%s: stored collected data after %d chunks in %s\n", __func__, m_last_chunk, fname.c_str());
+
+    gguf_free(ctx_gguf);
+    ggml_free(ctx);
+}
+
+bool IMatrixCollector::load_imatrix(const char * file_name) {
+    common_imatrix loaded;
+    if (!common_imatrix_load(file_name, loaded)) {
+        return false;
+    }
+
+    const int32_t chunk_size = m_params.n_ctx / m_params.n_parallel;
+    const bool is_legacy = loaded.is_legacy;
+
+    for (auto & [name, entry] : loaded.entries) {
+        auto & e = m_stats[name];
+
+        if (is_legacy) {
+            // Legacy format: sums contain (raw_sum/raw_count)*ncall, counts contain {ncall}
+            // Reconstruct raw form by multiplying by chunk_size
+            if (e.values.empty()) {
+                e.values.resize(entry.sums.size(), 0.0f);
+                e.counts.resize(1, 0);
+            }
+            for (size_t j = 0; j < entry.sums.size(); ++j) {
+                e.values[j] += entry.sums[j] * chunk_size;
+            }
+            for (size_t j = 0; j < e.counts.size(); ++j) {
+                e.counts[j] += entry.counts[0] * chunk_size;
+            }
+        } else {
+            // GGUF format: raw sums and counts, accumulate directly
+            const int64_t nval    = entry.sums.size();
+            const int64_t ncounts = entry.counts.size();
+
+            if (e.values.empty()) {
+                e.values.resize(nval, 0.0f);
+            } else if ((size_t) nval != e.values.size()) {
+                LOG_ERR("%s: mismatched sums size for %s: %zu != %zu\n", __func__, name.c_str(), (size_t) nval, e.values.size());
+                return false;
+            }
+
+            if (e.counts.empty()) {
+                e.counts.resize(ncounts, 0);
+            } else if (e.counts.size() == 1 && ncounts > 1) {
+                e.counts.resize(ncounts, e.counts[0]);
+            } else if ((size_t) ncounts != e.counts.size()) {
+                LOG_ERR("%s: mismatched counts size for %s: %zu != %zu\n", __func__, name.c_str(), (size_t) ncounts, e.counts.size());
+                return false;
+            }
+
+            for (int64_t j = 0; j < nval; ++j) {
+                e.values[j] += entry.sums[j];
+            }
+            for (int64_t j = 0; j < ncounts; ++j) {
+                e.counts[j] += entry.counts[j];
+            }
+        }
+    }
+
+    m_datasets.insert(m_datasets.end(), loaded.datasets.begin(), loaded.datasets.end());
+
+    // Calculate the last chunk count
+    int64_t max_count = 0;
+    for (const auto & stats : m_stats) {
+        for (int64_t count : stats.second.counts) {
+            if (count > max_count) {
+                max_count = count;
+            }
+        }
+    }
+    m_last_chunk = max_count / chunk_size;
+
+    return true;
+}
+
+static IMatrixCollector g_collector;
+
+static bool ik_collect_imatrix(struct ggml_tensor * t, bool ask, void * user_data) {
+    return g_collector.collect_imatrix(t, ask, user_data);
+}
+
+struct results_log_softmax {
+    double log_softmax;
+    float  logit;
+    float  prob;
+};
+
+static std::vector<float> softmax(const std::vector<float> & logits) {
+    std::vector<float> probs(logits.size());
+    float max_logit = logits[0];
+    for (float v : logits) {
+        max_logit = std::max(max_logit, v);
+    }
+    double sum_exp = 0.0;
+    for (size_t i = 0; i < logits.size(); i++) {
+        // Subtract the maximum logit value from the current logit value for numerical stability
+        const float logit = logits[i] - max_logit;
+        const float exp_logit = expf(logit);
+        sum_exp += exp_logit;
+        probs[i] = exp_logit;
+    }
+    for (size_t i = 0; i < probs.size(); i++) {
+        probs[i] /= sum_exp;
+    }
+    return probs;
+}
+
+static results_log_softmax log_softmax(int n_vocab, const float * logits, int tok) {
+    float max_logit = logits[0];
+    for (int i = 1; i < n_vocab; ++i) {
+        max_logit = std::max(max_logit, logits[i]);
+    }
+    double sum_exp = 0.0;
+    for (int i = 0; i < n_vocab; ++i) {
+        sum_exp += expf(logits[i] - max_logit);
+    }
+    return {logits[tok] - max_logit - log(sum_exp), logits[tok], expf(logits[tok] - max_logit) / (float) sum_exp};
+}
+
+static void process_logits(
+    int n_vocab, const float * logits, const int * tokens, int n_token, std::vector<std::thread> & workers,
+    double & nll, double & nll2, float * logit_history, float * prob_history) {
+    std::mutex mutex;
+    int counter = 0;
+    auto compute = [&mutex, &counter, &nll, &nll2, logit_history, prob_history, n_vocab, logits, tokens, n_token] () {
+        double local_nll  = 0;
+        double local_nll2 = 0;
+        while (true) {
+            std::unique_lock<std::mutex> lock(mutex);
+            int i = counter++;
+            if (i >= n_token) {
+                nll += local_nll; nll2 += local_nll2;
+                break;
+            }
+            lock.unlock();
+            const results_log_softmax results = log_softmax(n_vocab, logits + i*n_vocab, tokens[i+1]);
+            const double v = -results.log_softmax;
+            local_nll += v;
+            local_nll2 += v*v;
+
+            logit_history[i] = results.logit;
+            prob_history[i]  = results.prob;
+        }
+    };
+    for (auto & w : workers) {
+        w = std::thread(compute);
+    }
+    compute();
+    for (auto & w : workers) {
+        w.join();
+    }
+}
+
+static bool compute_imatrix(llama_context * ctx, const common_params & params, const int32_t n_ctx) {
+    const llama_model * model = llama_get_model(ctx);
+    const llama_vocab * vocab = llama_model_get_vocab(model);
+
+    const bool add_bos = llama_vocab_get_add_bos(vocab);
+
+    if (llama_pooling_type(ctx) != LLAMA_POOLING_TYPE_LAST) {
+        GGML_ASSERT(!llama_vocab_get_add_eos(vocab));
+    }
+
+    auto tim1 = std::chrono::high_resolution_clock::now();
+    LOG_INF("%s: tokenizing the input ..\n", __func__);
+
+    std::vector<llama_token> tokens = common_tokenize(ctx, params.prompt, true, params.parse_special);
+
+    auto tim2 = std::chrono::high_resolution_clock::now();
+    LOG_INF("%s: tokenization took %g ms\n",__func__,1e-3*std::chrono::duration_cast<std::chrono::microseconds>(tim2-tim1).count());
+
+    if (params.i_chunk > 0) {
+        if (size_t((params.i_chunk + 2)*n_ctx) >= tokens.size()) {
+            LOG_ERR("%s: there will be not enough tokens left after removing %d chunks\n", __func__, params.i_chunk);
+            return false;
+        }
+        LOG_INF("%s: removing initial %d chunks (%d tokens)\n", __func__, params.i_chunk, params.i_chunk*n_ctx);
+        tokens.erase(tokens.begin(), tokens.begin() + params.i_chunk*n_ctx);
+    }
+
+    if (int(tokens.size()) < 2*n_ctx) {
+        LOG_ERR("%s: you need at least %d tokens for a context of %d tokens\n", __func__, 2*n_ctx, n_ctx);
+        LOG_ERR("%s: the data file you provided tokenizes to only %zu tokens\n", __func__, tokens.size());
+        return false;
+    }
+
+    std::vector<float> logit_history;
+    std::vector<float> prob_history;
+
+    if (params.compute_ppl) {
+        logit_history.resize(tokens.size());
+        prob_history.resize(tokens.size());
+    }
+
+    const int n_chunk_max = tokens.size() / n_ctx;
+
+    const int n_chunk = params.n_chunks < 0 ? n_chunk_max : std::min(params.n_chunks, n_chunk_max);
+    const int n_vocab = llama_vocab_n_tokens(vocab);
+    const int n_batch = params.n_batch;
+
+    int count = 0;
+    double nll = 0.0;
+    double nll2 = 0.0;
+
+    const int num_batches = (n_ctx + n_batch - 1) / n_batch;
+    const int n_seq = std::max(1, n_batch / n_ctx);
+
+    GGML_ASSERT(n_batch < n_ctx || n_batch % n_ctx == 0);
+    GGML_ASSERT(params.n_ctx == n_seq * n_ctx);
+
+    llama_batch batch = llama_batch_init(std::min(n_batch, n_ctx*n_seq), 0, 1);
+
+    std::vector<float> logits;
+    if (params.compute_ppl && num_batches > 1) {
+        logits.reserve((size_t)n_ctx * n_vocab);
+    }
+
+    LOG_INF("%s: computing over %d chunks, n_ctx=%d, batch_size=%d, n_seq=%d\n", __func__, n_chunk, n_ctx, n_batch, n_seq);
+
+    std::vector<std::thread> workers(std::thread::hardware_concurrency() - 1);
+
+    for (int i = 0; i < n_chunk; i += n_seq) {
+        const int start =     i * n_ctx;
+        const int end   = start + n_ctx;
+
+        const int n_seq_batch = std::min(n_seq, n_chunk - i);
+
+        const auto t_start = std::chrono::high_resolution_clock::now();
+
+        // clear the KV cache
+        llama_memory_clear(llama_get_memory(ctx), true);
+
+        for (int j = 0; j < num_batches; ++j) {
+            const int batch_start = start + j * n_batch;
+            const int batch_size  = std::min(end - batch_start, n_batch);
+
+            // clear the batch
+            common_batch_clear(batch);
+
+            for (int seq = 0; seq < n_seq_batch; seq++) {
+                int seq_start = batch_start + seq*n_ctx;
+
+                // save original token and restore it after eval
+                const auto token_org = tokens[seq_start];
+
+                // add BOS token for the first batch of each chunk
+                if (add_bos && j == 0) {
+                    tokens[seq_start] = llama_vocab_bos(vocab);
+                }
+                for (int k = 0; k < batch_size; ++k) {
+                    // NOTE: specifying all logits to get activations for the output.weight tensor
+                    //       and also for the perplexity calculation.
+                    // TODO: only get outputs when (params.process_output || params.compute_ppl)
+                    //       (not possible when this skips FFN computation of the last layer)
+                    common_batch_add(batch, tokens[seq_start + k], j*n_batch + k, { seq }, true);
+                }
+
+                // restore the original token in case it was set to BOS
+                tokens[seq_start] = token_org;
+            }
+
+            if (llama_decode(ctx, batch)) {
+                LOG_ERR("%s : failed to eval\n", __func__);
+                llama_batch_free(batch);
+                return false;
+            }
+
+            if (params.compute_ppl && num_batches > 1) {
+                const auto * batch_logits = llama_get_logits(ctx);
+                logits.insert(logits.end(), batch_logits, batch_logits + batch_size * n_vocab);
+            }
+        }
+
+
+        if (i == 0) {
+            llama_synchronize(ctx);
+            const auto t_end = std::chrono::high_resolution_clock::now();
+            const float t_total = std::chrono::duration<float>(t_end - t_start).count();
+            LOG_INF("%s: %.2f seconds per pass - ETA ", __func__, t_total);
+            int total_seconds = (int)(t_total * n_chunk / n_seq);
+            if (total_seconds >= 60*60) {
+                LOG("%d hours ", total_seconds / (60*60));
+                total_seconds = total_seconds % (60*60);
+            }
+            LOG("%.2f minutes\n", total_seconds / 60.0);
+        }
+
+        if (params.compute_ppl) {
+            const int first = n_ctx/2;
+            for (int seq = 0; seq < n_seq_batch; seq++) {
+                const float * all_logits = num_batches > 1 ? logits.data() : llama_get_logits_ith(ctx, seq*n_ctx);
+
+                llama_token * tokens_data = tokens.data() + start + seq*n_ctx + first;
+
+                process_logits(n_vocab, all_logits + first*n_vocab,
+                        tokens_data, n_ctx - 1 - first,
+                        workers, nll, nll2,
+                        logit_history.data() + start + seq*n_ctx + first,
+                        prob_history.data()  + start + seq*n_ctx + first);
+
+                count += n_ctx - first - 1;
+
+                LOG("[%d]%.4lf,", i + seq + 1, std::exp(nll / count));
+            }
+            fflush(stdout);
+
+            logits.clear();
+        }
+    }
+
+    LOG("\n");
+
+    if (params.compute_ppl) {
+        nll2 /= count;
+        nll /= count;
+        const double ppl = exp(nll);
+        nll2 -= nll * nll;
+        if (nll2 > 0) {
+            nll2 = sqrt(nll2/(count-1));
+            LOG("Final estimate: PPL = %.4lf +/- %.5lf\n", ppl, nll2*ppl);
+        } else {
+            LOG("Unexpected negative standard deviation of log(prob)\n");
+        }
+    }
+
+    llama_batch_free(batch);
+
+    return true;
+}
+
+static bool show_statistics(const common_params & params) {
+    std::vector<tensor_statistics> ts;
+    if (params.in_files.empty() || params.in_files.size() > 1) {
+        LOG_ERR("\nError: a single imatrix file is required to compute tensor statistics\n\n");
+        return false;
+    }
+    if (g_collector.load_imatrix(params.in_files[0].c_str())) {
+        for (const auto & [name, stats] :g_collector.get_mstats()) {
+            compute_statistics(ts, name, stats);
+        }
+    } else {
+        LOG_ERR("\nError: %s is not a valid imatrix file\n\n", params.in_files[0].c_str());
+        return false;
+    }
+    if (!ts.empty()) {
+        compute_cossim(ts);
+    } else {
+        LOG_ERR("Error: cannot compute statistics for %s\n\n", params.in_files[0].c_str());
+        return false;
+    }
+
+    struct tensor_comparer {
+        bool operator()(const tensor_statistics & a, const tensor_statistics & b) const {
+            std::string layer, name_a, name_b;
+            ;
+            process_tensor_name(a.tensor, layer, name_a);
+            process_tensor_name(b.tensor, layer, name_b);
+            return name_a < name_b || (name_a == name_b && a.total_sqract > b.total_sqract);
+        }
+    };
+    std::sort(ts.begin(), ts.end(), tensor_comparer());
+
+    struct weighted_stats {
+        float weighted_bias   = 0.0f;
+        float weighted_zd     = 0.0f;
+        float weighted_cossim = 0.0f;
+        int   total_elements  = 0;
+    };
+    std::map<int, weighted_stats> ws;
+
+    LOG_INF("\nComputing statistics for %s (%d tensors)\n", params.in_files[0].c_str(), static_cast<int>(ts.size()));
+    LOG_INF("\n%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n", " Layer", "       Tensor", "          Σ(Act²)",
+            "  Min", "            Max", "           μ", "   σ", " % Active", "N", "   Entropy", "E (norm)", "ZD",
+            "  CosSim");
+    LOG_INF(
+        "=============================================================================================================="
+        "===========================================================\n");
+    for (const auto & tstat : ts) {
+        std::string layer, name;
+        process_tensor_name(tstat.tensor, layer, name);
+
+        int blk;
+        try {
+            blk = std::stoi(layer);
+        } catch (const std::exception & e) {
+            blk = -1;  // not a block layer
+        }
+
+        const float entropy_norm = (tstat.elements > 0) ? 100.0f * (tstat.entropy / std::log2(tstat.elements)) : 0.0f;
+
+        LOG_INF("%5s\t%-20s\t%10.2f\t%8.4f\t%11.4f\t%6.2f\t%6.2f\t%8.2f%%\t%6d\t%10.4f\t%6.2f%%\t%10.2f%%\t%8.4f\n",
+                layer.c_str(), name.c_str(), tstat.total_sqract, tstat.min_sqract, tstat.max_sqract, tstat.mean_sqract,
+                tstat.stddev, tstat.active * 100.0f, tstat.elements, tstat.entropy,
+                entropy_norm, 100.0f * tstat.zd, tstat.cossim);
+
+        const float weighted_bias   = tstat.elements * tstat.total_sqract;
+        const float weighted_zd     = tstat.elements * tstat.zd;
+        const float weighted_cossim = tstat.elements * tstat.cossim;
+
+        if (ws.find(blk) != ws.end()) {
+            ws[blk].weighted_bias += weighted_bias;
+            ws[blk].weighted_zd += weighted_zd;
+            ws[blk].weighted_cossim += weighted_cossim;
+            ws[blk].total_elements += tstat.elements;
+        } else {
+            weighted_stats temp_ws;
+            temp_ws.weighted_bias   = weighted_bias;
+            temp_ws.weighted_zd     = weighted_zd;
+            temp_ws.weighted_cossim = weighted_cossim;
+            temp_ws.total_elements  = tstat.elements;
+            ws[blk]                 = temp_ws;
+        }
+    }
+
+    const int layers = std::count_if(ws.begin(), ws.end(), [](const auto & kv) { return kv.first >= 0; });
+    LOG_INF("\nComputing weighted average statistics per layer (%d layers)\n", layers);
+    LOG_INF("\n%s\t%s\t%s\t%s\n", "  Layer", "     μΣ(Act²)", "      μZD", "μCosSim");
+    LOG_INF("================================================\n");
+    for (const auto & [first, second] : ws) {
+        const auto & layer = first;
+        const auto & stats = second;
+
+        if (stats.total_elements == 0) {
+            continue;
+        }
+
+        if (layer >= 0) {
+            const float bias   = stats.weighted_bias / stats.total_elements;
+            const float zd     = stats.weighted_zd / stats.total_elements;
+            const float cossim = stats.weighted_cossim / stats.total_elements;
+
+            LOG_INF("%5d\t%14.2f\t%10.4f%%\t%6.4f\n", layer, bias, 100.0f * zd, cossim);
+        }
+    }
+    LOG_INF("\n");
+
+    return true;
+}
+
+int main(int argc, char ** argv) {
+    std::setlocale(LC_NUMERIC, "C");
+
+    common_params params;
+
+    params.out_file = "imatrix.gguf";
+
+    params.n_ctx = 512;
+    params.escape = false;
+
+    common_init();
+
+    if (!common_params_parse(argc, argv, params, LLAMA_EXAMPLE_IMATRIX, print_usage)) {
+        return 1;
+    }
+
+    // set_params before show_statistics so load_imatrix has valid n_ctx/n_parallel
+    g_collector.set_params(params);
+
+    if (params.show_statistics) {
+        if (!show_statistics(params)) {
+            return 1;
+        }
+        return 0;
+    }
+
+    const int32_t n_ctx = params.n_ctx;
+
+    if (n_ctx <= 0) {
+        LOG_ERR("%s: imatrix tool requires '--ctx-size' > 0\n", __func__);
+        return 1;
+    }
+
+    {
+        const int32_t n_seq = std::max(1, params.n_batch / n_ctx);
+        const int32_t n_kv = n_seq * n_ctx;
+
+        params.n_parallel = n_seq;
+        params.n_ctx      = n_kv;
+
+        params.n_batch = std::min(params.n_batch, n_kv);
+    }
+
+    g_collector.set_params(params);
+
+    for (const auto & in_file : params.in_files) {
+        LOG_INF("%s : loading imatrix from '%s'\n", __func__, in_file.c_str());
+        if (!g_collector.load_imatrix(in_file.c_str())) {
+            LOG_ERR("%s : failed to load %s\n", __func__, in_file.c_str());
+            return 1;
+        }
+    }
+
+    if (params.prompt.empty()) {
+        LOG_INF("No prompt provided; combining precomputed matrices only.\n");
+
+        if (params.in_files.empty()) {
+            LOG_ERR("Error: No prompt provided and no precomputed matrices (--in-file) to combine.\n");
+            return 1;
+        }
+
+        if (params.in_files.size() == 1) {
+            LOG_INF("%s : saving imatrix to '%s'\n", __func__, params.out_file.c_str());
+        } else if (params.in_files.size() > 1) {
+            LOG_INF("%s : saving combined imatrix to '%s'\n", __func__, params.out_file.c_str());
+        }
+
+        g_collector.save_imatrix();
+
+        return 0;
+    }
+
+    llama_backend_init();
+    llama_numa_init(params.numa);
+
+    // pass the callback to the backend scheduler
+    // it will be executed for each node during the graph computation
+    params.cb_eval = ik_collect_imatrix;
+    params.cb_eval_user_data = NULL;
+    params.warmup = false;
+
+    // init
+    auto llama_init = common_init_from_params(params);
+
+    auto * model = llama_init->model();
+    auto * ctx   = llama_init->context();
+
+    if (model == nullptr || ctx == nullptr) {
+        LOG_ERR("%s : failed to init\n", __func__);
+        return 1;
+    }
+
+    const int n_ctx_train = llama_model_n_ctx_train(model);
+    if (params.n_ctx > n_ctx_train) {
+        LOG_WRN("%s: model was trained on only %d context tokens (%d specified)\n",
+                __func__, n_ctx_train, params.n_ctx);
+    }
+
+    // print system information
+    {
+        LOG_INF("\n");
+        LOG_INF("%s\n", common_params_get_system_info(params).c_str());
+    }
+
+    if (!compute_imatrix(ctx, params, n_ctx)) {
+        return 1;
+    }
+
+    g_collector.save_imatrix();
+
+    LOG("\n");
+    llama_perf_context_print(ctx);
+
+    llama_backend_free();
+
+    return 0;
+}

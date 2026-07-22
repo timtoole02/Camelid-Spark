@@ -1,0 +1,31 @@
+{
+  "schema": "camelid.speed-receipt.v1",
+  "row_id": "llama_3_2_3b_instruct_q4_k_m",
+  "generated_utc": "20260628T004547Z",
+  "host": "i7-11800H (16T) / RTX 3060 Laptop 6 GiB / Win11 / driver 576.83",
+  "model_sha256": "6c1a2b41161032677be168d354123594c0e6e67d2b9227c84f296ad037c728ff",
+  "measurements": {
+    "camelid_q4_k_m_gpu_resident_decode": {
+      "engine": "camelid cuda_resident (q4k_gemv/q6k_gemv), all 28 layers VRAM-resident",
+      "prompt": "Write a short paragraph about the ocean.",
+      "max_tokens": 128,
+      "iterations": 3,
+      "warmup": true,
+      "tokens_per_second_per_iter": [26.71, 26.60, 26.26],
+      "tokens_per_second_median": 26.60,
+      "peak_memory_bytes": 4510000000,
+      "note": "Decode-only tok/s, resident at ~4.51 GB in 6 GiB."
+    },
+    "llamacpp_q4_k_m_cpu": {
+      "engine": "llama.cpp 9632 (acd79d603), CPU backend (ggml-cpu-icelake), 8 threads",
+      "command": "llama-bench -m Llama-3.2-3B-Instruct-Q4_K_M.gguf -ngl 0 -p 512 -n 128 -r 3",
+      "pp512_tps": "82.66 ± 6.15",
+      "tg128_tps": "12.59 ± 0.26",
+      "note": "CPU-ONLY. No ggml-cuda.dll on this box; GPU-vs-GPU not possible here."
+    }
+  },
+  "honest_framing": {
+    "head_to_head": "NONE — camelid GPU vs llama.cpp CPU. Different backends; 26.60 vs 12.59 is NOT a speedup ratio.",
+    "comparison_to_camelid_q8_0": "The Q8_0 Llama-3.2-3B GGUF (3.42 GB) is on disk; a same-model camelid GPU Q8 vs Q4_K_M tok/s comparison is feasible as a follow-up. The byte-ratio prize (1.87 GiB Q4_K_M vs 3.18 GiB Q8_0) shows here as VRAM footprint (4.51 GB resident peak) and lands on decode speed for the CPU lane in Phase 2."
+  }
+}

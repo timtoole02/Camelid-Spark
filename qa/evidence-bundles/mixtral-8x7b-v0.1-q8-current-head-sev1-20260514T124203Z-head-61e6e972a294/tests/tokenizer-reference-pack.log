@@ -1,0 +1,8 @@
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.05s
+     Running tests/tokenizer.rs (target/debug/deps/tokenizer-9632e8184f7c3482)
+
+running 1 test
+test mixtral_reference_pack_records_required_prompt_shapes_and_tokens ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 23 filtered out; finished in 0.00s
+

@@ -1,0 +1,15 @@
+Fetching 6 files:   0%|          | 0/6 [00:00<?, ?it/s]Fetching 6 files: 100%|██████████| 6/6 [00:00<00:00, 96791.63it/s]
+=== /tmp/p1600.txt ===
+==========
+on Apple Silicon lets the CPU and GPU share the same physical memory without explicit copies, which changes how a local inference runtime should schedule quantized matrix multiplications during decode. A memory-bandwidth-bound decoder reads every weight once per token, so the dominant cost is where the weights live rather than raw arithmetic throughput. Keeping eight
+==========
+Prompt: 1500 tokens, 569.883 tokens-per-sec
+Generation: 64 tokens, 26.595 tokens-per-sec
+Peak memory: 4.085 GB
+=== /tmp/p8k-anchor.txt ===
+==========
+Paris. The capital of France is Paris. The capital of France is Paris. The capital of France is Paris. The capital of France is Paris. The capital of France is Paris. The capital of France is Paris. The capital of France is Paris. The capital of France is Paris. The capital of France is Paris
+==========
+Prompt: 8012 tokens, 485.888 tokens-per-sec
+Generation: 64 tokens, 21.804 tokens-per-sec
+Peak memory: 4.850 GB

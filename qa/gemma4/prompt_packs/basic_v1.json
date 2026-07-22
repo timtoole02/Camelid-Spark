@@ -1,0 +1,12 @@
+{
+  "pack_id": "gemma4-basic-v1",
+  "description": "Bounded greedy-decode parity pack for Gemma 4 exact rows. Raw completion prompts only (BOS + plain text); chat-template prompts are exercised separately by the API smoke. Token budgets are deliberately small so every claim stays inside a checked envelope.",
+  "decode": "greedy",
+  "prompts": [
+    { "id": "capital-france", "text": "The capital of France is", "max_new_tokens": 24 },
+    { "id": "count-primes", "text": "The first five prime numbers are", "max_new_tokens": 24 },
+    { "id": "haiku-sea", "text": "A haiku about the sea:\n", "max_new_tokens": 32 },
+    { "id": "rust-fn", "text": "fn add(a: i32, b: i32) -> i32 {", "max_new_tokens": 24 },
+    { "id": "translate-de", "text": "English: good morning\nGerman:", "max_new_tokens": 16 }
+  ]
+}

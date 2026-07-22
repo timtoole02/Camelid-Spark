@@ -1,0 +1,143 @@
+{
+  "schema": "camelid.parity-receipt/v1",
+  "gate": "ITEM1_tokenizer",
+  "lane": "ornith-9b-constrained-vram",
+  "date": "2026-07-02T17:56:50.619Z",
+  "reference": "llama.cpp acd79d6 (REF_QWEN35) llama-tokenize",
+  "model": "models/ornith-1.0-9b-Q4_K_M.gguf",
+  "modes": {
+    "plain": {
+      "cases": 45,
+      "mismatches": []
+    },
+    "parse_special": {
+      "cases": 45,
+      "mismatches": []
+    }
+  },
+  "special_roundtrip": [
+    {
+      "marker": "<|im_start|>",
+      "oracle": [
+        248045
+      ],
+      "camelid": [
+        248045
+      ],
+      "match": true,
+      "single_token": true,
+      "decoded": "<|im_start|>"
+    },
+    {
+      "marker": "<|im_end|>",
+      "oracle": [
+        248046
+      ],
+      "camelid": [
+        248046
+      ],
+      "match": true,
+      "single_token": true,
+      "decoded": "<|im_end|>"
+    },
+    {
+      "marker": "<think>",
+      "oracle": [
+        248068
+      ],
+      "camelid": [
+        248068
+      ],
+      "match": true,
+      "single_token": true,
+      "decoded": "<think>"
+    },
+    {
+      "marker": "</think>",
+      "oracle": [
+        248069
+      ],
+      "camelid": [
+        248069
+      ],
+      "match": true,
+      "single_token": true,
+      "decoded": "</think>"
+    },
+    {
+      "marker": "<tool_call>",
+      "oracle": [
+        248058
+      ],
+      "camelid": [
+        248058
+      ],
+      "match": true,
+      "single_token": true,
+      "decoded": "<tool_call>"
+    },
+    {
+      "marker": "</tool_call>",
+      "oracle": [
+        248059
+      ],
+      "camelid": [
+        248059
+      ],
+      "match": true,
+      "single_token": true,
+      "decoded": "</tool_call>"
+    }
+  ],
+  "unsplittability": [
+    {
+      "marker": "<|im_start|>",
+      "special_id": 248045,
+      "kind": "control (must not leak)",
+      "leaked_in_plain_mode": false,
+      "oracle_leaks_in_plain_mode": false,
+      "plain_ids_match_oracle": true
+    },
+    {
+      "marker": "<|im_end|>",
+      "special_id": 248046,
+      "kind": "control (must not leak)",
+      "leaked_in_plain_mode": false,
+      "oracle_leaks_in_plain_mode": false,
+      "plain_ids_match_oracle": true
+    },
+    {
+      "marker": "<think>",
+      "special_id": 248068,
+      "kind": "user_defined (always merged — leak is correct)",
+      "leaked_in_plain_mode": true,
+      "oracle_leaks_in_plain_mode": true,
+      "plain_ids_match_oracle": true
+    },
+    {
+      "marker": "</think>",
+      "special_id": 248069,
+      "kind": "user_defined (always merged — leak is correct)",
+      "leaked_in_plain_mode": true,
+      "oracle_leaks_in_plain_mode": true,
+      "plain_ids_match_oracle": true
+    },
+    {
+      "marker": "<tool_call>",
+      "special_id": 248058,
+      "kind": "user_defined (always merged — leak is correct)",
+      "leaked_in_plain_mode": true,
+      "oracle_leaks_in_plain_mode": true,
+      "plain_ids_match_oracle": true
+    },
+    {
+      "marker": "</tool_call>",
+      "special_id": 248059,
+      "kind": "user_defined (always merged — leak is correct)",
+      "leaked_in_plain_mode": true,
+      "oracle_leaks_in_plain_mode": true,
+      "plain_ids_match_oracle": true
+    }
+  ],
+  "result": "PASS"
+}

@@ -1,0 +1,72 @@
+{
+  "schema": "ghost-perf-receipt/v1",
+  "runtime": "camelid",
+  "campaign": "WRAITH (ghost-mode velocity) — 3B validation row",
+  "commit": "wraith/phase0 @ d90cd85e (dbfab90c features + clippy fixup)",
+  "gguf": "Llama-3.2-3B-Instruct-Q8_0.gguf",
+  "gguf_sha256": "f34112a11b7dad74ab517dedf6dcf00d624c9adac2dc0c72c719ca0478554ef2",
+  "cghost": "Llama-3.2-3B-Instruct-Q8_0.cghost",
+  "cghost_sha256": "a7f306832a1c14a450d5c90a7a1b755b9d8038f9d5d8b55351c7223e63af604b",
+  "host": {
+    "os": "Windows 11 (26100)",
+    "cpu": "16 logical cores, AVX-512 (avx2+avx512f+fma)",
+    "gpu": "RTX 3060 Laptop 6GB (UNUSED — all runs CPU, CUDA_VISIBLE_DEVICES=-1)",
+    "ram_total_gib": 15.7,
+    "storage_tier": "internal-nvme",
+    "drive_model": "NVMe PC711 NVMe SK hynix 1TB (BusType RAID)"
+  },
+  "model": {
+    "block_count": 28,
+    "streaming_window_mib": 102.0,
+    "cghost_payload_gib": 3.18,
+    "bytes_streamed_per_token_gib": 3.18,
+    "tied_output": true
+  },
+  "note_regime": "Same warm-vs-cold caveat as the 1B receipt: the 3.18 GiB .cghost still fits in 16 GiB RAM, so warm runs are page-cache-assisted; cold runs force device reads via FILE_FLAG_NO_BUFFERING (--evict-page-cache). metric=latency throughout.",
+  "speed": {
+    "metric": "latency",
+    "unit": "tok/s",
+    "warm_repetitive_32tok": {
+      "ghost_no_opt_prefetched": 0.673,
+      "stage_split": 0.973,
+      "spec": 1.195,
+      "stage_split_plus_spec": 1.603,
+      "combined_gain_pct": 138
+    },
+    "cold_device_24tok": {
+      "ghost_no_opt_prefetched": 0.517,
+      "stage_split": 0.747,
+      "gain_pct": 44
+    },
+    "novel_prose_24tok": {
+      "ghost_no_opt_prefetched": 0.654,
+      "stage_split_plus_spec": 0.915,
+      "gain_pct": 40,
+      "note": "spec drafted 0 tokens on novel text (n-gram found no recurring suffix) and auto-disable fired; the gain is stage-split's floor, exactly as designed — no spec regression"
+    },
+    "resident_baseline": "not re-run for 3B this session (RAM-gated: resident 3B Q8 needs ~3.6 GiB + headroom); 1B receipt carries the resident and llama.cpp acd79d6 legs",
+    "triple_baseline_complete": false
+  },
+  "memory": {
+    "ghost_no_opt_peak_rss_gib": 1.36,
+    "ghost_stage_split_peak_rss_gib": 1.47,
+    "ceiling_respected": true,
+    "note": "resident 3B Q8 weights alone are ~3.4 GiB; ghost holds peak 1.36-1.47 GiB — on 3B the ceiling saving is real (~2 GiB), unlike the 1B row"
+  },
+  "parity": {
+    "ghost_internal": {
+      "result": "pass",
+      "detail": "byte-identical greedy across base/stage-split/spec/stage-split+spec (warm repetitive, 32 tok), base==stage-split (cold, 24 tok), base==stage-split+spec (novel prose, 24 tok); cold output is a token-exact prefix of the warm 32-tok run",
+      "first_divergence": null
+    },
+    "spec_auto_disable": {
+      "result": "pass",
+      "detail": "novel prose: drafted 0, accepted 0, auto-disable fired, output byte-identical, no regression (0.915 vs 0.654 base thanks to stage-split)"
+    }
+  },
+  "claims_ladder": {
+    "rung_1": "PASS on 3B — stage-split +45% warm / +44% cold and combined +138% (repetitive) are parity-exact latency wins with ceiling respected; spec's novel-text floor verified harmless"
+  },
+  "observation": "Combined gain GROWS with model size (+96% on 1B -> +138% on 3B): bigger layer groups amortize the per-sweep fixed costs better and lengthen the read/decode overlap window. Supports the expectation that ghost's target regime (over-RAM models) benefits at least this much.",
+  "repro": "camelid ghost-run Llama-3.2-3B-Instruct-Q8_0.gguf --cghost Llama-3.2-3B-Instruct-Q8_0.cghost --prompt '<...>' --max-tokens 32 [--stage-split] [--spec] [--evict-page-cache]  (build wraith/phase0 d90cd85e; CUDA_VISIBLE_DEVICES=-1)"
+}

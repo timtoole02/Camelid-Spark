@@ -1,0 +1,133 @@
+diff --git a/frontend/scripts/frontend-integration-smoke.mjs b/frontend/scripts/frontend-integration-smoke.mjs
+index 81fca71..bb4b7b0 100644
+--- a/frontend/scripts/frontend-integration-smoke.mjs
++++ b/frontend/scripts/frontend-integration-smoke.mjs
+@@ -509,6 +509,39 @@ try {
+   assert.match(liveBackendIdChatMarkup, /Message Camelid…/, 'ready 3B live-backend-id chat should enable the composer instead of showing load-first copy')
+   assert.doesNotMatch(liveBackendIdChatMarkup, /Load a model first|Choose a supported model/, 'ready 3B live-backend-id chat should not fall back to blocked chat UX')
+ 
++  const neighboringQuantPathModel = {
++    ...selectedModel,
++    quant: undefined,
++    model_path: '<ubuntu-model-path>/Llama-3.2-3B-Instruct-Q4_0.gguf',
++  }
++  const neighboringQuantPathGate = getChatGateState(capabilities, neighboringQuantPathModel, readyRuntime)
++  assert.equal(neighboringQuantPathGate.runtimeReady, true, '3B neighboring-quant guard should still surface runtime readiness when active_model_id matches')
++  assert.equal(neighboringQuantPathGate.contractSupported, false, '3B neighboring GGUF quant must not inherit the canonical Q8_0 row from the browser id')
++  assert.equal(neighboringQuantPathGate.chatUnlocked, false, '3B neighboring GGUF quant must keep live chat locked even when runtime loaded_now/generation_ready are green')
++
++  const neighboringQuantPathChatMarkup = renderToStaticMarkup(React.createElement(ChatWorkspace, {
++    selectedConversation: null,
++    selectedModel: neighboringQuantPathModel,
++    selectedModelId: neighboringQuantPathModel.id,
++    setSelectedModelId: noop,
++    models: [neighboringQuantPathModel],
++    runtime: readyRuntime,
++    capabilities,
++    pendingConversation: null,
++    composer: 'This neighboring quant must remain blocked',
++    setComposer: noop,
++    saveToMemory: noop,
++    sendMessage: noop,
++    sending: false,
++    selectedModelRunnable: neighboringQuantPathGate.chatUnlocked,
++    setTab: noop,
++  }))
++
++  assert.match(neighboringQuantPathChatMarkup, /Runtime ready, support gated/, '3B neighboring-quant chat UX should expose runtime-green state without claiming support')
++  assert.match(neighboringQuantPathChatMarkup, /llama32_3b_instruct_q8_0: quant mismatch/, '3B neighboring-quant chat UX should name the exact row mismatch instead of showing ready chat')
++  assert.match(neighboringQuantPathChatMarkup, /scoped to Q8_0[\s\S]*appears to be Q4_0/, '3B neighboring-quant chat UX should explain that the loaded artifact quant does not match the support contract row')
++  assert.doesNotMatch(neighboringQuantPathChatMarkup, /Local chat ready|Message Camelid…|Demo starters/, '3B neighboring-quant rows must not render the live-chat ready UX')
++
+   const backendReadyButUnsupported3BCapabilities = {
+     ...capabilities,
+     model_compatibility: capabilities.model_compatibility.map((target) => target.id === 'llama32_3b_instruct_q8_0'
+diff --git a/frontend/scripts/model-state-smoke.mjs b/frontend/scripts/model-state-smoke.mjs
+index 710a717..7e1856e 100644
+--- a/frontend/scripts/model-state-smoke.mjs
++++ b/frontend/scripts/model-state-smoke.mjs
+@@ -392,6 +392,17 @@ assert.equal(isCompatibilitySupportedForModel(capabilityFixture, { name: 'Llama
+ assert.equal(compatibilityHintMatchesExactTarget(capabilityFixture, { name: 'Llama 3.2 3B Instruct Q8_0', quant: 'Q8_0' }, { id: 'llama32_3b_instruct_q8_0' }), true, '3B Q8_0 exact-row helpers should match only the promoted row')
+ assert.equal(compatibilityHintMatchesExactTarget(capabilityFixture, { name: 'Llama 3.2 3B Instruct Q4_K_M', quant: 'Q4_K_M' }, { id: 'llama32_3b_instruct_q8_0' }), false, '3B non-Q8 entries must not satisfy exact-row frontend card/readiness matching')
+ assert.equal(compatibilityHintMatchesExactTarget(capabilityFixture, { name: 'Llama 3.2 3B Base Q8_0', quant: 'Q8_0' }, { id: 'llama32_3b_instruct_q8_0' }), false, '3B base/non-instruct entries must not satisfy the exact instruct support row')
++const llama32ThreeBQ4PathModel = { name: 'Llama 3.2 3B Instruct', id: 'llama32_3b_instruct_q8_0', model_path: '<ubuntu-model-path>/Llama-3.2-3B-Instruct-Q4_0.gguf' }
++const llama32ThreeBQ4PathHint = findCompatibilityHint(capabilityFixture, llama32ThreeBQ4PathModel)
++assert.equal(llama32ThreeBQ4PathHint.kind, 'quant_mismatch', 'a canonical 3B row id must not override neighboring-quant evidence from the loaded GGUF path')
++assert.equal(llama32ThreeBQ4PathHint.observedQuant, 'Q40', '3B exact-row mismatch should carry the path-derived neighboring quant key')
++assert.match(compatibilityHintCopy(llama32ThreeBQ4PathHint), /appears to be Q4_0/, '3B exact-row mismatch copy should display the loaded artifact quant in GGUF-style form')
++assert.equal(isCompatibilitySupportedForModel(capabilityFixture, llama32ThreeBQ4PathModel), false, '3B exact-row support requires the loaded artifact quant to match Q8_0, not just the browser row id')
++assert.equal(
++  getChatGateState(capabilityFixture, { ...localLoadedReady, ...llama32ThreeBQ4PathModel }, { active_model_id: 'llama32_3b_instruct_q8_0', loaded_now: true, generation_ready: true }).chatUnlocked,
++  false,
++  'runtime-green 3B rows must fail closed when the loaded GGUF path is a neighboring quant despite the canonical row id',
++)
+ assert.equal(
+   getChatGateState(capabilityFixture, { ...localLoadedReady, id: 'llama32-3b', name: 'Llama 3.2 3B Instruct Q8_0', quant: 'Q8_0' }, { active_model_id: 'llama32-3b', loaded_now: true, generation_ready: true }).chatUnlocked,
+   true,
+diff --git a/frontend/src/lib/capabilities.js b/frontend/src/lib/capabilities.js
+index 8d8c99e..7d936e0 100644
+--- a/frontend/src/lib/capabilities.js
++++ b/frontend/src/lib/capabilities.js
+@@ -60,6 +60,11 @@ function extractQuantKey(model, catalogItem, subject) {
+   const explicit = normalizeCapabilityKey(explicitFileType ? quantLabelFromGgufFileType(explicitFileType) : explicitLabel)
+   if (explicit) return explicit
+ 
++  const artifactText = [model?.model_path, model?.path, model?.hf_filename, catalogItem?.filename].filter(Boolean).join(' ')
++  const artifactMatch = artifactText.match(/\b(q\d(?:_k_[ms]|_\d)|bf16|f16|f32)\b/i)
++  const artifactQuant = normalizeCapabilityKey(artifactMatch?.[1])
++  if (artifactQuant) return artifactQuant
++
+   const text = subject || ''
+   const match = text.match(/\b(q\d(?:_k_[ms]|_\d)|bf16|f16|f32)\b/i)
+   return normalizeCapabilityKey(match?.[1])
+@@ -569,6 +574,15 @@ export function compatibilityHintLabel(hint, fallback = 'No matching compatibili
+   return `${hint.target.id}: ${formatCapabilityStatus(hint.target.status)}`
+ }
+ 
++function displayObservedQuant(value) {
++  const text = String(value || '')
++  const qDigit = text.match(/^Q(\d)(\d)$/i)
++  if (qDigit) return `Q${qDigit[1]}_${qDigit[2]}`
++  const qK = text.match(/^Q(\d)K([MSL])$/i)
++  if (qK) return `Q${qK[1]}_K_${qK[2].toUpperCase()}`
++  return text
++}
++
+ export function compatibilityHintCopy(hint) {
+   if (!hint) return 'No exact COMPATIBILITY.md row matched this model name/path, so the UI will not infer model-family support; load results and typed backend errors remain the source of truth.'
+   if (hint.kind === 'family') {
+@@ -576,7 +590,7 @@ export function compatibilityHintCopy(hint) {
+     return `${boundary}. This is only a ${hint.confidence}; it is not chat-ready support until a concrete exact compatibility row is validated.`
+   }
+   if (hint.kind === 'quant_missing') return `${hint.target.id} is the right model-size row, but this local record does not expose a quant label yet. Do not unlock chat from a size/name match alone; wait for GGUF quant evidence from the loaded model metadata plus generation_ready=true.`
+-  if (hint.kind === 'quant_mismatch') return `${hint.target.id} is scoped to ${hint.target.quantization}, but this entry appears to be ${hint.observedQuant || 'a different quantization'}. Do not inherit the supported gate from a same-family row; wait for an exact COMPATIBILITY.md row plus generation_ready=true.`
++  if (hint.kind === 'quant_mismatch') return `${hint.target.id} is scoped to ${hint.target.quantization}, but this entry appears to be ${displayObservedQuant(hint.observedQuant) || 'a different quantization'}. Do not inherit the supported gate from a same-family row; wait for an exact COMPATIBILITY.md row plus generation_ready=true.`
+   return `${hint.target.family} · ${hint.target.quantization} · ${hint.target.evidence || hint.target.next_step}. Match source: ${hint.confidence}; runtime generation still requires loaded_now=true and generation_ready=true.`
+ }
+ 
+--- focused grep ---
+frontend/src/lib/capabilities.js:63:  const artifactText = [model?.model_path, model?.path, model?.hf_filename, catalogItem?.filename].filter(Boolean).join(' ')
+frontend/src/lib/capabilities.js:64:  const artifactMatch = artifactText.match(/\b(q\d(?:_k_[ms]|_\d)|bf16|f16|f32)\b/i)
+frontend/src/lib/capabilities.js:577:function displayObservedQuant(value) {
+frontend/src/lib/capabilities.js:593:  if (hint.kind === 'quant_mismatch') return `${hint.target.id} is scoped to ${hint.target.quantization}, but this entry appears to be ${displayObservedQuant(hint.observedQuant) || 'a different quantization'}. Do not inherit the supported gate from a same-family row; wait for an exact COMPATIBILITY.md row plus generation_ready=true.`
+frontend/scripts/model-state-smoke.mjs:395:const llama32ThreeBQ4PathModel = { name: 'Llama 3.2 3B Instruct', id: 'llama32_3b_instruct_q8_0', model_path: '<ubuntu-model-path>/Llama-3.2-3B-Instruct-Q4_0.gguf' }
+frontend/scripts/model-state-smoke.mjs:396:const llama32ThreeBQ4PathHint = findCompatibilityHint(capabilityFixture, llama32ThreeBQ4PathModel)
+frontend/scripts/model-state-smoke.mjs:397:assert.equal(llama32ThreeBQ4PathHint.kind, 'quant_mismatch', 'a canonical 3B row id must not override neighboring-quant evidence from the loaded GGUF path')
+frontend/scripts/model-state-smoke.mjs:398:assert.equal(llama32ThreeBQ4PathHint.observedQuant, 'Q40', '3B exact-row mismatch should carry the path-derived neighboring quant key')
+frontend/scripts/model-state-smoke.mjs:399:assert.match(compatibilityHintCopy(llama32ThreeBQ4PathHint), /appears to be Q4_0/, '3B exact-row mismatch copy should display the loaded artifact quant in GGUF-style form')
+frontend/scripts/model-state-smoke.mjs:400:assert.equal(isCompatibilitySupportedForModel(capabilityFixture, llama32ThreeBQ4PathModel), false, '3B exact-row support requires the loaded artifact quant to match Q8_0, not just the browser row id')
+frontend/scripts/model-state-smoke.mjs:402:  getChatGateState(capabilityFixture, { ...localLoadedReady, ...llama32ThreeBQ4PathModel }, { active_model_id: 'llama32_3b_instruct_q8_0', loaded_now: true, generation_ready: true }).chatUnlocked,
+frontend/scripts/frontend-integration-smoke.mjs:512:  const neighboringQuantPathModel = {
+frontend/scripts/frontend-integration-smoke.mjs:517:  const neighboringQuantPathGate = getChatGateState(capabilities, neighboringQuantPathModel, readyRuntime)
+frontend/scripts/frontend-integration-smoke.mjs:518:  assert.equal(neighboringQuantPathGate.runtimeReady, true, '3B neighboring-quant guard should still surface runtime readiness when active_model_id matches')
+frontend/scripts/frontend-integration-smoke.mjs:519:  assert.equal(neighboringQuantPathGate.contractSupported, false, '3B neighboring GGUF quant must not inherit the canonical Q8_0 row from the browser id')
+frontend/scripts/frontend-integration-smoke.mjs:520:  assert.equal(neighboringQuantPathGate.chatUnlocked, false, '3B neighboring GGUF quant must keep live chat locked even when runtime loaded_now/generation_ready are green')
+frontend/scripts/frontend-integration-smoke.mjs:522:  const neighboringQuantPathChatMarkup = renderToStaticMarkup(React.createElement(ChatWorkspace, {
+frontend/scripts/frontend-integration-smoke.mjs:524:    selectedModel: neighboringQuantPathModel,
+frontend/scripts/frontend-integration-smoke.mjs:525:    selectedModelId: neighboringQuantPathModel.id,
+frontend/scripts/frontend-integration-smoke.mjs:527:    models: [neighboringQuantPathModel],
+frontend/scripts/frontend-integration-smoke.mjs:536:    selectedModelRunnable: neighboringQuantPathGate.chatUnlocked,
+frontend/scripts/frontend-integration-smoke.mjs:540:  assert.match(neighboringQuantPathChatMarkup, /Runtime ready, support gated/, '3B neighboring-quant chat UX should expose runtime-green state without claiming support')
+frontend/scripts/frontend-integration-smoke.mjs:541:  assert.match(neighboringQuantPathChatMarkup, /llama32_3b_instruct_q8_0: quant mismatch/, '3B neighboring-quant chat UX should name the exact row mismatch instead of showing ready chat')
+frontend/scripts/frontend-integration-smoke.mjs:542:  assert.match(neighboringQuantPathChatMarkup, /scoped to Q8_0[\s\S]*appears to be Q4_0/, '3B neighboring-quant chat UX should explain that the loaded artifact quant does not match the support contract row')
+frontend/scripts/frontend-integration-smoke.mjs:543:  assert.doesNotMatch(neighboringQuantPathChatMarkup, /Local chat ready|Message Camelid…|Demo starters/, '3B neighboring-quant rows must not render the live-chat ready UX')

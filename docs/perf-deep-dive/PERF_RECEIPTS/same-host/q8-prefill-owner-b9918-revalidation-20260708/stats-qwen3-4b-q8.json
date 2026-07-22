@@ -1,0 +1,65 @@
+{
+  "schema": "camelid.bench-owner-sweep-stats/v1",
+  "model": "<home>/models/Qwen3-4B-Q8_0.gguf",
+  "rounds": 8,
+  "per_config_median_prefill_tok_s": {
+    "off": 19.999,
+    "owner_avx2": 20.733,
+    "owner_vnni4x4": 21.835,
+    "owner_vnni4x8": 22.396
+  },
+  "paired": [
+    {
+      "base": "off",
+      "cand": "owner_avx2",
+      "n": 8,
+      "median_ratio": 1.035,
+      "ci95": [
+        1.03,
+        1.043
+      ],
+      "rounds_cand_faster": "8/8",
+      "significant": true,
+      "verdict": "SIGNIFICANT +3.483%"
+    },
+    {
+      "base": "off",
+      "cand": "owner_vnni4x4",
+      "n": 8,
+      "median_ratio": 1.091,
+      "ci95": [
+        1.069,
+        1.096
+      ],
+      "rounds_cand_faster": "8/8",
+      "significant": true,
+      "verdict": "SIGNIFICANT +9.127%"
+    },
+    {
+      "base": "off",
+      "cand": "owner_vnni4x8",
+      "n": 8,
+      "median_ratio": 1.119,
+      "ci95": [
+        1.113,
+        1.126
+      ],
+      "rounds_cand_faster": "8/8",
+      "significant": true,
+      "verdict": "SIGNIFICANT +11.907%"
+    },
+    {
+      "base": "owner_vnni4x4",
+      "cand": "owner_vnni4x8",
+      "n": 8,
+      "median_ratio": 1.027,
+      "ci95": [
+        1.023,
+        1.032
+      ],
+      "rounds_cand_faster": "8/8",
+      "significant": true,
+      "verdict": "SIGNIFICANT +2.666%"
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+[gemma4] loading <local>/gemma-4-E4B-it-Q8_0.gguf...
+[gemma4] loaded in 83.5s; generating 24 tokens...
+[gemma4] generated in 7.3s (1.78 tok/s)
+[gemma4] token_ids: [9079, 236761, 108, 1018, 14977, 53121, 2900, 563, 506, 5279, 529, 7001, 236881]
+The capital of France is Paris.
+
+**Question:** What is the capital of France?
+       91.19 real         9.77 user         4.71 sys
+          6827376640  maximum resident set size
+                   0  average shared memory size
+                   0  average unshared data size
+                   0  average unshared stack size
+              380031  page reclaims
+              193455  page faults
+                   0  swaps
+                   2  block input operations
+                   0  block output operations
+                   0  messages sent
+                   0  messages received
+                   0  signals received
+                  18  voluntary context switches
+              237511  involuntary context switches
+        182298194868  instructions retired
+         47061299168  cycles elapsed
+           699128624  peak memory footprint

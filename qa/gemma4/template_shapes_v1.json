@@ -1,0 +1,350 @@
+{
+ "schema": "camelid.gemma4.template-shapes.v1",
+ "pack_id": "gemma4-template-shapes-v1",
+ "description": "Gemma 4 chat-template shape pack: the reference rendering (llama.cpp 5d56eff --jinja, GGUF-embedded template) for the supported envelope \u2014 optional LEADING system message + alternating user/assistant turns \u2014 in both enable_thinking modes. Camelid's gemma4 marker renderer must reproduce rendered_prompt exactly; prompt_tokens_with_bos pin the tokenization (BOS + parse_special). Out-of-envelope shapes (mid-conversation system, tools, multimodal parts) are NOT claimed.",
+ "reference": "llama.cpp 5d56eff llama-server --jinja /apply-template",
+ "shapes": [
+  {
+   "id": "user-only-plain",
+   "thinking": false,
+   "messages": [
+    {
+     "role": "user",
+     "content": "Hi there"
+    }
+   ],
+   "rendered_prompt": "<|turn>user\nHi there<turn|>\n<|turn>model\n",
+   "prompt_tokens_with_bos": [
+    2,
+    105,
+    2364,
+    107,
+    10979,
+    993,
+    106,
+    107,
+    105,
+    4368,
+    107
+   ]
+  },
+  {
+   "id": "user-only-thinking",
+   "thinking": true,
+   "messages": [
+    {
+     "role": "user",
+     "content": "Hi there"
+    }
+   ],
+   "rendered_prompt": "<|turn>system\n<|think|>\n<turn|>\n<|turn>user\nHi there<turn|>\n<|turn>model\n",
+   "prompt_tokens_with_bos": [
+    2,
+    105,
+    9731,
+    107,
+    98,
+    107,
+    106,
+    107,
+    105,
+    2364,
+    107,
+    10979,
+    993,
+    106,
+    107,
+    105,
+    4368,
+    107
+   ]
+  },
+  {
+   "id": "system-user-plain",
+   "thinking": false,
+   "messages": [
+    {
+     "role": "system",
+     "content": "Be terse."
+    },
+    {
+     "role": "user",
+     "content": "Hi"
+    }
+   ],
+   "rendered_prompt": "<|turn>system\nBe terse.<turn|>\n<|turn>user\nHi<turn|>\n<|turn>model\n",
+   "prompt_tokens_with_bos": [
+    2,
+    105,
+    9731,
+    107,
+    3912,
+    17514,
+    236761,
+    106,
+    107,
+    105,
+    2364,
+    107,
+    10979,
+    106,
+    107,
+    105,
+    4368,
+    107
+   ]
+  },
+  {
+   "id": "system-user-thinking",
+   "thinking": true,
+   "messages": [
+    {
+     "role": "system",
+     "content": "Be terse."
+    },
+    {
+     "role": "user",
+     "content": "Hi"
+    }
+   ],
+   "rendered_prompt": "<|turn>system\n<|think|>\nBe terse.<turn|>\n<|turn>user\nHi<turn|>\n<|turn>model\n",
+   "prompt_tokens_with_bos": [
+    2,
+    105,
+    9731,
+    107,
+    98,
+    107,
+    3912,
+    17514,
+    236761,
+    106,
+    107,
+    105,
+    2364,
+    107,
+    10979,
+    106,
+    107,
+    105,
+    4368,
+    107
+   ]
+  },
+  {
+   "id": "multi-turn-plain",
+   "thinking": false,
+   "messages": [
+    {
+     "role": "user",
+     "content": "A"
+    },
+    {
+     "role": "assistant",
+     "content": "B"
+    },
+    {
+     "role": "user",
+     "content": "C"
+    }
+   ],
+   "rendered_prompt": "<|turn>user\nA<turn|>\n<|turn>model\nB<turn|>\n<|turn>user\nC<turn|>\n<|turn>model\n",
+   "prompt_tokens_with_bos": [
+    2,
+    105,
+    2364,
+    107,
+    236776,
+    106,
+    107,
+    105,
+    4368,
+    107,
+    236799,
+    106,
+    107,
+    105,
+    2364,
+    107,
+    236780,
+    106,
+    107,
+    105,
+    4368,
+    107
+   ]
+  },
+  {
+   "id": "multi-turn-thinking",
+   "thinking": true,
+   "messages": [
+    {
+     "role": "user",
+     "content": "A"
+    },
+    {
+     "role": "assistant",
+     "content": "B"
+    },
+    {
+     "role": "user",
+     "content": "C"
+    }
+   ],
+   "rendered_prompt": "<|turn>system\n<|think|>\n<turn|>\n<|turn>user\nA<turn|>\n<|turn>model\nB<turn|>\n<|turn>user\nC<turn|>\n<|turn>model\n",
+   "prompt_tokens_with_bos": [
+    2,
+    105,
+    9731,
+    107,
+    98,
+    107,
+    106,
+    107,
+    105,
+    2364,
+    107,
+    236776,
+    106,
+    107,
+    105,
+    4368,
+    107,
+    236799,
+    106,
+    107,
+    105,
+    2364,
+    107,
+    236780,
+    106,
+    107,
+    105,
+    4368,
+    107
+   ]
+  },
+  {
+   "id": "system-multi-turn-plain",
+   "thinking": false,
+   "messages": [
+    {
+     "role": "system",
+     "content": "You answer in French."
+    },
+    {
+     "role": "user",
+     "content": "Hello"
+    },
+    {
+     "role": "assistant",
+     "content": "Bonjour"
+    },
+    {
+     "role": "user",
+     "content": "How are you?"
+    }
+   ],
+   "rendered_prompt": "<|turn>system\nYou answer in French.<turn|>\n<|turn>user\nHello<turn|>\n<|turn>model\nBonjour<turn|>\n<|turn>user\nHow are you?<turn|>\n<|turn>model\n",
+   "prompt_tokens_with_bos": [
+    2,
+    105,
+    9731,
+    107,
+    3048,
+    3890,
+    528,
+    7830,
+    236761,
+    106,
+    107,
+    105,
+    2364,
+    107,
+    9259,
+    106,
+    107,
+    105,
+    4368,
+    107,
+    53406,
+    106,
+    107,
+    105,
+    2364,
+    107,
+    3910,
+    659,
+    611,
+    236881,
+    106,
+    107,
+    105,
+    4368,
+    107
+   ]
+  },
+  {
+   "id": "system-multi-turn-thinking",
+   "thinking": true,
+   "messages": [
+    {
+     "role": "system",
+     "content": "You answer in French."
+    },
+    {
+     "role": "user",
+     "content": "Hello"
+    },
+    {
+     "role": "assistant",
+     "content": "Bonjour"
+    },
+    {
+     "role": "user",
+     "content": "How are you?"
+    }
+   ],
+   "rendered_prompt": "<|turn>system\n<|think|>\nYou answer in French.<turn|>\n<|turn>user\nHello<turn|>\n<|turn>model\nBonjour<turn|>\n<|turn>user\nHow are you?<turn|>\n<|turn>model\n",
+   "prompt_tokens_with_bos": [
+    2,
+    105,
+    9731,
+    107,
+    98,
+    107,
+    3048,
+    3890,
+    528,
+    7830,
+    236761,
+    106,
+    107,
+    105,
+    2364,
+    107,
+    9259,
+    106,
+    107,
+    105,
+    4368,
+    107,
+    53406,
+    106,
+    107,
+    105,
+    2364,
+    107,
+    3910,
+    659,
+    611,
+    236881,
+    106,
+    107,
+    105,
+    4368,
+    107
+   ]
+  }
+ ]
+}

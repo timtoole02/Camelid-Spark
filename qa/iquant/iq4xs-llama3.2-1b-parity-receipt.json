@@ -1,0 +1,102 @@
+{
+  "schema": "camelid.iquant-parity-receipt/v1",
+  "lane": "iq4_xs",
+  "generated_utc": "2026-07-15",
+  "claim": "IQ4_XS greedy-decode parity vs a pinned llama.cpp reference on a real Llama-3.2-1B-Instruct IQ4_XS GGUF. Camelid's IQ4_XS resident-GPU and deterministic-CPU forward paths reproduce the reference token-for-token on full-budget prompts and match a probe-verified prefix before flipping at knife-edge near-ties (the reference token is Camelid's immediate #2). No exact-row-smoke or full-support promotion is implied.",
+  "model": {
+    "repo_id": "bartowski/Llama-3.2-1B-Instruct-GGUF",
+    "filename": "Llama-3.2-1B-Instruct-IQ4_XS.gguf",
+    "sha256": "69e85c871a13a99e4008c09916a957d170e4e5623a5b2e06be46408029a7afba",
+    "bytes": 743141504,
+    "architecture": "llama",
+    "quant": "IQ4_XS"
+  },
+  "reference": {
+    "engine": "llama.cpp",
+    "commit": "acd79d603cb2e1c84c0886137b80f1ad649b6857",
+    "commit_date": "2026-06-14",
+    "build": "cmake + Visual Studio 17 2022 BuildTools x64, Release, -DGGML_CUDA=OFF -DLLAMA_CURL=OFF (CPU-only reference)",
+    "server": "llama-server -c 2048 -ngl 0",
+    "endpoint": "/completion",
+    "sampler": { "temperature": 0, "top_k": 1, "seed": 0, "samplers": ["top_k"], "cache_prompt": false },
+    "prompt_add_special": true
+  },
+  "camelid": {
+    "head": "3887b7c44a1eb974fdcbc5397d3bca92d74edace",
+    "branch": "feat/iquant-iq4xs",
+    "paths_tested": [
+      "gpu_resident (iq4xs_gemv CUDA kernel, RTX 4060, bench-generate --temperature 0)",
+      "cpu_deterministic (iq4_xs_wire_row_dot, bench-generate --temperature 0 --deterministic)"
+    ]
+  },
+  "protocol": {
+    "prompts": 4,
+    "generated_tokens_per_prompt": 24,
+    "decode": "greedy (argmax, temperature 0)",
+    "prompt_token_parity": "verified identical between llama.cpp /tokenize (add_special) and Camelid for all 4 prompts (leading BOS 128000 + body)"
+  },
+  "results": [
+    {
+      "prompt": "The capital of France is",
+      "prompt_tokens": [128000, 791, 6864, 315, 9822, 374],
+      "reference_tokens": [12366,13,578,469,3168,301,22703,374,7559,304,12366,13,578,469,3168,301,22703,374,832,315,279,1455,11495,61024],
+      "camelid_gpu_tokens": [12366,13,578,469,3168,301,22703,374,7559,304,12366,13,578,469,3168,301,22703,374,832,315,279,1455,11495,61024],
+      "camelid_cpu_tokens": [12366,13,578,469,3168,301,22703,374,7559,304,12366,13,578,9928,49606,16730,374,1101,7559,304,12366,13,578,11495],
+      "gpu_matched_prefix": 24,
+      "gpu_token_identical": true,
+      "cpu_matched_prefix": 13,
+      "cpu_token_identical": false
+    },
+    {
+      "prompt": "The first three prime numbers are",
+      "prompt_tokens": [128000, 791, 1176, 2380, 10461, 5219, 527],
+      "reference_tokens": [220,17,11,220,18,11,323,220,20,13,578,1828,10461,1396,1306,220,20,374,220,22,13,15636,11,279],
+      "camelid_gpu_tokens": [220,17,11,220,18,11,323,220,20,13,578,1828,10461,1396,1306,220,20,374,220,22,13,15636,11,279],
+      "camelid_cpu_tokens": [220,17,11,220,18,11,323,220,20,13,578,1828,10461,1396,1306,220,20,374,220,22,13,15636,11,279],
+      "gpu_matched_prefix": 24,
+      "gpu_token_identical": true,
+      "cpu_matched_prefix": 24,
+      "cpu_token_identical": true
+    },
+    {
+      "prompt": "Water is made of hydrogen and",
+      "prompt_tokens": [128000, 29353, 374, 1903, 315, 35784, 323],
+      "reference_tokens": [24463,13,578,11742,15150,369,3090,374,473,17,46,13,1115,3445,430,832,43030,315,3090,5727,1403,35784,33299,323],
+      "camelid_gpu_tokens": [24463,33299,13,578,11742,15150,369,3090,374,473,17,46,13,1115,3445,430,832,43030,315,3090,5727,1403,35784,33299],
+      "camelid_cpu_tokens": [24463,33299,13,578,11742,15150,369,3090,374,473,17,46,13,1115,3445,430,832,43030,315,3090,5727,1403,35784,33299],
+      "gpu_matched_prefix": 1,
+      "gpu_token_identical": false,
+      "cpu_matched_prefix": 1,
+      "cpu_token_identical": false,
+      "near_tie": {
+        "position": 1,
+        "reference_top1": { "id": 13, "token": ".", "logprob": -1.2112767696380615 },
+        "reference_top2_chosen_by_camelid": { "id": 33299, "token": " atoms", "logprob": -1.4486483335494995 },
+        "logprob_gap": 0.2373715639114380,
+        "note": "The reference token is Camelid's immediate #2 in the reference distribution; the gap is a knife-edge near-tie. Camelid's continuation (' atoms') is a coherent, arguably better completion."
+      }
+    },
+    {
+      "prompt": "The opposite of hot is",
+      "prompt_tokens": [128000, 791, 14329, 315, 4106, 374],
+      "reference_tokens": [9439,627,791,14329,315,9439,374,4106,627,791,14329,315,4106,374,539,1120,279,14329,315,9439,11,719,1101,279],
+      "camelid_gpu_tokens": [9439,13,578,14329,315,9439,374,4106,13,15636,11,279,14329,315,4106,374,1131,320,67,8,8369,382,567,15166],
+      "camelid_cpu_tokens": [9439,13,578,14329,315,9439,374,4106,13,3639,374,279,14329,315,4106,5380,791,4320,374,25,356,8021,271,791],
+      "gpu_matched_prefix": 1,
+      "gpu_token_identical": false,
+      "cpu_matched_prefix": 1,
+      "cpu_token_identical": false,
+      "near_tie": {
+        "position": 1,
+        "note": "Both Camelid paths agree on token 1 (id 13) and differ from the reference (id 627) at the first post-seed position; another knife-edge near-tie."
+      }
+    }
+  ],
+  "summary": {
+    "gpu_resident_vs_reference": "2 of 4 prompts full 24-token token-identical (capital-france, first-primes); 2 of 4 match a probe-verified prefix then flip at a knife-edge near-tie at token index 1.",
+    "cpu_deterministic_vs_reference": "1 of 4 full 24-token token-identical (first-primes); the other 3 match a verified prefix then flip at near-ties (index 13 / 1 / 1).",
+    "prompt_tokenization": "identical on all 4 prompts",
+    "interpretation": "IQ4_XS is a lossy 4.25-bpw format; greedy decode is expected to flip where the top-2 logit gap is small. On prompts 3 and 4 BOTH camelid paths (GPU 1e-4-tolerant and the order-stable CPU) agree with each other and differ from the reference at the same early token, which is consistent with a small SYSTEMATIC camelid-vs-llama.cpp numerical offset (e.g. the Q8_K activation quantization or the dot association), not purely random near-tie noise. This audit measures GREEDY TOKENS ONLY; logit-level fidelity (KL divergence / cosine of the full logit vectors) was NOT measured, so the size of that offset is unquantified. What is shown: the forward pass tracks the reference on 2/4 full sequences + verified prefixes with the reference token as camelid's immediate #2 at the flips, and every continuation is coherent — evidence the decode is faithful at the token level and not grossly buggy, but NOT a claim of logit-level equivalence."
+  },
+  "scope": "This receipt records GREEDY-TOKEN parity of the IQ4_XS quant forward pass against pinned llama.cpp acd79d6 for this specific Llama-3.2-1B model. It does NOT assert bit-exact logits, logit-level (KL/cosine) fidelity, exact-row smoke certification, bounded-context/perf guarantees, or full support. A small systematic camelid-vs-reference offset at near-ties is not excluded."
+}

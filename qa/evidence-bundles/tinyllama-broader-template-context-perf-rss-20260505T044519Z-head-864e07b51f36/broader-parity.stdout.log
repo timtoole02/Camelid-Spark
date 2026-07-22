@@ -1,0 +1,9 @@
+pack=$CAMELID_WORKTREE
+out_dir=target/tinyllama-broader-template-context-perf-rss-20260505T044519Z-head-864e07b51f36/broader-parity
+model=$CAMELID_MODEL_DIR/tinyllama-1.1b-chat-v1.0.Q8_0.gguf
+model_id=tinyllama-q8
+prompt_count=5
+prompt_tokens_all_match=true
+generated_tokens_all_match=true
+generated_text_all_match=true
+summary_json=target/tinyllama-broader-template-context-perf-rss-20260505T044519Z-head-864e07b51f36/broader-parity/summary.json

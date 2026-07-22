@@ -1,0 +1,263 @@
+{
+  "id": "chatcmpl-dd4b9d82-797f-420d-ad77-8cf4f78cefac",
+  "object": "chat.completion",
+  "created": 0,
+  "model": "llama_3_2_1b_instruct_q4_k_m",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "Hello"
+      },
+      "finish_reason": "length"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 11,
+    "completion_tokens": 1,
+    "total_tokens": 12
+  },
+  "camelid": {
+    "prompt_token_ids": [
+      128000,
+      128006,
+      882,
+      128007,
+      271,
+      15339,
+      128009,
+      128006,
+      78191,
+      128007,
+      271
+    ],
+    "generated_token_ids": [
+      9906
+    ],
+    "dense_metadata": {
+      "embedding_length": 2048,
+      "attention_head_count": 32,
+      "attention_head_count_kv": 8,
+      "head_dim": 64,
+      "rope_dimension_count": 64,
+      "rope_freq_base": 500000,
+      "rope_scaling_type": "none",
+      "rope_scaling_factor": null,
+      "rope_scaling_original_context_length": null,
+      "rope_scaling_low_freq_factor": null,
+      "rope_scaling_high_freq_factor": null,
+      "rope_pairing": "adjacent_even_odd",
+      "rope_direction": "forward",
+      "rope_position_mode": "zero_based",
+      "gqa_head_mapping": "grouped",
+      "attention_score_scale": "head_dim",
+      "linear_accumulation": "f32",
+      "ffn_gate_up_order": "gate_up",
+      "rms_norm_epsilon": 0.00001,
+      "rms_norm_effective_epsilon": 0.00001,
+      "square_linear_diagnostic_layout": "transposed",
+      "rectangular_linear_diagnostic_layout": "auto",
+      "token_embedding_shape": [
+        128256,
+        2048
+      ],
+      "output_shape": [
+        2048,
+        128256
+      ],
+      "output_is_tied_embedding": true,
+      "output_projection_layout": "input_output",
+      "output_projection_diagnostic_layout": "token_major",
+      "zero_attention_delta": "none",
+      "zero_ffn_delta": "none",
+      "projection_orientations": {
+        "attention_q": {
+          "shape": [
+            2048,
+            2048
+          ],
+          "input_width": 2048,
+          "output_width": 2048,
+          "descriptor_layout": "input_output",
+          "runtime_interpretation": "rhs_transposed",
+          "square_diagnostic_applies": true
+        },
+        "attention_k": {
+          "shape": [
+            2048,
+            512
+          ],
+          "input_width": 2048,
+          "output_width": 512,
+          "descriptor_layout": "input_output",
+          "runtime_interpretation": "descriptor",
+          "square_diagnostic_applies": false
+        },
+        "attention_v": {
+          "shape": [
+            2048,
+            512
+          ],
+          "input_width": 2048,
+          "output_width": 512,
+          "descriptor_layout": "input_output",
+          "runtime_interpretation": "descriptor",
+          "square_diagnostic_applies": false
+        },
+        "attention_output": {
+          "shape": [
+            2048,
+            2048
+          ],
+          "input_width": 2048,
+          "output_width": 2048,
+          "descriptor_layout": "input_output",
+          "runtime_interpretation": "rhs_transposed",
+          "square_diagnostic_applies": true
+        },
+        "ffn_gate": {
+          "shape": [
+            2048,
+            8192
+          ],
+          "input_width": 2048,
+          "output_width": 8192,
+          "descriptor_layout": "input_output",
+          "runtime_interpretation": "descriptor",
+          "square_diagnostic_applies": false
+        },
+        "ffn_up": {
+          "shape": [
+            2048,
+            8192
+          ],
+          "input_width": 2048,
+          "output_width": 8192,
+          "descriptor_layout": "input_output",
+          "runtime_interpretation": "descriptor",
+          "square_diagnostic_applies": false
+        },
+        "ffn_down": {
+          "shape": [
+            8192,
+            2048
+          ],
+          "input_width": 8192,
+          "output_width": 2048,
+          "descriptor_layout": "input_output",
+          "runtime_interpretation": "descriptor",
+          "square_diagnostic_applies": false
+        }
+      }
+    },
+    "top_logits": [
+      {
+        "token_id": 9906,
+        "logit": 24.526976,
+        "probability": 0.96431136,
+        "rank": 1,
+        "selected": false,
+        "text": "Hello"
+      },
+      {
+        "token_id": 4438,
+        "logit": 20.948868,
+        "probability": 0.026931763,
+        "rank": 2,
+        "selected": false,
+        "text": "How"
+      },
+      {
+        "token_id": 24748,
+        "logit": 19.036985,
+        "probability": 0.003980566,
+        "rank": 3,
+        "selected": false,
+        "text": " hello"
+      },
+      {
+        "token_id": 15339,
+        "logit": 18.442156,
+        "probability": 0.0021959054,
+        "rank": 4,
+        "selected": false,
+        "text": "hello"
+      },
+      {
+        "token_id": 22691,
+        "logit": 17.53976,
+        "probability": 0.0008906526,
+        "rank": 5,
+        "selected": false,
+        "text": " Hello"
+      },
+      {
+        "token_id": 14262,
+        "logit": 17.17154,
+        "probability": 0.00061629957,
+        "rank": 6,
+        "selected": false,
+        "text": "Welcome"
+      },
+      {
+        "token_id": 13347,
+        "logit": 16.43161,
+        "probability": 0.00029406592,
+        "rank": 7,
+        "selected": false,
+        "text": "Hi"
+      },
+      {
+        "token_id": 5269,
+        "logit": 16.369423,
+        "probability": 0.00027633578,
+        "rank": 8,
+        "selected": false,
+        "text": "how"
+      }
+    ],
+    "output_projection": [],
+    "timings_ms": {
+      "tokenize": 4,
+      "weight_load": 0,
+      "weight_cache_hit": true,
+      "prompt_cache_hit": false,
+      "session_create": 0,
+      "generate": 82,
+      "generation": {
+        "forward_total": 77.667,
+        "embedding": 0.009,
+        "layers_total": 8.393,
+        "final_norm": 0,
+        "logits": 0,
+        "sample": 0.176
+      },
+      "prompt_evaluation": {
+        "prompt_token_count": 11,
+        "prefill_token_count": 10,
+        "first_token_evaluated": true,
+        "prefill": {
+          "forward_total": 69.199,
+          "embedding": 0,
+          "layers_total": 0,
+          "final_norm": 0,
+          "logits": 0,
+          "sample": 0
+        },
+        "first_token": {
+          "forward_total": 8.468,
+          "embedding": 0.009,
+          "layers_total": 8.393,
+          "final_norm": 0,
+          "logits": 0,
+          "sample": 0.176
+        },
+        "prefill_layers": [],
+        "first_token_layers": []
+      },
+      "layers": []
+    }
+  },
+  "lane": "experimental"
+}

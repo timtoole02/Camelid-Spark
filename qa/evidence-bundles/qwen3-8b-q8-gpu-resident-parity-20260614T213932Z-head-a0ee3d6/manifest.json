@@ -1,0 +1,37 @@
+{
+  "schema": "camelid.qwen3.gpu_resident_parity_bundle.v1",
+  "generated_utc": "2026-06-14T21:39:32Z",
+  "bundle_head": "a0ee3d6fc88293411a519bb83b0bdb8624f1dcd2",
+  "row_id": "qwen3_8b_instruct_q8_0",
+  "display_name": "Qwen3 8B Instruct Q8_0 — GPU-resident path",
+  "exact_support_status": "gpu_resident_chatml_thinking_disabled_parity_proven",
+  "model": {
+    "id": "Qwen3 8B Instruct",
+    "source": "Qwen/Qwen3-8B-GGUF/Qwen3-8B-Q8_0.gguf",
+    "sha256": "408b955510e196121c1c375201744783b5c9a43c7956d73fc78df54c66e883d6",
+    "arch": "qwen3",
+    "quant": "Q8_0",
+    "n_layer": 36, "n_head": 32, "n_head_kv": 8, "head_dim": 128,
+    "embedding_length": 4096, "context_length": 40960,
+    "tied_embeddings": false, "rope_freq_base": 1000000.0, "rms_norm_eps": 1e-06, "qk_norm": true
+  },
+  "comparator": {
+    "engine": "llama.cpp", "version": "1 (5d56eff)", "built": "2025-04-28",
+    "flags": "-ngl 0 -ctk f32 -ctv f32 -fa off --no-repack",
+    "note": "support bar uses the recorded llama.cpp reference_content_tokens from the merged qwen3-8b chatml-parity bundle (identical GGUF sha256); the large-context run is demonstrative (resident prefill engagement + coherent output), not a token-parity claim — see large_context_engagement in the artifact"
+  },
+  "camelid": {
+    "backend": "metal_resident",
+    "decode_path": "ResidentDecodeState.forward_token (CAMELID_METAL_RESIDENT_DECODE=1)",
+    "prefill_path": "ResidentDecodeState.prefill_tokens (CAMELID_METAL_RESIDENT_PREFILL=1)",
+    "qk_norm_applied": "per-head RMSNorm on Q/K after projection, before RoPE (rms_norm_per_head_f32 kernel)",
+    "untied_embeddings": "8B has a separate output.weight; the resident path uses it for the final projection",
+    "single_shot_prefill_ceiling_tokens": 16384,
+    "kv_context_ceiling_tokens": 40960,
+    "chat_template": "hardcoded ChatML renderer, thinking disabled",
+    "ran_on": "Mac mini M4 16GB (mini2), fast internal SSD"
+  },
+  "mode": "chatml_thinking_disabled_greedy",
+  "all_pass": true,
+  "artifacts": ["qwen3-8b-gpu-resident-parity.json"]
+}

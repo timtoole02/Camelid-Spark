@@ -1,0 +1,25 @@
+Loading model... 
+▄▄ ▄▄
+██ ██
+██ ██  ▀▀█▄ ███▄███▄  ▀▀█▄    ▄████ ████▄ ████▄
+██ ██ ▄█▀██ ██ ██ ██ ▄█▀██    ██    ██ ██ ██ ██
+██ ██ ▀█▄██ ██ ██ ██ ▀█▄██ ██ ▀████ ████▀ ████▀
+                                    ██    ██
+                                    ▀▀    ▀▀
+build      : b1-acd79d6
+model      : ornith-1.0-9b-Q4_K_M.gguf
+modalities : text
+available commands:
+  /exit or Ctrl+C     stop or exit
+  /regen              regenerate the last response
+  /clear              clear the chat history
+  /read <file>        add a text file
+  /glob <pattern>     add text files using globbing pattern
+> What is the capital of France?
+[Start thinking]
+Thinking Process:
+1.  **Identify the core question:** The user is asking "What is the capital of France?"
+2.  **Access knowledge base:** Retrieve the fact that the capital of France is Paris.
+3
+[ Prompt: 142.5 t/s | Generation: 38.3 t/s ]
+> 

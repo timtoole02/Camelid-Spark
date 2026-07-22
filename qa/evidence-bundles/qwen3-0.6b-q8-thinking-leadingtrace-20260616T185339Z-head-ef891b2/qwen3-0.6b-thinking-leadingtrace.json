@@ -1,0 +1,109 @@
+{
+  "schema": "camelid.qwen3.thinking_leadingtrace.v1",
+  "support_scope": "thinking_opt_in_leading_trace_only",
+  "row_id": "qwen3_0_6b_instruct_q8_0",
+  "display_name": "Qwen3 0.6B Instruct Q8_0",
+  "mode": "chatml_thinking_ENABLED_greedy",
+  "what_this_proves": [
+    "The opt-in thinking-enabled ChatML renderer (bare assistant turn, no pre-filled <think></think>) makes Qwen3 emit its own reasoning block: both camelid and the pinned llama.cpp reference begin with <think> for every probe.",
+    "Greedy generation is TOKEN-IDENTICAL to the llama.cpp reference for the LEADING reasoning trace (per-probe identical-prefix length below), then diverges at a benign f32 near-tie."
+  ],
+  "what_this_does_NOT_claim": "Full token-parity over arbitrary-length thinking traces. The parity-locked exact-row support mode remains thinking-DISABLED; this lane is opt-in and bounded to the leading-trace envelope below.",
+  "comparator": {
+    "engine": "llama.cpp",
+    "version": "b9430 (d48a56eff)",
+    "flags": "-ngl 0 -ctk f32 -ctv f32 -fa off --no-repack -c 16384",
+    "url": "http://127.0.0.1:8090",
+    "fed": "the bare-assistant thinking-enabled ChatML prompt via /completion"
+  },
+  "camelid": {
+    "url": "http://127.0.0.1:8185",
+    "model_id": "Qwen3 0.6B Instruct",
+    "api": "/v1/chat/completions with camelid_enable_thinking:true",
+    "backend": "cpu_reference (CAMELID_METAL_RESIDENT_*=0)",
+    "renderer": "render_qwen3_chatml_prompt(messages, enable_thinking=true)"
+  },
+  "n": 256,
+  "all_probes_engage_thinking": true,
+  "all_probes_match_at_5": true,
+  "immediate_divergence_blocker": false,
+  "leading_trace_parity_envelope_tokens": {
+    "min": 6,
+    "max": 126,
+    "per_probe": {
+      "What is the capital of France?": 22,
+      "Name a primary color.": 62,
+      "What is 2+2?": 6,
+      "Say hello.": 126
+    }
+  },
+  "probes": [
+    {
+      "prompt": "What is the capital of France?",
+      "both_emit_think_block": true,
+      "identical_leading_tokens": 22,
+      "match_at_1": true,
+      "match_at_5": true,
+      "match_at_50": false,
+      "match_at_100": false,
+      "full_trace_match": false,
+      "reference_trace_tokens": 125,
+      "camelid_trace_tokens": 95,
+      "divergence": {
+        "first_divergence_token_index": 22,
+        "camelid_token": 594,
+        "reference_token": 374
+      }
+    },
+    {
+      "prompt": "Name a primary color.",
+      "both_emit_think_block": true,
+      "identical_leading_tokens": 62,
+      "match_at_1": true,
+      "match_at_5": true,
+      "match_at_50": true,
+      "match_at_100": false,
+      "full_trace_match": false,
+      "reference_trace_tokens": 199,
+      "camelid_trace_tokens": 168,
+      "divergence": {
+        "first_divergence_token_index": 62,
+        "camelid_token": 10856,
+        "reference_token": 3259
+      }
+    },
+    {
+      "prompt": "What is 2+2?",
+      "both_emit_think_block": true,
+      "identical_leading_tokens": 6,
+      "match_at_1": true,
+      "match_at_5": true,
+      "match_at_50": false,
+      "match_at_100": false,
+      "full_trace_match": false,
+      "reference_trace_tokens": 214,
+      "camelid_trace_tokens": 256,
+      "divergence": {
+        "first_divergence_token_index": 6,
+        "camelid_token": 1196,
+        "reference_token": 3405
+      }
+    },
+    {
+      "prompt": "Say hello.",
+      "both_emit_think_block": true,
+      "identical_leading_tokens": 126,
+      "match_at_1": true,
+      "match_at_5": true,
+      "match_at_50": true,
+      "match_at_100": true,
+      "full_trace_match": true,
+      "reference_trace_tokens": 126,
+      "camelid_trace_tokens": 126,
+      "divergence": {
+        "first_divergence_token_index": null,
+        "note": "no divergence within the shorter trace"
+      }
+    }
+  ]
+}

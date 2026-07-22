@@ -1,0 +1,66 @@
+{
+  "schema": "camelid.gemma4_exact_row_public_evidence.v1",
+  "generated_utc": "2026-06-10T10:37:11.043Z",
+  "git_head": "96a75007b156",
+  "checkout_clean": false,
+  "row_id": "gemma4_e4b_it_q8_0",
+  "model": {
+    "filename": "gemma-4-E4B-it-Q8_0.gguf",
+    "size_bytes": 8192951456,
+    "sha256": "a2232a649523c36bf530f1dc3614eb8c800645c4227390381c8b05d4d6eee05a",
+    "quantization": "Q8_0",
+    "architecture": "gemma4"
+  },
+  "oracle": {
+    "build": "llama.cpp 5d56eff (llama-server, CPU, temperature=0/top_k=1, cache_prompt=false)",
+    "prompt_pack": "qa/gemma4/prompt_packs/basic_v1.json",
+    "oracle_artifact": "qa/gemma4/oracle/gemma-4-E4B-it-Q8_0.basic_v1.json"
+  },
+  "logs": [
+    {
+      "name": "cpu-parity",
+      "file": "logs/cpu-parity.txt",
+      "sha256": "54a794d3df0e35f81b797f789b8a262d136083f73802f8fddce9fae8ed187776"
+    },
+    {
+      "name": "gpu-parity",
+      "file": "logs/gpu-parity.txt",
+      "sha256": "0678d5a2b32ffe5f6e576c2fc321c31139d065f2d9dc0bac411798fdd237173c"
+    },
+    {
+      "name": "api-smoke",
+      "file": "logs/api-smoke.txt",
+      "sha256": "178595b030913b43e8ecb3ca113bcfad73397ad5d5a1f09a5d8f0be7aeef52ad"
+    },
+    {
+      "name": "metadata-load",
+      "file": "logs/metadata-load.txt",
+      "sha256": "f8591933225c026a40c9d7ef89ac40525f2152ef1e8effcc4559db2e156d5733"
+    },
+    {
+      "name": "distributed-parity",
+      "file": "logs/distributed-parity.txt",
+      "sha256": "3c28115487d6267ca5a847e823a93f56ce92a2f69ecff81a8a1b0c417ab3ec5d"
+    },
+    {
+      "name": "perf-cold",
+      "file": "logs/perf-cold.txt",
+      "sha256": "618d72fb9845ab956eeefb1e17b24da8cd2c46d55ac349f79631722d261a4835"
+    },
+    {
+      "name": "perf-warm",
+      "file": "logs/perf-warm.txt",
+      "sha256": "f3e830d5cc7af5070ed3548d47842cd0e9119f8b30d913b0686e98ff3ef354c4"
+    }
+  ],
+  "fields": {
+    "cpu_parity": "5/5 basic_v1 prompts full-budget vs the pinned plain-f32 GEMV comparator (the previously recorded translate-de knife-edge was the missing rope_freqs proportional-rope semantics; resolved, no frontier annotations remain)",
+    "gpu_parity": "5/5 basic_v1 prompts full-budget on the Metal GPU-resident runtime",
+    "distributed_parity": "TCP layer-sharding (split 19/42) token-identical to the oracle; fail-closed guards green",
+    "api_smoke": "non-streaming + SSE chat via CAMELID_GEMMA4_SERVE; typed multimodal rejection; no marker/channel leakage",
+    "comparator": "llama.cpp 5d56eff --no-repack -fa off -ctk f32 -ctv f32 -ub 1 (plain-f32 GEMV path)",
+    "decode_perf": "warm CPU decode 75.5ms/step avg (attention 12.2 + ffn 52.9 + output-proj 8.2 + embed 2.2ms) measured at head 45619cf (committed log, clean cache; prior recorded baseline ~6.75 tok/s steady-state \u2014 chunked-row GEMV ~1.9x). Today's rerun logs carry a degraded-page-cache caveat: hours of 12.7GB churn against the USB SSD; perf-relevant code unchanged since the clean measurement",
+    "host": "Mac mini M4 16GB, macOS 25.5.0"
+  },
+  "claim_boundary": "Exact-row text-token generation within the checked basic_v1 prompt pack and API smoke envelope only. No bounded-context promotion, no performance claim beyond the raw logs, no multimodal input (fails closed with a typed error), no neighboring-row or Gemma-family support, no shared-memory claim (distributed mode is layer sharding)."
+}

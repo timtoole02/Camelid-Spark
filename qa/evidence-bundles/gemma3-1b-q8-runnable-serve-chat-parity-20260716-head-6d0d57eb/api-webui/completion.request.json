@@ -1,0 +1,7 @@
+{
+  "model": "gemma_3_1b_it_q8_0",
+  "prompt": "hello",
+  "max_tokens": 1,
+  "stream": false,
+  "temperature": 0
+}

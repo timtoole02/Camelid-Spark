@@ -1,0 +1,6 @@
+schema=camelid.generation_timing_summary.v1
+input_count=2
+max_forward_total_ms=20517.822
+avg_linear_hot_path_ms=12012.701
+avg_linear_hot_path_share=0.9762
+top_bottleneck=layers.21.ffn_down

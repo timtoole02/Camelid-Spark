@@ -1,0 +1,57 @@
+{
+ "schema": "camelid.gemma4_exact_row_public_evidence.v1",
+ "generated_utc": "2026-06-10T23:56:37.371Z",
+ "git_head": "80e3dddfbdb4",
+ "checkout_clean": false,
+ "row_id": "12b_it_q8_0_distributed_serve",
+ "model": {
+  "filename": "gemma-4-12b-it-Q8_0.gguf",
+  "size_bytes": 12669646240,
+  "sha256": "74d2d4f0b5b08ca8589d1a5f50e689c0984469f3cedbdc7d67458c6e9e35496a",
+  "quantization": "Q8_0",
+  "architecture": "gemma4"
+ },
+ "oracle": {
+  "build": "llama.cpp 5d56eff (llama-server, CPU, temperature=0/top_k=1, cache_prompt=false)",
+  "prompt_pack": "qa/gemma4/prompt_packs/basic_v1.json",
+  "oracle_artifact": "qa/gemma4/oracle/gemma-4-12b-it-Q8_0.basic_v1.json"
+ },
+ "logs": [
+  {
+   "name": "load-response",
+   "file": "logs/load-response.txt",
+   "sha256": "6379292bcbd365c1bb1896b9228faff33ed2062c6273ddde7252f891b068f749"
+  },
+  {
+   "name": "chat-nonstreaming-cold",
+   "file": "logs/chat-nonstreaming-cold.txt",
+   "sha256": "929c6ad6a2bf5c082f5c86f61ca36dfe7ffbd57a36ff4fe51437bba3fa85577d"
+  },
+  {
+   "name": "chat-nonstreaming-warm",
+   "file": "logs/chat-nonstreaming-warm.txt",
+   "sha256": "62e77cf14486a7ce0376893020ef379ed3506ab920e0fbdd6cb0d241483ea33d"
+  },
+  {
+   "name": "raw-completion",
+   "file": "logs/raw-completion.txt",
+   "sha256": "282b8384a038addc38d505d10cb5e61cdf3b145ea76d91b4ae16292f47491dc5"
+  },
+  {
+   "name": "chat-streaming-sse",
+   "file": "logs/chat-streaming-sse.txt",
+   "sha256": "b7268e4488c8c8dc3cb1d8f2f52b8ad9f899fa29c78bc9011d432fec6f139187"
+  },
+  {
+   "name": "master-serve-log",
+   "file": "logs/master-serve-log.txt",
+   "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+ ],
+ "fields": {
+  "lane": "distributed layer-sharding SERVE (CAMELID_GEMMA4_WORKER/CAMELID_GEMMA4_SPLIT), master shard 0..24 on the primary 16GB M4 host, worker layers 24..48 + head on the second 16GB M4 (Tims-Mac-mini-2), wire protocol v1 over an ssh-forwarded TCP port (macOS Local Network privacy blocks freshly built ad-hoc binaries from direct LAN dials; loopback is exempt)",
+  "results": "model load HTTP 200 with validated worker handshake (333.7s incl. 12.7GB receipt hash and cold master-shard load); /v1/chat/completions non-streaming 'Paris' (cold 166.1s first request - cold mmap faults; warm second request 9.45s wall for a 12-token answer); /v1/completions greedy ids [9079, 236761, 107, 100, 45518, 107, 101, 6372, 563, 4338, 236761, 9079] (leading ids match the committed 12B greedy envelope; raw completions do not strip thinking channels by design); SSE streaming 17 chunks with finish_reason stop and [DONE]",
+  "caveats": "serve-lane wall-clock only; the 6.2-6.75 tok/s pair cadence claim remains the CLI two-Mac bundle's; no llama.cpp comparator in this smoke (the 12B comparator frontiers are recorded in the two-Mac parity bundle); single-node 16GB remains memory-bound"
+ },
+ "claim_boundary": "Exact-row text-token generation within the checked basic_v1 prompt pack and API smoke envelope only. No bounded-context promotion, no performance claim beyond the raw logs, no multimodal input (fails closed with a typed error), no neighboring-row or Gemma-family support, no shared-memory claim (distributed mode is layer sharding)."
+}

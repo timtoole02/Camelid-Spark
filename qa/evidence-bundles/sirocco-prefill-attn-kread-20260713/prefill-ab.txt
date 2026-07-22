@@ -1,0 +1,4 @@
+=== Prefill A/B: OLD scalar K-read vs NEW uint4 K-read in attention_batched ===
+  ctx=2092  OLD_prefill=9365.1ms  NEW_prefill=7546.5ms  faster=+19.42%
+  ctx=4072  OLD_prefill=28306.3ms  NEW_prefill=22935.3ms  faster=+18.97%
+  ctx=6602  OLD_prefill=76314.7ms  NEW_prefill=63606.3ms  faster=+16.65%

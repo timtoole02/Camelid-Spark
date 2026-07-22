@@ -1,0 +1,7 @@
+8019104 <home>/camelid gemma4-worker <home>/gemma-4-12b-it-Q8_0.gguf --addr 0.0.0.0:5005 --first-layer 24
+8020192 <home>/camelid gemma4-worker <home>/gemma-4-12b-it-Q8_0.gguf --addr 0.0.0.0:5005 --first-layer 24
+6916752 <home>/camelid gemma4-worker <home>/gemma-4-12b-it-Q8_0.gguf --addr 0.0.0.0:5005 --first-layer 24
+6916752 <home>/camelid gemma4-worker <home>/gemma-4-12b-it-Q8_0.gguf --addr 0.0.0.0:5005 --first-layer 24
+6916752 <home>/camelid gemma4-worker <home>/gemma-4-12b-it-Q8_0.gguf --addr 0.0.0.0:5005 --first-layer 24
+8036480 <home>/camelid gemma4-worker <home>/gemma-4-12b-it-Q8_0.gguf --addr 0.0.0.0:5005 --first-layer 24
+7038928 <home>/camelid gemma4-worker <home>/gemma-4-12b-it-Q8_0.gguf --addr 0.0.0.0:5005 --first-layer 24

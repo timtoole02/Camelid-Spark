@@ -1,0 +1,163 @@
+{
+  "ledger_version": "camelid.ledger/v1",
+  "provenance": {
+    "source_head": "d243d5bd",
+    "note": "CAIRN Phase 1 example ledger. Row 1 is the REAL llama32_3b_instruct_q8_0 ModelCompatibilityTarget transcribed verbatim from src/api/mod.rs (all 40 contract fields) — the zero-loss round-trip proof. Row 2 is a synthetic active-validation MoE row that exercises additional enum values. NOT the authoritative populated ledger (that is Phase 2)."
+  },
+  "capabilities": {
+    "engine": "camelid",
+    "gguf_metadata": true,
+    "tensor_loading": true,
+    "tokenization": true,
+    "inference": true,
+    "streaming": true,
+    "model_downloads": true,
+    "hf_catalog_install": true,
+    "execution_plan": null,
+    "support_contract": {
+      "current_gate": "Current exact-row support gate — see model_compatibility for the authoritative per-row boundary.",
+      "support_policy": "Support is per exact GGUF row and evidence-bounded; it never spreads to neighboring files, quants, or families.",
+      "unsupported_policy": "Rows without a promotion receipt fail closed; implemented-but-unpromoted architectures run in the clearly-marked experimental/runnable lane."
+    },
+    "supported_quantization": [
+      { "id": "Q8_0", "status": "supported", "notes": "The primary supported dense quant for the promoted exact rows." }
+    ],
+    "planned_quantization": [
+      { "id": "Q2_K", "status": "planned", "notes": "Not certified for any exact row yet." }
+    ],
+    "supported_model_families": [
+      { "id": "llama_bpe_decoder", "status": "supported_named_exact_rows_only", "notes": "Only the named exact rows are supported; family membership is not a support claim." }
+    ],
+    "planned_model_families": [
+      { "id": "qwen2", "status": "planned_exact_row_candidate", "notes": "Runtime/tokenizer bring-up pending." }
+    ],
+    "api_features": [
+      { "id": "chat_completions", "status": "ok", "notes": "OpenAI-style /v1/chat/completions, streaming and non-streaming." },
+      { "id": "structured_outputs", "status": "partial", "notes": "JSON-schema constrained decoding present; see STRUCTURED_OUTPUTS.md for the contract." }
+    ],
+    "notes": [
+      "This example envelope is illustrative; the authoritative envelope is generated from the populated ledger in a later phase."
+    ]
+  },
+  "model_rows": [
+    {
+      "identity": {
+        "id": "llama32_3b_instruct_q8_0",
+        "family": "llama_bpe_decoder",
+        "params": "3B",
+        "quantization": "Q8_0",
+        "gguf_filename": "Llama-3.2-3B-Instruct-Q8_0.gguf"
+      },
+      "contract": {
+        "id": "llama32_3b_instruct_q8_0",
+        "family": "llama_bpe_decoder",
+        "quantization": "Q8_0",
+        "status": "supported_exact_row_smoke",
+        "tool_capable": true,
+        "support_scope": "exact_row_smoke_only",
+        "full_support_status": "blocked_pending_normalized_full_support",
+        "full_support_blockers": "the May-era typed lanes (template shapes, perf/RSS, API/WebUI smoke, broader prompt-pack parity) were measured on the prior upload (sha256 b5607b50...) and await re-anchoring to the canonical file; plus model-native/larger context beyond the anchored 512-8192 ladder, broader arbitrary/Jinja templates beyond row-scoped metadata-Jinja renderer and template-shape evidence, production throughput beyond bounded perf/RSS and the first-token direction probe, portability, and durable repeated current-head bundles remain missing",
+        "metadata_parses": "validated",
+        "tokenizer_works": "validated_for_compact_and_small_prompt_pack",
+        "tensors_load": "validated",
+        "generation_runs": "api_completion_and_chat_smoke_plus_five_prompt_api_smoke",
+        "parity_audited": "compact_and_broader_prompt_pack_50_token_match",
+        "performance_measured": "bounded_unique_chat_perf_rss_validated",
+        "frontend_load_path_verified": "validated",
+        "frontend_readiness_gate": "green only when this exact GGUF row plus Q8_0 quant match /api/capabilities and the runtime reports loaded_now=true, generation_ready=true, and matching active_model_id",
+        "tested_context": "short_api_webui_smoke_with_broader_prompt_pack_parity_plus_anchored_raw_decode_512_1024_2048_4096_8192_context_ladder",
+        "chat_template_renderer": "metadata_jinja_supported_for_exact_row",
+        "chat_template_shape_pack": "validated_bounded_pack",
+        "chat_template_shape_pack_id": "llama3-chat-template-shapes-v1",
+        "bounded_context_512_pack": "validated_anchored_raw_decode_ladder",
+        "bounded_context_512_pack_id": "llama32-3b-anchored-raw-ladder-v1",
+        "bounded_context_window": 512,
+        "bounded_context_1024_pack": "validated_anchored_raw_decode_ladder",
+        "bounded_context_1024_pack_id": "llama32-3b-anchored-raw-ladder-v1",
+        "bounded_context_1024_window": 1024,
+        "bounded_context_2048_pack": "validated_anchored_raw_decode_ladder",
+        "bounded_context_2048_pack_id": "llama32-3b-anchored-raw-ladder-v1",
+        "bounded_context_2048_window": 2048,
+        "bounded_context_4096_pack": "validated_anchored_raw_decode_ladder",
+        "bounded_context_4096_pack_id": "llama32-3b-anchored-raw-ladder-v1",
+        "bounded_context_4096_window": 4096,
+        "bounded_context_8192_pack": "validated_anchored_raw_decode_ladder",
+        "bounded_context_8192_pack_id": "llama32-3b-anchored-raw-ladder-v1",
+        "bounded_context_8192_window": 8192,
+        "latest_checked_bucket": "llama32-3b-anchored-raw-ladder-v1",
+        "latest_checked_result": "pass",
+        "latest_checked_output": "50/50 greedy tokens identical on all five buckets",
+        "evidence": "the exact tracked Llama-3.2-3B-Instruct-Q8_0 GGUF (sha256 f34112a1..., the file pinned by the June capability-matrix receipts) has a fresh anchored raw-decode context ladder — 512/1024/2048/4096/8192 buckets (408/885/1893/3978/8049 llama3 tokens), token-AND-text identical to pinned llama.cpp acd79d603 at 50 greedy tokens, fully GPU-resident, at qa/evidence-bundles/llama32-3b-context-512-8192-anchored-20260710T2119-head-6527a770/manifest.json — plus June 2026 capability-matrix receipts on the same file. Earlier evidence (canonical Ubuntu API/WebUI refresh at qa/evidence-bundles/llama32-3b-api-webui-current-head-20260513T2005Z-head-e9f926e/manifest.json, compact/broader prompt-pack parity, the May 512/1024/2048 template-context packs, template-shape coverage, and bounded unique-chat perf/RSS) was produced against a PRIOR upload of this model name (sha256 b5607b50...) and is retained as historical evidence for that file; it is disclosed, not inherited. Camelid supports exact-row smoke for this row only, not broader/full support",
+        "next_step": "preserve exact-row smoke plus the anchored checked 512/1024/2048/4096/8192 raw-decode context ladder while re-anchoring the remaining May-era evidence families (API/WebUI refresh, template shapes, perf/RSS) to the canonical file and normalizing model-native/larger context, broader arbitrary/Jinja template behavior, production throughput, portability, and durable full-support bundle evidence before any broader/full-support claim"
+      },
+      "surfaces": {
+        "readme": {
+          "serve_lane": "single-node",
+          "evidence": "Exact-row smoke + API/WebUI, single-node Apple Silicon or CPU; anchored 512-8192 raw-decode context ladder."
+        },
+        "compatibility": {
+          "public_claim": "Supported exact-row smoke",
+          "checked_context_boundary": "512/1024/2048/4096/8192 (anchored raw-decode ladder on the canonical GGUF)",
+          "do_not_claim": "model-native/larger context beyond the checked ladder, broad Llama-family support, neighboring quants, production throughput, or portability"
+        }
+      },
+      "receipts": [
+        {
+          "path": "qa/evidence-bundles/llama32-3b-context-512-8192-anchored-20260710T2119-head-6527a770/manifest.json",
+          "head": "6527a770",
+          "captured_at": "20260710T2119"
+        }
+      ]
+    },
+    {
+      "identity": {
+        "id": "example_moe_active_validation",
+        "family": "mixtral_moe",
+        "params": "8x7B",
+        "quantization": "Q8_0"
+      },
+      "contract": {
+        "id": "example_moe_active_validation",
+        "family": "mixtral_moe",
+        "quantization": "Q8_0",
+        "status": "active_validation_partial_runtime",
+        "tool_capable": false,
+        "support_scope": "exact_row_bounded_moe_runtime_only",
+        "full_support_status": "blocked_later_generation_divergence",
+        "full_support_blockers": "later short-prompt generation diverges from the reference; API/WebUI readiness, long-context evidence, throughput, and portability are missing",
+        "metadata_parses": "validated",
+        "tokenizer_works": "validated",
+        "tensors_load": "validated",
+        "generation_runs": "bounded_one_token_backend_moe_runtime_only",
+        "parity_audited": "one_token_backend_match_later_generation_divergence",
+        "performance_measured": "not_measured",
+        "frontend_load_path_verified": "fail_closed",
+        "frontend_readiness_gate": "fail-closed for broad readiness until later-generation parity and API/WebUI gates close",
+        "tested_context": "bounded_one_token_backend_runtime_only",
+        "chat_template_renderer": "none",
+        "chat_template_shape_pack": "not_validated",
+        "chat_template_shape_pack_id": "none",
+        "bounded_context_512_pack": "not_validated",
+        "bounded_context_512_pack_id": "none",
+        "bounded_context_window": 0,
+        "bounded_context_1024_pack": "not_validated",
+        "bounded_context_1024_pack_id": "none",
+        "bounded_context_1024_window": 0,
+        "bounded_context_2048_pack": "not_validated",
+        "bounded_context_2048_pack_id": "none",
+        "bounded_context_2048_window": 0,
+        "bounded_context_4096_pack": "not_validated",
+        "bounded_context_4096_pack_id": "none",
+        "bounded_context_4096_window": 0,
+        "bounded_context_8192_pack": "not_validated",
+        "bounded_context_8192_pack_id": "none",
+        "bounded_context_8192_window": 0,
+        "latest_checked_bucket": "none",
+        "latest_checked_result": "blocked_later_generation_divergence",
+        "latest_checked_output": "later-generation divergence",
+        "evidence": "bounded one-token backend MoE runtime evidence only; later-generation divergence keeps frontend/API/WebUI support blocked",
+        "next_step": "fix later-generation divergence, then rerun row-specific API/WebUI/RSS/frontend evidence before any support/readiness claim"
+      }
+    }
+  ]
+}

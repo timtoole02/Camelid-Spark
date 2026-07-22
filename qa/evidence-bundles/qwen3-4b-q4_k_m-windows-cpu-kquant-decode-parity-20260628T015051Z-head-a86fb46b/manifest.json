@@ -1,0 +1,44 @@
+{
+  "schema": "camelid.kquant_parity_bundle.windows_cpu_decode.v1",
+  "variant": "kquant_cpu_block_dot",
+  "generated_utc": "20260628T015051Z",
+  "row_id": "qwen3_4b_instruct_q4_k_m_cpu",
+  "display_name": "Qwen3 4B Instruct Q4_K_M (CPU decode)",
+  "platform": { "operating_system": "windows", "architecture": "x86_64", "toolchain": "x86_64-pc-windows-msvc", "host_ram_gb": 15.7 },
+  "cpu": "i7-11800H (16T, Tiger Lake, AVX2+AVX-512); CUDA hidden (CUDA_VISIBLE_DEVICES=-1, CAMELID_CUDA_RESIDENT_{DECODE,PREFILL}=0)",
+  "source_runtime_head": "a86fb46b + Phase 2 working-tree change (q4_k_cpu_block_dot default-on; committed in the following commit)",
+  "model": {
+    "id": "Qwen3 4B Instruct Q4_K_M",
+    "source": "Qwen/Qwen3-4B-GGUF/Qwen3-4B-Q4_K_M.gguf",
+    "sha256": "7485fe6f11af29433bc51cab58009521f205840f5b4ae3a32fa7f92e8534fdf5",
+    "quant": "Q4_K_M (216 Q4_K + 37 Q6_K)"
+  },
+  "comparator": {
+    "engine": "llama.cpp", "version": "9632 (acd79d603)",
+    "flags": "/completion CPU, -ngl 0 -ctk f32 -ctv f32 -fa off --no-repack; temperature 0, top_k 1, seed 0, cache_prompt false, return_tokens true"
+  },
+  "camelid": {
+    "path": "CPU K-quant block-dot decode at the matmul chokepoint (matmul_rhs_transposed_q4_k_block_dot / q6_k), gated CAMELID_X86_Q4K_DECODE (now DEFAULT-ON).",
+    "q4_k_kernel": "diffusion_gemma::refmath::q4_k_dot_arm -> q4_k_dot_avx2 (AVX2, bit-identical to scalar; engaged since avx2 detected)",
+    "q6_k_kernel": "q6_k_wire_row_dot (8-lane f32 scalar oracle; AVX2 sibling NOT yet wired for the 8-lane order — perf follow-up)",
+    "guard_note": "In serve CPU mode the f32 weight-materialization budget guard FALSE-POSITIVES on K-quant block-dot models (estimates ~16 GB f32 materialization the wire-only block-dot never does, because binding_runs_on_resident_gpu is false on CPU). Bypassed for this run with CAMELID_MAX_CPU_WEIGHT_MATERIALIZATION_BYTES; bench-generate is unaffected (different load path). Follow-up: treat K-quant linears as non-materializing when q4_k_cpu_block_dot is enabled."
+  },
+  "result": {
+    "methodology": "raw-prompt token+text decode parity, 3 confident probes at 1/5/50 tokens, CPU camelid vs CPU llama.cpp",
+    "all_pass_strict": false,
+    "confident_probes_token_identical": "France (depth 50) + def fibonacci code (depth 50) fully token-identical; Q:2+2 identical to depth 5 then a benign f32 near-tie at depth (coherent output)",
+    "claim": "CPU K-quant block-dot decode of Qwen3-4B-Q4_K_M is token-AND-text-identical to llama.cpp acd79d6 on confident probes (incl. code to depth 50); near-tie at depth documented. Same bar as the GPU primary bundle.",
+    "fixes": "Turns the pre-existing CPU K-quant crash (data_len=0, no f32 fallback for wire-only K-quant) into parity-correct output by promoting CAMELID_X86_Q4K_DECODE to default-on. GPU resident lane never reaches this path, so unaffected."
+  },
+  "speed": {
+    "camelid_cpu_kquant_decode_tps": "~6.5-7.0 (bench-generate, 16T)",
+    "llamacpp_cpu_q4_k_m_tg128_tps": "12.35",
+    "ratio": "~0.55x of llama.cpp CPU — consistent with the known ~0.6x CPU tiled-GEMM gap; CPU decode is DRAM-bandwidth-bound on this box."
+  },
+  "followups": [
+    "Q6_K AVX2 (8-lane order): write an AVX2 kernel bit-identical to q6_k_wire_row_dot's 8-lane f32 reduction (NOT refmath q6_k_dot_avx2, which uses a single-accumulator order and would change the bit pattern), then wire it into q6_k_block_dot_core. Likely bandwidth-bound/null on this box; needs a bit-identical test + measurement.",
+    "CPU weight-materialization guard: bypass for K-quant linears when the block-dot is enabled (mirror binding_runs_on_resident_gpu).",
+    "Linux/macOS greedy-parity confirmation for the now-default-on CPU K-quant path."
+  ],
+  "claim_boundary": "Exact-row CPU-decode smoke for this Qwen3-4B-Q4_K_M GGUF on Windows x86_64 (AVX2/AVX-512). Token-identical on confident probes; near-ties at depth documented. NOT claimed: bit-exact parity on open-ended generation, other models/quants, Linux/macOS parity (follow-up), or a CPU throughput claim."
+}

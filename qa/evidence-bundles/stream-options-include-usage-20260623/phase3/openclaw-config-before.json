@@ -1,0 +1,95 @@
+{
+  "agents": {
+    "defaults": {
+      "workspace": "<home>\\.openclaw\\workspace",
+      "model": {
+        "primary": "camelid/qwen3-4b"
+      },
+      "models": {
+        "camelid/qwen3-4b": {
+          "alias": "Camelid"
+        }
+      },
+      "skills": [],
+      "skipBootstrap": true,
+      "contextInjection": "never",
+      "experimental": {
+        "localModelLean": true
+      }
+    }
+  },
+  "gateway": {
+    "mode": "local",
+    "auth": {
+      "mode": "token",
+      "token": "<REDACTED-OPENCLAW-GATEWAY-TOKEN>"
+    },
+    "port": 18789,
+    "bind": "loopback",
+    "tailscale": {
+      "mode": "off",
+      "resetOnExit": false
+    }
+  },
+  "session": {
+    "dmScope": "per-channel-peer"
+  },
+  "tools": {
+    "profile": "coding"
+  },
+  "skills": {
+    "install": {
+      "nodeManager": "npm"
+    }
+  },
+  "wizard": {
+    "lastRunAt": "2026-06-22T17:42:07.856Z",
+    "lastRunVersion": "2026.6.9",
+    "lastRunCommand": "onboard",
+    "lastRunMode": "local"
+  },
+  "meta": {
+    "lastTouchedVersion": "2026.6.9",
+    "lastTouchedAt": "2026-06-22T18:46:01.558Z"
+  },
+  "models": {
+    "mode": "merge",
+    "providers": {
+      "camelid": {
+        "baseUrl": "http://127.0.0.1:8181/v1",
+        "apiKey": "camelid-local",
+        "api": "openai-completions",
+        "timeoutSeconds": 900,
+        "models": [
+          {
+            "id": "qwen3-4b",
+            "name": "Qwen3 4B (Camelid local)",
+            "reasoning": false,
+            "input": [
+              "text"
+            ],
+            "cost": {
+              "input": 0,
+              "output": 0,
+              "cacheRead": 0,
+              "cacheWrite": 0
+            },
+            "contextWindow": 8192,
+            "maxTokens": 256,
+            "compat": {
+              "requiresStringContent": true,
+              "supportsTools": false,
+              "supportsReasoningEffort": false,
+              "supportsStore": false,
+              "supportsPromptCacheKey": false,
+              "supportsUsageInStreaming": false,
+              "supportsDeveloperRole": false,
+              "strictMessageKeys": true,
+              "maxTokensField": "max_tokens"
+            }
+          }
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,26 @@
+[gemma4-master] layers 0..24 local, 24.. on <lan-peer>:5005; loading...
+[gemma4-master] done in 339.7s; stats: {"prompt_tokens":8,"generated_tokens":16,"activation_payload_bytes_per_step":15384,"ttft_ms":157390.518667,"decode_tokens_per_s":6.460376633368141,"total_wire_round_trips":24,"local_step_ms_avg":6574.243546833332,"wire_step_ms_avg":86.88372570833333}
+[gemma4-master] token_ids: [9115, 107, 51423, 236787, 9115, 107, 51423, 236764, 9115, 236787, 9115, 107, 51423, 236764, 9115, 236787]
+English: good morning
+German: German
+German: German
+German, German: German
+German, German:
+      339.70 real        13.72 user         7.13 sys
+          7065321472  maximum resident set size
+                   0  average shared memory size
+                   0  average unshared data size
+                   0  average unshared stack size
+              400290  page reclaims
+              766632  page faults
+                   0  swaps
+                  20  block input operations
+                   0  block output operations
+                  73  messages sent
+                  25  messages received
+                   0  signals received
+                 176  voluntary context switches
+              258307  involuntary context switches
+        259391402861  instructions retired
+         60157175795  cycles elapsed
+           319415800  peak memory footprint

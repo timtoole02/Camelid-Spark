@@ -1,0 +1,8 @@
+file:///<repo>/scripts/summarize-generation-timings.mjs:21
+    throw new Error(`${path}: missing camelid.timings_ms`)
+          ^
+
+Error: <repo>\target\muster-ma1-20260716\api-webui\chat.response.json: missing camelid.timings_ms
+    at file:///<repo>/scripts/summarize-generation-timings.mjs:21:11
+
+Node.js v24.16.0

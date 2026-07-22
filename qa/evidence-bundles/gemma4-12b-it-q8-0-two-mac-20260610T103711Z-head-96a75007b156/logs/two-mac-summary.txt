@@ -1,0 +1,77 @@
+{
+ "capital-france": {
+  "distributed_equals_single_node": true,
+  "distributed_equals_oracle": true,
+  "tokens": 22,
+  "stats": {
+   "prompt_tokens": 6,
+   "generated_tokens": 22,
+   "activation_payload_bytes_per_step": 15384,
+   "ttft_ms": 160139.42833300002,
+   "decode_tokens_per_s": 6.379099671861375,
+   "total_wire_round_trips": 28,
+   "local_step_ms_avg": 5722.741739642858,
+   "wire_step_ms_avg": 119.68864878571428
+  }
+ },
+ "count-primes": {
+  "distributed_equals_single_node": true,
+  "distributed_equals_oracle": true,
+  "tokens": 24,
+  "stats": {
+   "prompt_tokens": 7,
+   "generated_tokens": 24,
+   "activation_payload_bytes_per_step": 15384,
+   "ttft_ms": 158167.976416,
+   "decode_tokens_per_s": 6.753464157782871,
+   "total_wire_round_trips": 31,
+   "local_step_ms_avg": 5136.983711096773,
+   "wire_step_ms_avg": 79.8405040967742
+  }
+ },
+ "haiku-sea": {
+  "distributed_equals_single_node": true,
+  "distributed_equals_oracle": false,
+  "tokens": 28,
+  "stats": {
+   "prompt_tokens": 9,
+   "generated_tokens": 28,
+   "activation_payload_bytes_per_step": 15384,
+   "ttft_ms": 158347.941833,
+   "decode_tokens_per_s": 6.166388034165599,
+   "total_wire_round_trips": 37,
+   "local_step_ms_avg": 4320.016301783784,
+   "wire_step_ms_avg": 82.37773537837839
+  }
+ },
+ "rust-fn": {
+  "distributed_equals_single_node": true,
+  "distributed_equals_oracle": false,
+  "tokens": 24,
+  "stats": {
+   "prompt_tokens": 21,
+   "generated_tokens": 24,
+   "activation_payload_bytes_per_step": 15384,
+   "ttft_ms": 161327.78362499998,
+   "decode_tokens_per_s": 6.206395089981821,
+   "total_wire_round_trips": 45,
+   "local_step_ms_avg": 3555.571729644447,
+   "wire_step_ms_avg": 115.41898422222222
+  }
+ },
+ "translate-de": {
+  "distributed_equals_single_node": true,
+  "distributed_equals_oracle": true,
+  "tokens": 16,
+  "stats": {
+   "prompt_tokens": 8,
+   "generated_tokens": 16,
+   "activation_payload_bytes_per_step": 15384,
+   "ttft_ms": 157390.518667,
+   "decode_tokens_per_s": 6.460376633368141,
+   "total_wire_round_trips": 24,
+   "local_step_ms_avg": 6574.243546833332,
+   "wire_step_ms_avg": 86.88372570833333
+  }
+ }
+}

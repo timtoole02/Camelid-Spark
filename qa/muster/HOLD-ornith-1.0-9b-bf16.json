@@ -1,0 +1,38 @@
+{
+  "schema": "camelid.muster_hold_receipt/v1",
+  "campaign": "MUSTER (MUSTER_CONDUCTOR.md)",
+  "muster_id": "M-B5",
+  "verdict": "HOLD",
+  "sealed_at_gate": "Gate 1 (recon-proven, MUSTER_RECON.md; sign-off 2026-07-16, sealed in Phase 2)",
+  "file": {
+    "filename": "ornith-1.0-9b-bf16.gguf",
+    "sha256": "27bc753487eed85539c3aef63dd602b79cd060401b928c9ff7d30d5556eca260",
+    "size_bytes": 17920696512,
+    "arch": "qwen35",
+    "quant": "BF16",
+    "tensors": "250 BF16 + 177 F32 (camelid inspect, metadata-only)",
+    "provenance": "huggingface.co/deepreinforce-ai/Ornith-1.0-9B-GGUF (upstream tree verified 2026-07-16: size and sha256 exact match; license mit; not gated). This file is also the pinned quantization SOURCE for the in-house Ornith requants (qa/ornith/constrained-vram/QUANT_QUALITY_TABLE.md:4)."
+  },
+  "named_blockers": [
+    {
+      "id": "quant-axis",
+      "kind": "camelid_gap",
+      "statement": "BF16 is absent from the runnable lane's covered quant set (is_covered_quant, src/runnable/admit.rs:177-190); live admission reject: 'unsupported quant BF16 in tensor output.weight'. Adding it requires committed BF16 dequant-parity evidence per the lane spec."
+    },
+    {
+      "id": "arch-axis",
+      "kind": "camelid_gap",
+      "statement": "No non-runnable vehicle exists for qwen35: the architecture is implemented only in the runnable lane (src/api/mod.rs:5159-5161; src/model.rs:613-622), so the quant contract's BF16 'supported — reference CPU tensor path' item (src/api/mod.rs:2786-2790) cannot bind this architecture."
+    },
+    {
+      "id": "host-ram",
+      "kind": "host_limit_not_refusal",
+      "statement": "17,920,696,512 B (16.7 GiB) exceeds the 15.7 GiB host RAM; the runnable lane loads every weight resident (src/runnable/model.rs:369). Static GPU plan: plan-offload PLAN FAILED — 'model cannot run even fully offloaded: short by 454 MiB' (reproduced 2026-07-16, metadata-only). The oracle capture leg is equally over-RAM on this host, so no side-by-side is executable here regardless of Camelid-side work. Precedent: the requant imatrix was deliberately computed on the Q8_0 host for exactly this reason (QUANT_QUALITY_TABLE.md:6-8). Per the runnable-lane memory policy this is a host limit, not an engine refusal."
+    }
+  ],
+  "oracle_side_control": "llama.cpp acd79d603 (build 9632) supports the arch and BF16 — this file is the hash-verified source the pinned requants were produced from (QUANT_QUALITY_TABLE.md:4) — isolating blockers 1-2 to Camelid coverage and blocker 3 to the host.",
+  "chip_consequence": "admitted=false in the live scan; the Models-page NotAnchoredRow chip renders for the scanned file; the chat chip was never observed for it and no lane exists to make it generation-ready at this head.",
+  "exit_condition": "HOLD until (a) a BF16 runnable-lane dequant-parity gate lands AND (b) a qwen35-capable vehicle can hold the weights (larger-RAM host or a streaming lane built for the runnable runtime) — or the row is retired from the roster.",
+  "environment": "head b80788c9 tree (Gate 1 sealed); RTX 3060 Laptop 6144 MiB; 15.7 GiB RAM; Windows 11 build 26220",
+  "date": "2026-07-16"
+}

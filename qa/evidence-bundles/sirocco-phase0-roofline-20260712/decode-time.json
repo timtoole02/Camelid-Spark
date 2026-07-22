@@ -1,0 +1,26 @@
+{
+  "P1": {
+    "step": 7.67,
+    "forward": 7.67,
+    "sample": 0,
+    "other": 0,
+    "forward_frac": 1,
+    "n": 2
+  },
+  "P2": {
+    "step": 18.7,
+    "forward": 18.695,
+    "sample": 0,
+    "other": 0,
+    "forward_frac": 0.9997,
+    "n": 2
+  },
+  "P3": {
+    "step": 8.87,
+    "forward": 8.87,
+    "sample": 0,
+    "other": 0,
+    "forward_frac": 1,
+    "n": 2
+  }
+}

@@ -1,0 +1,836 @@
+#!/usr/bin/env node
+import assert from 'node:assert/strict'
+import { fileURLToPath } from 'node:url'
+import { dirname, resolve } from 'node:path'
+
+import React from 'react'
+import { renderToStaticMarkup } from 'react-dom/server'
+import { createServer } from 'vite'
+
+const scriptDir = dirname(fileURLToPath(import.meta.url))
+const frontendRoot = resolve(scriptDir, '..')
+
+const server = await createServer({
+  root: frontendRoot,
+  appType: 'custom',
+  logLevel: 'silent',
+  server: { middlewareMode: true },
+})
+
+try {
+  const { default: ChatWorkspace } = await server.ssrLoadModule('/src/views/ChatWorkspace.jsx')
+  const { default: CompatibilityView } = await server.ssrLoadModule('/src/views/CompatibilityView.jsx')
+  const { default: ApiView } = await server.ssrLoadModule('/src/views/ApiView.jsx')
+  const { default: SystemView } = await server.ssrLoadModule('/src/views/SystemView.jsx')
+  const { default: ModelsView } = await server.ssrLoadModule('/src/views/ModelsView.jsx')
+  const { default: TopBar } = await server.ssrLoadModule('/src/components/TopBar.jsx')
+  const { getChatGateState } = await server.ssrLoadModule('/src/lib/chatGate.js')
+  const {
+    capabilityRowMatchesSearch,
+    exactRowSupportLanes,
+    rowSupportBoundaryCopy,
+    rowSupportNextStepCopy,
+    statusContainsSupportedEvidence,
+  } = await server.ssrLoadModule('/src/lib/capabilities.js')
+  const { resolveLoadedModelDisplayName } = await server.ssrLoadModule('/src/hooks/useDashboardData.js')
+  const { LLAMA32_3B_ACCEPTANCE_TARGET } = await server.ssrLoadModule('/src/lib/acceptanceTargets.js')
+
+  const noop = () => {}
+  const readyRuntime = {
+    api_base: 'http://127.0.0.1:8181',
+    loaded_now: true,
+    generation_ready: true,
+    active_model_id: 'llama32_3b_instruct_q8_0',
+    status: 'online',
+    backend: 'llama',
+    execution_plan: {
+      selected_backend: 'cpu_q8_runtime_repack',
+      cuda_resident_active: false,
+    },
+  }
+  const selectedModel = {
+    id: 'llama32_3b_instruct_q8_0',
+    name: 'Llama 3.2 3B Instruct Q8_0',
+    provider_kind: 'local',
+    loaded_now: true,
+    generation_ready: true,
+    status: 'ready',
+    quant: 'Q8_0',
+    model_path: '<ubuntu-model-path>/Llama-3.2-3B-Instruct-Q8_0.gguf',
+    runtime_model_name: 'llama32_3b_instruct_q8_0',
+  }
+  const capabilities = {
+    support_contract: {
+      current_gate: 'Current exact-row support: no model-native/larger context beyond checked packs, arbitrary/Jinja template behavior, production throughput, portability, neighboring-row, or broad-family support is implied.',
+      support_policy: 'Only exact rows unlock chat.',
+      unsupported_policy: 'Everything else remains guarded.',
+    },
+    supported_model_families: [{ id: 'broad_family_trap', status: 'supported' }],
+    supported_quantization: [{ id: 'broad_quant_trap', status: 'supported' }],
+    model_compatibility: [
+      {
+        id: 'tinyllama_1_1b_chat_q8_0',
+        status: 'supported_current_gate',
+        family: 'llama_spm_decoder',
+        quantization: 'Q8_0',
+        support_scope: 'exact row only',
+        frontend_readiness_gate: 'loaded_now + generation_ready + active_model_id + exact row',
+        full_support_status: 'guarded_by_exact_row',
+        full_support_blockers: 'arbitrary/Jinja templates, production throughput, portability',
+        evidence: 'TinyLlama fixture row; must not be inherited by misleading 3B backend ids.',
+        chat_template_renderer: 'tinyllama-marker',
+        chat_template_shape_pack: 'validated_bounded_pack',
+        performance_measured: 'measured',
+        next_step: 'preserve exact-row scoping before widening support claims',
+      },
+      {
+        id: 'llama32_3b_instruct_q8_0',
+        status: 'supported_current_gate',
+        family: 'llama_bpe_decoder',
+        quantization: 'Q8_0',
+        support_scope: 'exact row only',
+        frontend_readiness_gate: 'loaded_now + generation_ready + active_model_id + exact row',
+        latest_checked_bucket: 'current_head',
+        latest_checked_result: 'pass',
+        latest_checked_output: 'exact row fixture output',
+        full_support_status: 'guarded_by_exact_row',
+        full_support_blockers: 'model-native/larger context beyond checked packs, arbitrary/Jinja templates, production throughput, portability, and durable repeated current-head bundles remain missing',
+        evidence: 'Exact row evidence bundle.',
+        metadata_parses: 'validated',
+        tokenizer_works: 'validated',
+        tensors_load: 'validated',
+        generation_runs: 'validated',
+        frontend_load_path_verified: 'validated',
+        chat_template_shape_pack: 'validated',
+        bounded_context_512_pack: 'validated',
+        bounded_context_1024_pack: 'validated',
+        bounded_context_2048_pack: 'validated',
+        performance_measured: 'measured',
+        next_step: 'preserve exact-row smoke while normalizing model-native/larger context, arbitrary/Jinja template behavior, production throughput, portability, and durable full-support bundle evidence before any broader claim',
+      },
+      {
+        id: 'other_future_row_q8_0',
+        status: 'planned',
+        family: 'future_decoder',
+        quantization: 'Q8_0',
+        bounded_context_512_pack: 'not_started',
+        bounded_context_512_pack_id: 'future-context-512-smoke-v1',
+        next_step: 'Do not unlock selected chat.',
+      },
+    ],
+    api_features: [
+      { id: `open${'ai'}_chat_completions`, status: 'supported_current_gate', notes: `Open${'AI'}-compatible streaming stays enabled.` },
+      { id: `open${'ai'}.responses_stream`, status: 'supported_current_gate', notes: `${'Chat' + 'GPT'}-style streamed response compatibility stays provider-neutral in UI copy.` },
+      { id: 'tokenizer_encode_decode', status: 'supported_current_gate', notes: 'Tokenizer endpoint is exposed by the backend.' },
+      { id: 'future_batch_endpoint', status: 'planned', notes: `Guarded feature row; do not label it ${'Clau' + 'de'} or ${'Gem' + 'ini'} compatible from API metadata.` },
+    ],
+  }
+  const selectedModelRunnable = getChatGateState(capabilities, selectedModel, readyRuntime).chatUnlocked
+  assert.equal(selectedModelRunnable, true, '3B Q8_0 fixture must be end-to-end runnable only when model path, runtime readiness, and exact-row support are all green')
+  assert.equal(statusContainsSupportedEvidence('not_started'), false, 'reserved future pack ids must not count as verified evidence')
+  assert.equal(capabilityRowMatchesSearch(capabilities.model_compatibility[2], 'future-context-512-smoke-v1'), true, 'ledger search should include displayed evidence bundle ids')
+
+  const wrongArtifactModel = {
+    ...selectedModel,
+    id: 'llama32_3b_instruct_q8_0_spoof',
+    name: 'Llama 3.2 3B Instruct Q8_0',
+    runtime_model_name: 'llama32_3b_instruct_q8_0_spoof',
+    model_path: '<ubuntu-model-path>/Llama-3.2-3B-Instruct-Q8_0-neighbor.gguf',
+  }
+  const wrongArtifactRuntime = {
+    ...readyRuntime,
+    active_model_id: wrongArtifactModel.runtime_model_name,
+  }
+  const wrongArtifactGate = getChatGateState(capabilities, wrongArtifactModel, wrongArtifactRuntime)
+  assert.equal(wrongArtifactGate.runtimeReady, true, 'spoofed 3B artifact fixture must keep runtime readiness visible')
+  assert.equal(wrongArtifactGate.contractSupported, false, 'spoofed 3B artifact fixture must not inherit exact-row support from id/name/Q8 copy')
+  assert.equal(wrongArtifactGate.chatUnlocked, false, 'spoofed 3B artifact fixture must stay chat-blocked despite loaded_now and generation_ready')
+
+  const blockedWrongArtifactMarkup = renderToStaticMarkup(React.createElement(ChatWorkspace, {
+    selectedConversation: {
+      id: 'conversation-wrong-artifact',
+      title: 'Wrong artifact',
+      updated_at: '2026-05-13T04:21:00.000Z',
+      messages: [],
+    },
+    selectedModel: wrongArtifactModel,
+    selectedModelId: wrongArtifactModel.id,
+    setSelectedModelId: noop,
+    models: [wrongArtifactModel],
+    runtime: wrongArtifactRuntime,
+    capabilities,
+    pendingConversation: null,
+    composer: 'Can this chat?',
+    setComposer: noop,
+    saveToMemory: noop,
+    sendMessage: noop,
+    sending: false,
+    selectedModelRunnable: wrongArtifactGate.chatUnlocked,
+    setTab: noop,
+  }))
+
+  assert.match(blockedWrongArtifactMarkup, /Runtime ready, support gated/, '3B live chat should show runtime readiness while support remains artifact-gated')
+  assert.match(blockedWrongArtifactMarkup, /llama32_3b_instruct_q8_0: exact GGUF not verified/, '3B live chat must name the exact artifact blocker')
+  assert.match(blockedWrongArtifactMarkup, /requires the exact Llama-3\.2-3B-Instruct-Q8_0\.gguf artifact/, '3B artifact blocker must name the canonical GGUF filename')
+  assert.match(blockedWrongArtifactMarkup, /data-send-ready="false"/, '3B composer send must stay disabled for a runtime-ready neighboring artifact')
+  assert.doesNotMatch(blockedWrongArtifactMarkup, /Message Camelid"[^>]*disabled/, '3B draft composer should stay editable while exact-row support is still gated')
+  assert.doesNotMatch(blockedWrongArtifactMarkup, /Local chat ready/, '3B spoofed artifact must not render the supported live-chat state')
+  assert.doesNotMatch(blockedWrongArtifactMarkup, /Demo starters/, '3B spoofed artifact must not expose runnable demo prompts')
+
+  const streamingMarkup = renderToStaticMarkup(React.createElement(ChatWorkspace, {
+    selectedConversation: {
+      id: 'conversation-streaming-code',
+      title: 'Streaming code',
+      updated_at: '2026-05-13T04:21:00.000Z',
+      messages: [
+        { id: 'user-1', role: 'user', content: 'Create one self-contained HTML page', created_at: '2026-05-13T04:21:00.000Z' },
+        { id: 'assistant-1', role: 'assistant', content: '```html\n<!doctype html>\n<button id="go">Go</button>', streaming: true, streaming_phase: 'streaming', created_at: '2026-05-13T04:21:01.000Z', model_id: 'llama32_3b_instruct_q8_0', tokens_out_per_sec: 12.7 },
+      ],
+    },
+    selectedModel,
+    selectedModelId: selectedModel.id,
+    setSelectedModelId: noop,
+    models: [selectedModel],
+    runtime: readyRuntime,
+    capabilities,
+    pendingConversation: null,
+    composer: '',
+    setComposer: noop,
+    saveToMemory: noop,
+    sendMessage: noop,
+    sending: false,
+    selectedModelRunnable,
+    setTab: noop,
+  }))
+
+  assert.match(streamingMarkup, /data-streaming-state="active"/, 'streaming assistant rows should render an active streaming state')
+  // Redesign (2026-06): consolidated status line keeps runtime-ready + exact-row support visible
+  // after messages exist (capability-lane detail now lives in System/API views, asserted there).
+  assert.match(streamingMarkup, /Local chat ready/, 'non-empty live 3B chats should keep the runtime-ready state visible after messages exist')
+  assert.match(streamingMarkup, /llama32_3b_instruct_q8_0: supported current gate/, 'non-empty live 3B chats should keep the exact-row support label visible after messages exist')
+  assert.match(streamingMarkup, /COMPATIBILITY\.md and \/api\/capabilities agree/, 'live 3B chat readiness must name the exact-row support-contract requirement')
+  assert.match(streamingMarkup, /data-streaming-code-state="open"/, 'open streaming fences should expose the active code state')
+  assert.match(streamingMarkup, /Still generating — code block incomplete/, 'open streaming code should visibly say it is incomplete')
+  assert.match(streamingMarkup, /Streaming code response/, 'streaming code rows should keep an active live-generation label')
+  assert.match(streamingMarkup, /aria-busy="true"/, 'streaming rows and code cards should be marked busy while backend generation is active')
+  assert.match(streamingMarkup, /message-code-card is-generating/, 'open streaming code should render as the real ForgeLocal-derived code card, not fallback prose')
+  assert.match(streamingMarkup, /Generation details \(client-measured telemetry\)/, 'the meta footer should render during streaming as the live tok/s readout')
+  assert.match(streamingMarkup, /13 tok\/s/, 'the streaming footer should show the live-patched decode rate')
+  assert.doesNotMatch(streamingMarkup, /cxturn__meta--reserve/, 'the invisible footer placeholder must not render; the live footer holds the layout slot itself')
+
+  const activeSendStreamingMarkup = renderToStaticMarkup(React.createElement(ChatWorkspace, {
+    selectedConversation: {
+      id: 'conversation-active-send-with-content',
+      title: 'Active send with content',
+      updated_at: '2026-05-13T04:21:00.000Z',
+      messages: [
+        { id: 'user-active-send', role: 'user', content: 'Create one self-contained HTML page', created_at: '2026-05-13T04:21:00.000Z' },
+        { id: 'assistant-active-send', role: 'assistant', content: '```html\n<!doctype html>\n<title>Live</title>', streaming: true, streaming_phase: 'streaming', created_at: '2026-05-13T04:21:01.000Z' },
+      ],
+    },
+    selectedModel,
+    selectedModelId: selectedModel.id,
+    setSelectedModelId: noop,
+    models: [selectedModel],
+    runtime: readyRuntime,
+    capabilities,
+    pendingConversation: null,
+    composer: '',
+    setComposer: noop,
+    saveToMemory: noop,
+    sendMessage: noop,
+    sending: true,
+    selectedModelRunnable,
+    setTab: noop,
+  }))
+
+  assert.equal((activeSendStreamingMarkup.match(/data-streaming-state="active"/g) || []).length, 1, 'active sends with visible streamed content should keep exactly one active assistant row')
+  assert.match(activeSendStreamingMarkup, /message-live-generation-badge/, 'active sends with visible streamed content should keep the live generation badge until completion')
+  assert.match(activeSendStreamingMarkup, /Stop</, 'active sends should expose a stop action in the composer while Camelid is still generating')
+  assert.doesNotMatch(activeSendStreamingMarkup, /Preparing local response/, 'visible streamed content should replace the pre-token pending loader during an active send')
+
+  const preTokenMarkup = renderToStaticMarkup(React.createElement(ChatWorkspace, {
+    selectedConversation: {
+      id: 'conversation-pre-token',
+      title: 'Pre-token',
+      updated_at: '2026-05-13T04:21:00.000Z',
+      messages: [
+        { id: 'user-2', role: 'user', content: 'Say hello', created_at: '2026-05-13T04:21:00.000Z' },
+        { id: 'assistant-2', role: 'assistant', content: '', streaming: true, streaming_phase: 'generating', created_at: '2026-05-13T04:21:01.000Z' },
+      ],
+    },
+    selectedModel,
+    selectedModelId: selectedModel.id,
+    setSelectedModelId: noop,
+    models: [selectedModel],
+    runtime: readyRuntime,
+    capabilities,
+    pendingConversation: null,
+    composer: '',
+    setComposer: noop,
+    saveToMemory: noop,
+    sendMessage: noop,
+    sending: false,
+    selectedModelRunnable,
+    setTab: noop,
+  }))
+
+  assert.match(preTokenMarkup, /data-streaming-state="active"/, 'pre-token assistant rows should remain visibly active while the backend is generating')
+  assert.match(preTokenMarkup, /Backend is generating/, 'pre-token streaming should render the active backend-generation live status')
+  assert.match(preTokenMarkup, /streaming-loader-dot-3/, 'pre-token streaming should render the active loader, not a static placeholder')
+
+  const completedUnclosedFenceMarkup = renderToStaticMarkup(React.createElement(ChatWorkspace, {
+    selectedConversation: {
+      id: 'conversation-completed-unclosed-code',
+      title: 'Completed unclosed code',
+      updated_at: '2026-05-13T04:21:00.000Z',
+      messages: [
+        { id: 'user-4', role: 'user', content: 'Write a tiny Python script', created_at: '2026-05-13T04:21:00.000Z' },
+        { id: 'assistant-4', role: 'assistant', content: '```python\nprint("safe")', streaming: false, created_at: '2026-05-13T04:21:01.000Z' },
+      ],
+    },
+    selectedModel,
+    selectedModelId: selectedModel.id,
+    setSelectedModelId: noop,
+    models: [selectedModel],
+    runtime: readyRuntime,
+    capabilities,
+    pendingConversation: null,
+    composer: '',
+    setComposer: noop,
+    saveToMemory: noop,
+    sendMessage: noop,
+    sending: false,
+    selectedModelRunnable,
+    setTab: noop,
+  }))
+
+  assert.match(completedUnclosedFenceMarkup, /message-code-card/, 'completed replies with an unclosed fenced block should still render as a safe code card')
+  // The syntax highlighter may wrap tokens (e.g. print) in spans; assert the escaped
+  // content stays visible rather than exact text adjacency.
+  assert.match(completedUnclosedFenceMarkup, /print[\s\S]{0,80}?\([\s\S]*&quot;safe&quot;/, 'completed unclosed code content should remain visible and escaped in the code card')
+  assert.doesNotMatch(completedUnclosedFenceMarkup, /Still generating — code block incomplete/, 'completed unclosed code should not claim the backend is still generating')
+  assert.doesNotMatch(completedUnclosedFenceMarkup, /data-code-streaming-state="open"/, 'completed unclosed code should not expose an active streaming code state')
+
+  const preTokenSendingMarkup = renderToStaticMarkup(React.createElement(ChatWorkspace, {
+    selectedConversation: {
+      id: 'conversation-pre-token-active-send',
+      title: 'Pre-token active send',
+      updated_at: '2026-05-13T04:21:00.000Z',
+      messages: [
+        { id: 'user-3', role: 'user', content: 'Say hello', created_at: '2026-05-13T04:21:00.000Z' },
+        { id: 'assistant-3', role: 'assistant', content: '', streaming: true, streaming_phase: 'generating', created_at: '2026-05-13T04:21:01.000Z' },
+      ],
+    },
+    selectedModel,
+    selectedModelId: selectedModel.id,
+    setSelectedModelId: noop,
+    models: [selectedModel],
+    runtime: readyRuntime,
+    capabilities,
+    pendingConversation: null,
+    composer: '',
+    setComposer: noop,
+    saveToMemory: noop,
+    sendMessage: noop,
+    sending: true,
+    selectedModelRunnable,
+    setTab: noop,
+  }))
+
+  assert.equal((preTokenSendingMarkup.match(/data-streaming-state="active"/g) || []).length, 1, 'active send with an inserted pre-token assistant row should not render a duplicate pending assistant loader')
+  assert.equal((preTokenSendingMarkup.match(/streaming-loader-track/g) || []).length, 1, 'pre-token active send should keep exactly one visible live loader for the backend generation')
+
+  const exactReadyMarkup = renderToStaticMarkup(React.createElement(ApiView, {
+    runtime: readyRuntime,
+    selectedModel,
+    capabilities,
+  }))
+
+  assert.match(exactReadyMarkup, /Selected exact row ready/, 'API readiness should turn green only for a matching loaded exact row')
+  assert.match(exactReadyMarkup, /llama32_3b_instruct_q8_0/, 'API view should render the selected exact compatibility row id')
+  assert.match(exactReadyMarkup, /Exact row evidence bundle\./, 'API view should render exact-row evidence text')
+  assert.match(exactReadyMarkup, /exact row fixture output/, 'API view should render latest exact-row output evidence')
+  assert.match(exactReadyMarkup, /Template\/Jinja readiness[\s\S]*Template readiness is green for this supported exact row/, 'API view should show resolved template/Jinja as a green exact-row readiness lane')
+  assert.match(exactReadyMarkup, /Throughput readiness[\s\S]*Bounded row-scoped performance\/RSS evidence is present/, 'API view should show bounded 3B performance/RSS evidence without promoting production-throughput readiness')
+  assert.match(exactReadyMarkup, /Remaining support boundary:<\/b> model-native\/larger context beyond checked packs; production throughput; portability; durable repeated current-head bundles remain missing/, 'API view should keep unresolved row blockers while filtering only resolved template/Jinja caveats')
+  assert.doesNotMatch(exactReadyMarkup, /arbitrary-template behavior|arbitrary\/Jinja templates/, 'API support surface should not repeat resolved template/Jinja caveats after row-scoped template evidence is green')
+  assert.doesNotMatch(exactReadyMarkup, /normalizing model-native\/larger context; arbitrary\/Jinja template behavior; production throughput/, 'API compatibility list next-step copy should filter resolved template/Jinja caveats while retaining production-throughput blockers')
+  assert.match(exactReadyMarkup, /Supported API feature rows/, 'API view should render supported feature rows from /api/capabilities')
+
+  const exactReadySystemMarkup = renderToStaticMarkup(React.createElement(SystemView, {
+    runtime: readyRuntime,
+    selectedModel,
+    capabilities,
+  }))
+
+  assert.match(exactReadySystemMarkup, /Selected exact-row local \/v1 ready/, 'System endpoint status should go green only when the selected 3B exact row and runtime readiness both match')
+  assert.match(exactReadySystemMarkup, /Runs now for this selected GGUF because loaded_now=true, generation_ready=true, active_model_id matches, and the exact \/api\/capabilities row is supported\./, 'System chat-completions copy should name the full 3B exact-row readiness gate')
+  assert.match(exactReadySystemMarkup, /Endpoint\/chat gate:[\s\S]*Ready: runtime readiness and exact-row support both match\./, 'System selected exact-row evidence should expose the retained chat/API gate')
+  assert.match(exactReadySystemMarkup, /Template\/Jinja readiness[\s\S]*Template readiness is green for this supported exact row/, 'System should render 3B template/Jinja lane evidence from /api/capabilities')
+  assert.match(exactReadySystemMarkup, /Throughput readiness[\s\S]*Bounded row-scoped performance\/RSS evidence is present/, 'System should keep bounded 3B performance evidence separate from production-throughput promotion')
+  assert.match(exactReadySystemMarkup, /COMPATIBILITY\.md rows from \/api\/capabilities[\s\S]*Template\/Jinja: Template rendering ready for this exact row[\s\S]*Checked context: Checked context packs ready for this exact row[\s\S]*Throughput: Production throughput not promoted/, 'System compatibility row list should render row-scoped 3B capability lanes, not just raw row status')
+  assert.doesNotMatch(exactReadySystemMarkup, /normalizing model-native\/larger context; arbitrary\/Jinja template behavior; production throughput/, 'System compatibility list next-step copy should filter resolved template/Jinja caveats while retaining production-throughput blockers')
+  assert.doesNotMatch(exactReadySystemMarkup, /# Use only after \/v1\/health returns generation_ready=true/, 'System curl should not imply generation_ready alone is sufficient for 3B UX chat')
+  assert.match(exactReadySystemMarkup, /Selected device at load[\s\S]*CPU[\s\S]*Selected backend at load[\s\S]*cpu q8 runtime repack/, 'System should render the selected CPU load plan instead of static backend prose')
+  assert.doesNotMatch(exactReadySystemMarkup, /GPU acceleration remains future work|local CPU generation path today/, 'System should not render stale static execution claims')
+  const cudaSystemMarkup = renderToStaticMarkup(React.createElement(SystemView, {
+    runtime: { ...readyRuntime, execution_plan: { selected_backend: 'cuda_resident_q8_runtime', cuda_resident_active: true } },
+    selectedModel,
+    capabilities,
+  }))
+  assert.match(cudaSystemMarkup, /Selected device at load[\s\S]*CUDA GPU[\s\S]*cuda resident q8 runtime/, 'System should render a consistent CUDA load plan without implying current effective execution')
+  const idleSystemMarkup = renderToStaticMarkup(React.createElement(SystemView, {
+    runtime: { api_base: 'http://127.0.0.1:8181', status: 'online', loaded_now: false, generation_ready: false },
+    selectedModel: null,
+    capabilities: { ...capabilities, execution_plan: null },
+  }))
+  assert.match(idleSystemMarkup, /Runtime[\s\S]*Idle[\s\S]*Runtime state[\s\S]*Online, no model loaded/, 'online no-model System state should report idle rather than offline')
+  assert.match(idleSystemMarkup, /Selected device at load[\s\S]*No model loaded[\s\S]*Selected backend at load[\s\S]*No active plan/, 'online no-model System state should not infer CPU or GPU execution')
+  assert.match(exactReadyMarkup, /chat completions/, 'API view should display provider-scoped feature ids as neutral capability names')
+  assert.match(exactReadyMarkup, /standard-compatible streaming stays enabled\./, 'API view should sanitize provider-specific feature notes before rendering')
+
+  // Redesign (2026-06): the TopBar support-contract strip was removed. The slim TopBar shows the
+  // conversation title and, on the chat tab, a compact model status chip. Support-contract caveat
+  // filtering is covered by frontendSupportContractCopy (3b-closure) and the System/API views.
+  const topBarMarkup = renderToStaticMarkup(React.createElement(TopBar, {
+    tab: 'chat',
+    setTab: noop,
+    selectedConversationTitle: '',
+    runtime: readyRuntime,
+    capabilities,
+    selectedModelId: selectedModel.id,
+    setSelectedModelId: noop,
+    models: [selectedModel],
+  }))
+
+  assert.match(topBarMarkup, /topbar__model/, 'chat-tab TopBar should render the compact model status chip')
+  assert.match(topBarMarkup, /Llama 3\.2 3B Instruct Q8_0/, 'TopBar model chip should show the selected model name')
+
+  const aliasSelectedModel = {
+    ...selectedModel,
+    id: 'browser-llama32-3b-alias',
+    runtime_model_name: selectedModel.id,
+    model_path: '/models/Llama-3.2-3B-Instruct-Q8_0.gguf',
+  }
+  const aliasApiMarkup = renderToStaticMarkup(React.createElement(ApiView, {
+    runtime: readyRuntime,
+    selectedModel: aliasSelectedModel,
+    capabilities,
+  }))
+
+  assert.match(aliasApiMarkup, /Selected exact row ready/, 'API view should keep alias-selected 3B exact rows green when active_model_id matches runtime_model_name')
+  assert.match(aliasApiMarkup, /&quot;model&quot;: &quot;llama32_3b_instruct_q8_0&quot;/, 'API curl should send the backend loaded model id, not the browser-only alias')
+  assert.doesNotMatch(aliasApiMarkup, /&quot;model&quot;: &quot;browser-llama32-3b-alias&quot;/, 'API curl must not create model_mismatch risk for alias-selected exact rows')
+
+  const aliasTopBarMarkup = renderToStaticMarkup(React.createElement(TopBar, {
+    tab: 'chat',
+    setTab: noop,
+    selectedConversationTitle: '',
+    runtime: readyRuntime,
+    capabilities,
+    selectedModelId: aliasSelectedModel.id,
+    setSelectedModelId: noop,
+    models: [aliasSelectedModel],
+  }))
+
+  assert.match(aliasTopBarMarkup, /Llama 3\.2 3B Instruct Q8_0/, 'TopBar model chip should resolve the active model through runtime_model_name aliases')
+  assert.doesNotMatch(aliasTopBarMarkup, /tinyllama/i, 'TopBar model chip must not mislabel an active 3B row as TinyLlama')
+  assert.doesNotMatch(aliasTopBarMarkup, /No model selected/, 'TopBar must not show an empty model state for alias-selected loaded 3B rows')
+
+  // Redesign (2026-07, D14): the Models page was rebuilt as five derived zones; the
+  // acceptance panel, tracked-row cards, and legacy grids are gone. Under SSR the data
+  // spine cannot fetch, so the page must render its honest fallbacks — never a
+  // fabricated loaded/downloaded state. The neighboring-quant and neighboring-artifact
+  // acceptance gates now live in the lane derivation (lib/modelLanes) and are asserted
+  // directly against the same capabilities fixture below.
+  const { laneOf } = await server.ssrLoadModule('/src/lib/modelLanes.js')
+  const laneEntry = (filename, quantization) => ({ filename, quantization, runnable_receipt_present: false, admitted: false, oracle_qualified: false })
+  assert.equal(
+    laneOf(laneEntry('Llama-3.2-3B-Instruct-Q8_0.gguf', 'Q8_0'), capabilities),
+    'supported',
+    'the exact 3B Q8_0 artifact must derive into the Supported lane from the live contract fixture',
+  )
+  assert.equal(
+    laneOf(laneEntry('Llama-3.2-3B-Instruct-Q4_0.gguf', 'Q4_0'), capabilities),
+    'not_anchored',
+    '3B neighboring GGUF quant must not inherit the canonical Q8_0 supported lane',
+  )
+  assert.equal(
+    laneOf(laneEntry('Llama-3.2-3B-Instruct-Q8_0-neighbor.gguf', 'Q8_0'), capabilities),
+    'not_anchored',
+    'a same-label Q8 file without the exact GGUF filename must not inherit the supported lane',
+  )
+
+  const modelsViewProps = {
+    runtime: { ...readyRuntime, status: 'online' },
+    capabilities,
+    refreshDashboard: noop,
+    unloadCurrentModel: noop,
+    loadingModelId: '',
+    registerForm: { id: '', name: '', model_path: '', runtime_model_name: '' },
+    setRegisterForm: noop,
+    registerModel: noop,
+    apiBase: 'http://127.0.0.1:8181',
+  }
+  const modelsMarkup = renderToStaticMarkup(React.createElement(ModelsView, modelsViewProps))
+  assert.match(modelsMarkup, /Active model/, 'Models view must render the active-model bar zone')
+  assert.match(modelsMarkup, /No model loaded/, 'Models view must not fabricate a loaded model before /api/models/current answers')
+  assert.match(modelsMarkup, /Supported/, 'Models view must render the Supported zone')
+  assert.match(modelsMarkup, /Experimental/, 'Models view must render the Experimental zone')
+  assert.match(modelsMarkup, /Get models/, 'Models view must render the Get-models zone')
+  assert.match(modelsMarkup, /Diagnostics/, 'Models view must keep the diagnostics disclosure')
+  assert.match(modelsMarkup, /Scanning local models…|Local model scan unavailable\./, 'Models view sections must show the honest scan fallback instead of inventing membership')
+  assert.doesNotMatch(modelsMarkup, /Downloaded/, 'Models view must not claim any downloaded state without the live disk scan')
+
+  const offlineModelsMarkup = renderToStaticMarkup(React.createElement(ModelsView, {
+    ...modelsViewProps,
+    runtime: { ...readyRuntime, status: 'offline', loaded_now: false, generation_ready: false },
+  }))
+  assert.match(offlineModelsMarkup, /Runtime offline/, 'Models view must surface the offline runtime state instead of stale readiness')
+
+  const green3BCapabilities = JSON.parse(JSON.stringify(capabilities))
+  green3BCapabilities.api_features.push({ id: 'production_throughput', status: 'supported_exact_row_evidence', notes: '3B production-throughput lane validated end-to-end.' })
+  green3BCapabilities.model_compatibility = green3BCapabilities.model_compatibility.map((target) => target.id === 'llama32_3b_instruct_q8_0'
+    ? {
+      ...target,
+      chat_template_renderer: 'metadata_jinja_supported_for_exact_row',
+      chat_template_shape_pack: 'validated_bounded_pack',
+      performance_measured: 'production_throughput_validated',
+      full_support_blockers: 'model-native/larger context beyond checked packs, arbitrary/Jinja templates, production throughput, portability, and durable repeated current-head bundles remain missing',
+      next_step: 'preserve exact-row smoke while normalizing model-native/larger context, arbitrary/Jinja template behavior, production throughput, portability, and durable full-support bundle evidence before any broader claim',
+    }
+    : target)
+  const green3BRow = green3BCapabilities.model_compatibility.find((target) => target.id === 'llama32_3b_instruct_q8_0')
+  assert.deepEqual(
+    exactRowSupportLanes(green3BRow, green3BCapabilities.api_features).map((lane) => [lane.key, lane.ready]),
+    [['template', true], ['context', true], ['throughput', true]],
+    '3B exact row should show template/Jinja, checked-context, and production-throughput lanes green once /api/capabilities advertises row evidence',
+  )
+  assert.doesNotMatch(rowSupportBoundaryCopy(green3BRow, green3BCapabilities.api_features), /arbitrary|Jinja|production|throughput/i, '3B remaining boundary should filter resolved template/Jinja and production-throughput blockers when both lanes are green')
+  assert.doesNotMatch(rowSupportNextStepCopy(green3BRow, green3BCapabilities.api_features), /arbitrary|Jinja|production|throughput/i, '3B next-step copy should filter resolved template/Jinja and production-throughput blockers when both lanes are green')
+  assert.equal(getChatGateState(green3BCapabilities, aliasSelectedModel, readyRuntime).chatUnlocked, true, 'green 3B evidence must still require runtime loaded_now/generation_ready and exact-row model identity before chat unlocks')
+
+  const green3BApiMarkup = renderToStaticMarkup(React.createElement(ApiView, {
+    runtime: readyRuntime,
+    selectedModel: aliasSelectedModel,
+    capabilities: green3BCapabilities,
+  }))
+  assert.match(green3BApiMarkup, /Throughput readiness[\s\S]*Production-throughput readiness is green for this supported exact row from production throughput validated evidence/, 'API view should render green 3B production-throughput evidence only when /api/capabilities advertises row-owned evidence')
+  assert.doesNotMatch(green3BApiMarkup, /Remaining support boundary:<\/b>[\s\S]{0,220}(?:arbitrary|Jinja|production|throughput)/i, 'API view 3B boundary should not repeat resolved template/Jinja or production-throughput blockers after green evidence')
+
+  // (D14: the tracked 3B row card left the Models page; its green-lane rendering is
+  // asserted on the API view above and the ledger keeps the row-scoped evidence.)
+
+  assert.equal(
+    resolveLoadedModelDisplayName({
+      fallbackName: 'scalar_default_rerun',
+      modelPath: '<ubuntu-model-path>/Llama-3.2-3B-Instruct-Q8_0.gguf',
+      quantLabel: 'Q8_0',
+    }),
+    'Llama 3.2 3B Instruct Q8_0',
+    'live backend-generated ids should display the exact 3B row name when the loaded GGUF filename and Q8_0 metadata are exact',
+  )
+  assert.equal(
+    resolveLoadedModelDisplayName({
+      fallbackName: 'scalar_default_rerun',
+      modelPath: '<ubuntu-model-path>/Llama-3.2-3B-Instruct-Q4_0.gguf',
+      quantLabel: 'Q4_0',
+    }),
+    'scalar_default_rerun',
+    'the 3B display alias must stay fail-closed for neighboring quants',
+  )
+
+  const liveBackendIdModel = {
+    ...selectedModel,
+    id: 'scalar_default_rerun',
+    name: resolveLoadedModelDisplayName({ fallbackName: 'scalar_default_rerun', modelPath: selectedModel.model_path, quantLabel: selectedModel.quant }),
+    runtime_model_name: 'scalar_default_rerun',
+  }
+  const liveBackendIdRuntime = { ...readyRuntime, active_model_id: liveBackendIdModel.id }
+  const liveBackendIdChatGate = getChatGateState(capabilities, liveBackendIdModel, liveBackendIdRuntime)
+  assert.equal(liveBackendIdChatGate.chatUnlocked, true, '3B rows loaded under a backend-generated runtime id should still unlock from GGUF path + Q8_0 exact-row evidence')
+  assert.equal(liveBackendIdChatGate.hint.target.id, 'llama32_3b_instruct_q8_0', 'backend-generated 3B runtime ids must resolve to the canonical exact row, not a broad family claim')
+
+  const misleadingTinyRuntimeModel = {
+    ...selectedModel,
+    id: 'tinyllama-q8',
+    name: resolveLoadedModelDisplayName({ fallbackName: 'tinyllama-q8', modelPath: selectedModel.model_path, quantLabel: selectedModel.quant }),
+    runtime_model_name: 'tinyllama-q8',
+  }
+  const misleadingTinyRuntime = { ...readyRuntime, active_model_id: misleadingTinyRuntimeModel.id }
+  const misleadingTinyChatGate = getChatGateState(capabilities, misleadingTinyRuntimeModel, misleadingTinyRuntime)
+  assert.equal(misleadingTinyChatGate.chatUnlocked, true, 'live 3B runs with a stale tinyllama-q8 runtime id should still unlock only from exact loaded GGUF path + Q8_0 support evidence')
+  assert.equal(misleadingTinyChatGate.hint.target.id, 'llama32_3b_instruct_q8_0', 'stale tinyllama-q8 runtime ids must not steal the TinyLlama row when the loaded file is Llama 3.2 3B Instruct Q8_0')
+
+  // (D14: the stale-id presentation moved off the Models page; the identity resolution
+  // itself is asserted through misleadingTinyChatGate above and the chat markup below.)
+
+  const liveBackendIdChatMarkup = renderToStaticMarkup(React.createElement(ChatWorkspace, {
+    selectedConversation: null,
+    selectedModel: liveBackendIdModel,
+    selectedModelId: liveBackendIdModel.id,
+    setSelectedModelId: noop,
+    models: [liveBackendIdModel],
+    runtime: liveBackendIdRuntime,
+    capabilities,
+    pendingConversation: null,
+    composer: 'Say hello from 3B',
+    setComposer: noop,
+    saveToMemory: noop,
+    sendMessage: noop,
+    sending: false,
+    selectedModelRunnable: liveBackendIdChatGate.chatUnlocked,
+    setTab: noop,
+  }))
+
+  assert.match(liveBackendIdChatMarkup, /How can I help\?/, 'ready 3B live-backend-id chat should render the sendable empty-state hero')
+  assert.match(liveBackendIdChatMarkup, /Local chat ready/, 'ready 3B live-backend-id chat should show runtime-green chat UX')
+  assert.match(liveBackendIdChatMarkup, /Llama 3\.2 3B Instruct Q8_0 is loaded now and generation_ready=true\./, 'ready 3B live-backend-id chat should display the exact 3B row name instead of the backend-generated runtime id')
+  assert.match(liveBackendIdChatMarkup, /llama32_3b_instruct_q8_0: supported current gate/, 'ready 3B live-backend-id chat should show exact-row support in the composer surface')
+  assert.match(liveBackendIdChatMarkup, /Message Camelid…/, 'ready 3B live-backend-id chat should enable the composer instead of showing load-first copy')
+  assert.doesNotMatch(liveBackendIdChatMarkup, /Load a model first|Choose a supported model/, 'ready 3B live-backend-id chat should not fall back to blocked chat UX')
+
+  const staleLoadedNowChatMarkup = renderToStaticMarkup(React.createElement(ChatWorkspace, {
+    selectedConversation: null,
+    selectedModel: liveBackendIdModel,
+    selectedModelId: liveBackendIdModel.id,
+    setSelectedModelId: noop,
+    models: [liveBackendIdModel],
+    runtime: { ...liveBackendIdRuntime, loaded_now: false },
+    capabilities,
+    pendingConversation: null,
+    composer: 'This stale browser row must remain blocked',
+    setComposer: noop,
+    saveToMemory: noop,
+    sendMessage: noop,
+    sending: false,
+    selectedModelRunnable: getChatGateState(capabilities, liveBackendIdModel, { ...liveBackendIdRuntime, loaded_now: false }).chatUnlocked,
+    setTab: noop,
+  }))
+
+  assert.match(staleLoadedNowChatMarkup, /No generation-ready model/, '3B chat readiness should use the shared chat gate and stay runtime-blocked when backend loaded_now=false')
+  assert.match(staleLoadedNowChatMarkup, /Draft a prompt while Camelid finishes getting ready/, '3B stale loaded_now=false rows should keep drafting available while runtime readiness is still blocked')
+  assert.match(staleLoadedNowChatMarkup, /data-send-ready="false"/, '3B stale loaded_now=false rows must keep send locked until runtime readiness returns')
+  assert.doesNotMatch(staleLoadedNowChatMarkup, /Runtime ready, support gated|Local chat ready|Message Camelid…|Demo starters/, '3B stale browser readiness must not leak into live chat UX when /v1\\/health says loaded_now=false')
+
+  const neighboringQuantPathModel = {
+    ...selectedModel,
+    quant: undefined,
+    model_path: '<ubuntu-model-path>/Llama-3.2-3B-Instruct-Q4_0.gguf',
+  }
+  const neighboringQuantPathGate = getChatGateState(capabilities, neighboringQuantPathModel, readyRuntime)
+  assert.equal(neighboringQuantPathGate.runtimeReady, true, '3B neighboring-quant guard should still surface runtime readiness when active_model_id matches')
+  assert.equal(neighboringQuantPathGate.contractSupported, false, '3B neighboring GGUF quant must not inherit the canonical Q8_0 row from the browser id')
+  assert.equal(neighboringQuantPathGate.chatUnlocked, false, '3B neighboring GGUF quant must keep live chat locked even when runtime loaded_now/generation_ready are green')
+
+  const neighboringQuantPathChatMarkup = renderToStaticMarkup(React.createElement(ChatWorkspace, {
+    selectedConversation: null,
+    selectedModel: neighboringQuantPathModel,
+    selectedModelId: neighboringQuantPathModel.id,
+    setSelectedModelId: noop,
+    models: [neighboringQuantPathModel],
+    runtime: readyRuntime,
+    capabilities,
+    pendingConversation: null,
+    composer: 'This neighboring quant must remain blocked',
+    setComposer: noop,
+    saveToMemory: noop,
+    sendMessage: noop,
+    sending: false,
+    selectedModelRunnable: neighboringQuantPathGate.chatUnlocked,
+    setTab: noop,
+  }))
+
+  assert.match(neighboringQuantPathChatMarkup, /Runtime ready, support gated/, '3B neighboring-quant chat UX should expose runtime-green state without claiming support')
+  assert.match(neighboringQuantPathChatMarkup, /llama32_3b_instruct_q8_0: quant mismatch/, '3B neighboring-quant chat UX should name the exact row mismatch instead of showing ready chat')
+  assert.match(neighboringQuantPathChatMarkup, /scoped to Q8_0[\s\S]*appears to be Q4_0/, '3B neighboring-quant chat UX should explain that the loaded artifact quant does not match the support contract row')
+  assert.doesNotMatch(neighboringQuantPathChatMarkup, /Local chat ready|Message Camelid…|Demo starters/, '3B neighboring-quant rows must not render the live-chat ready UX')
+
+  const backendReadyButUnsupported3BCapabilities = {
+    ...capabilities,
+    model_compatibility: capabilities.model_compatibility.map((target) => target.id === 'llama32_3b_instruct_q8_0'
+      ? {
+        ...target,
+        status: 'groundwork_backend_evidence_only',
+        full_support_status: 'blocked_pending_frontend_api_alignment',
+        evidence: 'Backend can load this fixture, but /api/capabilities has not promoted WebUI chat support.',
+      }
+      : target),
+  }
+  const backendReadyButUnsupported3BGate = getChatGateState(backendReadyButUnsupported3BCapabilities, liveBackendIdModel, liveBackendIdRuntime)
+  assert.equal(backendReadyButUnsupported3BGate.runtimeReady, true, '3B runtime health should remain visible even when the support contract row is not promoted')
+  assert.equal(backendReadyButUnsupported3BGate.contractSupported, false, '3B chat must stay support-contract blocked when /api/capabilities downgrades the exact row')
+  assert.equal(backendReadyButUnsupported3BGate.chatUnlocked, false, 'runtime-ready 3B rows must not unlock WebUI chat without an exact supported compatibility status')
+
+  const backendReadyButUnsupported3BChatMarkup = renderToStaticMarkup(React.createElement(ChatWorkspace, {
+    selectedConversation: null,
+    selectedModel: liveBackendIdModel,
+    selectedModelId: liveBackendIdModel.id,
+    setSelectedModelId: noop,
+    models: [liveBackendIdModel],
+    runtime: liveBackendIdRuntime,
+    capabilities: backendReadyButUnsupported3BCapabilities,
+    pendingConversation: null,
+    composer: 'This should remain blocked',
+    setComposer: noop,
+    saveToMemory: noop,
+    sendMessage: noop,
+    sending: false,
+    selectedModelRunnable: backendReadyButUnsupported3BGate.chatUnlocked,
+    setTab: noop,
+  }))
+
+  assert.match(backendReadyButUnsupported3BChatMarkup, /Choose a supported model\./, 'runtime-ready 3B rows should render support-gated chat UX when the exact row is downgraded')
+  assert.match(backendReadyButUnsupported3BChatMarkup, /Runtime ready, support gated/, 'support-gated 3B UX should still expose that loaded_now and generation_ready are green')
+  assert.match(backendReadyButUnsupported3BChatMarkup, /llama32_3b_instruct_q8_0: groundwork backend evidence only/, 'support-gated 3B UX should name the exact unpromoted capabilities row rather than hiding behind generic load-first copy')
+  assert.match(backendReadyButUnsupported3BChatMarkup, /Chat unlocks only after loaded_now=true, generation_ready=true, and an exact supported compatibility row all match\./, 'support-gated 3B UX should preserve the exact-row frontend readiness rule')
+  assert.match(backendReadyButUnsupported3BChatMarkup, /Draft a prompt while Camelid finishes getting ready/, 'support-gated 3B composer should stay editable while send remains locked behind the exact-row contract')
+  assert.match(backendReadyButUnsupported3BChatMarkup, /data-send-ready="false"/, 'support-gated 3B rows must keep send disabled until the exact-row contract is promoted')
+  assert.doesNotMatch(backendReadyButUnsupported3BChatMarkup, /Local chat ready|Message Camelid…/, 'support-gated 3B rows must not render the live-chat ready UX')
+
+  const backendReadyButUnsupported3BSystemMarkup = renderToStaticMarkup(React.createElement(SystemView, {
+    runtime: liveBackendIdRuntime,
+    selectedModel: liveBackendIdModel,
+    capabilities: backendReadyButUnsupported3BCapabilities,
+  }))
+
+  assert.match(backendReadyButUnsupported3BSystemMarkup, /Runtime ready, support gated/, 'System should keep runtime-green 3B rows visible without making unsupported exact rows API/chat-ready')
+  assert.match(backendReadyButUnsupported3BSystemMarkup, /Blocked for UX chat until loaded_now=true, generation_ready=true, active_model_id matches, and this exact row is supported\./, 'System should block chat completions copy when the exact 3B row is downgraded')
+  assert.match(backendReadyButUnsupported3BSystemMarkup, /Endpoint\/chat gate:[\s\S]*llama32_3b_instruct_q8_0: groundwork backend evidence only; loaded_now=true, generation_ready=true, exact row supported=false\./, 'System selected exact-row evidence should show runtime-green/support-red state for downgraded 3B rows')
+  assert.match(backendReadyButUnsupported3BSystemMarkup, /# Blocked for UX chat until selected exact row evidence and runtime readiness both match/, 'System curl should stay blocked for runtime-ready unsupported 3B rows')
+  assert.doesNotMatch(backendReadyButUnsupported3BSystemMarkup, /Selected exact-row local \/v1 ready|Ready: runtime readiness and exact-row support both match/, 'System must not present downgraded 3B rows as exact-row API/chat-ready')
+
+  assert.match(exactReadyMarkup, /responses stream/, 'API view should normalize provider-scoped dotted feature ids before rendering')
+  assert.match(exactReadyMarkup, /hosted model-style streamed response compatibility stays provider-neutral/, 'API view should neutralize hosted-brand feature notes before rendering')
+  assert.match(exactReadyMarkup, /Guarded feature row; do not label it hosted model or hosted model compatible from API metadata\./, 'API view should also neutralize guarded feature metadata before rendering')
+  assert.doesNotMatch(exactReadyMarkup, /openai|OpenAI|ChatGPT|Claude|Gemini|broad_family_trap|broad_quant_trap/, 'API view must not promote broad family/quant lists or raw provider-scoped/hosted-brand feature labels as support evidence')
+
+  const mismatchedRuntimeMarkup = renderToStaticMarkup(React.createElement(ApiView, {
+    runtime: { ...readyRuntime, active_model_id: 'different-loaded-model' },
+    selectedModel,
+    capabilities,
+  }))
+
+  assert.match(mismatchedRuntimeMarkup, /Different loaded model is ready/, 'API readiness should fail closed when active_model_id differs from the selected exact row')
+  assert.match(mismatchedRuntimeMarkup, /Blocked for UX chat until selected exact row evidence and runtime readiness both match/, 'API curl should stay blocked until exact row and runtime readiness both match')
+  assert.doesNotMatch(mismatchedRuntimeMarkup, /Selected exact row ready/, 'mismatched runtime must not claim selected exact-row readiness')
+
+  const plannedExactModel = {
+    id: 'mistral-7b-instruct-v0.3-q8_0',
+    name: 'Mistral 7B Instruct v0.3 Q8_0',
+    provider_kind: 'local',
+    status: 'ready',
+    loaded_now: true,
+    generation_ready: true,
+    quant: 'Q8_0',
+    model_path: '/models/mistral-7b-instruct-v0.3-q8_0.gguf',
+  }
+  const plannedExactCapabilities = {
+    ...capabilities,
+    model_compatibility: [
+      ...capabilities.model_compatibility,
+      {
+        id: 'mistral_7b_instruct_v0_3_q8_0',
+        status: 'planned',
+        family: 'mistral',
+        quantization: 'Q8_0',
+        support_scope: 'exact row only once validated',
+        frontend_readiness_gate: 'must stay blocked until supported',
+        latest_checked_bucket: 'not_started',
+        latest_checked_result: 'not_started',
+        latest_checked_output: 'no validated output yet',
+        full_support_status: 'not_supported',
+        full_support_blockers: 'generation evidence missing',
+        evidence: 'Planned exact-row placeholder, not runnable support.',
+        next_step: 'Collect exact-row evidence before unlocking chat.',
+      },
+    ],
+  }
+  const plannedExactMarkup = renderToStaticMarkup(React.createElement(ApiView, {
+    runtime: { ...readyRuntime, active_model_id: plannedExactModel.id },
+    selectedModel: plannedExactModel,
+    capabilities: plannedExactCapabilities,
+  }))
+
+  assert.match(plannedExactMarkup, /mistral_7b_instruct_v0_3_q8_0/, 'API view should show selected planned exact-row evidence by row id')
+  assert.match(plannedExactMarkup, /Generation ready; exact row required/, 'API readiness should stay guarded when the selected exact row is not supported')
+  assert.match(plannedExactMarkup, /Planned exact-row placeholder, not runnable support\./, 'API view should render the exact row evidence without broad-family inference')
+  assert.doesNotMatch(plannedExactMarkup, /Selected exact row ready/, 'planned exact rows must not claim selected exact-row readiness even when runtime health is green')
+
+  const genericExactModel = {
+    id: 'custom-exact-row-q8-0',
+    name: 'Custom exact row Q8_0',
+    provider_kind: 'local',
+    status: 'ready',
+    loaded_now: true,
+    generation_ready: true,
+    quant: 'Q8_0',
+    model_path: '/models/custom-exact-row-q8-0.gguf',
+  }
+  const genericExactCapabilities = {
+    support_contract: capabilities.support_contract,
+    model_compatibility: [
+      {
+        id: 'custom_exact_row_q8_0',
+        status: 'supported_exact_row_smoke',
+        family: 'custom_decoder',
+        quantization: 'Q8_0',
+        support_scope: 'exact custom row only',
+        frontend_readiness_gate: 'green only when this exact custom row is selected and loaded',
+        latest_checked_bucket: 'frontend_fixture',
+        latest_checked_result: 'pass',
+        latest_checked_output: 'custom exact row fixture output',
+        full_support_status: 'blocked_pending_normalized_full_support',
+        full_support_blockers: 'no neighboring custom rows inherit support',
+        evidence: 'Custom exact row evidence from /api/capabilities.',
+        next_step: 'Keep row-id scoped.',
+      },
+    ],
+    api_features: [],
+  }
+  const genericExactMarkup = renderToStaticMarkup(React.createElement(ApiView, {
+    runtime: { ...readyRuntime, active_model_id: genericExactModel.id },
+    selectedModel: genericExactModel,
+    capabilities: genericExactCapabilities,
+  }))
+
+  assert.match(genericExactMarkup, /Selected exact row ready/, 'API view should support generic exact compatibility row ids without family-specific frontend matchers')
+  assert.match(genericExactMarkup, /custom_exact_row_q8_0/, 'API view should render generic selected exact-row ids from capabilities')
+  assert.match(genericExactMarkup, /Custom exact row evidence from \/api\/capabilities\./, 'API view should render generic exact-row evidence text')
+  assert.doesNotMatch(genericExactMarkup, /No selected model exact row matched/, 'generic exact row-id matches should not fall through to broad or missing support copy')
+
+  /* ---- API workbench try-it gating (Phase 5) ---- */
+  const blockedApiMarkup = renderToStaticMarkup(React.createElement(ApiView, {
+    runtime: { status: 'online', api_base: 'http://127.0.0.1:8181', loaded_now: true, generation_ready: true, active_model_id: 'tiny-generation' },
+    selectedModel: { id: 'tiny-generation', name: 'tiny-generation', provider_kind: 'local', status: 'ready', model_path: '/tmp/x.gguf', loaded_now: true, generation_ready: true },
+    capabilities,
+  }))
+  assert.match(blockedApiMarkup, /data-tryit-ready="false" data-endpoint="v1_chat_completions"/, 'chat-completions try-it must stay guarded when no exact supported row matches')
+  assert.match(blockedApiMarkup, /data-tryit-ready="false" data-endpoint="v1_completions"/, 'raw completions try-it must stay guarded exactly like chat')
+  assert.match(blockedApiMarkup, /Requires a loaded supported model/, 'guarded try-its must render the typed gate copy')
+  assert.match(blockedApiMarkup, /data-tryit-ready="true" data-endpoint="v1_health"/, 'read-only health try-it may run while the backend is online')
+  const greenApiMarkup = renderToStaticMarkup(React.createElement(ApiView, {
+    runtime: readyRuntime,
+    selectedModel: aliasSelectedModel,
+    capabilities: green3BCapabilities,
+  }))
+  assert.match(greenApiMarkup, /data-tryit-ready="true" data-endpoint="v1_chat_completions"/, 'chat-completions try-it must unlock when the exact supported row is loaded and ready')
+
+  /* ---- Compatibility ledger renders ONLY the live contract (Phase 4) ---- */
+  const ledgerMarkup = renderToStaticMarkup(React.createElement(CompatibilityView, { capabilities }))
+  assert.match(ledgerMarkup, /tinyllama_1_1b_chat_q8_0/, 'ledger rows must come from the capabilities payload')
+  assert.match(ledgerMarkup, /Not claimed/, 'every ledger row must carry the not-claimed column')
+  assert.match(ledgerMarkup, /arbitrary\/Jinja templates, production throughput, portability/, 'the not-claimed column must render the contract blocker copy verbatim')
+    assert.match(ledgerMarkup, /other_future_row_q8_0[\s\S]*?0<\/b> verified of 1 tracked lanes[\s\S]*?no verified pack/, 'planned pack ids must not be presented as verified evidence or checked contexts')
+    assert.match(blockedApiMarkup, /Q8_0[\s\S]*2 supported[\s\S]*1 guarded/, 'grouped quant evidence must keep supported and guarded postures visible')
+  assert.match(ledgerMarkup, /How to read this ledger/, 'the ledger must keep its explainer')
+  assert.doesNotMatch(ledgerMarkup, /broad_family_trap|broad_quant_trap/, 'the ledger must not render non-row capability lists as support evidence')
+  const emptyLedgerMarkup = renderToStaticMarkup(React.createElement(CompatibilityView, { capabilities: null }))
+  assert.match(emptyLedgerMarkup, /Ledger unavailable/, 'an unreadable contract must render the fail-closed empty state')
+  assert.doesNotMatch(emptyLedgerMarkup, /ledger-row__id/, 'no contract means zero ledger rows — nothing renders from memory')
+
+  console.log('Frontend integration smoke passed')
+} finally {
+  await server.close()
+}

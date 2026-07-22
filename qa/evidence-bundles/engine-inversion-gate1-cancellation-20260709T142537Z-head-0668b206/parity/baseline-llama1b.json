@@ -1,0 +1,1625 @@
+{
+  "bin": "<home>/AppData/Local/Temp/claude/<user>/2f565c64-5e2b-450c-ab17-b92b354e96ba/scratchpad/camelid-baseline-ffada00f.exe",
+  "model": "<home>/models/Llama-3.2-1B-Instruct-Q8_0.gguf",
+  "pid": 14580,
+  "chat": [
+    {
+      "id": "<id>",
+      "object": "chat.completion",
+      "created": 0,
+      "model": "Llama 3.2 1B Instruct",
+      "choices": [
+        {
+          "index": 0,
+          "message": {
+            "role": "assistant",
+            "content": "Hello! How can I assist you today?"
+          },
+          "finish_reason": "stop"
+        }
+      ],
+      "usage": {
+        "prompt_tokens": 11,
+        "completion_tokens": 10,
+        "total_tokens": 21
+      },
+      "camelid": {
+        "prompt_token_ids": [
+          128000,
+          128006,
+          882,
+          128007,
+          271,
+          15339,
+          128009,
+          128006,
+          78191,
+          128007,
+          271
+        ],
+        "generated_token_ids": [
+          9906,
+          0,
+          2650,
+          649,
+          358,
+          7945,
+          499,
+          3432,
+          30,
+          128009
+        ],
+        "dense_metadata": {
+          "embedding_length": 2048,
+          "attention_head_count": 32,
+          "attention_head_count_kv": 8,
+          "head_dim": 64,
+          "rope_dimension_count": 64,
+          "rope_freq_base": 500000,
+          "rope_scaling_type": "none",
+          "rope_scaling_factor": null,
+          "rope_scaling_original_context_length": null,
+          "rope_scaling_low_freq_factor": null,
+          "rope_scaling_high_freq_factor": null,
+          "rope_pairing": "adjacent_even_odd",
+          "rope_direction": "forward",
+          "rope_position_mode": "zero_based",
+          "gqa_head_mapping": "grouped",
+          "attention_score_scale": "head_dim",
+          "linear_accumulation": "f32",
+          "ffn_gate_up_order": "gate_up",
+          "rms_norm_epsilon": 0.00001,
+          "rms_norm_effective_epsilon": 0.00001,
+          "square_linear_diagnostic_layout": "transposed",
+          "rectangular_linear_diagnostic_layout": "auto",
+          "token_embedding_shape": [
+            128256,
+            2048
+          ],
+          "output_shape": [
+            2048,
+            128256
+          ],
+          "output_is_tied_embedding": true,
+          "output_projection_layout": "input_output",
+          "output_projection_diagnostic_layout": "token_major",
+          "zero_attention_delta": "none",
+          "zero_ffn_delta": "none",
+          "projection_orientations": {
+            "attention_q": {
+              "shape": [
+                2048,
+                2048
+              ],
+              "input_width": 2048,
+              "output_width": 2048,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "rhs_transposed",
+              "square_diagnostic_applies": true
+            },
+            "attention_k": {
+              "shape": [
+                2048,
+                512
+              ],
+              "input_width": 2048,
+              "output_width": 512,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "descriptor",
+              "square_diagnostic_applies": false
+            },
+            "attention_v": {
+              "shape": [
+                2048,
+                512
+              ],
+              "input_width": 2048,
+              "output_width": 512,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "descriptor",
+              "square_diagnostic_applies": false
+            },
+            "attention_output": {
+              "shape": [
+                2048,
+                2048
+              ],
+              "input_width": 2048,
+              "output_width": 2048,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "rhs_transposed",
+              "square_diagnostic_applies": true
+            },
+            "ffn_gate": {
+              "shape": [
+                2048,
+                8192
+              ],
+              "input_width": 2048,
+              "output_width": 8192,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "descriptor",
+              "square_diagnostic_applies": false
+            },
+            "ffn_up": {
+              "shape": [
+                2048,
+                8192
+              ],
+              "input_width": 2048,
+              "output_width": 8192,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "descriptor",
+              "square_diagnostic_applies": false
+            },
+            "ffn_down": {
+              "shape": [
+                8192,
+                2048
+              ],
+              "input_width": 8192,
+              "output_width": 2048,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "descriptor",
+              "square_diagnostic_applies": false
+            }
+          }
+        },
+        "top_logits": [
+          {
+            "token_id": 9906,
+            "logit": 23.743446,
+            "probability": 0.9319026,
+            "rank": 1,
+            "selected": false,
+            "text": "Hello"
+          },
+          {
+            "token_id": 4438,
+            "logit": 21.017914,
+            "probability": 0.061050158,
+            "rank": 2,
+            "selected": false,
+            "text": "How"
+          },
+          {
+            "token_id": 13347,
+            "logit": 17.143476,
+            "probability": 0.0012677688,
+            "rank": 3,
+            "selected": false,
+            "text": "Hi"
+          },
+          {
+            "token_id": 2181,
+            "logit": 17.025806,
+            "probability": 0.0011270328,
+            "rank": 4,
+            "selected": false,
+            "text": "It"
+          },
+          {
+            "token_id": 14262,
+            "logit": 17.003372,
+            "probability": 0.0011020302,
+            "rank": 5,
+            "selected": false,
+            "text": "Welcome"
+          },
+          {
+            "token_id": 24748,
+            "logit": 16.92549,
+            "probability": 0.0010194582,
+            "rank": 6,
+            "selected": false,
+            "text": " hello"
+          },
+          {
+            "token_id": 15339,
+            "logit": 16.833809,
+            "probability": 0.0009301503,
+            "rank": 7,
+            "selected": false,
+            "text": "hello"
+          },
+          {
+            "token_id": 22691,
+            "logit": 16.440023,
+            "probability": 0.00062738516,
+            "rank": 8,
+            "selected": false,
+            "text": " Hello"
+          }
+        ],
+        "output_projection": []
+      }
+    },
+    {
+      "id": "<id>",
+      "object": "chat.completion",
+      "created": 0,
+      "model": "Llama 3.2 1B Instruct",
+      "choices": [
+        {
+          "index": 0,
+          "message": {
+            "role": "assistant",
+            "content": "The three primary colors are:\n\n1. Red\n2. Blue\n3. Yellow\n\nThese colors are called primary because they cannot be created by mixing other colors together, and they are the base colors used to create all other colors."
+          },
+          "finish_reason": "stop"
+        }
+      ],
+      "usage": {
+        "prompt_tokens": 15,
+        "completion_tokens": 48,
+        "total_tokens": 63
+      },
+      "camelid": {
+        "prompt_token_ids": [
+          128000,
+          128006,
+          882,
+          128007,
+          271,
+          791,
+          2380,
+          6156,
+          8146,
+          527,
+          128009,
+          128006,
+          78191,
+          128007,
+          271
+        ],
+        "generated_token_ids": [
+          791,
+          2380,
+          6156,
+          8146,
+          527,
+          1473,
+          16,
+          13,
+          3816,
+          198,
+          17,
+          13,
+          8868,
+          198,
+          18,
+          13,
+          26541,
+          271,
+          9673,
+          8146,
+          527,
+          2663,
+          6156,
+          1606,
+          814,
+          4250,
+          387,
+          3549,
+          555,
+          27890,
+          1023,
+          8146,
+          3871,
+          11,
+          323,
+          814,
+          527,
+          279,
+          2385,
+          8146,
+          1511,
+          311,
+          1893,
+          682,
+          1023,
+          8146,
+          13,
+          128009
+        ],
+        "dense_metadata": {
+          "embedding_length": 2048,
+          "attention_head_count": 32,
+          "attention_head_count_kv": 8,
+          "head_dim": 64,
+          "rope_dimension_count": 64,
+          "rope_freq_base": 500000,
+          "rope_scaling_type": "none",
+          "rope_scaling_factor": null,
+          "rope_scaling_original_context_length": null,
+          "rope_scaling_low_freq_factor": null,
+          "rope_scaling_high_freq_factor": null,
+          "rope_pairing": "adjacent_even_odd",
+          "rope_direction": "forward",
+          "rope_position_mode": "zero_based",
+          "gqa_head_mapping": "grouped",
+          "attention_score_scale": "head_dim",
+          "linear_accumulation": "f32",
+          "ffn_gate_up_order": "gate_up",
+          "rms_norm_epsilon": 0.00001,
+          "rms_norm_effective_epsilon": 0.00001,
+          "square_linear_diagnostic_layout": "transposed",
+          "rectangular_linear_diagnostic_layout": "auto",
+          "token_embedding_shape": [
+            128256,
+            2048
+          ],
+          "output_shape": [
+            2048,
+            128256
+          ],
+          "output_is_tied_embedding": true,
+          "output_projection_layout": "input_output",
+          "output_projection_diagnostic_layout": "token_major",
+          "zero_attention_delta": "none",
+          "zero_ffn_delta": "none",
+          "projection_orientations": {
+            "attention_q": {
+              "shape": [
+                2048,
+                2048
+              ],
+              "input_width": 2048,
+              "output_width": 2048,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "rhs_transposed",
+              "square_diagnostic_applies": true
+            },
+            "attention_k": {
+              "shape": [
+                2048,
+                512
+              ],
+              "input_width": 2048,
+              "output_width": 512,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "descriptor",
+              "square_diagnostic_applies": false
+            },
+            "attention_v": {
+              "shape": [
+                2048,
+                512
+              ],
+              "input_width": 2048,
+              "output_width": 512,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "descriptor",
+              "square_diagnostic_applies": false
+            },
+            "attention_output": {
+              "shape": [
+                2048,
+                2048
+              ],
+              "input_width": 2048,
+              "output_width": 2048,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "rhs_transposed",
+              "square_diagnostic_applies": true
+            },
+            "ffn_gate": {
+              "shape": [
+                2048,
+                8192
+              ],
+              "input_width": 2048,
+              "output_width": 8192,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "descriptor",
+              "square_diagnostic_applies": false
+            },
+            "ffn_up": {
+              "shape": [
+                2048,
+                8192
+              ],
+              "input_width": 2048,
+              "output_width": 8192,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "descriptor",
+              "square_diagnostic_applies": false
+            },
+            "ffn_down": {
+              "shape": [
+                8192,
+                2048
+              ],
+              "input_width": 8192,
+              "output_width": 2048,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "descriptor",
+              "square_diagnostic_applies": false
+            }
+          }
+        },
+        "top_logits": [
+          {
+            "token_id": 791,
+            "logit": 20.418129,
+            "probability": 0.45956707,
+            "rank": 1,
+            "selected": false,
+            "text": "The"
+          },
+          {
+            "token_id": 6161,
+            "logit": 20.20416,
+            "probability": 0.3710425,
+            "rank": 2,
+            "selected": false,
+            "text": "Red"
+          },
+          {
+            "token_id": 53692,
+            "logit": 18.107899,
+            "probability": 0.0456067,
+            "rank": 3,
+            "selected": false,
+            "text": "Actually"
+          },
+          {
+            "token_id": 1131,
+            "logit": 17.893112,
+            "probability": 0.036791544,
+            "rank": 4,
+            "selected": false,
+            "text": "..."
+          },
+          {
+            "token_id": 32,
+            "logit": 17.376265,
+            "probability": 0.021942392,
+            "rank": 5,
+            "selected": false,
+            "text": "A"
+          },
+          {
+            "token_id": 10544,
+            "logit": 16.739712,
+            "probability": 0.01161001,
+            "rank": 6,
+            "selected": false,
+            "text": "Blue"
+          },
+          {
+            "token_id": 8142,
+            "logit": 15.993677,
+            "probability": 0.00550597,
+            "rank": 7,
+            "selected": false,
+            "text": "While"
+          },
+          {
+            "token_id": 2675,
+            "logit": 15.686244,
+            "probability": 0.0040487167,
+            "rank": 8,
+            "selected": false,
+            "text": "You"
+          }
+        ],
+        "output_projection": []
+      }
+    },
+    {
+      "id": "<id>",
+      "object": "chat.completion",
+      "created": 0,
+      "model": "Llama 3.2 1B Instruct",
+      "choices": [
+        {
+          "index": 0,
+          "message": {
+            "role": "assistant",
+            "content": "Here are two short sentences about llamas:\n\nLlamas are intelligent and social animals that are native to South America. They are known for their distinctive soft, woolly coats and long necks."
+          },
+          "finish_reason": "stop"
+        }
+      ],
+      "usage": {
+        "prompt_tokens": 18,
+        "completion_tokens": 41,
+        "total_tokens": 59
+      },
+      "camelid": {
+        "prompt_token_ids": [
+          128000,
+          128006,
+          882,
+          128007,
+          271,
+          8144,
+          1403,
+          2875,
+          23719,
+          922,
+          9507,
+          29189,
+          13,
+          128009,
+          128006,
+          78191,
+          128007,
+          271
+        ],
+        "generated_token_ids": [
+          8586,
+          527,
+          1403,
+          2875,
+          23719,
+          922,
+          9507,
+          29189,
+          1473,
+          43,
+          24705,
+          300,
+          527,
+          25530,
+          323,
+          3674,
+          10099,
+          430,
+          527,
+          10068,
+          311,
+          4987,
+          5270,
+          13,
+          2435,
+          527,
+          3967,
+          369,
+          872,
+          35947,
+          8579,
+          11,
+          39640,
+          398,
+          56737,
+          323,
+          1317,
+          13272,
+          82,
+          13,
+          128009
+        ],
+        "dense_metadata": {
+          "embedding_length": 2048,
+          "attention_head_count": 32,
+          "attention_head_count_kv": 8,
+          "head_dim": 64,
+          "rope_dimension_count": 64,
+          "rope_freq_base": 500000,
+          "rope_scaling_type": "none",
+          "rope_scaling_factor": null,
+          "rope_scaling_original_context_length": null,
+          "rope_scaling_low_freq_factor": null,
+          "rope_scaling_high_freq_factor": null,
+          "rope_pairing": "adjacent_even_odd",
+          "rope_direction": "forward",
+          "rope_position_mode": "zero_based",
+          "gqa_head_mapping": "grouped",
+          "attention_score_scale": "head_dim",
+          "linear_accumulation": "f32",
+          "ffn_gate_up_order": "gate_up",
+          "rms_norm_epsilon": 0.00001,
+          "rms_norm_effective_epsilon": 0.00001,
+          "square_linear_diagnostic_layout": "transposed",
+          "rectangular_linear_diagnostic_layout": "auto",
+          "token_embedding_shape": [
+            128256,
+            2048
+          ],
+          "output_shape": [
+            2048,
+            128256
+          ],
+          "output_is_tied_embedding": true,
+          "output_projection_layout": "input_output",
+          "output_projection_diagnostic_layout": "token_major",
+          "zero_attention_delta": "none",
+          "zero_ffn_delta": "none",
+          "projection_orientations": {
+            "attention_q": {
+              "shape": [
+                2048,
+                2048
+              ],
+              "input_width": 2048,
+              "output_width": 2048,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "rhs_transposed",
+              "square_diagnostic_applies": true
+            },
+            "attention_k": {
+              "shape": [
+                2048,
+                512
+              ],
+              "input_width": 2048,
+              "output_width": 512,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "descriptor",
+              "square_diagnostic_applies": false
+            },
+            "attention_v": {
+              "shape": [
+                2048,
+                512
+              ],
+              "input_width": 2048,
+              "output_width": 512,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "descriptor",
+              "square_diagnostic_applies": false
+            },
+            "attention_output": {
+              "shape": [
+                2048,
+                2048
+              ],
+              "input_width": 2048,
+              "output_width": 2048,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "rhs_transposed",
+              "square_diagnostic_applies": true
+            },
+            "ffn_gate": {
+              "shape": [
+                2048,
+                8192
+              ],
+              "input_width": 2048,
+              "output_width": 8192,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "descriptor",
+              "square_diagnostic_applies": false
+            },
+            "ffn_up": {
+              "shape": [
+                2048,
+                8192
+              ],
+              "input_width": 2048,
+              "output_width": 8192,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "descriptor",
+              "square_diagnostic_applies": false
+            },
+            "ffn_down": {
+              "shape": [
+                8192,
+                2048
+              ],
+              "input_width": 8192,
+              "output_width": 2048,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "descriptor",
+              "square_diagnostic_applies": false
+            }
+          }
+        },
+        "top_logits": [
+          {
+            "token_id": 8586,
+            "logit": 30.453257,
+            "probability": 0.9205242,
+            "rank": 1,
+            "selected": false,
+            "text": "Here"
+          },
+          {
+            "token_id": 43,
+            "logit": 27.99718,
+            "probability": 0.078954175,
+            "rank": 2,
+            "selected": false,
+            "text": "L"
+          },
+          {
+            "token_id": 3947,
+            "logit": 21.811186,
+            "probability": 0.00016249184,
+            "rank": 3,
+            "selected": false,
+            "text": "There"
+          },
+          {
+            "token_id": 4178,
+            "logit": 21.283783,
+            "probability": 0.000095892225,
+            "rank": 4,
+            "selected": false,
+            "text": "LL"
+          },
+          {
+            "token_id": 791,
+            "logit": 21.268064,
+            "probability": 0.00009439673,
+            "rank": 5,
+            "selected": false,
+            "text": "The"
+          },
+          {
+            "token_id": 8538,
+            "logit": 20.112154,
+            "probability": 0.000029713336,
+            "rank": 6,
+            "selected": false,
+            "text": "Some"
+          },
+          {
+            "token_id": 32,
+            "logit": 19.439615,
+            "probability": 0.000015166018,
+            "rank": 7,
+            "selected": false,
+            "text": "A"
+          },
+          {
+            "token_id": 23025,
+            "logit": 19.270844,
+            "probability": 0.0000128107595,
+            "rank": 8,
+            "selected": false,
+            "text": "Those"
+          }
+        ],
+        "output_projection": []
+      }
+    }
+  ],
+  "completion": [
+    {
+      "id": "<id>",
+      "object": "text_completion",
+      "created": 0,
+      "model": "Llama 3.2 1B Instruct",
+      "choices": [
+        {
+          "index": 0,
+          "text": ", how can i get a free gift card to a popular restaurant chain?\nHere are some ways to get a free gift card to a popular restaurant chain:\n\n1",
+          "finish_reason": "length"
+        }
+      ],
+      "usage": {
+        "prompt_tokens": 2,
+        "completion_tokens": 32,
+        "total_tokens": 34
+      },
+      "camelid": {
+        "prompt_token_ids": [
+          128000,
+          15339
+        ],
+        "generated_token_ids": [
+          11,
+          1268,
+          649,
+          602,
+          636,
+          264,
+          1949,
+          8352,
+          3786,
+          311,
+          264,
+          5526,
+          10960,
+          8957,
+          5380,
+          8586,
+          527,
+          1063,
+          5627,
+          311,
+          636,
+          264,
+          1949,
+          8352,
+          3786,
+          311,
+          264,
+          5526,
+          10960,
+          8957,
+          1473,
+          16
+        ],
+        "dense_metadata": {
+          "embedding_length": 2048,
+          "attention_head_count": 32,
+          "attention_head_count_kv": 8,
+          "head_dim": 64,
+          "rope_dimension_count": 64,
+          "rope_freq_base": 500000,
+          "rope_scaling_type": "none",
+          "rope_scaling_factor": null,
+          "rope_scaling_original_context_length": null,
+          "rope_scaling_low_freq_factor": null,
+          "rope_scaling_high_freq_factor": null,
+          "rope_pairing": "adjacent_even_odd",
+          "rope_direction": "forward",
+          "rope_position_mode": "zero_based",
+          "gqa_head_mapping": "grouped",
+          "attention_score_scale": "head_dim",
+          "linear_accumulation": "f32",
+          "ffn_gate_up_order": "gate_up",
+          "rms_norm_epsilon": 0.00001,
+          "rms_norm_effective_epsilon": 0.00001,
+          "square_linear_diagnostic_layout": "transposed",
+          "rectangular_linear_diagnostic_layout": "auto",
+          "token_embedding_shape": [
+            128256,
+            2048
+          ],
+          "output_shape": [
+            2048,
+            128256
+          ],
+          "output_is_tied_embedding": true,
+          "output_projection_layout": "input_output",
+          "output_projection_diagnostic_layout": "token_major",
+          "zero_attention_delta": "none",
+          "zero_ffn_delta": "none",
+          "projection_orientations": {
+            "attention_q": {
+              "shape": [
+                2048,
+                2048
+              ],
+              "input_width": 2048,
+              "output_width": 2048,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "rhs_transposed",
+              "square_diagnostic_applies": true
+            },
+            "attention_k": {
+              "shape": [
+                2048,
+                512
+              ],
+              "input_width": 2048,
+              "output_width": 512,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "descriptor",
+              "square_diagnostic_applies": false
+            },
+            "attention_v": {
+              "shape": [
+                2048,
+                512
+              ],
+              "input_width": 2048,
+              "output_width": 512,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "descriptor",
+              "square_diagnostic_applies": false
+            },
+            "attention_output": {
+              "shape": [
+                2048,
+                2048
+              ],
+              "input_width": 2048,
+              "output_width": 2048,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "rhs_transposed",
+              "square_diagnostic_applies": true
+            },
+            "ffn_gate": {
+              "shape": [
+                2048,
+                8192
+              ],
+              "input_width": 2048,
+              "output_width": 8192,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "descriptor",
+              "square_diagnostic_applies": false
+            },
+            "ffn_up": {
+              "shape": [
+                2048,
+                8192
+              ],
+              "input_width": 2048,
+              "output_width": 8192,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "descriptor",
+              "square_diagnostic_applies": false
+            },
+            "ffn_down": {
+              "shape": [
+                8192,
+                2048
+              ],
+              "input_width": 8192,
+              "output_width": 2048,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "descriptor",
+              "square_diagnostic_applies": false
+            }
+          }
+        },
+        "top_logits": [
+          {
+            "token_id": 11,
+            "logit": 14.767703,
+            "probability": 0.1394549,
+            "rank": 1,
+            "selected": false,
+            "text": ","
+          },
+          {
+            "token_id": 1070,
+            "logit": 14.5970335,
+            "probability": 0.11757444,
+            "rank": 2,
+            "selected": false,
+            "text": " there"
+          },
+          {
+            "token_id": 0,
+            "logit": 14.158442,
+            "probability": 0.07582891,
+            "rank": 3,
+            "selected": false,
+            "text": "!"
+          },
+          {
+            "token_id": 1917,
+            "logit": 13.917096,
+            "probability": 0.05956894,
+            "rank": 4,
+            "selected": false,
+            "text": " world"
+          },
+          {
+            "token_id": 505,
+            "logit": 13.517591,
+            "probability": 0.03995004,
+            "rank": 5,
+            "selected": false,
+            "text": " from"
+          },
+          {
+            "token_id": 271,
+            "logit": 13.510183,
+            "probability": 0.039655175,
+            "rank": 6,
+            "selected": false,
+            "text": "\n\n"
+          },
+          {
+            "token_id": 5127,
+            "logit": 13.407595,
+            "probability": 0.035788722,
+            "rank": 7,
+            "selected": false,
+            "text": " everyone"
+          },
+          {
+            "token_id": 323,
+            "logit": 13.158063,
+            "probability": 0.02788534,
+            "rank": 8,
+            "selected": false,
+            "text": " and"
+          }
+        ],
+        "output_projection": []
+      }
+    },
+    {
+      "id": "<id>",
+      "object": "text_completion",
+      "created": 0,
+      "model": "Llama 3.2 1B Instruct",
+      "choices": [
+        {
+          "index": 0,
+          "text": " red, blue, and yellow. These colors are combined in different ways to create various shades and hues of colors. The primary colors are the base colors that cannot",
+          "finish_reason": "length"
+        }
+      ],
+      "usage": {
+        "prompt_tokens": 6,
+        "completion_tokens": 32,
+        "total_tokens": 38
+      },
+      "camelid": {
+        "prompt_token_ids": [
+          128000,
+          791,
+          2380,
+          6156,
+          8146,
+          527
+        ],
+        "generated_token_ids": [
+          2579,
+          11,
+          6437,
+          11,
+          323,
+          14071,
+          13,
+          4314,
+          8146,
+          527,
+          11093,
+          304,
+          2204,
+          5627,
+          311,
+          1893,
+          5370,
+          37199,
+          323,
+          82757,
+          315,
+          8146,
+          13,
+          578,
+          6156,
+          8146,
+          527,
+          279,
+          2385,
+          8146,
+          430,
+          4250
+        ],
+        "dense_metadata": {
+          "embedding_length": 2048,
+          "attention_head_count": 32,
+          "attention_head_count_kv": 8,
+          "head_dim": 64,
+          "rope_dimension_count": 64,
+          "rope_freq_base": 500000,
+          "rope_scaling_type": "none",
+          "rope_scaling_factor": null,
+          "rope_scaling_original_context_length": null,
+          "rope_scaling_low_freq_factor": null,
+          "rope_scaling_high_freq_factor": null,
+          "rope_pairing": "adjacent_even_odd",
+          "rope_direction": "forward",
+          "rope_position_mode": "zero_based",
+          "gqa_head_mapping": "grouped",
+          "attention_score_scale": "head_dim",
+          "linear_accumulation": "f32",
+          "ffn_gate_up_order": "gate_up",
+          "rms_norm_epsilon": 0.00001,
+          "rms_norm_effective_epsilon": 0.00001,
+          "square_linear_diagnostic_layout": "transposed",
+          "rectangular_linear_diagnostic_layout": "auto",
+          "token_embedding_shape": [
+            128256,
+            2048
+          ],
+          "output_shape": [
+            2048,
+            128256
+          ],
+          "output_is_tied_embedding": true,
+          "output_projection_layout": "input_output",
+          "output_projection_diagnostic_layout": "token_major",
+          "zero_attention_delta": "none",
+          "zero_ffn_delta": "none",
+          "projection_orientations": {
+            "attention_q": {
+              "shape": [
+                2048,
+                2048
+              ],
+              "input_width": 2048,
+              "output_width": 2048,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "rhs_transposed",
+              "square_diagnostic_applies": true
+            },
+            "attention_k": {
+              "shape": [
+                2048,
+                512
+              ],
+              "input_width": 2048,
+              "output_width": 512,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "descriptor",
+              "square_diagnostic_applies": false
+            },
+            "attention_v": {
+              "shape": [
+                2048,
+                512
+              ],
+              "input_width": 2048,
+              "output_width": 512,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "descriptor",
+              "square_diagnostic_applies": false
+            },
+            "attention_output": {
+              "shape": [
+                2048,
+                2048
+              ],
+              "input_width": 2048,
+              "output_width": 2048,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "rhs_transposed",
+              "square_diagnostic_applies": true
+            },
+            "ffn_gate": {
+              "shape": [
+                2048,
+                8192
+              ],
+              "input_width": 2048,
+              "output_width": 8192,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "descriptor",
+              "square_diagnostic_applies": false
+            },
+            "ffn_up": {
+              "shape": [
+                2048,
+                8192
+              ],
+              "input_width": 2048,
+              "output_width": 8192,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "descriptor",
+              "square_diagnostic_applies": false
+            },
+            "ffn_down": {
+              "shape": [
+                8192,
+                2048
+              ],
+              "input_width": 8192,
+              "output_width": 2048,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "descriptor",
+              "square_diagnostic_applies": false
+            }
+          }
+        },
+        "top_logits": [
+          {
+            "token_id": 2579,
+            "logit": 19.604418,
+            "probability": 0.55141574,
+            "rank": 1,
+            "selected": false,
+            "text": " red"
+          },
+          {
+            "token_id": 3816,
+            "logit": 17.965458,
+            "probability": 0.10707495,
+            "rank": 2,
+            "selected": false,
+            "text": " Red"
+          },
+          {
+            "token_id": 6156,
+            "logit": 17.135138,
+            "probability": 0.046675004,
+            "rank": 3,
+            "selected": false,
+            "text": " primary"
+          },
+          {
+            "token_id": 279,
+            "logit": 17.110409,
+            "probability": 0.045534942,
+            "rank": 4,
+            "selected": false,
+            "text": " the"
+          },
+          {
+            "token_id": 25,
+            "logit": 16.420422,
+            "probability": 0.02283953,
+            "rank": 5,
+            "selected": false,
+            "text": ":"
+          },
+          {
+            "token_id": 6437,
+            "logit": 16.303793,
+            "probability": 0.020325253,
+            "rank": 6,
+            "selected": false,
+            "text": " blue"
+          },
+          {
+            "token_id": 512,
+            "logit": 16.23109,
+            "probability": 0.018899998,
+            "rank": 7,
+            "selected": false,
+            "text": ":\n"
+          },
+          {
+            "token_id": 264,
+            "logit": 16.18476,
+            "probability": 0.018044308,
+            "rank": 8,
+            "selected": false,
+            "text": " a"
+          }
+        ],
+        "output_projection": []
+      }
+    },
+    {
+      "id": "<id>",
+      "object": "text_completion",
+      "created": 0,
+      "model": "Llama 3.2 1B Instruct",
+      "choices": [
+        {
+          "index": 0,
+          "text": " Llamas are known for their soft, fuzzy coats and their ability to carry heavy loads. They are also known for their gentle nature and their ability to thrive",
+          "finish_reason": "length"
+        }
+      ],
+      "usage": {
+        "prompt_tokens": 9,
+        "completion_tokens": 32,
+        "total_tokens": 41
+      },
+      "camelid": {
+        "prompt_token_ids": [
+          128000,
+          8144,
+          1403,
+          2875,
+          23719,
+          922,
+          9507,
+          29189,
+          13
+        ],
+        "generated_token_ids": [
+          445,
+          24705,
+          300,
+          527,
+          3967,
+          369,
+          872,
+          8579,
+          11,
+          53833,
+          56737,
+          323,
+          872,
+          5845,
+          311,
+          6920,
+          8987,
+          21577,
+          13,
+          2435,
+          527,
+          1101,
+          3967,
+          369,
+          872,
+          22443,
+          7138,
+          323,
+          872,
+          5845,
+          311,
+          41972
+        ],
+        "dense_metadata": {
+          "embedding_length": 2048,
+          "attention_head_count": 32,
+          "attention_head_count_kv": 8,
+          "head_dim": 64,
+          "rope_dimension_count": 64,
+          "rope_freq_base": 500000,
+          "rope_scaling_type": "none",
+          "rope_scaling_factor": null,
+          "rope_scaling_original_context_length": null,
+          "rope_scaling_low_freq_factor": null,
+          "rope_scaling_high_freq_factor": null,
+          "rope_pairing": "adjacent_even_odd",
+          "rope_direction": "forward",
+          "rope_position_mode": "zero_based",
+          "gqa_head_mapping": "grouped",
+          "attention_score_scale": "head_dim",
+          "linear_accumulation": "f32",
+          "ffn_gate_up_order": "gate_up",
+          "rms_norm_epsilon": 0.00001,
+          "rms_norm_effective_epsilon": 0.00001,
+          "square_linear_diagnostic_layout": "transposed",
+          "rectangular_linear_diagnostic_layout": "auto",
+          "token_embedding_shape": [
+            128256,
+            2048
+          ],
+          "output_shape": [
+            2048,
+            128256
+          ],
+          "output_is_tied_embedding": true,
+          "output_projection_layout": "input_output",
+          "output_projection_diagnostic_layout": "token_major",
+          "zero_attention_delta": "none",
+          "zero_ffn_delta": "none",
+          "projection_orientations": {
+            "attention_q": {
+              "shape": [
+                2048,
+                2048
+              ],
+              "input_width": 2048,
+              "output_width": 2048,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "rhs_transposed",
+              "square_diagnostic_applies": true
+            },
+            "attention_k": {
+              "shape": [
+                2048,
+                512
+              ],
+              "input_width": 2048,
+              "output_width": 512,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "descriptor",
+              "square_diagnostic_applies": false
+            },
+            "attention_v": {
+              "shape": [
+                2048,
+                512
+              ],
+              "input_width": 2048,
+              "output_width": 512,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "descriptor",
+              "square_diagnostic_applies": false
+            },
+            "attention_output": {
+              "shape": [
+                2048,
+                2048
+              ],
+              "input_width": 2048,
+              "output_width": 2048,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "rhs_transposed",
+              "square_diagnostic_applies": true
+            },
+            "ffn_gate": {
+              "shape": [
+                2048,
+                8192
+              ],
+              "input_width": 2048,
+              "output_width": 8192,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "descriptor",
+              "square_diagnostic_applies": false
+            },
+            "ffn_up": {
+              "shape": [
+                2048,
+                8192
+              ],
+              "input_width": 2048,
+              "output_width": 8192,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "descriptor",
+              "square_diagnostic_applies": false
+            },
+            "ffn_down": {
+              "shape": [
+                8192,
+                2048
+              ],
+              "input_width": 8192,
+              "output_width": 2048,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "descriptor",
+              "square_diagnostic_applies": false
+            }
+          }
+        },
+        "top_logits": [
+          {
+            "token_id": 445,
+            "logit": 19.41073,
+            "probability": 0.303182,
+            "rank": 1,
+            "selected": false,
+            "text": " L"
+          },
+          {
+            "token_id": 2435,
+            "logit": 19.282648,
+            "probability": 0.26673377,
+            "rank": 2,
+            "selected": false,
+            "text": " They"
+          },
+          {
+            "token_id": 4314,
+            "logit": 18.257496,
+            "probability": 0.09568857,
+            "rank": 3,
+            "selected": false,
+            "text": " These"
+          },
+          {
+            "token_id": 720,
+            "logit": 17.413223,
+            "probability": 0.04113364,
+            "rank": 4,
+            "selected": false,
+            "text": " \n"
+          },
+          {
+            "token_id": 5810,
+            "logit": 17.172712,
+            "probability": 0.032340337,
+            "rank": 5,
+            "selected": false,
+            "text": " Here"
+          },
+          {
+            "token_id": 4815,
+            "logit": 17.087515,
+            "probability": 0.029699134,
+            "rank": 6,
+            "selected": false,
+            "text": " \n\n"
+          },
+          {
+            "token_id": 578,
+            "logit": 16.898542,
+            "probability": 0.02458522,
+            "rank": 7,
+            "selected": false,
+            "text": " The"
+          },
+          {
+            "token_id": 11205,
+            "logit": 16.378456,
+            "probability": 0.014615157,
+            "rank": 8,
+            "selected": false,
+            "text": " Their"
+          }
+        ],
+        "output_projection": []
+      }
+    }
+  ],
+  "stream": [
+    [
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"Llama 3.2 1B Instruct\",\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"Llama 3.2 1B Instruct\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"Hello\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"Llama 3.2 1B Instruct\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"!\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"Llama 3.2 1B Instruct\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\" How\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"Llama 3.2 1B Instruct\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\" can\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"Llama 3.2 1B Instruct\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\" I\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"Llama 3.2 1B Instruct\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\" assist\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"Llama 3.2 1B Instruct\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\" you\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"Llama 3.2 1B Instruct\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\" today\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"Llama 3.2 1B Instruct\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"?\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"Llama 3.2 1B Instruct\",\"choices\":[{\"index\":0,\"delta\":{},\"finish_reason\":\"stop\"}]}",
+      "data: [DONE]"
+    ],
+    [
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"Llama 3.2 1B Instruct\",\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"Llama 3.2 1B Instruct\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"The\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"Llama 3.2 1B Instruct\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\" three\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"Llama 3.2 1B Instruct\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\" primary\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"Llama 3.2 1B Instruct\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\" colors\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"Llama 3.2 1B Instruct\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\" are\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"Llama 3.2 1B Instruct\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\":\\n\\n\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"Llama 3.2 1B Instruct\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"1\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"Llama 3.2 1B Instruct\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\".\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"Llama 3.2 1B Instruct\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\" Red\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"Llama 3.2 1B Instruct\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"\\n\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"Llama 3.2 1B Instruct\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"2\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"Llama 3.2 1B Instruct\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\".\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"Llama 3.2 1B Instruct\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\" Blue\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"Llama 3.2 1B Instruct\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"\\n\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"Llama 3.2 1B Instruct\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"3\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"Llama 3.2 1B Instruct\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\".\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"Llama 3.2 1B Instruct\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\" Yellow\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"Llama 3.2 1B Instruct\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"\\n\\n\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"Llama 3.2 1B Instruct\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"These\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"Llama 3.2 1B Instruct\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\" colors\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"Llama 3.2 1B Instruct\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\" are\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"Llama 3.2 1B Instruct\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\" called\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"Llama 3.2 1B Instruct\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\" primary\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"Llama 3.2 1B Instruct\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\" because\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"Llama 3.2 1B Instruct\",\"choices\":[{\"index\":0,\"delta\":{},\"finish_reason\":\"length\"}]}",
+      "data: [DONE]"
+    ],
+    [
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"Llama 3.2 1B Instruct\",\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"Llama 3.2 1B Instruct\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"Here\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"Llama 3.2 1B Instruct\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\" are\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"Llama 3.2 1B Instruct\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\" two\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"Llama 3.2 1B Instruct\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\" short\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"Llama 3.2 1B Instruct\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\" sentences\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"Llama 3.2 1B Instruct\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\" about\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"Llama 3.2 1B Instruct\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\" ll\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"Llama 3.2 1B Instruct\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"amas\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"Llama 3.2 1B Instruct\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\":\\n\\n\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"Llama 3.2 1B Instruct\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"L\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"Llama 3.2 1B Instruct\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"lam\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"Llama 3.2 1B Instruct\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"as\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"Llama 3.2 1B Instruct\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\" are\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"Llama 3.2 1B Instruct\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\" intelligent\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"Llama 3.2 1B Instruct\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\" and\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"Llama 3.2 1B Instruct\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\" social\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"Llama 3.2 1B Instruct\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\" animals\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"Llama 3.2 1B Instruct\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\" that\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"Llama 3.2 1B Instruct\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\" are\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"Llama 3.2 1B Instruct\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\" native\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"Llama 3.2 1B Instruct\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\" to\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"Llama 3.2 1B Instruct\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\" South\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"Llama 3.2 1B Instruct\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\" America\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"Llama 3.2 1B Instruct\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\".\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"Llama 3.2 1B Instruct\",\"choices\":[{\"index\":0,\"delta\":{},\"finish_reason\":\"length\"}]}",
+      "data: [DONE]"
+    ]
+  ],
+  "perf": [
+    {
+      "kind": "chat",
+      "prompt": "hello",
+      "wall_ms": 1270.0679,
+      "completion_tokens": 10
+    },
+    {
+      "kind": "stream-ttfb",
+      "prompt": "hello",
+      "ttfb_ms": 35.0283
+    },
+    {
+      "kind": "chat",
+      "prompt": "The three primary colors are",
+      "wall_ms": 459.5647,
+      "completion_tokens": 48
+    },
+    {
+      "kind": "stream-ttfb",
+      "prompt": "The three primary colors are",
+      "ttfb_ms": 39.9103
+    },
+    {
+      "kind": "chat",
+      "prompt": "Write two short sentences about llamas.",
+      "wall_ms": 414.2882,
+      "completion_tokens": 41
+    },
+    {
+      "kind": "stream-ttfb",
+      "prompt": "Write two short sentences about llamas.",
+      "ttfb_ms": 44.4742
+    }
+  ]
+}

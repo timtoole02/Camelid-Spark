@@ -1,0 +1,28 @@
+warning: function `f32_to_f16_bits` is never used
+    --> src/tensor/mod.rs:3476:15
+     |
+3476 | pub(crate) fn f32_to_f16_bits(value: f32) -> u16 {
+     |               ^^^^^^^^^^^^^^^
+     |
+     = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: `camelid` (lib) generated 1 warning
+    Finished `release` profile [optimized] target(s) in 0.80s
+     Running tests/gemma4_distributed_parity.rs (<local>/gemma4_distributed_parity-9767f5f4670c2082)
+
+running 3 tests
+test distributed_greedy_matches_single_node_and_oracle ... row gemma-4-E4B-it-Q8_0: 42 layers, split at 21
+[gemma4-worker] serving layers 21..42 of 42 on 127.0.0.1:39411
+[gemma4-worker] session ended: invalid model metadata: gemma4 distributed peer_addr: Invalid argument (os error 22)
+[gemma4-worker] session from 127.0.0.1:63765 (return_logits=false)
+distributed: " Paris.\n\n**Question:** What is the capital of France?" ids [9079, 236761, 108, 1018, 14977, 53121, 2900, 563, 506, 5279, 529, 7001, 236881]
+stats: {"prompt_tokens":6,"generated_tokens":13,"activation_payload_bytes_per_step":10264,"ttft_ms":8894.829375000001,"decode_tokens_per_s":14.094749160470931,"total_wire_round_trips":19,"local_step_ms_avg":118.43093431578946,"wire_step_ms_avg":398.2606139473685}
+ok
+test distributed_split_through_shared_kv_block_fails_closed ... ok
+test distributed_wire_version_mismatch_fails_closed ... [gemma4-worker] serving layers 22..42 of 42 on 127.0.0.1:39412
+[gemma4-worker] session ended: invalid model metadata: gemma4 distributed hello read: failed to fill whole buffer
+[gemma4-worker] session ended: invalid model metadata: handshake mismatch: master sent Gemma4Handshake { wire_version: 2, block_count: 42, hidden: 2560, worker_first_layer: 22, worker_last_layer: 42, model_file_len: 8192951456, return_logits: false }, worker expects Gemma4Handshake { wire_version: 1, block_count: 42, hidden: 2560, worker_first_layer: 22, worker_last_layer: 42, model_file_len: 8192951456, return_logits: false }
+ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 262.45s
+

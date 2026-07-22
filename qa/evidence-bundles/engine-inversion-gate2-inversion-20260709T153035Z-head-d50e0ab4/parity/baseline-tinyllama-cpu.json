@@ -1,0 +1,3341 @@
+{
+  "bin": "<scratch>/camelid-baseline-ffada00f.exe",
+  "model": "<home>/models/tinyllama-1.1b-chat-v1.0.Q8_0.gguf",
+  "pid": 23404,
+  "chat": [
+    {
+      "id": "<id>",
+      "object": "chat.completion",
+      "created": 0,
+      "model": "tinyllama_tinyllama-1.1b-chat-v1.0",
+      "choices": [
+        {
+          "index": 0,
+          "message": {
+            "role": "assistant",
+            "content": "Certainly! Here are some examples of how to use the \"less than or equal to\" (<|assistant|>: \"less than or equal to\") operator in Python:\n\n1. Checking if a number"
+          },
+          "finish_reason": "length"
+        }
+      ],
+      "usage": {
+        "prompt_tokens": 18,
+        "completion_tokens": 48,
+        "total_tokens": 66
+      },
+      "camelid": {
+        "prompt_token_ids": [
+          1,
+          529,
+          29989,
+          1792,
+          29989,
+          29958,
+          13,
+          12199,
+          2,
+          29871,
+          13,
+          29966,
+          29989,
+          465,
+          22137,
+          29989,
+          29958,
+          13
+        ],
+        "generated_token_ids": [
+          29907,
+          13946,
+          368,
+          29991,
+          2266,
+          526,
+          777,
+          6455,
+          310,
+          920,
+          304,
+          671,
+          278,
+          376,
+          2222,
+          1135,
+          470,
+          5186,
+          304,
+          29908,
+          313,
+          29966,
+          29989,
+          465,
+          22137,
+          29989,
+          29958,
+          29901,
+          376,
+          2222,
+          1135,
+          470,
+          5186,
+          304,
+          1159,
+          5455,
+          297,
+          5132,
+          29901,
+          13,
+          13,
+          29896,
+          29889,
+          5399,
+          292,
+          565,
+          263,
+          1353
+        ],
+        "dense_metadata": {
+          "embedding_length": 2048,
+          "attention_head_count": 32,
+          "attention_head_count_kv": 4,
+          "head_dim": 64,
+          "rope_dimension_count": 64,
+          "rope_freq_base": 10000,
+          "rope_scaling_type": "none",
+          "rope_scaling_factor": null,
+          "rope_scaling_original_context_length": null,
+          "rope_scaling_low_freq_factor": null,
+          "rope_scaling_high_freq_factor": null,
+          "rope_pairing": "adjacent_even_odd",
+          "rope_direction": "forward",
+          "rope_position_mode": "zero_based",
+          "gqa_head_mapping": "grouped",
+          "attention_score_scale": "head_dim",
+          "linear_accumulation": "f32",
+          "ffn_gate_up_order": "gate_up",
+          "rms_norm_epsilon": 0.00001,
+          "rms_norm_effective_epsilon": 0.00001,
+          "square_linear_diagnostic_layout": "transposed",
+          "rectangular_linear_diagnostic_layout": "auto",
+          "token_embedding_shape": [
+            32000,
+            2048
+          ],
+          "output_shape": [
+            2048,
+            32000
+          ],
+          "output_is_tied_embedding": false,
+          "output_projection_layout": "input_output",
+          "output_projection_diagnostic_layout": "token_major",
+          "zero_attention_delta": "none",
+          "zero_ffn_delta": "none",
+          "projection_orientations": {
+            "attention_q": {
+              "shape": [
+                2048,
+                2048
+              ],
+              "input_width": 2048,
+              "output_width": 2048,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "rhs_transposed",
+              "square_diagnostic_applies": true
+            },
+            "attention_k": {
+              "shape": [
+                2048,
+                256
+              ],
+              "input_width": 2048,
+              "output_width": 256,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "descriptor",
+              "square_diagnostic_applies": false
+            },
+            "attention_v": {
+              "shape": [
+                2048,
+                256
+              ],
+              "input_width": 2048,
+              "output_width": 256,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "descriptor",
+              "square_diagnostic_applies": false
+            },
+            "attention_output": {
+              "shape": [
+                2048,
+                2048
+              ],
+              "input_width": 2048,
+              "output_width": 2048,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "rhs_transposed",
+              "square_diagnostic_applies": true
+            },
+            "ffn_gate": {
+              "shape": [
+                2048,
+                5632
+              ],
+              "input_width": 2048,
+              "output_width": 5632,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "descriptor",
+              "square_diagnostic_applies": false
+            },
+            "ffn_up": {
+              "shape": [
+                2048,
+                5632
+              ],
+              "input_width": 2048,
+              "output_width": 5632,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "descriptor",
+              "square_diagnostic_applies": false
+            },
+            "ffn_down": {
+              "shape": [
+                5632,
+                2048
+              ],
+              "input_width": 5632,
+              "output_width": 2048,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "descriptor",
+              "square_diagnostic_applies": false
+            }
+          }
+        },
+        "top_logits": [
+          {
+            "token_id": 29907,
+            "logit": 15.41993,
+            "probability": 0.19370157,
+            "rank": 1,
+            "selected": false,
+            "text": "C"
+          },
+          {
+            "token_id": 29903,
+            "logit": 15.353528,
+            "probability": 0.18125705,
+            "rank": 2,
+            "selected": false,
+            "text": "S"
+          },
+          {
+            "token_id": 8241,
+            "logit": 14.588118,
+            "probability": 0.08431045,
+            "rank": 3,
+            "selected": false,
+            "text": "Yes"
+          },
+          {
+            "token_id": 29902,
+            "logit": 14.495015,
+            "probability": 0.076815255,
+            "rank": 4,
+            "selected": false,
+            "text": "I"
+          },
+          {
+            "token_id": 2776,
+            "logit": 14.169157,
+            "probability": 0.05545352,
+            "rank": 5,
+            "selected": false,
+            "text": "Of"
+          },
+          {
+            "token_id": 4920,
+            "logit": 14.02957,
+            "probability": 0.048228867,
+            "rank": 6,
+            "selected": false,
+            "text": "Ab"
+          },
+          {
+            "token_id": 2887,
+            "logit": 13.586854,
+            "probability": 0.030976912,
+            "rank": 7,
+            "selected": false,
+            "text": "As"
+          },
+          {
+            "token_id": 797,
+            "logit": 13.540529,
+            "probability": 0.029574646,
+            "rank": 8,
+            "selected": false,
+            "text": "In"
+          }
+        ],
+        "output_projection": []
+      }
+    },
+    {
+      "id": "<id>",
+      "object": "chat.completion",
+      "created": 0,
+      "model": "tinyllama_tinyllama-1.1b-chat-v1.0",
+      "choices": [
+        {
+          "index": 0,
+          "message": {
+            "role": "assistant",
+            "content": "Certainly! Here are a few examples of how to use drones for agricultural purposes:\n\n1"
+          },
+          "finish_reason": "length"
+        }
+      ],
+      "usage": {
+        "prompt_tokens": 18,
+        "completion_tokens": 24,
+        "total_tokens": 42
+      },
+      "camelid": {
+        "prompt_token_ids": [
+          1,
+          529,
+          29989,
+          1792,
+          29989,
+          29958,
+          13,
+          12199,
+          2,
+          29871,
+          13,
+          29966,
+          29989,
+          465,
+          22137,
+          29989,
+          29958,
+          13
+        ],
+        "generated_token_ids": [
+          29907,
+          13946,
+          368,
+          29991,
+          2266,
+          526,
+          263,
+          2846,
+          6455,
+          310,
+          920,
+          304,
+          671,
+          270,
+          1617,
+          267,
+          363,
+          18032,
+          3631,
+          11976,
+          29901,
+          13,
+          13,
+          29896
+        ],
+        "dense_metadata": {
+          "embedding_length": 2048,
+          "attention_head_count": 32,
+          "attention_head_count_kv": 4,
+          "head_dim": 64,
+          "rope_dimension_count": 64,
+          "rope_freq_base": 10000,
+          "rope_scaling_type": "none",
+          "rope_scaling_factor": null,
+          "rope_scaling_original_context_length": null,
+          "rope_scaling_low_freq_factor": null,
+          "rope_scaling_high_freq_factor": null,
+          "rope_pairing": "adjacent_even_odd",
+          "rope_direction": "forward",
+          "rope_position_mode": "zero_based",
+          "gqa_head_mapping": "grouped",
+          "attention_score_scale": "head_dim",
+          "linear_accumulation": "f32",
+          "ffn_gate_up_order": "gate_up",
+          "rms_norm_epsilon": 0.00001,
+          "rms_norm_effective_epsilon": 0.00001,
+          "square_linear_diagnostic_layout": "transposed",
+          "rectangular_linear_diagnostic_layout": "auto",
+          "token_embedding_shape": [
+            32000,
+            2048
+          ],
+          "output_shape": [
+            2048,
+            32000
+          ],
+          "output_is_tied_embedding": false,
+          "output_projection_layout": "input_output",
+          "output_projection_diagnostic_layout": "token_major",
+          "zero_attention_delta": "none",
+          "zero_ffn_delta": "none",
+          "projection_orientations": {
+            "attention_q": {
+              "shape": [
+                2048,
+                2048
+              ],
+              "input_width": 2048,
+              "output_width": 2048,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "rhs_transposed",
+              "square_diagnostic_applies": true
+            },
+            "attention_k": {
+              "shape": [
+                2048,
+                256
+              ],
+              "input_width": 2048,
+              "output_width": 256,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "descriptor",
+              "square_diagnostic_applies": false
+            },
+            "attention_v": {
+              "shape": [
+                2048,
+                256
+              ],
+              "input_width": 2048,
+              "output_width": 256,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "descriptor",
+              "square_diagnostic_applies": false
+            },
+            "attention_output": {
+              "shape": [
+                2048,
+                2048
+              ],
+              "input_width": 2048,
+              "output_width": 2048,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "rhs_transposed",
+              "square_diagnostic_applies": true
+            },
+            "ffn_gate": {
+              "shape": [
+                2048,
+                5632
+              ],
+              "input_width": 2048,
+              "output_width": 5632,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "descriptor",
+              "square_diagnostic_applies": false
+            },
+            "ffn_up": {
+              "shape": [
+                2048,
+                5632
+              ],
+              "input_width": 2048,
+              "output_width": 5632,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "descriptor",
+              "square_diagnostic_applies": false
+            },
+            "ffn_down": {
+              "shape": [
+                5632,
+                2048
+              ],
+              "input_width": 5632,
+              "output_width": 2048,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "descriptor",
+              "square_diagnostic_applies": false
+            }
+          }
+        },
+        "top_logits": [
+          {
+            "token_id": 29907,
+            "logit": 15.41993,
+            "probability": 0.19370157,
+            "rank": 1,
+            "selected": false,
+            "text": "C"
+          },
+          {
+            "token_id": 29903,
+            "logit": 15.353528,
+            "probability": 0.18125705,
+            "rank": 2,
+            "selected": false,
+            "text": "S"
+          },
+          {
+            "token_id": 8241,
+            "logit": 14.588118,
+            "probability": 0.08431045,
+            "rank": 3,
+            "selected": false,
+            "text": "Yes"
+          },
+          {
+            "token_id": 29902,
+            "logit": 14.495015,
+            "probability": 0.076815255,
+            "rank": 4,
+            "selected": false,
+            "text": "I"
+          },
+          {
+            "token_id": 2776,
+            "logit": 14.169157,
+            "probability": 0.05545352,
+            "rank": 5,
+            "selected": false,
+            "text": "Of"
+          },
+          {
+            "token_id": 4920,
+            "logit": 14.02957,
+            "probability": 0.048228867,
+            "rank": 6,
+            "selected": false,
+            "text": "Ab"
+          },
+          {
+            "token_id": 2887,
+            "logit": 13.586854,
+            "probability": 0.030976912,
+            "rank": 7,
+            "selected": false,
+            "text": "As"
+          },
+          {
+            "token_id": 797,
+            "logit": 13.540529,
+            "probability": 0.029574646,
+            "rank": 8,
+            "selected": false,
+            "text": "In"
+          }
+        ],
+        "output_projection": []
+      }
+    },
+    {
+      "id": "<id>",
+      "object": "chat.completion",
+      "created": 0,
+      "model": "tinyllama_tinyllama-1.1b-chat-v1.0",
+      "choices": [
+        {
+          "index": 0,
+          "message": {
+            "role": "assistant",
+            "content": "Certainly! Here are some examples of how to use the \"less than or equal to\" (<|assistant|>: \"less than or equal to\") operator in Python:\n\n1. Checking if a number"
+          },
+          "finish_reason": "length"
+        }
+      ],
+      "usage": {
+        "prompt_tokens": 18,
+        "completion_tokens": 48,
+        "total_tokens": 66
+      },
+      "camelid": {
+        "prompt_token_ids": [
+          1,
+          529,
+          29989,
+          1792,
+          29989,
+          29958,
+          13,
+          12199,
+          2,
+          29871,
+          13,
+          29966,
+          29989,
+          465,
+          22137,
+          29989,
+          29958,
+          13
+        ],
+        "generated_token_ids": [
+          29907,
+          13946,
+          368,
+          29991,
+          2266,
+          526,
+          777,
+          6455,
+          310,
+          920,
+          304,
+          671,
+          278,
+          376,
+          2222,
+          1135,
+          470,
+          5186,
+          304,
+          29908,
+          313,
+          29966,
+          29989,
+          465,
+          22137,
+          29989,
+          29958,
+          29901,
+          376,
+          2222,
+          1135,
+          470,
+          5186,
+          304,
+          1159,
+          5455,
+          297,
+          5132,
+          29901,
+          13,
+          13,
+          29896,
+          29889,
+          5399,
+          292,
+          565,
+          263,
+          1353
+        ],
+        "dense_metadata": {
+          "embedding_length": 2048,
+          "attention_head_count": 32,
+          "attention_head_count_kv": 4,
+          "head_dim": 64,
+          "rope_dimension_count": 64,
+          "rope_freq_base": 10000,
+          "rope_scaling_type": "none",
+          "rope_scaling_factor": null,
+          "rope_scaling_original_context_length": null,
+          "rope_scaling_low_freq_factor": null,
+          "rope_scaling_high_freq_factor": null,
+          "rope_pairing": "adjacent_even_odd",
+          "rope_direction": "forward",
+          "rope_position_mode": "zero_based",
+          "gqa_head_mapping": "grouped",
+          "attention_score_scale": "head_dim",
+          "linear_accumulation": "f32",
+          "ffn_gate_up_order": "gate_up",
+          "rms_norm_epsilon": 0.00001,
+          "rms_norm_effective_epsilon": 0.00001,
+          "square_linear_diagnostic_layout": "transposed",
+          "rectangular_linear_diagnostic_layout": "auto",
+          "token_embedding_shape": [
+            32000,
+            2048
+          ],
+          "output_shape": [
+            2048,
+            32000
+          ],
+          "output_is_tied_embedding": false,
+          "output_projection_layout": "input_output",
+          "output_projection_diagnostic_layout": "token_major",
+          "zero_attention_delta": "none",
+          "zero_ffn_delta": "none",
+          "projection_orientations": {
+            "attention_q": {
+              "shape": [
+                2048,
+                2048
+              ],
+              "input_width": 2048,
+              "output_width": 2048,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "rhs_transposed",
+              "square_diagnostic_applies": true
+            },
+            "attention_k": {
+              "shape": [
+                2048,
+                256
+              ],
+              "input_width": 2048,
+              "output_width": 256,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "descriptor",
+              "square_diagnostic_applies": false
+            },
+            "attention_v": {
+              "shape": [
+                2048,
+                256
+              ],
+              "input_width": 2048,
+              "output_width": 256,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "descriptor",
+              "square_diagnostic_applies": false
+            },
+            "attention_output": {
+              "shape": [
+                2048,
+                2048
+              ],
+              "input_width": 2048,
+              "output_width": 2048,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "rhs_transposed",
+              "square_diagnostic_applies": true
+            },
+            "ffn_gate": {
+              "shape": [
+                2048,
+                5632
+              ],
+              "input_width": 2048,
+              "output_width": 5632,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "descriptor",
+              "square_diagnostic_applies": false
+            },
+            "ffn_up": {
+              "shape": [
+                2048,
+                5632
+              ],
+              "input_width": 2048,
+              "output_width": 5632,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "descriptor",
+              "square_diagnostic_applies": false
+            },
+            "ffn_down": {
+              "shape": [
+                5632,
+                2048
+              ],
+              "input_width": 5632,
+              "output_width": 2048,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "descriptor",
+              "square_diagnostic_applies": false
+            }
+          }
+        },
+        "top_logits": [
+          {
+            "token_id": 29907,
+            "logit": 15.41993,
+            "probability": 0.19370157,
+            "rank": 1,
+            "selected": false,
+            "text": "C"
+          },
+          {
+            "token_id": 29903,
+            "logit": 15.353528,
+            "probability": 0.18125705,
+            "rank": 2,
+            "selected": false,
+            "text": "S"
+          },
+          {
+            "token_id": 8241,
+            "logit": 14.588118,
+            "probability": 0.08431045,
+            "rank": 3,
+            "selected": false,
+            "text": "Yes"
+          },
+          {
+            "token_id": 29902,
+            "logit": 14.495015,
+            "probability": 0.076815255,
+            "rank": 4,
+            "selected": false,
+            "text": "I"
+          },
+          {
+            "token_id": 2776,
+            "logit": 14.169157,
+            "probability": 0.05545352,
+            "rank": 5,
+            "selected": false,
+            "text": "Of"
+          },
+          {
+            "token_id": 4920,
+            "logit": 14.02957,
+            "probability": 0.048228867,
+            "rank": 6,
+            "selected": false,
+            "text": "Ab"
+          },
+          {
+            "token_id": 2887,
+            "logit": 13.586854,
+            "probability": 0.030976912,
+            "rank": 7,
+            "selected": false,
+            "text": "As"
+          },
+          {
+            "token_id": 797,
+            "logit": 13.540529,
+            "probability": 0.029574646,
+            "rank": 8,
+            "selected": false,
+            "text": "In"
+          }
+        ],
+        "output_projection": []
+      }
+    },
+    {
+      "id": "<id>",
+      "object": "chat.completion",
+      "created": 0,
+      "model": "tinyllama_tinyllama-1.1b-chat-v1.0",
+      "choices": [
+        {
+          "index": 0,
+          "message": {
+            "role": "assistant",
+            "content": "Yes, there are three primary colors: red, blue, and green. These colors are made up of different combinations of wavelengths of light, which are reflected by the molecules of the materials they are made from. The w"
+          },
+          "finish_reason": "length"
+        }
+      ],
+      "usage": {
+        "prompt_tokens": 22,
+        "completion_tokens": 48,
+        "total_tokens": 70
+      },
+      "camelid": {
+        "prompt_token_ids": [
+          1,
+          529,
+          29989,
+          1792,
+          29989,
+          29958,
+          13,
+          1576,
+          2211,
+          7601,
+          11955,
+          526,
+          2,
+          29871,
+          13,
+          29966,
+          29989,
+          465,
+          22137,
+          29989,
+          29958,
+          13
+        ],
+        "generated_token_ids": [
+          8241,
+          29892,
+          727,
+          526,
+          2211,
+          7601,
+          11955,
+          29901,
+          2654,
+          29892,
+          7254,
+          29892,
+          322,
+          7933,
+          29889,
+          4525,
+          11955,
+          526,
+          1754,
+          701,
+          310,
+          1422,
+          18240,
+          310,
+          281,
+          6447,
+          1477,
+          29879,
+          310,
+          3578,
+          29892,
+          607,
+          526,
+          25312,
+          491,
+          278,
+          13206,
+          21337,
+          310,
+          278,
+          17279,
+          896,
+          526,
+          1754,
+          515,
+          29889,
+          450,
+          281
+        ],
+        "dense_metadata": {
+          "embedding_length": 2048,
+          "attention_head_count": 32,
+          "attention_head_count_kv": 4,
+          "head_dim": 64,
+          "rope_dimension_count": 64,
+          "rope_freq_base": 10000,
+          "rope_scaling_type": "none",
+          "rope_scaling_factor": null,
+          "rope_scaling_original_context_length": null,
+          "rope_scaling_low_freq_factor": null,
+          "rope_scaling_high_freq_factor": null,
+          "rope_pairing": "adjacent_even_odd",
+          "rope_direction": "forward",
+          "rope_position_mode": "zero_based",
+          "gqa_head_mapping": "grouped",
+          "attention_score_scale": "head_dim",
+          "linear_accumulation": "f32",
+          "ffn_gate_up_order": "gate_up",
+          "rms_norm_epsilon": 0.00001,
+          "rms_norm_effective_epsilon": 0.00001,
+          "square_linear_diagnostic_layout": "transposed",
+          "rectangular_linear_diagnostic_layout": "auto",
+          "token_embedding_shape": [
+            32000,
+            2048
+          ],
+          "output_shape": [
+            2048,
+            32000
+          ],
+          "output_is_tied_embedding": false,
+          "output_projection_layout": "input_output",
+          "output_projection_diagnostic_layout": "token_major",
+          "zero_attention_delta": "none",
+          "zero_ffn_delta": "none",
+          "projection_orientations": {
+            "attention_q": {
+              "shape": [
+                2048,
+                2048
+              ],
+              "input_width": 2048,
+              "output_width": 2048,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "rhs_transposed",
+              "square_diagnostic_applies": true
+            },
+            "attention_k": {
+              "shape": [
+                2048,
+                256
+              ],
+              "input_width": 2048,
+              "output_width": 256,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "descriptor",
+              "square_diagnostic_applies": false
+            },
+            "attention_v": {
+              "shape": [
+                2048,
+                256
+              ],
+              "input_width": 2048,
+              "output_width": 256,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "descriptor",
+              "square_diagnostic_applies": false
+            },
+            "attention_output": {
+              "shape": [
+                2048,
+                2048
+              ],
+              "input_width": 2048,
+              "output_width": 2048,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "rhs_transposed",
+              "square_diagnostic_applies": true
+            },
+            "ffn_gate": {
+              "shape": [
+                2048,
+                5632
+              ],
+              "input_width": 2048,
+              "output_width": 5632,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "descriptor",
+              "square_diagnostic_applies": false
+            },
+            "ffn_up": {
+              "shape": [
+                2048,
+                5632
+              ],
+              "input_width": 2048,
+              "output_width": 5632,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "descriptor",
+              "square_diagnostic_applies": false
+            },
+            "ffn_down": {
+              "shape": [
+                5632,
+                2048
+              ],
+              "input_width": 5632,
+              "output_width": 2048,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "descriptor",
+              "square_diagnostic_applies": false
+            }
+          }
+        },
+        "top_logits": [
+          {
+            "token_id": 8241,
+            "logit": 16.98924,
+            "probability": 0.46162963,
+            "rank": 1,
+            "selected": false,
+            "text": "Yes"
+          },
+          {
+            "token_id": 1576,
+            "logit": 16.127235,
+            "probability": 0.19495285,
+            "rank": 2,
+            "selected": false,
+            "text": "The"
+          },
+          {
+            "token_id": 29903,
+            "logit": 15.503735,
+            "probability": 0.10450729,
+            "rank": 3,
+            "selected": false,
+            "text": "S"
+          },
+          {
+            "token_id": 29907,
+            "logit": 14.963468,
+            "probability": 0.060885184,
+            "rank": 4,
+            "selected": false,
+            "text": "C"
+          },
+          {
+            "token_id": 797,
+            "logit": 14.553993,
+            "probability": 0.04042771,
+            "rank": 5,
+            "selected": false,
+            "text": "In"
+          },
+          {
+            "token_id": 8439,
+            "logit": 14.165825,
+            "probability": 0.02742204,
+            "rank": 6,
+            "selected": false,
+            "text": "There"
+          },
+          {
+            "token_id": 7504,
+            "logit": 13.261425,
+            "probability": 0.011100024,
+            "rank": 7,
+            "selected": false,
+            "text": "Acc"
+          },
+          {
+            "token_id": 6565,
+            "logit": 12.88776,
+            "probability": 0.0076391203,
+            "rank": 8,
+            "selected": false,
+            "text": "Ver"
+          }
+        ],
+        "output_projection": []
+      }
+    },
+    {
+      "id": "<id>",
+      "object": "chat.completion",
+      "created": 0,
+      "model": "tinyllama_tinyllama-1.1b-chat-v1.0",
+      "choices": [
+        {
+          "index": 0,
+          "message": {
+            "role": "assistant",
+            "content": "The three primary colors, red, green, and blue, are commonly used in painting and art due to their distinct sh"
+          },
+          "finish_reason": "length"
+        }
+      ],
+      "usage": {
+        "prompt_tokens": 22,
+        "completion_tokens": 24,
+        "total_tokens": 46
+      },
+      "camelid": {
+        "prompt_token_ids": [
+          1,
+          529,
+          29989,
+          1792,
+          29989,
+          29958,
+          13,
+          1576,
+          2211,
+          7601,
+          11955,
+          526,
+          2,
+          29871,
+          13,
+          29966,
+          29989,
+          465,
+          22137,
+          29989,
+          29958,
+          13
+        ],
+        "generated_token_ids": [
+          1576,
+          2211,
+          7601,
+          11955,
+          29892,
+          2654,
+          29892,
+          7933,
+          29892,
+          322,
+          7254,
+          29892,
+          526,
+          15574,
+          1304,
+          297,
+          20413,
+          322,
+          1616,
+          2861,
+          304,
+          1009,
+          8359,
+          528
+        ],
+        "dense_metadata": {
+          "embedding_length": 2048,
+          "attention_head_count": 32,
+          "attention_head_count_kv": 4,
+          "head_dim": 64,
+          "rope_dimension_count": 64,
+          "rope_freq_base": 10000,
+          "rope_scaling_type": "none",
+          "rope_scaling_factor": null,
+          "rope_scaling_original_context_length": null,
+          "rope_scaling_low_freq_factor": null,
+          "rope_scaling_high_freq_factor": null,
+          "rope_pairing": "adjacent_even_odd",
+          "rope_direction": "forward",
+          "rope_position_mode": "zero_based",
+          "gqa_head_mapping": "grouped",
+          "attention_score_scale": "head_dim",
+          "linear_accumulation": "f32",
+          "ffn_gate_up_order": "gate_up",
+          "rms_norm_epsilon": 0.00001,
+          "rms_norm_effective_epsilon": 0.00001,
+          "square_linear_diagnostic_layout": "transposed",
+          "rectangular_linear_diagnostic_layout": "auto",
+          "token_embedding_shape": [
+            32000,
+            2048
+          ],
+          "output_shape": [
+            2048,
+            32000
+          ],
+          "output_is_tied_embedding": false,
+          "output_projection_layout": "input_output",
+          "output_projection_diagnostic_layout": "token_major",
+          "zero_attention_delta": "none",
+          "zero_ffn_delta": "none",
+          "projection_orientations": {
+            "attention_q": {
+              "shape": [
+                2048,
+                2048
+              ],
+              "input_width": 2048,
+              "output_width": 2048,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "rhs_transposed",
+              "square_diagnostic_applies": true
+            },
+            "attention_k": {
+              "shape": [
+                2048,
+                256
+              ],
+              "input_width": 2048,
+              "output_width": 256,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "descriptor",
+              "square_diagnostic_applies": false
+            },
+            "attention_v": {
+              "shape": [
+                2048,
+                256
+              ],
+              "input_width": 2048,
+              "output_width": 256,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "descriptor",
+              "square_diagnostic_applies": false
+            },
+            "attention_output": {
+              "shape": [
+                2048,
+                2048
+              ],
+              "input_width": 2048,
+              "output_width": 2048,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "rhs_transposed",
+              "square_diagnostic_applies": true
+            },
+            "ffn_gate": {
+              "shape": [
+                2048,
+                5632
+              ],
+              "input_width": 2048,
+              "output_width": 5632,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "descriptor",
+              "square_diagnostic_applies": false
+            },
+            "ffn_up": {
+              "shape": [
+                2048,
+                5632
+              ],
+              "input_width": 2048,
+              "output_width": 5632,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "descriptor",
+              "square_diagnostic_applies": false
+            },
+            "ffn_down": {
+              "shape": [
+                5632,
+                2048
+              ],
+              "input_width": 5632,
+              "output_width": 2048,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "descriptor",
+              "square_diagnostic_applies": false
+            }
+          }
+        },
+        "top_logits": [
+          {
+            "token_id": 8241,
+            "logit": 16.98924,
+            "probability": 0.46162963,
+            "rank": 1,
+            "selected": false,
+            "text": "Yes"
+          },
+          {
+            "token_id": 1576,
+            "logit": 16.127235,
+            "probability": 0.19495285,
+            "rank": 2,
+            "selected": false,
+            "text": "The"
+          },
+          {
+            "token_id": 29903,
+            "logit": 15.503735,
+            "probability": 0.10450729,
+            "rank": 3,
+            "selected": false,
+            "text": "S"
+          },
+          {
+            "token_id": 29907,
+            "logit": 14.963468,
+            "probability": 0.060885184,
+            "rank": 4,
+            "selected": false,
+            "text": "C"
+          },
+          {
+            "token_id": 797,
+            "logit": 14.553993,
+            "probability": 0.04042771,
+            "rank": 5,
+            "selected": false,
+            "text": "In"
+          },
+          {
+            "token_id": 8439,
+            "logit": 14.165825,
+            "probability": 0.02742204,
+            "rank": 6,
+            "selected": false,
+            "text": "There"
+          },
+          {
+            "token_id": 7504,
+            "logit": 13.261425,
+            "probability": 0.011100024,
+            "rank": 7,
+            "selected": false,
+            "text": "Acc"
+          },
+          {
+            "token_id": 6565,
+            "logit": 12.88776,
+            "probability": 0.0076391203,
+            "rank": 8,
+            "selected": false,
+            "text": "Ver"
+          }
+        ],
+        "output_projection": []
+      }
+    },
+    {
+      "id": "<id>",
+      "object": "chat.completion",
+      "created": 0,
+      "model": "tinyllama_tinyllama-1.1b-chat-v1.0",
+      "choices": [
+        {
+          "index": 0,
+          "message": {
+            "role": "assistant",
+            "content": "Yes, there are three primary colors: red, blue, and green. These colors are made up of different combinations of wavelengths of light, which are reflected by the molecules of the materials they are made from. The w"
+          },
+          "finish_reason": "length"
+        }
+      ],
+      "usage": {
+        "prompt_tokens": 22,
+        "completion_tokens": 48,
+        "total_tokens": 70
+      },
+      "camelid": {
+        "prompt_token_ids": [
+          1,
+          529,
+          29989,
+          1792,
+          29989,
+          29958,
+          13,
+          1576,
+          2211,
+          7601,
+          11955,
+          526,
+          2,
+          29871,
+          13,
+          29966,
+          29989,
+          465,
+          22137,
+          29989,
+          29958,
+          13
+        ],
+        "generated_token_ids": [
+          8241,
+          29892,
+          727,
+          526,
+          2211,
+          7601,
+          11955,
+          29901,
+          2654,
+          29892,
+          7254,
+          29892,
+          322,
+          7933,
+          29889,
+          4525,
+          11955,
+          526,
+          1754,
+          701,
+          310,
+          1422,
+          18240,
+          310,
+          281,
+          6447,
+          1477,
+          29879,
+          310,
+          3578,
+          29892,
+          607,
+          526,
+          25312,
+          491,
+          278,
+          13206,
+          21337,
+          310,
+          278,
+          17279,
+          896,
+          526,
+          1754,
+          515,
+          29889,
+          450,
+          281
+        ],
+        "dense_metadata": {
+          "embedding_length": 2048,
+          "attention_head_count": 32,
+          "attention_head_count_kv": 4,
+          "head_dim": 64,
+          "rope_dimension_count": 64,
+          "rope_freq_base": 10000,
+          "rope_scaling_type": "none",
+          "rope_scaling_factor": null,
+          "rope_scaling_original_context_length": null,
+          "rope_scaling_low_freq_factor": null,
+          "rope_scaling_high_freq_factor": null,
+          "rope_pairing": "adjacent_even_odd",
+          "rope_direction": "forward",
+          "rope_position_mode": "zero_based",
+          "gqa_head_mapping": "grouped",
+          "attention_score_scale": "head_dim",
+          "linear_accumulation": "f32",
+          "ffn_gate_up_order": "gate_up",
+          "rms_norm_epsilon": 0.00001,
+          "rms_norm_effective_epsilon": 0.00001,
+          "square_linear_diagnostic_layout": "transposed",
+          "rectangular_linear_diagnostic_layout": "auto",
+          "token_embedding_shape": [
+            32000,
+            2048
+          ],
+          "output_shape": [
+            2048,
+            32000
+          ],
+          "output_is_tied_embedding": false,
+          "output_projection_layout": "input_output",
+          "output_projection_diagnostic_layout": "token_major",
+          "zero_attention_delta": "none",
+          "zero_ffn_delta": "none",
+          "projection_orientations": {
+            "attention_q": {
+              "shape": [
+                2048,
+                2048
+              ],
+              "input_width": 2048,
+              "output_width": 2048,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "rhs_transposed",
+              "square_diagnostic_applies": true
+            },
+            "attention_k": {
+              "shape": [
+                2048,
+                256
+              ],
+              "input_width": 2048,
+              "output_width": 256,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "descriptor",
+              "square_diagnostic_applies": false
+            },
+            "attention_v": {
+              "shape": [
+                2048,
+                256
+              ],
+              "input_width": 2048,
+              "output_width": 256,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "descriptor",
+              "square_diagnostic_applies": false
+            },
+            "attention_output": {
+              "shape": [
+                2048,
+                2048
+              ],
+              "input_width": 2048,
+              "output_width": 2048,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "rhs_transposed",
+              "square_diagnostic_applies": true
+            },
+            "ffn_gate": {
+              "shape": [
+                2048,
+                5632
+              ],
+              "input_width": 2048,
+              "output_width": 5632,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "descriptor",
+              "square_diagnostic_applies": false
+            },
+            "ffn_up": {
+              "shape": [
+                2048,
+                5632
+              ],
+              "input_width": 2048,
+              "output_width": 5632,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "descriptor",
+              "square_diagnostic_applies": false
+            },
+            "ffn_down": {
+              "shape": [
+                5632,
+                2048
+              ],
+              "input_width": 5632,
+              "output_width": 2048,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "descriptor",
+              "square_diagnostic_applies": false
+            }
+          }
+        },
+        "top_logits": [
+          {
+            "token_id": 8241,
+            "logit": 16.98924,
+            "probability": 0.46162963,
+            "rank": 1,
+            "selected": false,
+            "text": "Yes"
+          },
+          {
+            "token_id": 1576,
+            "logit": 16.127235,
+            "probability": 0.19495285,
+            "rank": 2,
+            "selected": false,
+            "text": "The"
+          },
+          {
+            "token_id": 29903,
+            "logit": 15.503735,
+            "probability": 0.10450729,
+            "rank": 3,
+            "selected": false,
+            "text": "S"
+          },
+          {
+            "token_id": 29907,
+            "logit": 14.963468,
+            "probability": 0.060885184,
+            "rank": 4,
+            "selected": false,
+            "text": "C"
+          },
+          {
+            "token_id": 797,
+            "logit": 14.553993,
+            "probability": 0.04042771,
+            "rank": 5,
+            "selected": false,
+            "text": "In"
+          },
+          {
+            "token_id": 8439,
+            "logit": 14.165825,
+            "probability": 0.02742204,
+            "rank": 6,
+            "selected": false,
+            "text": "There"
+          },
+          {
+            "token_id": 7504,
+            "logit": 13.261425,
+            "probability": 0.011100024,
+            "rank": 7,
+            "selected": false,
+            "text": "Acc"
+          },
+          {
+            "token_id": 6565,
+            "logit": 12.88776,
+            "probability": 0.0076391203,
+            "rank": 8,
+            "selected": false,
+            "text": "Ver"
+          }
+        ],
+        "output_projection": []
+      }
+    },
+    {
+      "id": "<id>",
+      "object": "chat.completion",
+      "created": 0,
+      "model": "tinyllama_tinyllama-1.1b-chat-v1.0",
+      "choices": [
+        {
+          "index": 0,
+          "message": {
+            "role": "assistant",
+            "content": "1. Llamas are a curious and playful breed of domesticated sheep that are known for their distinctive white coats and playful antics.\n\n2. Llamas are also known for their ability to communicate"
+          },
+          "finish_reason": "length"
+        }
+      ],
+      "usage": {
+        "prompt_tokens": 25,
+        "completion_tokens": 48,
+        "total_tokens": 73
+      },
+      "camelid": {
+        "prompt_token_ids": [
+          1,
+          529,
+          29989,
+          1792,
+          29989,
+          29958,
+          13,
+          6113,
+          1023,
+          3273,
+          25260,
+          1048,
+          11829,
+          294,
+          29889,
+          2,
+          29871,
+          13,
+          29966,
+          29989,
+          465,
+          22137,
+          29989,
+          29958,
+          13
+        ],
+        "generated_token_ids": [
+          29896,
+          29889,
+          365,
+          5288,
+          294,
+          526,
+          263,
+          12758,
+          322,
+          1708,
+          1319,
+          2078,
+          287,
+          310,
+          21849,
+          630,
+          29735,
+          393,
+          526,
+          2998,
+          363,
+          1009,
+          8359,
+          573,
+          4796,
+          1302,
+          1446,
+          322,
+          1708,
+          1319,
+          3677,
+          1199,
+          29889,
+          13,
+          13,
+          29906,
+          29889,
+          365,
+          5288,
+          294,
+          526,
+          884,
+          2998,
+          363,
+          1009,
+          11509,
+          304,
+          23120
+        ],
+        "dense_metadata": {
+          "embedding_length": 2048,
+          "attention_head_count": 32,
+          "attention_head_count_kv": 4,
+          "head_dim": 64,
+          "rope_dimension_count": 64,
+          "rope_freq_base": 10000,
+          "rope_scaling_type": "none",
+          "rope_scaling_factor": null,
+          "rope_scaling_original_context_length": null,
+          "rope_scaling_low_freq_factor": null,
+          "rope_scaling_high_freq_factor": null,
+          "rope_pairing": "adjacent_even_odd",
+          "rope_direction": "forward",
+          "rope_position_mode": "zero_based",
+          "gqa_head_mapping": "grouped",
+          "attention_score_scale": "head_dim",
+          "linear_accumulation": "f32",
+          "ffn_gate_up_order": "gate_up",
+          "rms_norm_epsilon": 0.00001,
+          "rms_norm_effective_epsilon": 0.00001,
+          "square_linear_diagnostic_layout": "transposed",
+          "rectangular_linear_diagnostic_layout": "auto",
+          "token_embedding_shape": [
+            32000,
+            2048
+          ],
+          "output_shape": [
+            2048,
+            32000
+          ],
+          "output_is_tied_embedding": false,
+          "output_projection_layout": "input_output",
+          "output_projection_diagnostic_layout": "token_major",
+          "zero_attention_delta": "none",
+          "zero_ffn_delta": "none",
+          "projection_orientations": {
+            "attention_q": {
+              "shape": [
+                2048,
+                2048
+              ],
+              "input_width": 2048,
+              "output_width": 2048,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "rhs_transposed",
+              "square_diagnostic_applies": true
+            },
+            "attention_k": {
+              "shape": [
+                2048,
+                256
+              ],
+              "input_width": 2048,
+              "output_width": 256,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "descriptor",
+              "square_diagnostic_applies": false
+            },
+            "attention_v": {
+              "shape": [
+                2048,
+                256
+              ],
+              "input_width": 2048,
+              "output_width": 256,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "descriptor",
+              "square_diagnostic_applies": false
+            },
+            "attention_output": {
+              "shape": [
+                2048,
+                2048
+              ],
+              "input_width": 2048,
+              "output_width": 2048,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "rhs_transposed",
+              "square_diagnostic_applies": true
+            },
+            "ffn_gate": {
+              "shape": [
+                2048,
+                5632
+              ],
+              "input_width": 2048,
+              "output_width": 5632,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "descriptor",
+              "square_diagnostic_applies": false
+            },
+            "ffn_up": {
+              "shape": [
+                2048,
+                5632
+              ],
+              "input_width": 2048,
+              "output_width": 5632,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "descriptor",
+              "square_diagnostic_applies": false
+            },
+            "ffn_down": {
+              "shape": [
+                5632,
+                2048
+              ],
+              "input_width": 5632,
+              "output_width": 2048,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "descriptor",
+              "square_diagnostic_applies": false
+            }
+          }
+        },
+        "top_logits": [
+          {
+            "token_id": 29896,
+            "logit": 18.404686,
+            "probability": 0.9116324,
+            "rank": 1,
+            "selected": false,
+            "text": "1"
+          },
+          {
+            "token_id": 29931,
+            "logit": 15.686001,
+            "probability": 0.060132574,
+            "rank": 2,
+            "selected": false,
+            "text": "L"
+          },
+          {
+            "token_id": 29899,
+            "logit": 13.74828,
+            "probability": 0.008661003,
+            "rank": 3,
+            "selected": false,
+            "text": "-"
+          },
+          {
+            "token_id": 29909,
+            "logit": 12.581132,
+            "probability": 0.002695767,
+            "rank": 4,
+            "selected": false,
+            "text": "A"
+          },
+          {
+            "token_id": 29903,
+            "logit": 12.100563,
+            "probability": 0.0016671473,
+            "rank": 5,
+            "selected": false,
+            "text": "S"
+          },
+          {
+            "token_id": 1576,
+            "logit": 11.808518,
+            "probability": 0.0012449175,
+            "rank": 6,
+            "selected": false,
+            "text": "The"
+          },
+          {
+            "token_id": 6730,
+            "logit": 11.627569,
+            "probability": 0.0010388559,
+            "rank": 7,
+            "selected": false,
+            "text": "First"
+          },
+          {
+            "token_id": 29898,
+            "logit": 11.260163,
+            "probability": 0.0007194373,
+            "rank": 8,
+            "selected": false,
+            "text": "("
+          }
+        ],
+        "output_projection": []
+      }
+    },
+    {
+      "id": "<id>",
+      "object": "chat.completion",
+      "created": 0,
+      "model": "tinyllama_tinyllama-1.1b-chat-v1.0",
+      "choices": [
+        {
+          "index": 0,
+          "message": {
+            "role": "assistant",
+            "content": "1. Llamas are a friendly and curious domestic animal that are often used for their curious and playful personalities"
+          },
+          "finish_reason": "length"
+        }
+      ],
+      "usage": {
+        "prompt_tokens": 25,
+        "completion_tokens": 24,
+        "total_tokens": 49
+      },
+      "camelid": {
+        "prompt_token_ids": [
+          1,
+          529,
+          29989,
+          1792,
+          29989,
+          29958,
+          13,
+          6113,
+          1023,
+          3273,
+          25260,
+          1048,
+          11829,
+          294,
+          29889,
+          2,
+          29871,
+          13,
+          29966,
+          29989,
+          465,
+          22137,
+          29989,
+          29958,
+          13
+        ],
+        "generated_token_ids": [
+          29896,
+          29889,
+          365,
+          5288,
+          294,
+          526,
+          263,
+          19780,
+          322,
+          12758,
+          21849,
+          13019,
+          393,
+          526,
+          4049,
+          1304,
+          363,
+          1009,
+          12758,
+          322,
+          1708,
+          1319,
+          7333,
+          1907
+        ],
+        "dense_metadata": {
+          "embedding_length": 2048,
+          "attention_head_count": 32,
+          "attention_head_count_kv": 4,
+          "head_dim": 64,
+          "rope_dimension_count": 64,
+          "rope_freq_base": 10000,
+          "rope_scaling_type": "none",
+          "rope_scaling_factor": null,
+          "rope_scaling_original_context_length": null,
+          "rope_scaling_low_freq_factor": null,
+          "rope_scaling_high_freq_factor": null,
+          "rope_pairing": "adjacent_even_odd",
+          "rope_direction": "forward",
+          "rope_position_mode": "zero_based",
+          "gqa_head_mapping": "grouped",
+          "attention_score_scale": "head_dim",
+          "linear_accumulation": "f32",
+          "ffn_gate_up_order": "gate_up",
+          "rms_norm_epsilon": 0.00001,
+          "rms_norm_effective_epsilon": 0.00001,
+          "square_linear_diagnostic_layout": "transposed",
+          "rectangular_linear_diagnostic_layout": "auto",
+          "token_embedding_shape": [
+            32000,
+            2048
+          ],
+          "output_shape": [
+            2048,
+            32000
+          ],
+          "output_is_tied_embedding": false,
+          "output_projection_layout": "input_output",
+          "output_projection_diagnostic_layout": "token_major",
+          "zero_attention_delta": "none",
+          "zero_ffn_delta": "none",
+          "projection_orientations": {
+            "attention_q": {
+              "shape": [
+                2048,
+                2048
+              ],
+              "input_width": 2048,
+              "output_width": 2048,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "rhs_transposed",
+              "square_diagnostic_applies": true
+            },
+            "attention_k": {
+              "shape": [
+                2048,
+                256
+              ],
+              "input_width": 2048,
+              "output_width": 256,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "descriptor",
+              "square_diagnostic_applies": false
+            },
+            "attention_v": {
+              "shape": [
+                2048,
+                256
+              ],
+              "input_width": 2048,
+              "output_width": 256,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "descriptor",
+              "square_diagnostic_applies": false
+            },
+            "attention_output": {
+              "shape": [
+                2048,
+                2048
+              ],
+              "input_width": 2048,
+              "output_width": 2048,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "rhs_transposed",
+              "square_diagnostic_applies": true
+            },
+            "ffn_gate": {
+              "shape": [
+                2048,
+                5632
+              ],
+              "input_width": 2048,
+              "output_width": 5632,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "descriptor",
+              "square_diagnostic_applies": false
+            },
+            "ffn_up": {
+              "shape": [
+                2048,
+                5632
+              ],
+              "input_width": 2048,
+              "output_width": 5632,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "descriptor",
+              "square_diagnostic_applies": false
+            },
+            "ffn_down": {
+              "shape": [
+                5632,
+                2048
+              ],
+              "input_width": 5632,
+              "output_width": 2048,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "descriptor",
+              "square_diagnostic_applies": false
+            }
+          }
+        },
+        "top_logits": [
+          {
+            "token_id": 29896,
+            "logit": 18.404686,
+            "probability": 0.9116324,
+            "rank": 1,
+            "selected": false,
+            "text": "1"
+          },
+          {
+            "token_id": 29931,
+            "logit": 15.686001,
+            "probability": 0.060132574,
+            "rank": 2,
+            "selected": false,
+            "text": "L"
+          },
+          {
+            "token_id": 29899,
+            "logit": 13.74828,
+            "probability": 0.008661003,
+            "rank": 3,
+            "selected": false,
+            "text": "-"
+          },
+          {
+            "token_id": 29909,
+            "logit": 12.581132,
+            "probability": 0.002695767,
+            "rank": 4,
+            "selected": false,
+            "text": "A"
+          },
+          {
+            "token_id": 29903,
+            "logit": 12.100563,
+            "probability": 0.0016671473,
+            "rank": 5,
+            "selected": false,
+            "text": "S"
+          },
+          {
+            "token_id": 1576,
+            "logit": 11.808518,
+            "probability": 0.0012449175,
+            "rank": 6,
+            "selected": false,
+            "text": "The"
+          },
+          {
+            "token_id": 6730,
+            "logit": 11.627569,
+            "probability": 0.0010388559,
+            "rank": 7,
+            "selected": false,
+            "text": "First"
+          },
+          {
+            "token_id": 29898,
+            "logit": 11.260163,
+            "probability": 0.0007194373,
+            "rank": 8,
+            "selected": false,
+            "text": "("
+          }
+        ],
+        "output_projection": []
+      }
+    },
+    {
+      "id": "<id>",
+      "object": "chat.completion",
+      "created": 0,
+      "model": "tinyllama_tinyllama-1.1b-chat-v1.0",
+      "choices": [
+        {
+          "index": 0,
+          "message": {
+            "role": "assistant",
+            "content": "1. Llamas are a curious and playful breed of domesticated sheep that are known for their distinctive white coats and playful antics.\n\n2. Llamas are also known for their ability to communicate"
+          },
+          "finish_reason": "length"
+        }
+      ],
+      "usage": {
+        "prompt_tokens": 25,
+        "completion_tokens": 48,
+        "total_tokens": 73
+      },
+      "camelid": {
+        "prompt_token_ids": [
+          1,
+          529,
+          29989,
+          1792,
+          29989,
+          29958,
+          13,
+          6113,
+          1023,
+          3273,
+          25260,
+          1048,
+          11829,
+          294,
+          29889,
+          2,
+          29871,
+          13,
+          29966,
+          29989,
+          465,
+          22137,
+          29989,
+          29958,
+          13
+        ],
+        "generated_token_ids": [
+          29896,
+          29889,
+          365,
+          5288,
+          294,
+          526,
+          263,
+          12758,
+          322,
+          1708,
+          1319,
+          2078,
+          287,
+          310,
+          21849,
+          630,
+          29735,
+          393,
+          526,
+          2998,
+          363,
+          1009,
+          8359,
+          573,
+          4796,
+          1302,
+          1446,
+          322,
+          1708,
+          1319,
+          3677,
+          1199,
+          29889,
+          13,
+          13,
+          29906,
+          29889,
+          365,
+          5288,
+          294,
+          526,
+          884,
+          2998,
+          363,
+          1009,
+          11509,
+          304,
+          23120
+        ],
+        "dense_metadata": {
+          "embedding_length": 2048,
+          "attention_head_count": 32,
+          "attention_head_count_kv": 4,
+          "head_dim": 64,
+          "rope_dimension_count": 64,
+          "rope_freq_base": 10000,
+          "rope_scaling_type": "none",
+          "rope_scaling_factor": null,
+          "rope_scaling_original_context_length": null,
+          "rope_scaling_low_freq_factor": null,
+          "rope_scaling_high_freq_factor": null,
+          "rope_pairing": "adjacent_even_odd",
+          "rope_direction": "forward",
+          "rope_position_mode": "zero_based",
+          "gqa_head_mapping": "grouped",
+          "attention_score_scale": "head_dim",
+          "linear_accumulation": "f32",
+          "ffn_gate_up_order": "gate_up",
+          "rms_norm_epsilon": 0.00001,
+          "rms_norm_effective_epsilon": 0.00001,
+          "square_linear_diagnostic_layout": "transposed",
+          "rectangular_linear_diagnostic_layout": "auto",
+          "token_embedding_shape": [
+            32000,
+            2048
+          ],
+          "output_shape": [
+            2048,
+            32000
+          ],
+          "output_is_tied_embedding": false,
+          "output_projection_layout": "input_output",
+          "output_projection_diagnostic_layout": "token_major",
+          "zero_attention_delta": "none",
+          "zero_ffn_delta": "none",
+          "projection_orientations": {
+            "attention_q": {
+              "shape": [
+                2048,
+                2048
+              ],
+              "input_width": 2048,
+              "output_width": 2048,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "rhs_transposed",
+              "square_diagnostic_applies": true
+            },
+            "attention_k": {
+              "shape": [
+                2048,
+                256
+              ],
+              "input_width": 2048,
+              "output_width": 256,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "descriptor",
+              "square_diagnostic_applies": false
+            },
+            "attention_v": {
+              "shape": [
+                2048,
+                256
+              ],
+              "input_width": 2048,
+              "output_width": 256,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "descriptor",
+              "square_diagnostic_applies": false
+            },
+            "attention_output": {
+              "shape": [
+                2048,
+                2048
+              ],
+              "input_width": 2048,
+              "output_width": 2048,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "rhs_transposed",
+              "square_diagnostic_applies": true
+            },
+            "ffn_gate": {
+              "shape": [
+                2048,
+                5632
+              ],
+              "input_width": 2048,
+              "output_width": 5632,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "descriptor",
+              "square_diagnostic_applies": false
+            },
+            "ffn_up": {
+              "shape": [
+                2048,
+                5632
+              ],
+              "input_width": 2048,
+              "output_width": 5632,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "descriptor",
+              "square_diagnostic_applies": false
+            },
+            "ffn_down": {
+              "shape": [
+                5632,
+                2048
+              ],
+              "input_width": 5632,
+              "output_width": 2048,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "descriptor",
+              "square_diagnostic_applies": false
+            }
+          }
+        },
+        "top_logits": [
+          {
+            "token_id": 29896,
+            "logit": 18.404686,
+            "probability": 0.9116324,
+            "rank": 1,
+            "selected": false,
+            "text": "1"
+          },
+          {
+            "token_id": 29931,
+            "logit": 15.686001,
+            "probability": 0.060132574,
+            "rank": 2,
+            "selected": false,
+            "text": "L"
+          },
+          {
+            "token_id": 29899,
+            "logit": 13.74828,
+            "probability": 0.008661003,
+            "rank": 3,
+            "selected": false,
+            "text": "-"
+          },
+          {
+            "token_id": 29909,
+            "logit": 12.581132,
+            "probability": 0.002695767,
+            "rank": 4,
+            "selected": false,
+            "text": "A"
+          },
+          {
+            "token_id": 29903,
+            "logit": 12.100563,
+            "probability": 0.0016671473,
+            "rank": 5,
+            "selected": false,
+            "text": "S"
+          },
+          {
+            "token_id": 1576,
+            "logit": 11.808518,
+            "probability": 0.0012449175,
+            "rank": 6,
+            "selected": false,
+            "text": "The"
+          },
+          {
+            "token_id": 6730,
+            "logit": 11.627569,
+            "probability": 0.0010388559,
+            "rank": 7,
+            "selected": false,
+            "text": "First"
+          },
+          {
+            "token_id": 29898,
+            "logit": 11.260163,
+            "probability": 0.0007194373,
+            "rank": 8,
+            "selected": false,
+            "text": "("
+          }
+        ],
+        "output_projection": []
+      }
+    }
+  ],
+  "completion": [
+    {
+      "id": "<id>",
+      "object": "text_completion",
+      "created": 0,
+      "model": "tinyllama_tinyllama-1.1b-chat-v1.0",
+      "choices": [
+        {
+          "index": 0,
+          "text": ", and then I'll be back.\n\nJASON: (smiling) Hey, I'm glad you're here.\n\n",
+          "finish_reason": "length"
+        }
+      ],
+      "usage": {
+        "prompt_tokens": 2,
+        "completion_tokens": 32,
+        "total_tokens": 34
+      },
+      "camelid": {
+        "prompt_token_ids": [
+          1,
+          22172
+        ],
+        "generated_token_ids": [
+          29892,
+          322,
+          769,
+          306,
+          29915,
+          645,
+          367,
+          1250,
+          29889,
+          13,
+          13,
+          29967,
+          29909,
+          3094,
+          29901,
+          313,
+          3844,
+          6504,
+          29897,
+          18637,
+          29892,
+          306,
+          29915,
+          29885,
+          10932,
+          366,
+          29915,
+          276,
+          1244,
+          29889,
+          13,
+          13
+        ],
+        "dense_metadata": {
+          "embedding_length": 2048,
+          "attention_head_count": 32,
+          "attention_head_count_kv": 4,
+          "head_dim": 64,
+          "rope_dimension_count": 64,
+          "rope_freq_base": 10000,
+          "rope_scaling_type": "none",
+          "rope_scaling_factor": null,
+          "rope_scaling_original_context_length": null,
+          "rope_scaling_low_freq_factor": null,
+          "rope_scaling_high_freq_factor": null,
+          "rope_pairing": "adjacent_even_odd",
+          "rope_direction": "forward",
+          "rope_position_mode": "zero_based",
+          "gqa_head_mapping": "grouped",
+          "attention_score_scale": "head_dim",
+          "linear_accumulation": "f32",
+          "ffn_gate_up_order": "gate_up",
+          "rms_norm_epsilon": 0.00001,
+          "rms_norm_effective_epsilon": 0.00001,
+          "square_linear_diagnostic_layout": "transposed",
+          "rectangular_linear_diagnostic_layout": "auto",
+          "token_embedding_shape": [
+            32000,
+            2048
+          ],
+          "output_shape": [
+            2048,
+            32000
+          ],
+          "output_is_tied_embedding": false,
+          "output_projection_layout": "input_output",
+          "output_projection_diagnostic_layout": "token_major",
+          "zero_attention_delta": "none",
+          "zero_ffn_delta": "none",
+          "projection_orientations": {
+            "attention_q": {
+              "shape": [
+                2048,
+                2048
+              ],
+              "input_width": 2048,
+              "output_width": 2048,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "rhs_transposed",
+              "square_diagnostic_applies": true
+            },
+            "attention_k": {
+              "shape": [
+                2048,
+                256
+              ],
+              "input_width": 2048,
+              "output_width": 256,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "descriptor",
+              "square_diagnostic_applies": false
+            },
+            "attention_v": {
+              "shape": [
+                2048,
+                256
+              ],
+              "input_width": 2048,
+              "output_width": 256,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "descriptor",
+              "square_diagnostic_applies": false
+            },
+            "attention_output": {
+              "shape": [
+                2048,
+                2048
+              ],
+              "input_width": 2048,
+              "output_width": 2048,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "rhs_transposed",
+              "square_diagnostic_applies": true
+            },
+            "ffn_gate": {
+              "shape": [
+                2048,
+                5632
+              ],
+              "input_width": 2048,
+              "output_width": 5632,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "descriptor",
+              "square_diagnostic_applies": false
+            },
+            "ffn_up": {
+              "shape": [
+                2048,
+                5632
+              ],
+              "input_width": 2048,
+              "output_width": 5632,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "descriptor",
+              "square_diagnostic_applies": false
+            },
+            "ffn_down": {
+              "shape": [
+                5632,
+                2048
+              ],
+              "input_width": 5632,
+              "output_width": 2048,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "descriptor",
+              "square_diagnostic_applies": false
+            }
+          }
+        },
+        "top_logits": [
+          {
+            "token_id": 29892,
+            "logit": 9.746426,
+            "probability": 0.1263758,
+            "rank": 1,
+            "selected": false,
+            "text": ","
+          },
+          {
+            "token_id": 3186,
+            "logit": 9.531627,
+            "probability": 0.101947814,
+            "rank": 2,
+            "selected": false,
+            "text": " world"
+          },
+          {
+            "token_id": 29889,
+            "logit": 9.175859,
+            "probability": 0.07142828,
+            "rank": 3,
+            "selected": false,
+            "text": "."
+          },
+          {
+            "token_id": 29991,
+            "logit": 9.162049,
+            "probability": 0.070448615,
+            "rank": 4,
+            "selected": false,
+            "text": "!"
+          },
+          {
+            "token_id": 304,
+            "logit": 8.872177,
+            "probability": 0.052720875,
+            "rank": 5,
+            "selected": false,
+            "text": " to"
+          },
+          {
+            "token_id": 13,
+            "logit": 8.722192,
+            "probability": 0.045377944,
+            "rank": 6,
+            "selected": false,
+            "text": "\n"
+          },
+          {
+            "token_id": 322,
+            "logit": 8.325892,
+            "probability": 0.03053052,
+            "rank": 7,
+            "selected": false,
+            "text": " and"
+          },
+          {
+            "token_id": 29918,
+            "logit": 8.037987,
+            "probability": 0.02289277,
+            "rank": 8,
+            "selected": false,
+            "text": "_"
+          }
+        ],
+        "output_projection": []
+      }
+    },
+    {
+      "id": "<id>",
+      "object": "text_completion",
+      "created": 0,
+      "model": "tinyllama_tinyllama-1.1b-chat-v1.0",
+      "choices": [
+        {
+          "index": 0,
+          "text": " red, blue, and green. These colors are used to create the primary colors of the color wheel.\n\n2. The secondary colors are yellow, cy",
+          "finish_reason": "length"
+        }
+      ],
+      "usage": {
+        "prompt_tokens": 6,
+        "completion_tokens": 32,
+        "total_tokens": 38
+      },
+      "camelid": {
+        "prompt_token_ids": [
+          1,
+          450,
+          2211,
+          7601,
+          11955,
+          526
+        ],
+        "generated_token_ids": [
+          2654,
+          29892,
+          7254,
+          29892,
+          322,
+          7933,
+          29889,
+          4525,
+          11955,
+          526,
+          1304,
+          304,
+          1653,
+          278,
+          7601,
+          11955,
+          310,
+          278,
+          2927,
+          18875,
+          29889,
+          13,
+          13,
+          29906,
+          29889,
+          450,
+          16723,
+          11955,
+          526,
+          13328,
+          29892,
+          5094
+        ],
+        "dense_metadata": {
+          "embedding_length": 2048,
+          "attention_head_count": 32,
+          "attention_head_count_kv": 4,
+          "head_dim": 64,
+          "rope_dimension_count": 64,
+          "rope_freq_base": 10000,
+          "rope_scaling_type": "none",
+          "rope_scaling_factor": null,
+          "rope_scaling_original_context_length": null,
+          "rope_scaling_low_freq_factor": null,
+          "rope_scaling_high_freq_factor": null,
+          "rope_pairing": "adjacent_even_odd",
+          "rope_direction": "forward",
+          "rope_position_mode": "zero_based",
+          "gqa_head_mapping": "grouped",
+          "attention_score_scale": "head_dim",
+          "linear_accumulation": "f32",
+          "ffn_gate_up_order": "gate_up",
+          "rms_norm_epsilon": 0.00001,
+          "rms_norm_effective_epsilon": 0.00001,
+          "square_linear_diagnostic_layout": "transposed",
+          "rectangular_linear_diagnostic_layout": "auto",
+          "token_embedding_shape": [
+            32000,
+            2048
+          ],
+          "output_shape": [
+            2048,
+            32000
+          ],
+          "output_is_tied_embedding": false,
+          "output_projection_layout": "input_output",
+          "output_projection_diagnostic_layout": "token_major",
+          "zero_attention_delta": "none",
+          "zero_ffn_delta": "none",
+          "projection_orientations": {
+            "attention_q": {
+              "shape": [
+                2048,
+                2048
+              ],
+              "input_width": 2048,
+              "output_width": 2048,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "rhs_transposed",
+              "square_diagnostic_applies": true
+            },
+            "attention_k": {
+              "shape": [
+                2048,
+                256
+              ],
+              "input_width": 2048,
+              "output_width": 256,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "descriptor",
+              "square_diagnostic_applies": false
+            },
+            "attention_v": {
+              "shape": [
+                2048,
+                256
+              ],
+              "input_width": 2048,
+              "output_width": 256,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "descriptor",
+              "square_diagnostic_applies": false
+            },
+            "attention_output": {
+              "shape": [
+                2048,
+                2048
+              ],
+              "input_width": 2048,
+              "output_width": 2048,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "rhs_transposed",
+              "square_diagnostic_applies": true
+            },
+            "ffn_gate": {
+              "shape": [
+                2048,
+                5632
+              ],
+              "input_width": 2048,
+              "output_width": 5632,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "descriptor",
+              "square_diagnostic_applies": false
+            },
+            "ffn_up": {
+              "shape": [
+                2048,
+                5632
+              ],
+              "input_width": 2048,
+              "output_width": 5632,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "descriptor",
+              "square_diagnostic_applies": false
+            },
+            "ffn_down": {
+              "shape": [
+                5632,
+                2048
+              ],
+              "input_width": 5632,
+              "output_width": 2048,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "descriptor",
+              "square_diagnostic_applies": false
+            }
+          }
+        },
+        "top_logits": [
+          {
+            "token_id": 2654,
+            "logit": 14.218359,
+            "probability": 0.70788604,
+            "rank": 1,
+            "selected": false,
+            "text": " red"
+          },
+          {
+            "token_id": 7254,
+            "logit": 11.586742,
+            "probability": 0.05094092,
+            "rank": 2,
+            "selected": false,
+            "text": " blue"
+          },
+          {
+            "token_id": 29901,
+            "logit": 11.257162,
+            "probability": 0.03663801,
+            "rank": 3,
+            "selected": false,
+            "text": ":"
+          },
+          {
+            "token_id": 4367,
+            "logit": 11.120682,
+            "probability": 0.03196386,
+            "rank": 4,
+            "selected": false,
+            "text": " Red"
+          },
+          {
+            "token_id": 5094,
+            "logit": 11.05021,
+            "probability": 0.029788848,
+            "rank": 5,
+            "selected": false,
+            "text": " cy"
+          },
+          {
+            "token_id": 7933,
+            "logit": 10.449325,
+            "probability": 0.016333997,
+            "rank": 6,
+            "selected": false,
+            "text": " green"
+          },
+          {
+            "token_id": 13328,
+            "logit": 10.077591,
+            "probability": 0.01126291,
+            "rank": 7,
+            "selected": false,
+            "text": " yellow"
+          },
+          {
+            "token_id": 390,
+            "logit": 9.593214,
+            "probability": 0.006938865,
+            "rank": 8,
+            "selected": false,
+            "text": " R"
+          }
+        ],
+        "output_projection": []
+      }
+    },
+    {
+      "id": "<id>",
+      "object": "text_completion",
+      "created": 0,
+      "model": "tinyllama_tinyllama-1.1b-chat-v1.0",
+      "choices": [
+        {
+          "index": 0,
+          "text": "",
+          "finish_reason": "stop"
+        }
+      ],
+      "usage": {
+        "prompt_tokens": 9,
+        "completion_tokens": 1,
+        "total_tokens": 10
+      },
+      "camelid": {
+        "prompt_token_ids": [
+          1,
+          14350,
+          1023,
+          3273,
+          25260,
+          1048,
+          11829,
+          294,
+          29889
+        ],
+        "generated_token_ids": [
+          2
+        ],
+        "dense_metadata": {
+          "embedding_length": 2048,
+          "attention_head_count": 32,
+          "attention_head_count_kv": 4,
+          "head_dim": 64,
+          "rope_dimension_count": 64,
+          "rope_freq_base": 10000,
+          "rope_scaling_type": "none",
+          "rope_scaling_factor": null,
+          "rope_scaling_original_context_length": null,
+          "rope_scaling_low_freq_factor": null,
+          "rope_scaling_high_freq_factor": null,
+          "rope_pairing": "adjacent_even_odd",
+          "rope_direction": "forward",
+          "rope_position_mode": "zero_based",
+          "gqa_head_mapping": "grouped",
+          "attention_score_scale": "head_dim",
+          "linear_accumulation": "f32",
+          "ffn_gate_up_order": "gate_up",
+          "rms_norm_epsilon": 0.00001,
+          "rms_norm_effective_epsilon": 0.00001,
+          "square_linear_diagnostic_layout": "transposed",
+          "rectangular_linear_diagnostic_layout": "auto",
+          "token_embedding_shape": [
+            32000,
+            2048
+          ],
+          "output_shape": [
+            2048,
+            32000
+          ],
+          "output_is_tied_embedding": false,
+          "output_projection_layout": "input_output",
+          "output_projection_diagnostic_layout": "token_major",
+          "zero_attention_delta": "none",
+          "zero_ffn_delta": "none",
+          "projection_orientations": {
+            "attention_q": {
+              "shape": [
+                2048,
+                2048
+              ],
+              "input_width": 2048,
+              "output_width": 2048,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "rhs_transposed",
+              "square_diagnostic_applies": true
+            },
+            "attention_k": {
+              "shape": [
+                2048,
+                256
+              ],
+              "input_width": 2048,
+              "output_width": 256,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "descriptor",
+              "square_diagnostic_applies": false
+            },
+            "attention_v": {
+              "shape": [
+                2048,
+                256
+              ],
+              "input_width": 2048,
+              "output_width": 256,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "descriptor",
+              "square_diagnostic_applies": false
+            },
+            "attention_output": {
+              "shape": [
+                2048,
+                2048
+              ],
+              "input_width": 2048,
+              "output_width": 2048,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "rhs_transposed",
+              "square_diagnostic_applies": true
+            },
+            "ffn_gate": {
+              "shape": [
+                2048,
+                5632
+              ],
+              "input_width": 2048,
+              "output_width": 5632,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "descriptor",
+              "square_diagnostic_applies": false
+            },
+            "ffn_up": {
+              "shape": [
+                2048,
+                5632
+              ],
+              "input_width": 2048,
+              "output_width": 5632,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "descriptor",
+              "square_diagnostic_applies": false
+            },
+            "ffn_down": {
+              "shape": [
+                5632,
+                2048
+              ],
+              "input_width": 5632,
+              "output_width": 2048,
+              "descriptor_layout": "input_output",
+              "runtime_interpretation": "descriptor",
+              "square_diagnostic_applies": false
+            }
+          }
+        },
+        "top_logits": [
+          {
+            "token_id": 2,
+            "logit": 12.524646,
+            "probability": 0.30386662,
+            "rank": 1,
+            "selected": false,
+            "text": ""
+          },
+          {
+            "token_id": 29871,
+            "logit": 11.507917,
+            "probability": 0.10993183,
+            "rank": 2,
+            "selected": false,
+            "text": " "
+          },
+          {
+            "token_id": 13,
+            "logit": 11.092681,
+            "probability": 0.072575256,
+            "rank": 3,
+            "selected": false,
+            "text": "\n"
+          },
+          {
+            "token_id": 306,
+            "logit": 10.4378805,
+            "probability": 0.037706163,
+            "rank": 4,
+            "selected": false,
+            "text": " I"
+          },
+          {
+            "token_id": 673,
+            "logit": 10.278325,
+            "probability": 0.03214536,
+            "rank": 5,
+            "selected": false,
+            "text": " Answer"
+          },
+          {
+            "token_id": 448,
+            "logit": 10.269234,
+            "probability": 0.03185444,
+            "rank": 6,
+            "selected": false,
+            "text": " -"
+          },
+          {
+            "token_id": 4803,
+            "logit": 9.860879,
+            "probability": 0.021175016,
+            "rank": 7,
+            "selected": false,
+            "text": " Use"
+          },
+          {
+            "token_id": 313,
+            "logit": 9.72042,
+            "probability": 0.018400226,
+            "rank": 8,
+            "selected": false,
+            "text": " ("
+          }
+        ],
+        "output_projection": []
+      }
+    }
+  ],
+  "stream": [
+    [
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"tinyllama_tinyllama-1.1b-chat-v1.0\",\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"tinyllama_tinyllama-1.1b-chat-v1.0\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"C\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"tinyllama_tinyllama-1.1b-chat-v1.0\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"ertain\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"tinyllama_tinyllama-1.1b-chat-v1.0\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"ly\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"tinyllama_tinyllama-1.1b-chat-v1.0\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"!\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"tinyllama_tinyllama-1.1b-chat-v1.0\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\" Here\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"tinyllama_tinyllama-1.1b-chat-v1.0\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\" are\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"tinyllama_tinyllama-1.1b-chat-v1.0\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\" some\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"tinyllama_tinyllama-1.1b-chat-v1.0\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\" examples\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"tinyllama_tinyllama-1.1b-chat-v1.0\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\" of\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"tinyllama_tinyllama-1.1b-chat-v1.0\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\" how\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"tinyllama_tinyllama-1.1b-chat-v1.0\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\" to\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"tinyllama_tinyllama-1.1b-chat-v1.0\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\" use\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"tinyllama_tinyllama-1.1b-chat-v1.0\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\" the\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"tinyllama_tinyllama-1.1b-chat-v1.0\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\" \\\"\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"tinyllama_tinyllama-1.1b-chat-v1.0\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"less\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"tinyllama_tinyllama-1.1b-chat-v1.0\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\" than\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"tinyllama_tinyllama-1.1b-chat-v1.0\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\" or\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"tinyllama_tinyllama-1.1b-chat-v1.0\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\" equal\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"tinyllama_tinyllama-1.1b-chat-v1.0\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\" to\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"tinyllama_tinyllama-1.1b-chat-v1.0\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"\\\"\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"tinyllama_tinyllama-1.1b-chat-v1.0\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\" (\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"tinyllama_tinyllama-1.1b-chat-v1.0\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"<\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"tinyllama_tinyllama-1.1b-chat-v1.0\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"|\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"tinyllama_tinyllama-1.1b-chat-v1.0\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"ass\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"tinyllama_tinyllama-1.1b-chat-v1.0\",\"choices\":[{\"index\":0,\"delta\":{},\"finish_reason\":\"length\"}]}",
+      "data: [DONE]"
+    ],
+    [
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"tinyllama_tinyllama-1.1b-chat-v1.0\",\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"tinyllama_tinyllama-1.1b-chat-v1.0\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"Certain\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"tinyllama_tinyllama-1.1b-chat-v1.0\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"ly\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"tinyllama_tinyllama-1.1b-chat-v1.0\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"!\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"tinyllama_tinyllama-1.1b-chat-v1.0\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\" Here\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"tinyllama_tinyllama-1.1b-chat-v1.0\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\" are\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"tinyllama_tinyllama-1.1b-chat-v1.0\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\" a\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"tinyllama_tinyllama-1.1b-chat-v1.0\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\" few\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"tinyllama_tinyllama-1.1b-chat-v1.0\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\" examples\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"tinyllama_tinyllama-1.1b-chat-v1.0\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\" of\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"tinyllama_tinyllama-1.1b-chat-v1.0\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\" how\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"tinyllama_tinyllama-1.1b-chat-v1.0\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\" to\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"tinyllama_tinyllama-1.1b-chat-v1.0\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\" use\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"tinyllama_tinyllama-1.1b-chat-v1.0\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\" d\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"tinyllama_tinyllama-1.1b-chat-v1.0\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"ron\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"tinyllama_tinyllama-1.1b-chat-v1.0\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"es\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"tinyllama_tinyllama-1.1b-chat-v1.0\",\"choices\":[{\"index\":0,\"delta\":{},\"finish_reason\":\"length\"}]}",
+      "data: [DONE]"
+    ],
+    [
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"tinyllama_tinyllama-1.1b-chat-v1.0\",\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"tinyllama_tinyllama-1.1b-chat-v1.0\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"Yes\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"tinyllama_tinyllama-1.1b-chat-v1.0\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\",\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"tinyllama_tinyllama-1.1b-chat-v1.0\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\" there\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"tinyllama_tinyllama-1.1b-chat-v1.0\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\" are\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"tinyllama_tinyllama-1.1b-chat-v1.0\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\" three\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"tinyllama_tinyllama-1.1b-chat-v1.0\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\" primary\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"tinyllama_tinyllama-1.1b-chat-v1.0\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\" colors\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"tinyllama_tinyllama-1.1b-chat-v1.0\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\":\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"tinyllama_tinyllama-1.1b-chat-v1.0\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\" red\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"tinyllama_tinyllama-1.1b-chat-v1.0\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\",\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"tinyllama_tinyllama-1.1b-chat-v1.0\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\" blue\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"tinyllama_tinyllama-1.1b-chat-v1.0\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\",\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"tinyllama_tinyllama-1.1b-chat-v1.0\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\" and\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"tinyllama_tinyllama-1.1b-chat-v1.0\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\" green\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"tinyllama_tinyllama-1.1b-chat-v1.0\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\".\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"tinyllama_tinyllama-1.1b-chat-v1.0\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\" These\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"tinyllama_tinyllama-1.1b-chat-v1.0\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\" colors\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"tinyllama_tinyllama-1.1b-chat-v1.0\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\" are\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"tinyllama_tinyllama-1.1b-chat-v1.0\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\" made\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"tinyllama_tinyllama-1.1b-chat-v1.0\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\" up\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"tinyllama_tinyllama-1.1b-chat-v1.0\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\" of\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"tinyllama_tinyllama-1.1b-chat-v1.0\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\" different\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"tinyllama_tinyllama-1.1b-chat-v1.0\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\" combinations\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"tinyllama_tinyllama-1.1b-chat-v1.0\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\" of\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"tinyllama_tinyllama-1.1b-chat-v1.0\",\"choices\":[{\"index\":0,\"delta\":{},\"finish_reason\":\"length\"}]}",
+      "data: [DONE]"
+    ],
+    [
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"tinyllama_tinyllama-1.1b-chat-v1.0\",\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"tinyllama_tinyllama-1.1b-chat-v1.0\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"The three\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"tinyllama_tinyllama-1.1b-chat-v1.0\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\" primary\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"tinyllama_tinyllama-1.1b-chat-v1.0\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\" colors\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"tinyllama_tinyllama-1.1b-chat-v1.0\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\",\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"tinyllama_tinyllama-1.1b-chat-v1.0\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\" red\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"tinyllama_tinyllama-1.1b-chat-v1.0\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\",\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"tinyllama_tinyllama-1.1b-chat-v1.0\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\" green\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"tinyllama_tinyllama-1.1b-chat-v1.0\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\",\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"tinyllama_tinyllama-1.1b-chat-v1.0\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\" and\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"tinyllama_tinyllama-1.1b-chat-v1.0\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\" blue\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"tinyllama_tinyllama-1.1b-chat-v1.0\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\",\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"tinyllama_tinyllama-1.1b-chat-v1.0\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\" are\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"tinyllama_tinyllama-1.1b-chat-v1.0\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\" commonly\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"tinyllama_tinyllama-1.1b-chat-v1.0\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\" used\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"tinyllama_tinyllama-1.1b-chat-v1.0\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\" in\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"tinyllama_tinyllama-1.1b-chat-v1.0\",\"choices\":[{\"index\":0,\"delta\":{},\"finish_reason\":\"length\"}]}",
+      "data: [DONE]"
+    ],
+    [
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"tinyllama_tinyllama-1.1b-chat-v1.0\",\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"tinyllama_tinyllama-1.1b-chat-v1.0\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"1\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"tinyllama_tinyllama-1.1b-chat-v1.0\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\".\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"tinyllama_tinyllama-1.1b-chat-v1.0\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\" L\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"tinyllama_tinyllama-1.1b-chat-v1.0\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"lam\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"tinyllama_tinyllama-1.1b-chat-v1.0\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"as\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"tinyllama_tinyllama-1.1b-chat-v1.0\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\" are\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"tinyllama_tinyllama-1.1b-chat-v1.0\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\" a\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"tinyllama_tinyllama-1.1b-chat-v1.0\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\" curious\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"tinyllama_tinyllama-1.1b-chat-v1.0\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\" and\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"tinyllama_tinyllama-1.1b-chat-v1.0\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\" play\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"tinyllama_tinyllama-1.1b-chat-v1.0\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"ful\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"tinyllama_tinyllama-1.1b-chat-v1.0\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\" bre\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"tinyllama_tinyllama-1.1b-chat-v1.0\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"ed\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"tinyllama_tinyllama-1.1b-chat-v1.0\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\" of\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"tinyllama_tinyllama-1.1b-chat-v1.0\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\" domestic\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"tinyllama_tinyllama-1.1b-chat-v1.0\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"ated\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"tinyllama_tinyllama-1.1b-chat-v1.0\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\" sheep\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"tinyllama_tinyllama-1.1b-chat-v1.0\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\" that\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"tinyllama_tinyllama-1.1b-chat-v1.0\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\" are\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"tinyllama_tinyllama-1.1b-chat-v1.0\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\" known\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"tinyllama_tinyllama-1.1b-chat-v1.0\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\" for\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"tinyllama_tinyllama-1.1b-chat-v1.0\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\" their\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"tinyllama_tinyllama-1.1b-chat-v1.0\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\" distinct\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"tinyllama_tinyllama-1.1b-chat-v1.0\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"ive\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"tinyllama_tinyllama-1.1b-chat-v1.0\",\"choices\":[{\"index\":0,\"delta\":{},\"finish_reason\":\"length\"}]}",
+      "data: [DONE]"
+    ],
+    [
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"tinyllama_tinyllama-1.1b-chat-v1.0\",\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"tinyllama_tinyllama-1.1b-chat-v1.0\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"1.\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"tinyllama_tinyllama-1.1b-chat-v1.0\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\" L\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"tinyllama_tinyllama-1.1b-chat-v1.0\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"lam\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"tinyllama_tinyllama-1.1b-chat-v1.0\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"as\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"tinyllama_tinyllama-1.1b-chat-v1.0\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\" are\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"tinyllama_tinyllama-1.1b-chat-v1.0\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\" a\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"tinyllama_tinyllama-1.1b-chat-v1.0\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\" friendly\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"tinyllama_tinyllama-1.1b-chat-v1.0\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\" and\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"tinyllama_tinyllama-1.1b-chat-v1.0\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\" curious\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"tinyllama_tinyllama-1.1b-chat-v1.0\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\" domestic\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"tinyllama_tinyllama-1.1b-chat-v1.0\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\" animal\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"tinyllama_tinyllama-1.1b-chat-v1.0\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\" that\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"tinyllama_tinyllama-1.1b-chat-v1.0\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\" are\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"tinyllama_tinyllama-1.1b-chat-v1.0\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\" often\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"tinyllama_tinyllama-1.1b-chat-v1.0\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\" used\"},\"finish_reason\":null}]}",
+      "data: {\"id\":\"<id>\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"tinyllama_tinyllama-1.1b-chat-v1.0\",\"choices\":[{\"index\":0,\"delta\":{},\"finish_reason\":\"length\"}]}",
+      "data: [DONE]"
+    ]
+  ],
+  "perf": [
+    {
+      "kind": "chat",
+      "prompt": "hello",
+      "wall_ms": 3192.7512,
+      "completion_tokens": 48
+    },
+    {
+      "kind": "stream-ttfb",
+      "prompt": "hello",
+      "ttfb_ms": 16.0858
+    },
+    {
+      "kind": "chat",
+      "prompt": "The three primary colors are",
+      "wall_ms": 2968.693,
+      "completion_tokens": 48
+    },
+    {
+      "kind": "stream-ttfb",
+      "prompt": "The three primary colors are",
+      "ttfb_ms": 17.8713
+    },
+    {
+      "kind": "chat",
+      "prompt": "Write two short sentences about llamas.",
+      "wall_ms": 2922.251,
+      "completion_tokens": 48
+    },
+    {
+      "kind": "stream-ttfb",
+      "prompt": "Write two short sentences about llamas.",
+      "ttfb_ms": 16.3208
+    }
+  ]
+}

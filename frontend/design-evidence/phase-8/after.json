@@ -1,0 +1,12 @@
+{
+  "sendToUserVisibleMs": 4.6,
+  "firstPaintFromSendMs": 1290.4,
+  "longTasksOver50ms": 0,
+  "worstLongTaskMs": 0,
+  "totalFrames": 2363,
+  "framesOver33ms": 1,
+  "framesOver100ms": 0,
+  "contentFlushes": 637,
+  "footerText": "llama-3.2-3b-instruct-q8supported exact row smokeusage est. 224→695TTFT 941ms23 tok/s30.5s",
+  "completionTokens": 695
+}

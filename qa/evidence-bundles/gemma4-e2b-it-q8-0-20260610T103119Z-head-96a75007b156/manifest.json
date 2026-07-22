@@ -1,0 +1,65 @@
+{
+  "schema": "camelid.gemma4_exact_row_public_evidence.v1",
+  "generated_utc": "2026-06-10T10:33:31.988Z",
+  "git_head": "96a75007b156",
+  "checkout_clean": false,
+  "row_id": "gemma4_e2b_it_q8_0",
+  "model": {
+    "filename": "gemma-4-E2B-it-Q8_0.gguf",
+    "size_bytes": 5048350848,
+    "sha256": "0a8488b149e1f700712c35d5bf0a3795f9dcc2563b4944d5ef2fb89375f9483e",
+    "quantization": "Q8_0",
+    "architecture": "gemma4"
+  },
+  "oracle": {
+    "build": "llama.cpp 5d56eff (llama-server, CPU, temperature=0/top_k=1, cache_prompt=false)",
+    "prompt_pack": "qa/gemma4/prompt_packs/basic_v1.json",
+    "oracle_artifact": "qa/gemma4/oracle/gemma-4-E2B-it-Q8_0.basic_v1.json"
+  },
+  "logs": [
+    {
+      "name": "cpu-parity",
+      "file": "logs/cpu-parity.txt",
+      "sha256": "efcc72aeaec8407584471923bdffe798797917d50877807fb1579f8e0432e692"
+    },
+    {
+      "name": "gpu-parity",
+      "file": "logs/gpu-parity.txt",
+      "sha256": "b3c68371053a523ec894c6740f21de15b80e4a01a5960f517ec6b31e678b5866"
+    },
+    {
+      "name": "api-smoke",
+      "file": "logs/api-smoke.txt",
+      "sha256": "463911c1b3acc67dc03b245a1d6ebb4c70513e9a86f11ebcf82b8fd1b0485f20"
+    },
+    {
+      "name": "metadata-load",
+      "file": "logs/metadata-load.txt",
+      "sha256": "a3606f755961aaa80defacaa4c4bd2d4a556b8056b6a035cb60530deddc09c6a"
+    },
+    {
+      "name": "distributed-parity",
+      "file": "logs/distributed-parity.txt",
+      "sha256": "cd2ec46bc105ad338b667c07828a1ef2aeb4f236c98fcd576b97160f233e592e"
+    },
+    {
+      "name": "perf-cold",
+      "file": "logs/perf-cold.txt",
+      "sha256": "172d7de6ef8370218bfa2149b6e05cab8bfa38ad48c11b37d611790eb85766fb"
+    },
+    {
+      "name": "perf-warm",
+      "file": "logs/perf-warm.txt",
+      "sha256": "d581e10820f032e61ec553acd15c8ac3aa7cac28abee13e9b69995d30a7dba61"
+    }
+  ],
+  "fields": {
+    "cpu_parity": "5/5 basic_v1 prompts full-budget (prompt tokens, generated tokens, text) vs the pinned plain-f32 GEMV comparator; also verified token-identical under the repacked and f16/FA oracle variants' captures during comparator bisection",
+    "gpu_parity": "5/5 basic_v1 prompts full-budget on the Metal GPU-resident runtime",
+    "distributed_parity": "TCP layer-sharding (split 13/35) token-identical to the oracle; shared-KV-split and wire-version guards fail closed",
+    "api_smoke": "non-streaming + SSE chat via CAMELID_GEMMA4_SERVE; typed multimodal rejection; corrected <|turn> markers; no marker/channel leakage",
+    "comparator": "llama.cpp 5d56eff --no-repack -fa off -ctk f32 -ctv f32 -ub 1 (plain-f32 GEMV path)",
+    "host": "Mac mini M4 16GB, macOS 25.5.0"
+  },
+  "claim_boundary": "Exact-row text-token generation within the checked basic_v1 prompt pack and API smoke envelope only. No bounded-context promotion, no performance claim beyond the raw logs, no multimodal input (fails closed with a typed error), no neighboring-row or Gemma-family support, no shared-memory claim (distributed mode is layer sharding)."
+}

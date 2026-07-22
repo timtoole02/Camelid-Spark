@@ -1,0 +1,138 @@
+{
+ "schema": "camelid.kquant_parity_analysis.v1",
+ "row_id": "llama_3_2_1b_instruct_q4_k_m",
+ "policy": "MUSTER_CONDUCTOR.md 6.3 — every non-identical position probed and attributed; oracle logprobs captured with n_probs=5 in the SAME solo oracle session as the reference capture (no post-failure edits)",
+ "summary": "8-prompt committed pack at 1/5/50 greedy: 5/8 prompts token-AND-text identical at every depth (incl. code_completion, structured_json, repetitive_extraction, and the 1,867-token longctx continuation); 3 open-ended prompts flip, each at a position where the camelid token is the oracle's immediate #2 with a top-2 gap of 0.074 / 0.106 / 0.0135 nat — all far inside the 0.33-nat soft-position threshold (Ornith Q4_K_M precedent). Camelid's CPU K-quant lane emits the oracle's token at 2 of the 3 flip positions, demonstrating the flips are fp reduction-order near-ties across camelid's own backends, not decode defects.",
+ "near_ties": [
+  {
+   "prompt": 4,
+   "label": "normal_chat (process vs thread)",
+   "index": 8,
+   "ref": {
+    "id": 279,
+    "text": " the"
+   },
+   "cam": {
+    "id": 1124,
+    "text": " them"
+   },
+   "control": "camelid CPU K-quant lane (det-run1, byte-identical across two serve sessions) emits the ORACLE token \" the\" at this index (\"...how to use the terms...\") — camelid GPU is the only backend taking the #2 branch.",
+   "oracle_top5": [
+    {
+     "id": 279,
+     "token": " the",
+     "logprob": -1.694881558418274
+    },
+    {
+     "id": 1124,
+     "token": " them",
+     "logprob": -1.7692738771438599
+    },
+    {
+     "id": 1855,
+     "token": " each",
+     "logprob": -2.0128767490386963
+    },
+    {
+     "id": 264,
+     "token": " a",
+     "logprob": -2.0767688751220703
+    },
+    {
+     "id": 1521,
+     "token": " these",
+     "logprob": -2.7396585941314697
+    }
+   ],
+   "top2_gap_nat": 0.0744,
+   "camelid_token_oracle_rank": 2
+  },
+  {
+   "prompt": 5,
+   "label": "creative_writing (thunderstorm)",
+   "index": 3,
+   "ref": {
+    "id": 19163,
+    "text": " arrival"
+   },
+   "cam": {
+    "id": 9546,
+    "text": " presence"
+   },
+   "control": "camelid CPU K-quant lane emits the ORACLE token \" arrival\" at this index (\"The storm's arrival is marked by...\") — camelid's own two backends flip at exactly this position.",
+   "oracle_top5": [
+    {
+     "id": 19163,
+     "token": " arrival",
+     "logprob": -2.5632050037384033
+    },
+    {
+     "id": 9546,
+     "token": " presence",
+     "logprob": -2.669064998626709
+    },
+    {
+     "id": 4907,
+     "token": " energy",
+     "logprob": -3.096553325653076
+    },
+    {
+     "id": 7351,
+     "token": " movement",
+     "logprob": -3.1612865924835205
+    },
+    {
+     "id": 2410,
+     "token": " power",
+     "logprob": -3.2977805137634277
+    }
+   ],
+   "top2_gap_nat": 0.1059,
+   "camelid_token_oracle_rank": 2
+  },
+  {
+   "prompt": 6,
+   "label": "adversarial_lowaccept",
+   "index": 48,
+   "ref": {
+    "id": 81101,
+    "text": "lama"
+   },
+   "cam": {
+    "id": 10318,
+    "text": "umin"
+   },
+   "control": "camelid CPU lane took a different soft branch earlier in this sequence (index ~4), so no same-prefix CPU control exists at index 48; attribution rests on the 0.0135-nat rank-2 gap (near-coin-flip).",
+   "oracle_top5": [
+    {
+     "id": 81101,
+     "token": "lama",
+     "logprob": -2.0807464122772217
+    },
+    {
+     "id": 10318,
+     "token": "umin",
+     "logprob": -2.0942037105560303
+    },
+    {
+     "id": 533,
+     "token": "act",
+     "logprob": -2.491375684738159
+    },
+    {
+     "id": 1065,
+     "token": "ys",
+     "logprob": -2.633962392807007
+    },
+    {
+     "id": 62630,
+     "token": "abyrinth",
+     "logprob": -2.6916587352752686
+    }
+   ],
+   "top2_gap_nat": 0.0135,
+   "camelid_token_oracle_rank": 2
+  }
+ ],
+ "verdict": "all three flips attributed as benign greedy near-ties; confident probes all_pass"
+}

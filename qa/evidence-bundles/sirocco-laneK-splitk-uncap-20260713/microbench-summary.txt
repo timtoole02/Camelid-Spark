@@ -1,0 +1,6 @@
+=== micro-splitk.cu output (n_splits sweep @ ctx=32768) ===
+attn_sk_scores (K read, 256 thr/block active):
+  n_splits=16: 426 GB/s ; 32: 340 ; 64: ~300  (K-read already optimal at 16; more splits REGRESS it)
+attn_sk_partial (V read, only head_dim=64 of 256 thr active -- occupancy-limited):
+  n_splits=16: 92 GB/s ; 32: 110 (+19%) ; 64: 114 ; 128: 116  (V-read is the bottleneck; +19% at 32, plateau ~116)
+=> n_splits=32 captures the V-read plateau with the least K-read regression/combine overhead.

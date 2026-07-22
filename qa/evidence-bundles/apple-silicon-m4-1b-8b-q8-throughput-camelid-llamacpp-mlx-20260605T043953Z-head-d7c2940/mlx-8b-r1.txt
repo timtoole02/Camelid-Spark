@@ -1,0 +1,10 @@
+Fetching 7 files:   0%|          | 0/7 [00:00<?, ?it/s]Fetching 7 files: 100%|██████████| 7/7 [00:00<00:00, 240656.79it/s]
+DECODE: 12.04 tok/s
+=== prefill (verbose) ===
+==========
+The
+==========
+Prompt: 600 tokens, 228.027 tokens-per-sec
+Generation: 1 tokens, 45977.015 tokens-per-sec
+Peak memory: 9.545 GB
+peak mem: 9.54 GB

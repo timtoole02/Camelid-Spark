@@ -1,0 +1,28 @@
+{
+ "schema": "camelid.chat_parity_analysis.v1",
+ "row_id": "gemma_3_1b_it_q8_0",
+ "policy": "MUSTER_CONDUCTOR.md 6.3 — every non-identical position probed and attributed; probes captured in solo oracle sessions AFTER the divergence was observed (evidence gathering, not pack/tolerance edits; the harness report is committed as-is with all_pass=false)",
+ "summary": "5-prompt committed gate pack at greedy 1/5/50 via the runnable serve lane: 4/5 prompts token-AND-text identical at every depth (including a natural early-stop leg that exercises the new dense stop semantics); cross-engine prompt tokenization identical on 5/5 (the recon's SPM merge-order risk did not fire on the 262k vocab); the fifth prompt is identical at depths 1 and 5 and diverges at position 16 of the 50-token leg — the single non-identical position in the run.",
+ "near_ties": [
+  {
+   "prompt": 3,
+   "label": "What color is the sky on a clear day?",
+   "index": 16,
+   "ref": { "id": 5213, "text": " **", "continuation": "**blue**.\\n\\nHowever, it's a bit more complex than just that!" },
+   "cam": { "id": 3187, "text": " often", "continuation": "often described as **blue**. \\n\\nHowever, it's a bit more complex than just blue!" },
+   "oracle_top5_at_flip": [
+    { "id": 5213, "logprob": -0.7169 },
+    { "id": 3187, "logprob": -1.0585 },
+    { "id": 496, "logprob": -2.8572 },
+    { "id": 11082, "logprob": -3.1838 },
+    { "id": 3643, "logprob": -3.9838 }
+   ],
+   "top2_gap_nat": 0.3416,
+   "camelid_token_oracle_rank": 2,
+   "oracle_side_controls": "four solo oracle configurations all emit the rank-1 token with BIT-IDENTICAL logprobs: default threads, -t 4, -t 2, and the runtime-repack kernel path (no --no-repack) — the pinned CPU oracle is reduction-order-stable here, so NO oracle-side flip exists for this position (probe-t-default/t4/t2/repack.json)",
+   "camelid_side_control": "camelid's runnable CPU lane is itself byte-identical across independent serve sessions (determinism legs 1/2), so the flip is a stable cross-ENGINE arithmetic difference at a soft position, not noise",
+   "attribution": "DOCUMENTED-WITH-GAP-STATED, per the Llama-3.2-3B Q4_K_M precedent named in conductor 6.3 ('documented benign near-ties with logprob gaps stated' — that accepted bundle carried one measured 0.18-nat gap, two unmeasured flips, and no oracle-side controls). STATED PLAINLY: this gap (0.3416 nat) EXCEEDS the Ornith Q4_K_M precedent's <=0.33-nat soft-position line and no oracle-backend flip was found, so the Ornith attribution form is NOT met; this is the weakest single attribution in the campaign so far and is disclosed as such in the contract evidence, the bundle README, and the promotion PR."
+  }
+ ],
+ "verdict": "single flip documented with gap stated; confident legs (14/15, incl. all depth-1/5 legs and all prompt tokenization) pass"
+}

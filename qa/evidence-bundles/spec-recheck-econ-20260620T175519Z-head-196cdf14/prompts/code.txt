@@ -1,0 +1,14 @@
+Complete the following Python module. Write clean, idiomatic code with type hints.
+
+```python
+from dataclasses import dataclass
+from typing import Optional
+
+@dataclass
+class Account:
+    """A bank account with a running balance."""
+    owner: str
+    balance: float = 0.0
+
+    def deposit(self, amount: float) -> float:
+        """Add amount to the balance and return the new balance."""

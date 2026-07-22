@@ -1,0 +1,36 @@
+{
+ "schema": "camelid.remote-validation-bundle.v1",
+ "generated_utc": "20260605T090914Z",
+ "source_head": "d7b1699",
+ "row": "Mistral-7B-Instruct-v0.3.Q8_0.gguf",
+ "model_sha256": "404857e776114baada71a08ebd3bba79d721ec7fca99705e7e7b892ae8bc583f",
+ "canonical_host": "apple-silicon-m4-validation-host",
+ "validation_kind": "mistral_support_promotion_api_webui_smoke",
+ "smoke_exit": 0,
+ "passed": true,
+ "support_claim": "supported_exact_row_smoke for this exact GGUF row; exact row only, no broader Mistral-family, other-quant, model-native-context, or full-support claim",
+ "expected_contract": {
+  "compatibility_row": "mistral_7b_instruct_v0_3_q8_0",
+  "compatibility_status": "supported_exact_row_smoke",
+  "contract_supported": true,
+  "webui_chat": "enabled_when_row_loaded_and_generation_ready"
+ },
+ "observed": {
+  "capabilities_row_status": "supported_exact_row_smoke",
+  "execution_plan_backend": "metal_resident_q8_runtime",
+  "execution_plan_support_level": "supported_exact_row_smoke_512_1024_2048_4096_8192",
+  "completion_text_starts": " Paris",
+  "chat_content_starts": " The primary colors are Red, Blue, and Yellow",
+  "stream_equals_nonstream": true,
+  "stream_chunks": 48,
+  "gpu_vs_cpu_greedy_parity": "32-token and 64-token greedy continuations identical between the default Metal-resident stack and the CPU reference path on this exact model file"
+ },
+ "artifacts": {
+  "capabilities": "capabilities.json",
+  "completion_response": "completion.response.json",
+  "chat_response": "chat.response.json",
+  "chat_stream": "chat.stream.sse",
+  "rss_sample": "rss-sample.txt"
+ },
+ "notes": "Promotion smoke captured on the promotion head itself: the served plan selects the Metal-resident stack for this row (previously safe cpu_reference), and all API surfaces respond correctly. RSS sample reflects mmap-backed Q8 weights. Prior bring-up evidence (tokenizer/template, 1-token, broader 50-token parity, bounded 512-8192 context packs) remains cited in SUPPORT_MATRIX_v0.1.md."
+}

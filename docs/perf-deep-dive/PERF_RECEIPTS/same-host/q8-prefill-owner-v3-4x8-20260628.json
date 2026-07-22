@@ -1,0 +1,25 @@
+{
+  "schema": "camelid.q8-prefill-owner/v3",
+  "generated_utc": "2026-06-28",
+  "lane": "Lane 1 v3 — wider 4x8 VNNI register tile for the unified prefill owner",
+  "host": "win i7-11800H (8C/16T Tiger Lake, AVX-512 + AVX512-VNNI; RTX 3060 6GB hidden)",
+  "camelid_head": "51018c00 + feat/q8-prefill-owner-lane1 (v1+v2+v3)",
+  "llama_pin": "acd79d6",
+  "flag": "CAMELID_X86_Q8_MATMUL_OWNER_4X8 = 0(DEFAULT, use 4x4 VNNI v2) | 1(use 4x8). Opt-in.",
+  "what_v3_is": "q8_0_packed_rows4_gemm4_accumulate_block_avx512vnni_4x8 + a paired loop nest: process TWO output groups per input load (8 output lanes), so each streamed input block is dpbusd'd against both weight bands. Wider AVX-512 register tile (llama uses 32 registers for bigger tiles). Bit-exact (each cell computed identically to the 4x4 path).",
+
+  "parity": {
+    "kernel_bit_identity": "PASS — unit test asserts to_bits()==baseline for BOTH 4x4 and 4x8 VNNI across rows {4,5,8,13,16} x roles {ffn_down, linear, attention_k}",
+    "end_to_end_greedy": "PASS — first_divergent == -1 (4x8 owner vs off) on Llama-3.2-3B-Q8"
+  },
+
+  "verdict": "SUPERSEDED by q8-prefill-owner-hardened-20260628.json — the hardened in-process PAIRED sweep proves 4x8 is a SIGNIFICANT +3.3%/+3.8% win over 4x4 (CI excludes 1.0, 7-8/8 rounds), NOT a null. The null below was an artifact of the noisy cross-invocation method. ORIGINAL (kept for the record): HONEST NULL on this host. Same-build A/B (4x8 vs 4x4 VNNI, run consecutively, median-of-5) is INCONCLUSIVE — the box is thermally noisy after a long bench session (the SAME llama3b config swung 0.897x then 1.044x across two runs, a ~10% noise floor). Mean 4x8/4x4 ratio over 4 runs = 0.994 -> neutral within noise. The ~3% effect a 4x8 tile might give is not resolvable here. NOT a reproducible win; NOT promoted to the owner default.",
+
+  "ab_4x8_over_4x4": {
+    "llama3b_r1": 0.897, "qwen3-4b_r1": 1.002, "llama3b_r2": 1.044, "qwen3-4b_r2": 1.033, "mean": 0.994
+  },
+
+  "decision": "Default OFF — the owner ships the proven 4x4 VNNI tile (v2, +6%/+14%, reproducible). 4x8 kept as opt-in (CAMELID_X86_Q8_MATMUL_OWNER_4X8=1) so a thermally-stable host (e.g. the pending Ubuntu/server box) can re-evaluate whether the wider tile resolves a real gain there. Code is bit-exact + tested; only the default is conservative.",
+
+  "next_v3_real": "If a stable host shows 4x8 helps, the bigger structural lever remains GotoBLAS-style 2D cache blocking (block the input dimension so both operands stay cache-resident) + cross-projection single-quant. Both bable on top of v2."
+}

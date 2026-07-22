@@ -1,0 +1,239 @@
+{
+ "campaign": "BASALT Phase 2 — amended recipes (Tim signed 2026-07-16): Q8_0 source for all rows; --token-embedding-type q8_0 pin on Q4_K_M rows; NVFP4-all BLOCKED-HOST, not attempted",
+ "date": "2026-07-16",
+ "tool": {
+  "path": "<pin-tools>/llama-quantize.exe",
+  "build": "9632 (acd79d603)",
+  "sha256": "055468bf00616f8dac0c4ae48fa68308dfbcdd22ec3a2eb6255b89632a6a3a4c",
+  "sha_verified": true
+ },
+ "source": {
+  "path": "<camelid>/models/gemma-4-E4B-it-Q8_0.gguf",
+  "sha256": "a2232a649523c36bf530f1dc3614eb8c800645c4227390381c8b05d4d6eee05a",
+  "size_bytes": 8192951456,
+  "sha_verified": true,
+  "tensors_total": 720
+ },
+ "imatrix": {
+  "path": "<camelid>/models/imatrix_unsloth.gguf_file",
+  "sha256": "5a97d82199cd4bac77b76180620e9cef2c5108a95c880d46a312b8a6036a5753",
+  "size_bytes": 4429024,
+  "sha_verified": true,
+  "entries": 342,
+  "chunks": 141,
+  "missing_entry_warnings_in_row4_log": 0
+ },
+ "mm_re": "blk\\.[0-9]+\\.(attn_q|attn_k|attn_v|attn_output|ffn_up|ffn_gate|ffn_down)\\.weight",
+ "rows": [
+  {
+   "row": "NVFP4-mm",
+   "output": "<camelid>/models/gemma-4-E4B-it-NVFP4-mm.gguf",
+   "command_run1_verbatim": "<pin-tools>/llama-quantize.exe --allow-requantize --tensor-type 'blk\\.[0-9]+\\.(attn_q|attn_k|attn_v|attn_output|ffn_up|ffn_gate|ffn_down)\\.weight=nvfp4' --override-kv general.file_type=int:39 <camelid>/models/gemma-4-E4B-it-Q8_0.gguf <camelid>/models/gemma-4-E4B-it-NVFP4-mm.gguf Q8_0",
+   "dryrun_ok": true,
+   "dryrun_detail": "exactly 294 tensors -> nvfp4, set == MM_RE set (0 extra, 0 missing); token_embd.weight and per_layer_token_embd.weight q8_0 copy (no ->, no staging); override general.file_type=39 acknowledged",
+   "sha256": "eb293344972e2b292a043b8e7649b9788dca915b034e5c2721cfc531cf9863d9",
+   "size_bytes": 6058607776,
+   "deterministic": true,
+   "duration_s": {
+    "run1": 47,
+    "run2": 78
+   },
+   "per_tensor_counts_output": {
+    "nvfp4": 294,
+    "q8_0": 86,
+    "f32": 339,
+    "bf16": 1
+   },
+   "conversions": {
+    "q8_0->nvfp4": 294,
+    "f32->q8_0": 84
+   },
+   "copied_as_is": {
+    "f32": 339,
+    "bf16": 1,
+    "q8_0": 2
+   },
+   "embd_types_observed": {
+    "token_embd.weight": "q8_0 (copy)",
+    "per_layer_token_embd.weight": "q8_0 (copy)"
+   },
+   "inp_gate_proj_types_observed": "f32 -> q8_0 (42 inp_gate + 42 proj)",
+   "quant_size_mib": 5762.85,
+   "bpw": 6.43,
+   "log_files": [
+    "nvfp4-mm-dryrun.txt",
+    "nvfp4-mm-run1.txt",
+    "nvfp4-mm-run2.txt"
+   ],
+   "independent_spot_check": "coordinator hashed same sha256 + verified 294 NVFP4 tensors + byte-identical embeddings"
+  },
+  {
+   "row": "Q4K-mm",
+   "output": "<camelid>/models/gemma-4-E4B-it-Q4K-mm.gguf",
+   "command_run1_verbatim": "<pin-tools>/llama-quantize.exe --allow-requantize --tensor-type 'blk\\.[0-9]+\\.(attn_q|attn_k|attn_v|attn_output|ffn_up|ffn_gate|ffn_down)\\.weight=q4_K' --override-kv general.file_type=int:15 <camelid>/models/gemma-4-E4B-it-Q8_0.gguf <camelid>/models/gemma-4-E4B-it-Q4K-mm.gguf Q8_0",
+   "dryrun_ok": true,
+   "dryrun_detail": "exactly 294 tensors -> q4_K, set == MM_RE set (0 extra, 0 missing); both embeddings q8_0 copy; override general.file_type=15 acknowledged",
+   "sha256": "d306fa7753ec80eda4ab389f1b3a06273cc2291ebe977993a767587c055b2031",
+   "size_bytes": 6058607776,
+   "deterministic": true,
+   "duration_s": {
+    "run1": 76,
+    "run2": 99
+   },
+   "per_tensor_counts_output": {
+    "q4_K": 294,
+    "q8_0": 86,
+    "f32": 339,
+    "bf16": 1
+   },
+   "conversions": {
+    "q8_0->q4_K": 294,
+    "f32->q8_0": 84
+   },
+   "copied_as_is": {
+    "f32": 339,
+    "bf16": 1,
+    "q8_0": 2
+   },
+   "embd_types_observed": {
+    "token_embd.weight": "q8_0 (copy)",
+    "per_layer_token_embd.weight": "q8_0 (copy)"
+   },
+   "inp_gate_proj_types_observed": "f32 -> q8_0 (42 inp_gate + 42 proj)",
+   "quant_size_mib": 5762.85,
+   "bpw": 6.43,
+   "log_files": [
+    "q4k-mm-dryrun.txt",
+    "q4k-mm-run1.txt",
+    "q4k-mm-run2.txt"
+   ]
+  },
+  {
+   "row": "Q4_K_M-df",
+   "output": "<camelid>/models/gemma-4-E4B-it-Q4_K_M-df.gguf",
+   "command_run1_verbatim": "<pin-tools>/llama-quantize.exe --allow-requantize --token-embedding-type q8_0 <camelid>/models/gemma-4-E4B-it-Q8_0.gguf <camelid>/models/gemma-4-E4B-it-Q4_K_M-df.gguf Q4_K_M",
+   "dryrun_ok": true,
+   "dryrun_detail": "both embeddings q8_0 copy (pin working, no restaging of big embeddings anywhere); default mix: attn_q/attn_k/attn_output/ffn_gate/ffn_up all q4_K; attn_v and ffn_down split 21 q6_K + 21 q4_K each (standard Q4_K_M mix)",
+   "sha256": "4f7f288ad56b9c64ddab0bdb25af1b14757f9470181252885f496ebbf18b25b5",
+   "size_bytes": 6180443296,
+   "deterministic": true,
+   "duration_s": {
+    "run1": 78,
+    "run2": 98
+   },
+   "per_tensor_counts_output": {
+    "q4_K": 336,
+    "q6_K": 42,
+    "q8_0": 2,
+    "f32": 339,
+    "bf16": 1
+   },
+   "conversions": {
+    "q8_0->q4_K": 252,
+    "q8_0->q6_K": 42,
+    "f32->q4_K": 84
+   },
+   "copied_as_is": {
+    "f32": 339,
+    "bf16": 1,
+    "q8_0": 2
+   },
+   "embd_types_observed": {
+    "token_embd.weight": "q8_0 (copy)",
+    "per_layer_token_embd.weight": "q8_0 (copy)"
+   },
+   "inp_gate_proj_types_observed": "f32 -> q4_K (42 inp_gate + 42 proj) — DEVIATES from the expected q8_0; see surprises",
+   "quant_size_mib": 5879.04,
+   "bpw": 6.56,
+   "log_files": [
+    "q4km-df-dryrun.txt",
+    "q4km-df-run1.txt",
+    "q4km-df-run2.txt"
+   ]
+  },
+  {
+   "row": "Q4_K_M-im",
+   "output": "<camelid>/models/gemma-4-E4B-it-Q4_K_M-im.gguf",
+   "command_run1_verbatim": "<pin-tools>/llama-quantize.exe --allow-requantize --token-embedding-type q8_0 --imatrix <camelid>/models/imatrix_unsloth.gguf_file <camelid>/models/gemma-4-E4B-it-Q8_0.gguf <camelid>/models/gemma-4-E4B-it-Q4_K_M-im.gguf Q4_K_M",
+   "dryrun_ok": true,
+   "dryrun_detail": "same type assignment as Q4_K_M-df exactly; imatrix loaded (342 entries, 141 chunks, dataset unsloth_calibration_gemma-4-E4B-it.txt); zero missing-imatrix warnings in real run",
+   "sha256": "3f5a71ecf3bbd5ca7c7d6ee318208fe0ffd743935a2e3ad71b933afe809fde53",
+   "size_bytes": 6180443296,
+   "deterministic": true,
+   "duration_s": {
+    "run1": 112,
+    "run2": 111
+   },
+   "per_tensor_counts_output": {
+    "q4_K": 336,
+    "q6_K": 42,
+    "q8_0": 2,
+    "f32": 339,
+    "bf16": 1
+   },
+   "conversions": {
+    "q8_0->q4_K": 252,
+    "q8_0->q6_K": 42,
+    "f32->q4_K": 84
+   },
+   "copied_as_is": {
+    "f32": 339,
+    "bf16": 1,
+    "q8_0": 2
+   },
+   "embd_types_observed": {
+    "token_embd.weight": "q8_0 (copy)",
+    "per_layer_token_embd.weight": "q8_0 (copy)"
+   },
+   "inp_gate_proj_types_observed": "f32 -> q4_K (42 inp_gate + 42 proj) — same deviation as Q4_K_M-df, consistent between rows 3 and 4",
+   "quant_size_mib": 5879.04,
+   "bpw": 6.56,
+   "log_files": [
+    "q4km-im-dryrun.txt",
+    "q4km-im-run1.txt",
+    "q4km-im-run2.txt"
+   ]
+  }
+ ],
+ "rows_blocked": [
+  {
+   "row": "NVFP4-all",
+   "reason": "BLOCKED-HOST per signed amendment 2026-07-16 (would requantize token_embd/per_layer_token_embd to a different type, staging ~22.5 GB). NOT attempted."
+  }
+ ],
+ "log_sha256": {
+  "nvfp4-mm-dryrun.txt": "e210d3bd06a159058b74c16a8381db179e76a89cc3b6ae9661fcaf90d2365f43",
+  "nvfp4-mm-run1.txt": "730e6917a3f36f44a3649af65dda78bd677d7c63ecf7046e124c74286179bb24",
+  "nvfp4-mm-run2.txt": "25a08696cb4f2973da5d844a5761f1782c7233406cbc646bafec872643724fed",
+  "q4k-mm-dryrun.txt": "2a74f909c003fa882caf97b633b823fb7f7d293b3a39d34049c1e2d24e2c372e",
+  "q4k-mm-run1.txt": "126c93ebcc3c2a9c7190380b392fe2bc2e041ad174fce21d990f842503ef1803",
+  "q4k-mm-run2.txt": "5c75a83ca74091f4ef8bae1bdc800f153a8446c57a7c9ecc1b062c83ba8ddb62",
+  "q4km-df-dryrun.txt": "fc100c5e09c26a8880ea627e07dfcdc67f0a248da07490cc50ff420d8e49c564",
+  "q4km-df-run1.txt": "10f1e4da0393b7d1295fa78d9f55afd4046193e6b65a1d6e75526be1dc7ee7f4",
+  "q4km-df-run2.txt": "d09ddf6e6eb848dd2dfe814170c254686b6a6ca36633d0c76ec3e23df5e9747e",
+  "q4km-im-dryrun.txt": "a2e2952aab036780066137403cc1b29ad431c232d188449df81f7121e5a52b47",
+  "q4km-im-run1.txt": "e92b4fba166cfc3017e8fe22fe858b5d8586e97ddaef8b009d93c33ca730b85d",
+  "q4km-im-run2.txt": "886834d9148bd5eb15756feb5aadb2ae2d343a69b2eeb5776141856ee0af7622"
+ },
+ "safety": {
+  "free_ram_checked_before_every_leg": true,
+  "min_free_ram_gb_seen": 7.89,
+  "peak_free_ram_gb_seen": 9.05,
+  "abort_floor_gb": 4,
+  "cargo_rustc_wait_loop": "used before every heavy leg; never had to wait (0 builds running throughout)",
+  "llama_orphans_found": 0,
+  "determinism_temps_deleted": true,
+  "no_model_loads": true,
+  "wild_file_untouched": "wild-FreedomAISVR-gemma-4-E4B-it-NVFP4.gguf (5,185,929,952 B at last look) ignored per coordinator instruction"
+ },
+ "surprises": [
+  "inp_gate/proj deviation: in the Q4_K_M rows (df + im) blk.*.inp_gate.weight and blk.*.proj.weight get f32->q4_K, NOT the expected f32->q8_0 — the 'identical across rows' expectation only holds within row pairs (mm rows: q8_0; Q4_K_M rows: q4_K). Inherent to the signed recipe (Q4_K_M default mix; only token embeddings were pinned). Tiny tensors (2.5 MiB f32 each), zero RAM risk; rows 3/4 remain mutually identical in type assignment so the df-vs-im comparison is clean, but mm-vs-Q4_K_M comparisons conflate this 84-tensor difference with the matmul quant variable.",
+  "NVFP4-mm and Q4K-mm outputs are byte-count identical (6,058,607,776 B) — both formats are exactly 4.5 bpw (nvfp4: 9B/16 elems; q4_K: 144B/256 elems). Correct, not a bug; do not use file size to tell them apart.",
+  "Source GGUF already carries quantize.imatrix.* KV keys (kv 52-55, from Unsloth's original quantization: imatrix_unsloth.gguf, 342 entries/141 chunks). These are inherited into ALL four outputs' metadata — including Q4_K_M-df which had NO imatrix applied at our step. Provenance gotcha for anyone reading output metadata.",
+  "One bf16 tensor exists and is copied as-is in all rows: per_layer_model_proj.weight [2560 x 10752].",
+  "imatrix file has 342 entries vs 378 converted tensors in row 4, yet zero missing-imatrix warnings in the real-run log (the 84 gate/proj f32 tensors are outside the 342? — no warning emitted by this build either way).",
+  "run2 consistently ~20-30% slower than run1 on the -mm/df rows (e.g. 47s vs 78s) — page-cache/contention effect, writes to a different volume path; determinism unaffected (shas byte-identical).",
+  "imatrix was already fully downloaded and sha-verified before row 1 even finished — no waiting needed for leg 4."
+ ],
+ "log_sha256_note": "These hashes are of the PRE-sanitization scratchpad originals under their original filenames. The committed copies in this bundle were renamed (quantize- prefix) and host-path-sanitized (<placeholders>), so these hashes do NOT match the committed files by design; the authoritative hashes for committed logs are this bundle's SHA256SUMS (G2 review finding, disclosed)."
+}

@@ -1,0 +1,106 @@
+{
+  "schema": "camelid.basalt_phase2_evidence.v1",
+  "generated_utc": "2026-07-17T01:57:43.477Z",
+  "git_head": "7996b04e + review fixes (branch basalt/phase2-load-interop; engine commit 63eeba5f; base main 939710de)",
+  "campaign": "BASALT",
+  "phase": 2,
+  "gate": "G2",
+  "note": "Phase 2 evidence: engine wiring receipts (refusal move, pilot + wild inspect), quantize-leg logs for the four Amendment-2 rows (dry-run + x2 determinism), byte-level copy-through proofs, pin-side spot-check provenance, consolidated G2 summary incl. review-fix disclosures. Placeholders: <camelid>/<llama.cpp>/<pin-tools>/<scratchpad>/<home>.",
+  "files": [
+    {
+      "file": "BASALT_G2_SUMMARY.md",
+      "sha256": "156bc2a0f3ec917846d9735549d0f6ea623824dffebe58f032568b1fa01b9cb7",
+      "size_bytes": 8981
+    },
+    {
+      "file": "basalt_phase2_cargo_test.txt",
+      "sha256": "1029b6609549a63bf9c4ab945a304274eaf3ecea8a440091f9a0758b2665911b",
+      "size_bytes": 105542
+    },
+    {
+      "file": "kept_tensor_identity.json",
+      "sha256": "f9420f848813d4ffc186229a7de1a3aed2103f8225fe31411573cb4da793ec70",
+      "size_bytes": 4351
+    },
+    {
+      "file": "pilot_inspect_receipt.md",
+      "sha256": "47d4c962146b96c638a9589db4b605bf771a8f2c321b6ae6d22fbaf9c480622a",
+      "size_bytes": 5900
+    },
+    {
+      "file": "quantize-nvfp4-mm-dryrun.txt",
+      "sha256": "349d7708dd56cf78f2e385b2e717231e386d2f621198b3c48119e06c921457a1",
+      "size_bytes": 133405
+    },
+    {
+      "file": "quantize-nvfp4-mm-run1.txt",
+      "sha256": "d7b23426177ae49a51e993fc440533792f1b621bb300d1568e126bdfc6341f14",
+      "size_bytes": 139103
+    },
+    {
+      "file": "quantize-nvfp4-mm-run2.txt",
+      "sha256": "39e79d7c01e00a4de87d2c0b180ae5b263aa253697ffb010fae4db694a4f939a",
+      "size_bytes": 139099
+    },
+    {
+      "file": "quantize-q4k-mm-dryrun.txt",
+      "sha256": "da79de5b6498c9cecb1b9a315d98b5fe089a2fcb23775bae1fd9504fb4011e7b",
+      "size_bytes": 132817
+    },
+    {
+      "file": "quantize-q4k-mm-run1.txt",
+      "sha256": "9de9bd5857aace9a817a60dd84f46621794d4e5bbe870e5d9c1cdee369f07d64",
+      "size_bytes": 138513
+    },
+    {
+      "file": "quantize-q4k-mm-run2.txt",
+      "sha256": "674186f073f20d00735e98e8727e1d455d239a563e6650a4a95db13a19d91de0",
+      "size_bytes": 138511
+    },
+    {
+      "file": "quantize-q4km-df-dryrun.txt",
+      "sha256": "019bd359be814e710bca96d13d16b1d5fa74a06a46c485dae2ddbe98efb400b5",
+      "size_bytes": 102754
+    },
+    {
+      "file": "quantize-q4km-df-run1.txt",
+      "sha256": "6a0004f7eb7701ada2387023462efc8814c76000609931ad39079a24bc8b79a3",
+      "size_bytes": 108453
+    },
+    {
+      "file": "quantize-q4km-df-run2.txt",
+      "sha256": "5ab6b44aac249f17ab4133f9cb621fdc119e67a7aeb729e33363307ffb743687",
+      "size_bytes": 108448
+    },
+    {
+      "file": "quantize-q4km-im-dryrun.txt",
+      "sha256": "95b4ee961fa59380ae6957f388160673a3de151e394cb8109d1d3b5c4a0b44e7",
+      "size_bytes": 103080
+    },
+    {
+      "file": "quantize-q4km-im-run1.txt",
+      "sha256": "2c2a0fc8ba50355c35a06ab2f9a6ade15e246766196783863811524a4d167b7f",
+      "size_bytes": 111769
+    },
+    {
+      "file": "quantize-q4km-im-run2.txt",
+      "sha256": "33a6c77d0fd75160a97bcb64e2512223240346569f0af60a319c5277326f9352",
+      "size_bytes": 111764
+    },
+    {
+      "file": "quantize-quantize_legs_summary.json",
+      "sha256": "147be688392f49fa7ee372f85dd65fe36706e06b7b69cbc3dbe5ef037f32ea98",
+      "size_bytes": 10802
+    },
+    {
+      "file": "refusal_move_receipt.md",
+      "sha256": "09727b40c75d77cdfad95f92aeefa707111422aefcae292cb06610c1d1a8c8b0",
+      "size_bytes": 5110
+    },
+    {
+      "file": "wild_interop_prereceipt.md",
+      "sha256": "95a26037ec6b6d57bc54434cc297617c1b311d0bcfd0e1ec27ca2650fe9a5c85",
+      "size_bytes": 1434
+    }
+  ]
+}

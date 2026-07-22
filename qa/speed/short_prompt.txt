@@ -1,0 +1,1 @@
+Explain in one paragraph how speculative decoding amortizes weight bandwidth.

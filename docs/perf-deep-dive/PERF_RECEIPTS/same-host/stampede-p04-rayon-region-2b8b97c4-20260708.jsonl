@@ -1,0 +1,4 @@
+{"idle_us_between":0,"iterations":5000,"schema":"camelid.bench-rayon-region/v1","threads":8,"us_per_region":2.7612}
+{"idle_us_between":20,"iterations":5000,"schema":"camelid.bench-rayon-region/v1","threads":8,"us_per_region":41.64}
+{"idle_us_between":100,"iterations":5000,"schema":"camelid.bench-rayon-region/v1","threads":8,"us_per_region":41.5378}
+{"idle_us_between":500,"iterations":5000,"schema":"camelid.bench-rayon-region/v1","threads":8,"us_per_region":45.0544}

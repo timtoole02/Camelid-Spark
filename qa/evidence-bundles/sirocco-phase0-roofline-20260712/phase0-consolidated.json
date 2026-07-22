@@ -1,0 +1,93 @@
+{
+  "BW_peak_GBps": 270.9,
+  "B_GB": {
+    "P1": 1.313251456,
+    "P2": 3.414061312,
+    "P3": 0.799862912
+  },
+  "points": {
+    "P1": {
+      "tok_s": 126.43560188552668,
+      "ms_per_tok": 7.878269531250001,
+      "MBU": 0.6153299458768448,
+      "varband_pct": 0.6943628051650063,
+      "sm": [
+        1755,
+        1567,
+        1747,
+        1747,
+        1537
+      ]
+    },
+    "P2": {
+      "tok_s": 51.23669920404692,
+      "ms_per_tok": 19.44102109375,
+      "MBU": 0.6482510661168965,
+      "varband_pct": 0.648770935096204,
+      "sm": [
+        1747,
+        1740,
+        1575,
+        1740,
+        1740
+      ]
+    },
+    "P3": {
+      "tok_s": 108.04337140569892,
+      "ms_per_tok": 9.40143125,
+      "MBU": 0.3140599667393592,
+      "varband_pct": 6.454741459916111,
+      "sm": [
+        1747,
+        1725,
+        1740,
+        1740
+      ]
+    }
+  },
+  "regression": {
+    "BW_eff_GBps": 181.68771028630326,
+    "C_ms_regressed": 0.6501997078669,
+    "BW_eff_over_peak": 0.6706818393735816,
+    "P3_resid_pct": 86.07097742448761
+  },
+  "C_ms_direct": 0,
+  "branch_inputs": {
+    "MBU_P1": 0.6153299458768448,
+    "C_over_t_P1": 0,
+    "BW_eff_over_peak": 0.6706818393735816,
+    "C_source": "direct(decode-time)"
+  },
+  "branch": {
+    "table_verdict": "mixed",
+    "table_lane": "A1+A2 only, re-run 0.1, re-branch",
+    "table_reason": "BW_eff/BW_peak in [0.55,0.75) dead-zone",
+    "mechanism_override": "MECHANISM OVERRIDE: C~=0 measured directly (sample+other=0.000ms); Lane A/A1/A2 target overhead that is already zero (on-device sampling ships; host submission hidden). The 67% BW_eff/BW_peak with C~=0 is kernel-bound. Real lever = Lane K (GEMV: vectorized loads/occupancy/in-register dequant/cp.async), esp. narrow attention projections. llama.cpp reaches 0.86 vs our 0.67."
+  },
+  "pc1": {
+    "n64": 130.60367506303183,
+    "n256": 127.05329332599513,
+    "n1024": 124.7088939092591,
+    "n2048": 124.55130461553995,
+    "drop_2048_vs_64_pct": 4.6341501834239285
+  },
+  "pc3": {
+    "ctx0": {
+      "tok_s": 127.06,
+      "prompt_tokens": 2
+    },
+    "ctx1024": {
+      "tok_s": 102,
+      "prompt_tokens": 790
+    },
+    "ctx4096": {
+      "tok_s": 58.89,
+      "prompt_tokens": 3153
+    }
+  },
+  "pc2": {
+    "engine_tok_s": 126.44,
+    "wire_tok_s": 124.10909744506093,
+    "wire_ratio": 0.9815651490435062
+  }
+}

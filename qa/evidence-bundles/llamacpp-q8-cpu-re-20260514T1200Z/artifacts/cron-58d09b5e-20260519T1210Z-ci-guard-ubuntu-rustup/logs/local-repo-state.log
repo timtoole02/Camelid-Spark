@@ -1,0 +1,16 @@
+## local repo state
+## buildqa/clippy-needless-range-loop-58d09b5e-20260518T2100Z...origin/buildqa/clippy-needless-range-loop-58d09b5e-20260518T2100Z
+?? qa/evidence-bundles/llamacpp-q8-cpu-re-20260514T1200Z/artifacts/cron-58d09b5e-20260519T1210Z-ci-guard-ubuntu-rustup/
+7e4709ffbb737434f68035a39f07c5f1302c274d
+## diff stat origin/main...HEAD
+ .../SHA256SUMS                                     |  2 +-
+ .../logs/remote-backend-check.log                  |  2 +-
+ .../SHA256SUMS                                     |  2 +-
+ .../logs/remote-backend-check.log                  |  2 +-
+ .../SHA256SUMS                                     |  2 +-
+ .../logs/dirty-diff.log                            | 89 ++++++++++++++++++++++
+ .../logs/local-execution-plan-gate.log             | 37 +++++++++
+ .../logs/local-ffn-gate-up-default-off-gate.log    | 24 ++++++
+ .../logs/ubuntu-rust-version.log                   |  3 +
+ src/inference.rs                                   |  6 +-
+ 10 files changed, 162 insertions(+), 7 deletions(-)

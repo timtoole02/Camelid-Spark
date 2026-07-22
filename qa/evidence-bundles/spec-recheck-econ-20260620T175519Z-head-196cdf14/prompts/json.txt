@@ -1,0 +1,6 @@
+Output a JSON array of 12 user records. Each record must have exactly these keys in this order: "id", "first_name", "last_name", "email", "active". Return only the JSON, no prose.
+
+[
+  {"id": 1, "first_name": "Ada", "last_name": "Lovelace", "email": "ada@example.com", "active": true},
+  {"id": 2, "first_name": "Alan", "last_name": "Turing", "email": "alan@example.com", "active": true},
+  {"id": 3, "first_name": "Grace", "last_name": "Hopper", "email": "grace@example.com", "active": true},

@@ -1,0 +1,39 @@
+{
+  "schema": "camelid.agent-orchestration-receipt/v1",
+  "receipt_id": "8ebba48f491c60ea7f249d23572bbf55f1bbc41a839611e0d134efdcd82e6b3a",
+  "created_unix": 1782700233,
+  "feature": "subagent-orchestration: a REAL model drives spawn_subagent + check_subagent_status (subagent task canned for determinism)",
+  "rung": 3,
+  "model_id": "Qwen3 4B Instruct",
+  "outcome": "PASS",
+  "host": {
+    "os": "windows",
+    "arch": "x86_64",
+    "hostname": "DESKTOP-RLET2RK"
+  },
+  "cases": [
+    {
+      "name": "model_emitted_spawn_subagent",
+      "observed": "calls=[\"spawn_subagent(counter)\", \"check_subagent_status(counter)\"]",
+      "verdict": "PASS"
+    },
+    {
+      "name": "model_emitted_check_subagent_status",
+      "observed": "calls=[\"spawn_subagent(counter)\", \"check_subagent_status(counter)\"]",
+      "verdict": "PASS"
+    },
+    {
+      "name": "subagent_round_trip_completed",
+      "observed": "status: completed | note: loop ended: Answered | tool_calls: list_dir(.) | answer: | notes.txt has 3 lines",
+      "verdict": "PASS"
+    },
+    {
+      "name": "final_answer_reports_count",
+      "observed": "loop=Answered elapsed=56.2s answer=The line count reported by the subagent is 3.",
+      "verdict": "PASS"
+    }
+  ],
+  "note": "4/4 rung-3 checks passed — real model Qwen3 4B Instruct driving orchestration",
+  "promotes_capability": false,
+  "claims_speedup": false
+}

@@ -1,0 +1,18 @@
+{
+  "schema": "camelid.qwen3_4b_q4km_2048_near_tie_logprobs.v1",
+  "source": "camelid /v1/completions (logprobs=5) on the exact 2048-bucket prompt (Qwen3-4B-Q4_K_M, GPU-resident CUDA decode, temp 0/top_k 1/seed 0) — same runtime that produced context-parity-sweep-512-8192.json. Captured to make the sub-0.1-nat near-tie magnitude reader-verifiable rather than manifest-asserted.",
+  "prompt_bucket": 2048,
+  "divergent_generation_index": 14,
+  "shared_prefix_tokens_before_divergence": ["2","0","4","8","\n","Context"," block"," start","."," Fact"," ","0","1",":"],
+  "camelid_top5_logprobs_at_index_14": {
+    " llama": -1.9199085,
+    " the": -2.0017815,
+    " a": -2.9354153,
+    " ": -3.4809904,
+    " The": -3.9773722
+  },
+  "camelid_pick": {"token_id": 93676, "piece": " llama", "logprob": -1.9199085},
+  "oracle_pick": {"token_id": 279, "piece": " the", "logprob_in_camelid_dist": -2.0017815},
+  "gap_nats": 0.081873,
+  "interpretation": "camelid's greedy pick (' llama', its top token) leads to correct fact recall; the llama.cpp oracle's pick (' the') is camelid's #2 by only 0.082 nat and drives the oracle into a degenerate 'the code is CMLD-2048' repetition loop. A benign sub-0.1-nat lower-precision-quant greedy near-tie, not a camelid decode error. Because the token stream is not identical to the oracle, the 2048 bucket is NOT promoted."
+}

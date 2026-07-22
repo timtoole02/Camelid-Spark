@@ -1,0 +1,77 @@
+{
+  "schema": "camelid.basalt_phase3_evidence.v1",
+  "generated_utc": "2026-07-17",
+  "git_head": "8038abba (branch basalt/phase3-cpu-eval; final freeze SHA_E)",
+  "campaign": "BASALT",
+  "phase": 3,
+  "gate": "G3",
+  "outcome": "NO-GO",
+  "note": "Phase 3 CPU inference + pre-registered quality eval. G3 = NO-GO per the verbatim §5.2 rule (agreement(NVFP4-mm)=88.5 < agreement(Q4K-mm)-2.0=90.6). All figures vs Q8_0 parent, matched 4.5 bpw (Amendment 3 §4). Includes the engine test log, the S1-closure row re-hash, the consolidated G3 summary, and the eval leg receipts (legs/). Placeholders: <camelid>/<cam-basalt>/<pin-tools>/<home>. [Option B resolved 2026-07-17: continue to Phase 4 on bandwidth grounds, quality delta disclosed.]",
+  "files": [
+    {
+      "file": "BASALT_G3_SUMMARY.md",
+      "sha256": "f29090a1eadb347a4416c6217ffcb6c57e9e14309dbe34c5c6730be00371c2f6",
+      "size_bytes": 8756
+    },
+    {
+      "file": "basalt_phase3_engine_cargo_test.txt",
+      "sha256": "291edfa1fb16408f1d072d53ed61a21cc49f5c809ecab36dd4cd5376cf2c72f1",
+      "size_bytes": 109411
+    },
+    {
+      "file": "legs/NVFP4-mm_metrics.json",
+      "sha256": "ce526d3139af8ace492b08228b5bfa683aa7239414cafad376bb1fff31e96d6e",
+      "size_bytes": 3973
+    },
+    {
+      "file": "legs/Q4K-mm_metrics.json",
+      "sha256": "98b73533a3b20651244f137a293d46538e287bf021ecfb0afb66ee092a5a2569",
+      "size_bytes": 2954
+    },
+    {
+      "file": "legs/Q4_K_M-df_metrics.json",
+      "sha256": "b78ca123cf917b80aa2cf3ecfd5ed610c480cf3064c9de8fe8d04f1cc43d4d6a",
+      "size_bytes": 3457
+    },
+    {
+      "file": "legs/Q4_K_M-im_metrics.json",
+      "sha256": "ae64fe836e9f0f5f9e4def0778506b22137f384dadbeba47a3d572fba95f6502",
+      "size_bytes": 2271
+    },
+    {
+      "file": "legs/Q8_0_metrics.json",
+      "sha256": "e3fea86e32881be5917758dd5dfe38cc9a3a9fa7d538b9916476ed2c8f952749",
+      "size_bytes": 1072
+    },
+    {
+      "file": "legs/baseline_continuations.json",
+      "sha256": "731c97b9f244c56c883d6258c3fb91572b70ac919cb41034e7a6c1b0222802b8",
+      "size_bytes": 8208
+    },
+    {
+      "file": "legs/eval_legs_summary.json",
+      "sha256": "c86d7a7e6f18a3b652ee2eaf8b59142a7fec671939413c75694ebcf7e7f3e839",
+      "size_bytes": 59170
+    },
+    {
+      "file": "legs/legB_divergence_village-story.json",
+      "sha256": "fb235db5466d2e64f52db4d501f498a72f4ceb28715def1eeea9790b7205a679",
+      "size_bytes": 1818
+    },
+    {
+      "file": "legs/legB_parity.json",
+      "sha256": "9bf0717fc2000d7ad6fe0146304290109ee5fc2d02b7eef503c119a872f4321f",
+      "size_bytes": 6574
+    },
+    {
+      "file": "legs/ram_log.csv",
+      "sha256": "5dcffb71f9fabddf06d898287345ba15bf0e98b31d7bc060def5195c1a1e1dfc",
+      "size_bytes": 4395
+    },
+    {
+      "file": "row_rehash_post_closure.txt",
+      "sha256": "1472930c0e112d256512be29149025b9d9371b795b2a30899d2d0fd4f051877e",
+      "size_bytes": 1284
+    }
+  ]
+}

@@ -1,0 +1,123 @@
+{
+  "schema": "camelid.parity-receipt/v1",
+  "receipt_id": "adcf1be9953378aedd31490f81fd07656f51a5948dbca2744bc05e5e50839602",
+  "created_utc": "2026-06-27T00:35:41Z",
+  "lane": {
+    "model_id": "Llama 3.2 1B Instruct",
+    "gguf_sha256": "432f310a77f4650a88d0fd59ecdd7cebed8d684bafea53cbff0473542964f0c3",
+    "gguf_filename": "Llama-3.2-1B-Instruct-Q8_0.gguf",
+    "quantization": "Q8_0",
+    "architecture": "llama",
+    "tokenizer_kind": "gpt2_bpe",
+    "tokenizer_sha256": "53c5ca7ea68d56f654f990b4b2d086bedd482310f2c0a536751cedfe6dcec3ba",
+    "camelid_version": "v0.1.7-92-g28f224b",
+    "camelid_commit": "28f224b10870f73deee8c84f44d0879b56c36a6e"
+  },
+  "reference": {
+    "tool": "llama.cpp",
+    "binary": "llama-server",
+    "version": null,
+    "commit": null
+  },
+  "request": {
+    "endpoint": "/v1/chat/completions",
+    "messages_or_prompt": [
+      {
+        "content": "You are a terse assistant. Reply with a single short sentence.",
+        "role": "system"
+      },
+      {
+        "content": "What is the capital of France?",
+        "role": "user"
+      },
+      {
+        "content": "Paris.",
+        "role": "assistant"
+      },
+      {
+        "content": "And the capital of Japan?",
+        "role": "user"
+      }
+    ],
+    "max_tokens": 24,
+    "temperature": 0,
+    "top_p": null,
+    "top_k": null,
+    "seed": null,
+    "stop": []
+  },
+  "reproducible": true,
+  "result": {
+    "prompt_token_ids": [
+      128000,
+      128006,
+      9125,
+      128007,
+      271,
+      2675,
+      527,
+      264,
+      51637,
+      18328,
+      13,
+      18321,
+      449,
+      264,
+      3254,
+      2875,
+      11914,
+      13,
+      128009,
+      128006,
+      882,
+      128007,
+      271,
+      3923,
+      374,
+      279,
+      6864,
+      315,
+      9822,
+      30,
+      128009,
+      128006,
+      78191,
+      128007,
+      271,
+      60704,
+      13,
+      128009,
+      128006,
+      882,
+      128007,
+      271,
+      3112,
+      279,
+      6864,
+      315,
+      6457,
+      30,
+      128009,
+      128006,
+      78191,
+      128007,
+      271
+    ],
+    "generated_token_ids": [
+      53954,
+      16417,
+      13,
+      128009
+    ],
+    "generated_text": "Tokyo.",
+    "completion_tokens": 4,
+    "finish_reason": "stop"
+  },
+  "parity": {
+    "compared_against_reference": false,
+    "prompt_tokens_match": null,
+    "generated_tokens_match": null,
+    "generated_text_match": null,
+    "first_divergent_token_index": null
+  }
+}

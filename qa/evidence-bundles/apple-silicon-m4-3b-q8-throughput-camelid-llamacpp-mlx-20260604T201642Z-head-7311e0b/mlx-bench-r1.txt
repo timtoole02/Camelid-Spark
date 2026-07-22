@@ -1,0 +1,12 @@
+loading model (once)...
+Fetching 6 files:   0%|          | 0/6 [00:00<?, ?it/s]Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Fetching 6 files:  17%|█▋        | 1/6 [00:00<00:02,  2.44it/s]Fetching 6 files:  33%|███▎      | 2/6 [04:55<11:35, 173.95s/it]Fetching 6 files: 100%|██████████| 6/6 [04:55<00:00, 49.31s/it] 
+DECODE: 28.56 tok/s
+=== prefill (verbose) ===
+==========
+The
+==========
+Prompt: 601 tokens, 575.508 tokens-per-sec
+Generation: 1 tokens, 35139.504 tokens-per-sec
+Peak memory: 3.920 GB
+peak mem: 3.92 GB

@@ -1,0 +1,73 @@
+{
+  "schema": "camelid.qwen3.chatml_parity_bundle.windows_cuda_resident.v1",
+  "generated_utc": "20260616T192533Z",
+  "row_id": "qwen3_1_7b_instruct_q8_0",
+  "display_name": "Qwen3 1.7B Instruct Q8_0",
+  "platform": {
+    "operating_system": "windows",
+    "architecture": "x86_64",
+    "toolchain": "x86_64-pc-windows-msvc",
+    "host_ram_gb": 15.7
+  },
+  "gpu": {
+    "name": "NVIDIA GeForce RTX 3060 Laptop GPU",
+    "compute_capability": "8.6",
+    "vram_total_mib": 6144,
+    "vram_free_at_engine_build_mib": 5122,
+    "driver_version": "576.83",
+    "cuda_toolkit": "12.9 (nvcc V12.9.86)",
+    "cuda_runtime_reported": "12.9",
+    "note": "RTX 3060 LAPTOP GPU with 6 GB VRAM — NOT the 12 GB desktop RTX 3060. The 8B row (8.7 GB Q8_0) does not fit fully in 6 GB, so it runs via the automatic VRAM+host-RAM offload split (some layers resident in VRAM, the rest streamed from system RAM each token; compute stays on the GPU and the math is identical). The 0.6B/1.7B/4B rows are fully VRAM-resident."
+  },
+  "exact_support_status": "windows_cuda_resident_chatml_thinking_disabled_chat_parity_proven",
+  "source_runtime_head": "5ca1ede34c2fcb77b7a7335619ecc516c614813b",
+  "model": {
+    "id": "Qwen3 1.7B Instruct",
+    "source": "Qwen/Qwen3-1.7B-GGUF/Qwen3-1.7B-Q8_0.gguf",
+    "sha256": "061b54daade076b5d3362dac252678d17da8c68f07560be70818cace6590cb1a",
+    "arch": "qwen3",
+    "quant": "Q8_0",
+    "geometry": "n_layer 28, n_head 16, n_head_kv 8, embedding 2048, head_dim 128, tied embeddings, qk_norm, rope_freq_base 1e6"
+  },
+  "comparator": {
+    "engine": "llama.cpp",
+    "version": "9632 (acd79d603)",
+    "built_with": "Clang 20.1.8 for Windows x86_64",
+    "flags": "-ngl 0 -ctk f32 -ctv f32 -fa off --no-repack",
+    "note": "On-disk Windows CPU comparator (same as the Windows x86 Qwen3 CPU bundles). The GPU-resident CUDA decode is compared against this CPU reference (transitively llama.cpp); correctness proof is GPU output == camelid cpu_reference output == llama.cpp. Differs from the 5d56eff pinned in the macOS/Ubuntu Qwen3 bundles."
+  },
+  "camelid": {
+    "backend": "cuda_resident_q8_runtime",
+    "q8_path": "cuda_resident_q8_0_wire",
+    "prefill_path": "q8_0_cuda_resident_prefill",
+    "decode_path": "q8_0_cuda_resident_decode",
+    "support_level": "supported_exact_row_smoke_chatml",
+    "cuda_resident_active": true,
+    "vram_strategy": "fully_vram_resident",
+    "gpu_equals_cpu_reference": true,
+    "proof_note": "Correctness proof: GPU-resident CUDA decode output == camelid cpu_reference output (CAMELID_CUDA_RESIDENT_DECODE=0 on the same binary) == llama.cpp comparator, token-AND-text-identical at the listed token counts. The CPU reference path is independently bit-exact to llama.cpp (the committed Windows x86 CPU bundles)."
+  },
+  "mode": "chatml_thinking_disabled_greedy",
+  "prompt_pack": "3 confident probes (capital-of-France, say-hello, 2+2). The default \"Name a primary color.\" probe is a documented frontier near-tie (~0.62/0.38 at the close-vs-continue decision); GPU reduction order closes the list while CPU/llama continue — both valid. See qwen3-1.7b-primarycolor-tie.json. Large-context single-shot GPU prefill exercised; see large-context-prefill.json.",
+  "token_counts": [
+    1,
+    5,
+    50
+  ],
+  "all_pass": true,
+  "cpu_reference_all_pass": true,
+  "api_smoke": {
+    "models_load": "PASS (serve --model startup load; GPU resident engine built, all layers in VRAM)",
+    "v1_chat_completions": "PASS (exercised by the parity harness on the GPU-resident path)",
+    "api_capabilities": "PASS (captured in capabilities.json; selected_backend=cuda_resident_q8_runtime, cuda_resident_active=true, support_level=supported_exact_row_smoke_chatml)",
+    "generation_ready": true
+  },
+  "claim_boundary": "Supported exact-row smoke for this exact Qwen3 Q8_0 GGUF on Windows x86_64 (MSVC) with the GPU CUDA decode engine on the recorded RTX 3060 Laptop (6 GB) / driver 576.83 / CUDA 12.9 (fully VRAM-resident). ChatML chat, thinking DISABLED, short-chat envelope. GPU decode AND single-shot GPU prefill token+text identical to the camelid cpu_reference (transitively llama.cpp) at the listed token counts on the listed prompts. NOT claimed: other Qwen3 sizes beyond the validated 0.6B/1.7B/4B/8B rows, other variants/quants, base variants, Qwen3-MoE (A3B), model-native/long context beyond the recorded resident KV cap, thinking-mode, other GPUs/drivers/CUDA versions (results are GPU/driver/CUDA-version specific), or production throughput.",
+  "artifacts": [
+    "qwen3-1.7b-windows-cuda-resident-parity.json",
+    "qwen3-1.7b-windows-cpu-reference-parity.json",
+    "capabilities.json",
+    "qwen3-1.7b-primarycolor-tie.json",
+    "large-context-prefill.json"
+  ]
+}

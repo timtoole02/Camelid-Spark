@@ -1,0 +1,1 @@
+{"error":{"message":"n greater than 1 is not supported with stream:true; request multiple choices without streaming","type":"invalid_request","code":"invalid_request_error","param":"n"}}

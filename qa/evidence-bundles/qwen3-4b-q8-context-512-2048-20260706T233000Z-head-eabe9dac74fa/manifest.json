@@ -1,0 +1,39 @@
+{
+  "schema": "camelid.qwen3_4b_q8_context_512_2048_public_evidence.v1",
+  "generated_utc": "2026-07-06T23:50:00.000Z",
+  "git_head": "eabe9dac74fa",
+  "row_id": "qwen3_4b_instruct_q8_0",
+  "model": {
+    "filename": "Qwen3-4B-Q8_0.gguf",
+    "size_bytes": 4280404704,
+    "sha256": "8c2f07f26af9747e41988551106f149b03eb9b5cb6df636027b6bf6278473300",
+    "quantization": "Q8_0",
+    "architecture": "qwen3"
+  },
+  "comparator": "llama.cpp acd79d603 (Windows CPU-only build) /completion, greedy (temp 0/top_k 1), -ngl 0 -ctk f32 -ctv f32 -fa off --no-repack -c 4096",
+  "camelid_backend": "cuda_resident_q8_runtime (GPU-resident decode+prefill, RTX 3060 Laptop)",
+  "buckets": [
+    {
+      "target_window": 512,
+      "actual_qwen3_tokens": 446,
+      "prompt_text_source": "qa/gemma4/prompt_packs/context_512_v1.json (recall text reused)"
+    },
+    {
+      "target_window": 1024,
+      "actual_qwen3_tokens": 968,
+      "prompt_text_source": "qa/gemma4/prompt_packs/context_1024_v1.json (recall text reused)"
+    },
+    {
+      "target_window": 2048,
+      "actual_qwen3_tokens": 2013,
+      "prompt_text_source": "qa/gemma4/prompt_packs/context_2048_v1.json (recall text reused)"
+    }
+  ],
+  "all_pass": true,
+  "token_counts": [
+    1,
+    5,
+    50
+  ],
+  "claim_boundary": "Bounded 512/1024/2048-context (446/968/2013 Qwen3 tokens) raw-decode greedy parity for the exact Qwen3-4B-Q8_0 row ONLY: camelid GPU-resident decode is token-AND-text-identical to the pinned llama.cpp acd79d603 oracle at 1/5/50 generated tokens on all three buckets. NOT claimed: 4096/8192 buckets (blocked by the harness HTTP timeout on this box CPU-only llama.cpp prefill, an oracle-side infra limit, not a parity failure), model-native/larger context, other Qwen3 sizes/quants, or throughput."
+}

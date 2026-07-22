@@ -1,0 +1,6 @@
+cargo test q8_runtime_repack -- --nocapture
+PASS: 2 passed; 0 failed; targeted output from process gentle-sage.
+cargo test q8_repack -- --nocapture
+PASS: tensor_store q8_repack 5 passed; no failures; targeted output from process tidy-comet.
+cargo test --lib -- --nocapture
+PASS: 286 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.73s.

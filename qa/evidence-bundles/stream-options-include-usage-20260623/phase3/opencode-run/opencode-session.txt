@@ -1,0 +1,20 @@
+OpenCode v1.17.9 — session notes (authoritative wire evidence: ../proxy.log +
+opencode-stream-options-proof.txt)
+
+Run 1 (default agent): OpenCode issued two streamed chat-completions calls, both
+with "stream":true,"stream_options":{"include_usage":true}:
+  - call #1 (thread-title generation): RESP 200, streamed content + terminal
+    usage chunk {"prompt_tokens":544,"completion_tokens":4,"total_tokens":548}.
+    => the "stream_options are not supported yet" error is GONE; usage delivered.
+  - call #2 (main agent turn): RESP 400 — rejected on the `tools` array
+    ("tool/function calling is not supported by Camelid generation routes yet").
+    This is a separate, pre-existing, out-of-scope limitation (no structured
+    tool_calls in Camelid), NOT a stream_options issue.
+
+Run 2 (tools disabled via "tools": {"*": false}): hung before issuing a request
+and hit the 300s wrapper timeout — OpenCode's heavy agent init + this box's slow
+CPU decode (~minutes/turn on the RTX 3060 Laptop 6 GB, per the prior bring-up).
+Host/latency limitation, unrelated to the protocol fix. No bytes reached Camelid.
+
+Conclusion: the stream_options.include_usage surface — the entire subject of this
+change — is proven working for OpenCode in run 1, call #1.

@@ -1,0 +1,167 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "camelid.invariant-lanes/v1",
+  "title": "camelid.invariant-lanes/v1 — BASALT NVFP4 invariant-lane matrix",
+  "description": "Amendment 3 §2 (stage S2, the SHA_E engine freeze): one cell per (lane × invariant). Every cell is exactly one of enforced / na / open — HONEST CELLS ONLY: an enforced cell names the test fn and the enforcement source it is bound to; an na cell carries a nonempty structural reason (file-anchored); an open cell names an unlanded phase (P4, P2b) or the flagged P3-FINDING. tests/invariant_matrix_binding.rs is the §2.4 enforcement: it include_str!-binds every file named by enforced cells (rename/move breaks the build), asserts every named test fn appears in its file's text (a fn rename fails the meta-test), validates this document against qa/invariant_lanes.json, and trips the committed fixtures (tests/fixtures/gguf/) for the refusal cells that have one. Human-readable twin: BASALT_RECON.md §13. Ratchet rules (§2.5) ride in the data file as data.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["matrix_version", "provenance", "columns", "lanes", "cells", "ratchet"],
+  "properties": {
+    "matrix_version": { "const": "camelid.invariant-lanes/v1" },
+    "provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["campaign", "amendment", "source_head", "note"],
+      "properties": {
+        "campaign": { "const": "BASALT" },
+        "amendment": { "const": "Amendment 3 §2 (S2)" },
+        "source_head": { "type": "string", "description": "parent git head the matrix was extracted against; the S2 commit that adds this file is the SHA_E engine freeze" },
+        "note": { "type": "string" }
+      }
+    },
+    "columns": {
+      "type": "array",
+      "minItems": 8,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "invariant", "sources"],
+        "properties": {
+          "id": { "$ref": "#/definitions/columnId" },
+          "invariant": { "type": "string", "minLength": 1 },
+          "sources": {
+            "type": "array",
+            "minItems": 1,
+            "items": { "type": "string", "minLength": 1 },
+            "description": "where the invariant is signed/stated (DECISIONS.md D17 + addenda, BASALT_CONDUCTOR.md §8, basalt_eval_protocol.md, G2 summary) — columns are EXTRACTED from sources, never invented"
+          }
+        }
+      }
+    },
+    "lanes": {
+      "type": "array",
+      "minItems": 5,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "name", "sources"],
+        "properties": {
+          "id": { "$ref": "#/definitions/laneId" },
+          "name": { "type": "string", "minLength": 1 },
+          "sources": {
+            "type": "array",
+            "items": { "type": "string", "minLength": 1 },
+            "description": "the lane's code home; empty ONLY for a lane that has no code home (L5: Phase 2b never scheduled)"
+          }
+        }
+      }
+    },
+    "cells": {
+      "type": "object",
+      "description": "cells[laneId][columnId] — the meta-test asserts every (lane × column) pair is present exactly once (no empty cells).",
+      "additionalProperties": false,
+      "propertyNames": { "$ref": "#/definitions/laneId" },
+      "patternProperties": {
+        "^L[1-5]-": {
+          "type": "object",
+          "additionalProperties": false,
+          "propertyNames": { "$ref": "#/definitions/columnId" },
+          "patternProperties": { "^I-": { "$ref": "#/definitions/cell" } }
+        }
+      }
+    },
+    "ratchet": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["rules"],
+      "properties": {
+        "rules": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["id", "rule"],
+            "properties": {
+              "id": { "type": "string", "pattern": "^R[0-9]+$" },
+              "rule": { "type": "string", "minLength": 1 }
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "laneId": {
+      "type": "string",
+      "enum": ["L1-runnable", "L2-gemma4-wire", "L3-cuda-resident", "L4-metal", "L5-native-quantizer"]
+    },
+    "columnId": {
+      "type": "string",
+      "enum": [
+        "I-unknown-type",
+        "I-nan-scale",
+        "I-sidecar",
+        "I-scale-once",
+        "I-k-div",
+        "I-carveout",
+        "I-cache-quant",
+        "I-plat"
+      ]
+    },
+    "cell": {
+      "oneOf": [
+        { "$ref": "#/definitions/enforcedCell" },
+        { "$ref": "#/definitions/naCell" },
+        { "$ref": "#/definitions/openCell" }
+      ]
+    },
+    "enforcedCell": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "test_file", "test_fn", "source"],
+      "properties": {
+        "status": { "const": "enforced" },
+        "test_file": { "type": "string", "minLength": 1, "description": "repo-relative file holding the named test fn (inline #[cfg(test)] mod or tests/ integration file); must be include_str!-bound in tests/invariant_matrix_binding.rs" },
+        "test_fn": { "type": "string", "minLength": 1, "description": "the primary test fn; the meta-test asserts `fn <test_fn>` appears in test_file's bound text" },
+        "source": { "type": "string", "minLength": 1, "description": "repo-relative enforcement source file (where the refusal/check lives); include_str!-bound" },
+        "companion_tests": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["file", "fn"],
+            "properties": {
+              "file": { "type": "string", "minLength": 1 },
+              "fn": { "type": "string", "minLength": 1 }
+            }
+          },
+          "description": "additional verifiable tests backing the cell; each is name-asserted against its bound file exactly like the primary"
+        },
+        "fixture": { "type": "string", "minLength": 1, "description": "committed tripping fixture filename under tests/fixtures/gguf/, OR `seam:<reason>` when a file-boundary fixture is not constructible for this cell (the S1 NaN precedent)" },
+        "fixture_trip": { "type": "string", "minLength": 1, "description": "REQUIRED when fixture names a file: `<repo-relative test file>::<fn>` that trips the refusal on those exact bytes (referencing an existing per-lane test is fine — no duplicate execution)" },
+        "note": { "type": "string" }
+      }
+    },
+    "naCell": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "reason"],
+      "properties": {
+        "status": { "const": "na" },
+        "reason": { "type": "string", "minLength": 1, "description": "nonempty structural reason with file anchors — why the invariant has no surface on this lane" },
+        "note": { "type": "string" }
+      }
+    },
+    "openCell": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "phase"],
+      "properties": {
+        "status": { "const": "open" },
+        "phase": { "type": "string", "enum": ["P4", "P2b", "P3-FINDING"], "description": "only phases that have not landed (P4 CUDA path, P2b native quantizer) or the orchestrator-flagged P3-FINDING may hold a cell open" },
+        "note": { "type": "string" }
+      }
+    }
+  }
+}

@@ -1,0 +1,2 @@
+### node scripts/check-public-evidence-claims.mjs
+public evidence claim check passed: 105 manifest(s), 48 summary file(s)

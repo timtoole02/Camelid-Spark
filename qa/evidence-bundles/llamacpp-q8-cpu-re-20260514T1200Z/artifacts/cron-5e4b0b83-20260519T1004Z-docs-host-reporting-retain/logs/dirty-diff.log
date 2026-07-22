@@ -1,0 +1,182 @@
+diff --git a/BENCHMARKS.md b/BENCHMARKS.md
+index 145a124..ad237f6 100644
+--- a/BENCHMARKS.md
++++ b/BENCHMARKS.md
+@@ -145,7 +145,7 @@ node scripts/bench-llama3-same-host.mjs \
+ 
+ Use `--print-plan` with the same arguments to audit exact spawned commands, stdout keys, JSON schema, and metric bounds before starting servers. The harness reports bounded TTFT, elapsed-time, and streamed-chunk-derived decode estimates only; it does not promote production throughput, 1B, Mixtral, neighboring-row, portability, or broader-family support without separate row-specific evidence.
+ 
+-Latest readiness note: `qa/validation-notes/2026-05-14-throughput-host-readiness-recheck.md` records that the approved Ubuntu lane is reachable and no longer blocked by full root storage, but no same-host benchmark has been run or published from that probe. Treat the apples-to-apples table as still missing until a scrubbed row-specific evidence bundle is committed.
++Latest readiness note: `qa/validation-notes/2026-05-14-throughput-host-readiness-recheck.md` records improved approved Ubuntu lane readiness after the full-root-storage condition, but no same-host benchmark has been run or published from that probe. Treat the apples-to-apples table as still missing until a scrubbed row-specific evidence bundle is committed.
+ 
+ ## What should be added next
+ 
+diff --git a/docs/performance/ubuntu-x86-q8.md b/docs/performance/ubuntu-x86-q8.md
+index 1848629..cc9c09c 100644
+--- a/docs/performance/ubuntu-x86-q8.md
++++ b/docs/performance/ubuntu-x86-q8.md
+@@ -123,9 +123,10 @@ Primary public evidence anchors for this lane:
+ - `qa/evidence-bundles/llamacpp-q8-cpu-re-20260514T1200Z/artifacts/cron-0719640b-20260518T1515Z-ffndown-rowgroup-threshold/README.md` (retained default-off FFN-down GEMM4 row-group min-input-groups scheduler guard; synthetic scheduler evidence only, not broad throughput/support/default-on evidence)
+ - `qa/evidence-bundles/llamacpp-q8-cpu-re-20260514T1200Z/artifacts/cron-95495a91-20260518T1616Z-ffn-gate-up-single-owner-env-guard/README.md` (retained default-off execution-plan guard for stale FFN gate/up single-owner env leakage; control-plane hygiene only, not throughput/parity/support evidence)
+ - `qa/evidence-bundles/llamacpp-q8-cpu-re-20260514T1200Z/artifacts/cron-5e4b0b83-20260518T1730Z-docs-claim-guard-sync/README.md` (docs/context claim guard sync: sanitized public evidence references and aligned default-off scheduler/control-plane wording without support-contract widening)
+-- `qa/evidence-bundles/llamacpp-q8-cpu-re-20260514T1200Z/artifacts/cron-5e4b0b83-20260518T2118Z-docs-ubuntu-host-honesty/README.md` (docs/context claim guard: stale Ubuntu host-failure wording removed from public summaries; remote validation was not attempted in this run)
++- `qa/evidence-bundles/llamacpp-q8-cpu-re-20260514T1200Z/artifacts/cron-5e4b0b83-20260518T2118Z-docs-ubuntu-host-honesty/README.md` (docs/context claim guard: stale Ubuntu validation-status wording removed from public summaries; remote validation was not attempted in this run)
+ - `qa/evidence-bundles/llamacpp-q8-cpu-re-20260514T1200Z/artifacts/cron-5e4b0b83-20260519T0450Z-docs-status-host-honesty/README.md` (docs/status host-honesty refresh: status notes now say no Ubuntu timing/profiling validation is recorded for local-only slices; remote validation was not attempted in this run)
+ - `qa/evidence-bundles/llamacpp-q8-cpu-re-20260514T1200Z/artifacts/cron-5e4b0b83-20260519T0704Z-docs-host-reporting/README.md` (docs host-reporting guard: contributor docs now require evidence-scoped Ubuntu validation status language; remote validation was not attempted in this run)
++- `qa/evidence-bundles/llamacpp-q8-cpu-re-20260514T1200Z/artifacts/cron-5e4b0b83-20260519T1004Z-docs-host-reporting-retain/README.md` (docs/context claim guard: stale validation-host wording purged from summaries; remote validation was not attempted in this run)
+ - the retained/reject notes for bounded Ubuntu x86 Q8 experiments kept under `qa/evidence-bundles/`
+ 
+ ## Product/runtime note
+diff --git a/qa/evidence-bundles/llamacpp-q8-cpu-re-20260514T1200Z/README.md b/qa/evidence-bundles/llamacpp-q8-cpu-re-20260514T1200Z/README.md
+index bc65e11..7ad3f77 100644
+--- a/qa/evidence-bundles/llamacpp-q8-cpu-re-20260514T1200Z/README.md
++++ b/qa/evidence-bundles/llamacpp-q8-cpu-re-20260514T1200Z/README.md
+@@ -12,7 +12,7 @@ Claim guardrail: this report is the current Q8 reference truth for the Ubuntu x8
+ - Refreshed llama.cpp grep evidence for Q8_0 vec-dot, repack/GEMV/GEMM hooks, x86 AVX2/AVX512/VNNI branches, `MUL_MAT` wiring, and OpenMP scheduling, plus Camelid grep evidence for the output packed-rows4 matmul flag, runtime-plan gating, backend-owned storage, and helper/test anchors.
+ - Remote Ubuntu validation was attempted in that worker run but did not produce timing/profiling evidence; no `uname`/`lscpu`/Rust/Cargo probe or focused tests are recorded for the slice.
+ - No code change, support promotion, portability claim, Ubuntu throughput claim, retained measured effect, or default-on behavior was added; the output packed-rows4 matmul slice remains default-off and local-only unless a future Ubuntu validation bundle records passing evidence.
+-- Artifact: `artifacts/cron-95495a91-20260517T2207Z-x86-output-packed-rows4-canonical-host-blocker.txt` (historical filename; the retained summary makes no current host-failure claim).
++- Artifact: `artifacts/cron-95495a91-20260517T2207Z-x86-output-packed-rows4-canonical-host-blocker.txt` (historical filename; the retained summary makes no current remote validation-status claim).
+ 
+ ## CAMELID DOCS UBUNTU X86 Q8 — cron 5e4b0b83, 2026-05-17T21:31Z
+ 
+diff --git a/qa/evidence-bundles/llamacpp-q8-cpu-re-20260514T1200Z/artifacts/cron-5e4b0b83-20260518T2118Z-docs-ubuntu-host-honesty/README.md b/qa/evidence-bundles/llamacpp-q8-cpu-re-20260514T1200Z/artifacts/cron-5e4b0b83-20260518T2118Z-docs-ubuntu-host-honesty/README.md
+index 878d3b2..899c993 100644
+--- a/qa/evidence-bundles/llamacpp-q8-cpu-re-20260514T1200Z/artifacts/cron-5e4b0b83-20260518T2118Z-docs-ubuntu-host-honesty/README.md
++++ b/qa/evidence-bundles/llamacpp-q8-cpu-re-20260514T1200Z/artifacts/cron-5e4b0b83-20260518T2118Z-docs-ubuntu-host-honesty/README.md
+@@ -2,18 +2,18 @@
+ 
+ Scope: docs/evidence-summary wording only; no code, support promotion, API/frontend claim, portability claim, throughput claim, or default-on behavior changed.
+ 
+-Remote validation: not attempted in this run. This slice intentionally makes no current remote-host failure claim.
++Remote validation: not attempted in this run. This slice intentionally makes no current remote validation-status claim.
+ 
+ Changes retained:
+ - Reworded stale Ubuntu validation-failure summaries to say only that no Ubuntu timing/profiling validation is recorded for the affected local slices.
+-- Kept historical artifact filenames unchanged while preventing summaries from presenting current host-failure state.
++- Kept historical artifact filenames unchanged while preventing summaries from presenting current remote validation status.
+ - Reworded Mixtral readiness language to not yet established, without widening support.
+ - Kept `CAMELID_X86_Q8_OUTPUT_PACKED_ROWS4_MATMUL` default-off and local-only; no Ubuntu throughput/support/default-on evidence was added.
+ 
+ Green checks:
+ - `node scripts/check-public-evidence-claims.mjs` — PASS (`95 manifest(s), 48 summary file(s)`).
+ - `node scripts/audit-evidence-bundle-privacy.mjs --root qa/evidence-bundles/llamacpp-q8-cpu-re-20260514T1200Z --strict` — PASS (`finding_count: 0`, `bundle_count_with_findings: 0`).
+-- Focused stale-host wording grep over README/docs/current Q8 summary — PASS (no disallowed current remote-host failure claims found).
++- Focused stale-host wording grep over README/docs/current Q8 summary — PASS (no disallowed current remote validation-status claims found).
+ 
+ Retain/reject: retain this docs/context slice as a support-contract honesty cleanup.
+ 
+diff --git a/qa/evidence-bundles/llamacpp-q8-cpu-re-20260514T1200Z/artifacts/cron-5e4b0b83-20260519T0450Z-docs-status-host-honesty/README.md b/qa/evidence-bundles/llamacpp-q8-cpu-re-20260514T1200Z/artifacts/cron-5e4b0b83-20260519T0450Z-docs-status-host-honesty/README.md
+index 9fb76d5..1af8b69 100644
+--- a/qa/evidence-bundles/llamacpp-q8-cpu-re-20260514T1200Z/artifacts/cron-5e4b0b83-20260519T0450Z-docs-status-host-honesty/README.md
++++ b/qa/evidence-bundles/llamacpp-q8-cpu-re-20260514T1200Z/artifacts/cron-5e4b0b83-20260519T0450Z-docs-status-host-honesty/README.md
+@@ -5,12 +5,12 @@ Owner: cron `5e4b0b83-312c-4949-b085-21cf457183b9` DOCS CAMELID
+ 
+ ## Target
+ 
+-Purge stale Ubuntu validation-host failure wording encountered in status notes while maintaining support-contract honesty and documentation accuracy.
++Purge stale Ubuntu validation-status wording encountered in status notes while maintaining support-contract honesty and documentation accuracy.
+ 
+ ## Feedback loop
+ 
+ - Read Camelid operating context: `CONTEXT.md` and `docs/adr/0001-agentic-engineering-discipline.md`.
+-- Grep guard for stale Ubuntu validation-host failure phrases: `logs/docs-host-honesty-scan.log` (no matches).
++- Grep guard for stale Ubuntu validation-status phrases: `logs/docs-host-honesty-scan.log` (no matches).
+ - Diff review: `logs/dirty-diff.log`.
+ 
+ ## Result
+@@ -19,7 +19,7 @@ Purge stale Ubuntu validation-host failure wording encountered in status notes w
+ - Reworded `docs/performance/ubuntu-x86-q8.md` to avoid implying host recovery; it now waits for recorded Ubuntu timing/profiling validation.
+ - Did not add or imply Ubuntu throughput, support, portability, or default-on evidence.
+ - Remote validation was not attempted in this run.
+-- The exact canonical SSH command was not executed in this run, so no Ubuntu host failure is claimed.
++- The exact canonical SSH command was not executed in this run, so no Ubuntu host-access status is claimed.
+ 
+ ## Retain/reject
+ 
+diff --git a/qa/evidence-bundles/llamacpp-q8-cpu-re-20260514T1200Z/artifacts/cron-5e4b0b83-20260519T0704Z-docs-host-reporting/README.md b/qa/evidence-bundles/llamacpp-q8-cpu-re-20260514T1200Z/artifacts/cron-5e4b0b83-20260519T0704Z-docs-host-reporting/README.md
+index b5cf62c..ce63982 100644
+--- a/qa/evidence-bundles/llamacpp-q8-cpu-re-20260514T1200Z/artifacts/cron-5e4b0b83-20260519T0704Z-docs-host-reporting/README.md
++++ b/qa/evidence-bundles/llamacpp-q8-cpu-re-20260514T1200Z/artifacts/cron-5e4b0b83-20260519T0704Z-docs-host-reporting/README.md
+@@ -10,7 +10,7 @@ Keep support-contract honesty and documentation accuracy around Ubuntu validatio
+ ## Feedback loop
+ 
+ - Read Camelid operating context: `CONTEXT.md` and `docs/adr/0001-agentic-engineering-discipline.md`.
+-- Grep guard for stale Ubuntu validation-host failure phrases: `logs/stale-host-wording-scan.log`.
++- Grep guard for stale Ubuntu validation-status phrases: `logs/stale-host-wording-scan.log`.
+ - Diff review: `logs/dirty-diff.log`.
+ 
+ ## Result
+diff --git a/qa/validation-notes/2026-05-04-local-checkmark-lane.md b/qa/validation-notes/2026-05-04-local-checkmark-lane.md
+index a9337d3..809d18b 100644
+--- a/qa/validation-notes/2026-05-04-local-checkmark-lane.md
++++ b/qa/validation-notes/2026-05-04-local-checkmark-lane.md
+@@ -1,4 +1,4 @@
+-# Validation note — local checkmark lane while Ubuntu runtime is shut down
++# Validation note — local checkmark lane during operator-requested validation pause
+ 
+ Superseded operational note: the approved Ubuntu validation lane reopened later on 2026-05-04, then Tim paused it again on 2026-05-12. Keep this file as historical context for the earlier local-only pause, but use `2026-05-12-local-only-validation-lane-paused.md` for current execution guidance.
+ 
+@@ -7,12 +7,12 @@ Repo lane: local/repo-safe only
+ 
+ ## Operator constraint
+ 
+-Tim has intentionally shut down the Ubuntu validation server. Until Tim explicitly says the validation host/runtime lane is back:
++Tim requested a local-only validation pause for the Ubuntu validation lane. Until Tim explicitly says the validation host/runtime lane is back:
+ 
+ - do not SSH into the validation host or any substitute remote validation host
+ - do not run local Mac llama-server/reference-runtime workloads as a substitute
+-- treat promotion-grade 1B/3B/8B runtime reruns as blocked by host shutdown
+-- keep 8B longer-context/performance validation blocked, not promoted or inferred
++- treat promotion-grade 1B/3B/8B runtime reruns as not attempted during the operator pause
++- keep 8B longer-context/performance validation unpromoted and uninferred
+ 
+ ## Local work preserved on this lane
+ 
+@@ -22,7 +22,7 @@ This pass only normalized repo-facing contract language and harness scaffolding:
+ - Llama 3.2 1B, Llama 3.2 3B, and Llama 3 8B remain exact-row smoke-supported only.
+ - Historical at the time of this local-only pause: the 8B row kept its short-smoke/parity evidence, and the first 512-context current-head pack remained a documented blocker. This was later superseded by the passing rerun in `2026-05-04-8b-context-512-rerun.md`.
+ - `/api/capabilities`, frontend readiness copy, and docs should expose blocked template/context/perf tracks rather than implying broad/full Llama support.
+-- `scripts/prepare-full-support-bundle.mjs` is the safe scaffold generator for the next validation window; with the default `blocked_by_operator_shutdown` status, runtime command files preserve the original commands for review but exit blocked instead of running workloads.
++- `scripts/prepare-full-support-bundle.mjs` is the safe scaffold generator for the next validation window; with the default operator-pause status, runtime command files preserve the original commands for review but do not run workloads.
+ 
+ ## Resume rule
+ 
+diff --git a/qa/validation-notes/2026-05-12-mixtral-capabilities-blocker-guard.md b/qa/validation-notes/2026-05-12-mixtral-capabilities-blocker-guard.md
+index 236837c..27e6248 100644
+--- a/qa/validation-notes/2026-05-12-mixtral-capabilities-blocker-guard.md
++++ b/qa/validation-notes/2026-05-12-mixtral-capabilities-blocker-guard.md
+@@ -5,7 +5,7 @@ Scope: local-only backend/API support-contract guardrail. No SSH, no validation
+ Starting state:
+ - Repo head before edits: `7743b61` (`Align status support boundary wording`).
+ - Working tree already contained two untracked Llama 3 8B evidence bundle directories; this slice did not modify them.
+-- Operator posture: Ubuntu validation lane paused, so promotion-grade reruns are blocked until Tim reactivates an authorized lane.
++- Operator posture: Ubuntu validation lane paused, so promotion-grade reruns were not attempted until Tim reactivated an authorized lane.
+ 
+ Evidence reviewed:
+ - `qa/evidence-bundles/mixtral-8x7b-v0.1-q8-blocker-reconciliation-20260512/README.md`
+diff --git a/qa/validation-notes/2026-05-13-llama32-1b-metadata-jinja-renderer.md b/qa/validation-notes/2026-05-13-llama32-1b-metadata-jinja-renderer.md
+index 910ea7a..f326450 100644
+--- a/qa/validation-notes/2026-05-13-llama32-1b-metadata-jinja-renderer.md
++++ b/qa/validation-notes/2026-05-13-llama32-1b-metadata-jinja-renderer.md
+@@ -59,7 +59,7 @@ Validation artifacts are under `target/cron-58d09b5e-20260513T2302Z-backend-resu
+ - `cargo-clippy-all-targets-all-features.log`: clippy passed with `-D warnings`.
+ - `cargo-test-all-targets-all-features.log`: full Rust test suite passed.
+ - `frontend-smoke-model-state.log` and `frontend-build.log`: frontend support-surface smoke and production build passed.
+-- `ubuntu-readiness.log`: the canonical Ubuntu validation lane remained blocked for fresh current-head validation because `/` was 100% full with about 297 MiB available and the default Rust toolchain was 1.75.0. No fresh remote build was attempted in this resume.
++- `ubuntu-readiness.log`: the fresh current-head Ubuntu validation preflight recorded `/` at 100% full with about 297 MiB available and default Rust toolchain 1.75.0. No fresh remote build was attempted in this resume.
+ 
+ This resume still does not promote arbitrary templates, neighboring rows, model-native/larger contexts beyond the checked 512/1024/2048/4096/8192 packs for the exact 1B row, production throughput, portability, or full Llama-family support.
+ 
+
+--- status ---
+ M BENCHMARKS.md
+ M docs/performance/ubuntu-x86-q8.md
+ M qa/evidence-bundles/llamacpp-q8-cpu-re-20260514T1200Z/README.md
+ M qa/evidence-bundles/llamacpp-q8-cpu-re-20260514T1200Z/artifacts/cron-5e4b0b83-20260518T2118Z-docs-ubuntu-host-honesty/README.md
+ M qa/evidence-bundles/llamacpp-q8-cpu-re-20260514T1200Z/artifacts/cron-5e4b0b83-20260519T0450Z-docs-status-host-honesty/README.md
+ M qa/evidence-bundles/llamacpp-q8-cpu-re-20260514T1200Z/artifacts/cron-5e4b0b83-20260519T0704Z-docs-host-reporting/README.md
+ M qa/validation-notes/2026-05-04-local-checkmark-lane.md
+ M qa/validation-notes/2026-05-12-mixtral-capabilities-blocker-guard.md
+ M qa/validation-notes/2026-05-13-llama32-1b-metadata-jinja-renderer.md
+?? qa/evidence-bundles/llamacpp-q8-cpu-re-20260514T1200Z/artifacts/cron-5e4b0b83-20260519T1004Z-docs-host-reporting-retain/

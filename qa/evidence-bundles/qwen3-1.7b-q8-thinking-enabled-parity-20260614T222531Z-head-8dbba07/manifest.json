@@ -1,0 +1,18 @@
+{
+  "schema": "camelid.qwen3.thinking_enabled_parity_bundle.v1",
+  "generated_utc": "2026-06-14T22:25:56Z",
+  "bundle_head": "8dbba07a08ad2efd3db41806c2aa17fd1f285514",
+  "row_id": "qwen3_1_7b_instruct_q8_0",
+  "display_name": "Qwen3 1.7B Instruct Q8_0 — thinking-enabled mode",
+  "feature_status": "opt_in_thinking_enabled_leading_trace_parity",
+  "model": {
+    "id": "Qwen3 1.7B Instruct",
+    "source": "Qwen/Qwen3-1.7B-GGUF/Qwen3-1.7B-Q8_0.gguf",
+    "sha256": "061b54daade076b5d3362dac252678d17da8c68f07560be70818cace6590cb1a",
+    "arch": "qwen3", "quant": "Q8_0"
+  },
+  "trigger": "request field camelid_enable_thinking:true (mirrors gemma4); default/false keeps the parity-locked thinking-disabled mode",
+  "mode": "chatml_thinking_ENABLED_greedy",
+  "all_pass": true,
+  "artifacts": ["qwen3-thinking-enabled-parity.json"]
+}

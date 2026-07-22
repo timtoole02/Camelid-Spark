@@ -1,0 +1,50 @@
+{
+  "schema": "camelid.qwen3.thinking_leadingtrace_bundle.v1",
+  "generated_utc": "2026-06-16T20:00:32Z",
+  "bundle_head": "ef891b2",
+  "row_id": "qwen3_8b_instruct_q8_0",
+  "display_name": "Qwen3 8B Instruct Q8_0",
+  "feature_status": "opt_in_thinking_enabled_leading_trace_HOST_BOUNDED",
+  "support_scope": "thinking_opt_in_leading_trace_only",
+  "model": {
+    "id": "Qwen3 8B Instruct",
+    "source": "Qwen/Qwen3-8B-GGUF/Qwen3-8B-Q8_0.gguf",
+    "sha256": "408b955510e196121c1c375201744783b5c9a43c7956d73fc78df54c66e883d6",
+    "arch": "qwen3",
+    "quant": "Q8_0"
+  },
+  "trigger": "request field camelid_enable_thinking:true (also CLI `--enable-thinking` on serve/chat, and the WebUI Thinking toggle); default/false keeps the parity-locked thinking-DISABLED mode",
+  "mode": "chatml_thinking_ENABLED_greedy",
+  "comparator": {
+    "engine": "llama.cpp",
+    "version": "b9430 (d48a56eff)",
+    "flags": "-ngl 0 -ctk f32 -ctv f32 -fa off --no-repack -c 16384",
+    "url": "http://127.0.0.1:8090",
+    "fed": "the bare-assistant thinking-enabled ChatML prompt via /completion"
+  },
+  "camelid_backend": "cpu_reference (CAMELID_METAL_NOCOPY=0 CAMELID_METAL_RESIDENT_*=0; host-bounded \u2014 see host_bounded in the artifact)",
+  "leading_trace_parity_envelope_tokens": {
+    "min": 16,
+    "max": 16,
+    "per_probe": {
+      "What is the capital of France?": 16,
+      "Name a primary color.": 16,
+      "What is 2+2?": 16,
+      "Say hello.": 16
+    },
+    "note": "host-bounded LOWER BOUND (16/16 matched in the captured window; not an observed divergence)"
+  },
+  "all_probes_engage_thinking": true,
+  "all_probes_match_at_5": true,
+  "blocker": false,
+  "all_pass": false,
+  "not_a_full_trace_parity_claim": true,
+  "artifacts": [
+    "qwen3-8b-thinking-leadingtrace.json"
+  ],
+  "host_bounded": {
+    "captured_n": 16,
+    "target_n": 256,
+    "reason": "8.1GB Q8 thrashes the page cache on this 16GB host (~53s/token, T7 ~14MB/s, no GPU); full 256-token x4 trace ~15h. Captured to a 16-token window."
+  }
+}

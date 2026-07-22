@@ -1,0 +1,8 @@
+# Staged sidecar payload (release camelid.exe + NVRTC redistributables). Produced at
+# package time by CI / scripts; never committed (large, platform-specific binaries).
+/sidecar/
+
+# Tauri-generated files (permission schemas, etc.).
+/gen/
+
+# Icon regeneration source is kept (icon-source.png); generated bundles are not.

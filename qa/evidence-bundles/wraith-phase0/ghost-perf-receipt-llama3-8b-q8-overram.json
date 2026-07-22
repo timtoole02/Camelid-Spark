@@ -1,0 +1,81 @@
+{
+  "schema": "ghost-perf-receipt/v1",
+  "runtime": "camelid",
+  "campaign": "WRAITH — over-available-RAM row (the regime ghost mode exists for)",
+  "commit": "main 6c2a544a (WRAITH PR #453 merged) + this receipt",
+  "gguf": "Meta-Llama-3-8B-Instruct.Q8_0.gguf (camelid pull llama3_8b_instruct_q8_0, curated catalog row)",
+  "gguf_sha256": "d7efa06c16dc522fe7e6a48e36d17cc42dcadfe581ae1cdf7be9f51734eaf85d",
+  "cghost": "Meta-Llama-3-8B-Instruct.Q8_0.cghost",
+  "cghost_sha256": "a0bcf37fec1daafc0a8ff4aacb5ddf4fd1418a4568e21ec0c71f28e3fec57d4c",
+  "host": {
+    "os": "Windows 11 (26100)",
+    "cpu": "16 logical cores, AVX-512 (avx2+avx512f+fma)",
+    "gpu": "RTX 3060 Laptop 6GB (UNUSED — all runs CPU, CUDA_VISIBLE_DEVICES=-1)",
+    "ram_total_gib": 15.7,
+    "storage_tier": "internal-nvme",
+    "drive_model": "NVMe PC711 NVMe SK hynix 1TB (BusType RAID)"
+  },
+  "model": {
+    "block_count": 32,
+    "streaming_window_mib": 221.0,
+    "cghost_payload_gib": 7.95,
+    "bytes_streamed_per_token_gib": 7.95,
+    "tied_output": false
+  },
+  "regime": {
+    "claim": "over-AVAILABLE-RAM (not over-total-RAM): resident execution infeasible on this box under normal operating conditions; ghost is the only Camelid lane that runs this row here",
+    "resident_infeasibility_record": "at suite start: available RAM 6942 MB; resident needs ~8500 MB weights + ~3000 MB bench-safety margin = 11500 MB -> deficit 4558 MB. Resident load documented as infeasible and NOT attempted (house memory-safety rule). Camelid's own fit advisor classifies the row 'fits (offload)' — not CPU-resident.",
+    "cache_note": "the 7.95 GiB per-token streaming cycle EXCEEDS page-cache capacity (~6-7 GiB available), so buffered streaming self-thrashes; this row is genuinely disk-bound in every mode — the regime the 1B/3B rows could not reach"
+  },
+  "speed": {
+    "metric": "latency",
+    "unit": "tok/s",
+    "prompt_repetitive": "Repeat: ha ...",
+    "buffered_page_cache_thrash": {
+      "ghost_no_opt": 0.135,
+      "stage_split": 0.172,
+      "spec": 0.239,
+      "stage_split_plus_spec": 0.304
+    },
+    "unbuffered_strict_ceiling_no_buffering": {
+      "ghost_no_opt": 0.214,
+      "stage_split": 0.306,
+      "stage_split_plus_spec_HEADLINE": 0.513
+    },
+    "novel_prose": {
+      "ghost_no_opt": 0.145,
+      "stage_split_plus_spec": 0.191,
+      "note": "spec drafted 0 on novel text (harmless); +32% = stage-split floor"
+    },
+    "headline": "0.513 tok/s full stack under the strict ceiling = 3.8x baseline ghost (0.135), byte-identical",
+    "resident_baseline_tok_s": null,
+    "resident_baseline_note": "resident is INFEASIBLE on this host — that is the row's point; the 1B receipt carries resident+llama.cpp reference legs for the mechanism's parity chain",
+    "llamacpp_baseline_tok_s": null,
+    "llamacpp_baseline_note": "not captured this session: llama.cpp mmap streaming of an over-cache model thrashes unboundedly and contends the box; deferred as a follow-up with its own safety envelope",
+    "triple_baseline_complete": false
+  },
+  "finding_no_buffering_wins_over_ram": {
+    "statement": "On the over-RAM row, strict-ceiling mode (--evict-page-cache, FILE_FLAG_NO_BUFFERING) is FASTER than buffered streaming: base 0.214 vs 0.135 tok/s (+59%). A cyclic 7.95 GiB/token read over a smaller cache misses ~always AND pays page-cache insertion/eviction; unbuffered reads skip cache management entirely (~1.7 vs ~1.07 GiB/s effective).",
+    "recommendation": "make --evict-page-cache the RECOMMENDED (possibly default) mode for over-RAM ghost rows: it is simultaneously the honest memory-ceiling mode and the faster mode"
+  },
+  "memory": {
+    "ghost_no_opt_peak_rss_gib": 1.75,
+    "ghost_full_stack_peak_rss_gib": 2.57,
+    "resident_requirement_gib": "~8.5 weights alone (>11 with runtime + safety)",
+    "ceiling_respected": true,
+    "note": "an 8.5 GB model runs in 1.75-2.57 GiB peak RSS — 3.3-4.9x under its resident weight size; THIS is ghost mode's value proposition, measured"
+  },
+  "parity": {
+    "ghost_internal": {
+      "result": "pass",
+      "detail": "byte-identical greedy across base/stage-split/spec/stage-split+spec (buffered) AND base/stage-split/full-stack (unbuffered) AND novel-prose pair; spec at 100% acceptance (repetitive) and 0-draft (novel) both byte-identical",
+      "first_divergence": null
+    },
+    "chain_note": "mechanism parity (ghost==resident by construction + measured variant-identity) established on the 1B/3B receipts; this row's resident leg is unrunnable here by definition"
+  },
+  "claims_ladder": {
+    "rung_1": "PASS on the over-available-RAM row — parity-exact levers compound to 3.8x; ceiling respected and 3.3-4.9x under resident requirement"
+  },
+  "scaling_observation": "Combined repetitive gain by row: 1B +96% -> 3B +138% -> 8B +280% (3.8x, strict-ceiling). The bigger the model relative to RAM, the more WRAITH's levers pay — consistent with sweep-amortization economics.",
+  "repro": "camelid pull llama3_8b_instruct_q8_0; repack-ghost Meta-Llama-3-8B-Instruct.Q8_0.gguf; camelid ghost-run <gguf> --cghost <cghost> --prompt '<...>' --max-tokens 12 --evict-page-cache --stage-split --spec (CUDA_VISIBLE_DEVICES=-1)"
+}

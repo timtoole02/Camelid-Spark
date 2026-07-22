@@ -1,0 +1,9 @@
+pack=target/tpm-llama32-1b-context8192-head-aaf9207d1669-20260513T182739Z/llama32-1b-context8192-pack.json
+out_dir=target/tpm-llama32-1b-context8192-head-aaf9207d1669-20260513T182739Z/pack
+model=$CAMELID_MODEL_DIR/Llama-3.2-1B-Instruct-Q8_0.gguf
+model_id=llama32-1b-q8-current-head-aaf9207d1669
+prompt_count=1
+prompt_tokens_all_match=true
+generated_tokens_all_match=true
+generated_text_all_match=true
+summary_json=target/tpm-llama32-1b-context8192-head-aaf9207d1669-20260513T182739Z/pack/summary.json

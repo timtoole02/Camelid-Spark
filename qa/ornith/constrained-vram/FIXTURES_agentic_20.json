@@ -1,0 +1,34 @@
+{
+  "schema": "camelid.fixture-corpus/v1",
+  "lane": "ornith-9b-constrained-vram",
+  "purpose": "20-trace agentic-coding corpus: acceptance-rate economics (Item 5), imatrix calibration (Item 4), quality receipts (Item 7). Prompts are designed to elicit <think>...</think> openings and qwen3_xml <tool_call> blocks.",
+  "frozen": "2026-07-02",
+  "sampling_profiles": { "greedy": { "temperature": 0.0 }, "card": { "temperature": 0.6, "top_p": 0.95, "top_k": 20 } },
+  "tools": [
+    { "name": "read_file", "description": "Read a UTF-8 text file and return its contents.", "parameters": { "type": "object", "properties": { "path": { "type": "string", "description": "File path to read" } }, "required": ["path"] } },
+    { "name": "list_dir", "description": "List the entries of a directory.", "parameters": { "type": "object", "properties": { "path": { "type": "string", "description": "Directory path to list" } }, "required": ["path"] } },
+    { "name": "write_file", "description": "Write UTF-8 text content to a file, creating or overwriting it.", "parameters": { "type": "object", "properties": { "path": { "type": "string", "description": "File path to write" }, "content": { "type": "string", "description": "Full file content" } }, "required": ["path", "content"] } }
+  ],
+  "traces": [
+    { "id": 1,  "kind": "tool", "prompt": "Read the file src/config.py and tell me what the default timeout value is." },
+    { "id": 2,  "kind": "tool", "prompt": "List the contents of the tests directory, then read the first test file you find and summarize what it covers." },
+    { "id": 3,  "kind": "tool", "prompt": "Create a file called notes/todo.md containing a markdown checklist with three items: fix the login bug, add retry logic, write integration tests." },
+    { "id": 4,  "kind": "tool", "prompt": "Read pyproject.toml and check whether pytest is listed as a dependency. If you cannot find it, say so explicitly." },
+    { "id": 5,  "kind": "tool", "prompt": "Look at src/utils/retry.js and explain what happens when the maximum number of retries is exceeded." },
+    { "id": 6,  "kind": "tool", "prompt": "List the files in src/handlers, read the smallest-looking one, and write a one-paragraph docstring for it to docs/handler-notes.txt." },
+    { "id": 7,  "kind": "tool", "prompt": "Read Makefile and tell me which targets exist and what the default target does." },
+    { "id": 8,  "kind": "tool", "prompt": "Write a minimal .gitignore for a Rust project to the repository root." },
+    { "id": 9,  "kind": "tool", "prompt": "Read src/main.rs and list every function it defines along with a one-line description of each." },
+    { "id": 10, "kind": "tool", "prompt": "Check whether there is a README.md in the current directory; if there is, read it and report the project's stated license. If not, list the directory so we can see what documentation exists." },
+    { "id": 11, "kind": "reasoning", "prompt": "Write a Python function that merges two sorted lists into one sorted list without using the built-in sort. Think through the edge cases before writing the code." },
+    { "id": 12, "kind": "reasoning", "prompt": "I have a race condition: two threads increment a shared counter 100000 times each, and the final value is less than 200000. Explain precisely why this happens and show a corrected version in Rust." },
+    { "id": 13, "kind": "reasoning", "prompt": "Refactor this function to remove the nested loops and reduce its complexity, explaining your reasoning step by step:\n\ndef find_pairs(nums, target):\n    result = []\n    for i in range(len(nums)):\n        for j in range(len(nums)):\n            if i != j and nums[i] + nums[j] == target:\n                result.append((i, j))\n    return result" },
+    { "id": 14, "kind": "reasoning", "prompt": "A SQL query joining orders to customers returns duplicate order rows after we added a join to the addresses table. Diagnose the likely cause and write the corrected query." },
+    { "id": 15, "kind": "reasoning", "prompt": "Implement an LRU cache in Python with O(1) get and put. Reason about which data structures you need and why before writing the class." },
+    { "id": 16, "kind": "reasoning", "prompt": "This C function occasionally crashes. Find the bug and explain it:\n\nchar *join(const char *a, const char *b) {\n    char buf[64];\n    strcpy(buf, a);\n    strcat(buf, b);\n    return buf;\n}" },
+    { "id": 17, "kind": "reasoning", "prompt": "Explain the difference between optimistic and pessimistic locking, then write a small TypeScript example of optimistic locking using a version column." },
+    { "id": 18, "kind": "mixed", "prompt": "Read src/parser.rs, find the function that handles escape sequences, and write a property-based test sketch for it to tests/parser_escapes.rs." },
+    { "id": 19, "kind": "mixed", "prompt": "List the migrations directory, figure out the highest migration number, and create the next migration file adding an index on users.email." },
+    { "id": 20, "kind": "mixed", "prompt": "Read benchmark results from bench/results.json and write a short markdown summary of the fastest and slowest cases to bench/SUMMARY.md, explaining any caveats you can infer." }
+  ]
+}

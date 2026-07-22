@@ -1,0 +1,102 @@
+data: {"id":"chatcmpl-12552a63-7f10-4534-aa90-e009d6583442","object":"chat.completion.chunk","created":0,"model":"Mistral-7B-Instruct-v0.3","choices":[{"index":0,"delta":{"role":"assistant"},"finish_reason":null}]}
+
+data: {"id":"chatcmpl-12552a63-7f10-4534-aa90-e009d6583442","object":"chat.completion.chunk","created":0,"model":"Mistral-7B-Instruct-v0.3","choices":[{"index":0,"delta":{"content":" The"},"finish_reason":null}]}
+
+data: {"id":"chatcmpl-12552a63-7f10-4534-aa90-e009d6583442","object":"chat.completion.chunk","created":0,"model":"Mistral-7B-Instruct-v0.3","choices":[{"index":0,"delta":{"content":" primary"},"finish_reason":null}]}
+
+data: {"id":"chatcmpl-12552a63-7f10-4534-aa90-e009d6583442","object":"chat.completion.chunk","created":0,"model":"Mistral-7B-Instruct-v0.3","choices":[{"index":0,"delta":{"content":" colors"},"finish_reason":null}]}
+
+data: {"id":"chatcmpl-12552a63-7f10-4534-aa90-e009d6583442","object":"chat.completion.chunk","created":0,"model":"Mistral-7B-Instruct-v0.3","choices":[{"index":0,"delta":{"content":" are"},"finish_reason":null}]}
+
+data: {"id":"chatcmpl-12552a63-7f10-4534-aa90-e009d6583442","object":"chat.completion.chunk","created":0,"model":"Mistral-7B-Instruct-v0.3","choices":[{"index":0,"delta":{"content":" Red"},"finish_reason":null}]}
+
+data: {"id":"chatcmpl-12552a63-7f10-4534-aa90-e009d6583442","object":"chat.completion.chunk","created":0,"model":"Mistral-7B-Instruct-v0.3","choices":[{"index":0,"delta":{"content":","},"finish_reason":null}]}
+
+data: {"id":"chatcmpl-12552a63-7f10-4534-aa90-e009d6583442","object":"chat.completion.chunk","created":0,"model":"Mistral-7B-Instruct-v0.3","choices":[{"index":0,"delta":{"content":" Blue"},"finish_reason":null}]}
+
+data: {"id":"chatcmpl-12552a63-7f10-4534-aa90-e009d6583442","object":"chat.completion.chunk","created":0,"model":"Mistral-7B-Instruct-v0.3","choices":[{"index":0,"delta":{"content":","},"finish_reason":null}]}
+
+data: {"id":"chatcmpl-12552a63-7f10-4534-aa90-e009d6583442","object":"chat.completion.chunk","created":0,"model":"Mistral-7B-Instruct-v0.3","choices":[{"index":0,"delta":{"content":" and"},"finish_reason":null}]}
+
+data: {"id":"chatcmpl-12552a63-7f10-4534-aa90-e009d6583442","object":"chat.completion.chunk","created":0,"model":"Mistral-7B-Instruct-v0.3","choices":[{"index":0,"delta":{"content":" Yellow"},"finish_reason":null}]}
+
+data: {"id":"chatcmpl-12552a63-7f10-4534-aa90-e009d6583442","object":"chat.completion.chunk","created":0,"model":"Mistral-7B-Instruct-v0.3","choices":[{"index":0,"delta":{"content":"."},"finish_reason":null}]}
+
+data: {"id":"chatcmpl-12552a63-7f10-4534-aa90-e009d6583442","object":"chat.completion.chunk","created":0,"model":"Mistral-7B-Instruct-v0.3","choices":[{"index":0,"delta":{"content":" These"},"finish_reason":null}]}
+
+data: {"id":"chatcmpl-12552a63-7f10-4534-aa90-e009d6583442","object":"chat.completion.chunk","created":0,"model":"Mistral-7B-Instruct-v0.3","choices":[{"index":0,"delta":{"content":" colors"},"finish_reason":null}]}
+
+data: {"id":"chatcmpl-12552a63-7f10-4534-aa90-e009d6583442","object":"chat.completion.chunk","created":0,"model":"Mistral-7B-Instruct-v0.3","choices":[{"index":0,"delta":{"content":" are"},"finish_reason":null}]}
+
+data: {"id":"chatcmpl-12552a63-7f10-4534-aa90-e009d6583442","object":"chat.completion.chunk","created":0,"model":"Mistral-7B-Instruct-v0.3","choices":[{"index":0,"delta":{"content":" considered"},"finish_reason":null}]}
+
+data: {"id":"chatcmpl-12552a63-7f10-4534-aa90-e009d6583442","object":"chat.completion.chunk","created":0,"model":"Mistral-7B-Instruct-v0.3","choices":[{"index":0,"delta":{"content":" primary"},"finish_reason":null}]}
+
+data: {"id":"chatcmpl-12552a63-7f10-4534-aa90-e009d6583442","object":"chat.completion.chunk","created":0,"model":"Mistral-7B-Instruct-v0.3","choices":[{"index":0,"delta":{"content":" because"},"finish_reason":null}]}
+
+data: {"id":"chatcmpl-12552a63-7f10-4534-aa90-e009d6583442","object":"chat.completion.chunk","created":0,"model":"Mistral-7B-Instruct-v0.3","choices":[{"index":0,"delta":{"content":" they"},"finish_reason":null}]}
+
+data: {"id":"chatcmpl-12552a63-7f10-4534-aa90-e009d6583442","object":"chat.completion.chunk","created":0,"model":"Mistral-7B-Instruct-v0.3","choices":[{"index":0,"delta":{"content":" cannot"},"finish_reason":null}]}
+
+data: {"id":"chatcmpl-12552a63-7f10-4534-aa90-e009d6583442","object":"chat.completion.chunk","created":0,"model":"Mistral-7B-Instruct-v0.3","choices":[{"index":0,"delta":{"content":" be"},"finish_reason":null}]}
+
+data: {"id":"chatcmpl-12552a63-7f10-4534-aa90-e009d6583442","object":"chat.completion.chunk","created":0,"model":"Mistral-7B-Instruct-v0.3","choices":[{"index":0,"delta":{"content":" created"},"finish_reason":null}]}
+
+data: {"id":"chatcmpl-12552a63-7f10-4534-aa90-e009d6583442","object":"chat.completion.chunk","created":0,"model":"Mistral-7B-Instruct-v0.3","choices":[{"index":0,"delta":{"content":" by"},"finish_reason":null}]}
+
+data: {"id":"chatcmpl-12552a63-7f10-4534-aa90-e009d6583442","object":"chat.completion.chunk","created":0,"model":"Mistral-7B-Instruct-v0.3","choices":[{"index":0,"delta":{"content":" mixing"},"finish_reason":null}]}
+
+data: {"id":"chatcmpl-12552a63-7f10-4534-aa90-e009d6583442","object":"chat.completion.chunk","created":0,"model":"Mistral-7B-Instruct-v0.3","choices":[{"index":0,"delta":{"content":" other"},"finish_reason":null}]}
+
+data: {"id":"chatcmpl-12552a63-7f10-4534-aa90-e009d6583442","object":"chat.completion.chunk","created":0,"model":"Mistral-7B-Instruct-v0.3","choices":[{"index":0,"delta":{"content":" colors"},"finish_reason":null}]}
+
+data: {"id":"chatcmpl-12552a63-7f10-4534-aa90-e009d6583442","object":"chat.completion.chunk","created":0,"model":"Mistral-7B-Instruct-v0.3","choices":[{"index":0,"delta":{"content":","},"finish_reason":null}]}
+
+data: {"id":"chatcmpl-12552a63-7f10-4534-aa90-e009d6583442","object":"chat.completion.chunk","created":0,"model":"Mistral-7B-Instruct-v0.3","choices":[{"index":0,"delta":{"content":" and"},"finish_reason":null}]}
+
+data: {"id":"chatcmpl-12552a63-7f10-4534-aa90-e009d6583442","object":"chat.completion.chunk","created":0,"model":"Mistral-7B-Instruct-v0.3","choices":[{"index":0,"delta":{"content":" all"},"finish_reason":null}]}
+
+data: {"id":"chatcmpl-12552a63-7f10-4534-aa90-e009d6583442","object":"chat.completion.chunk","created":0,"model":"Mistral-7B-Instruct-v0.3","choices":[{"index":0,"delta":{"content":" other"},"finish_reason":null}]}
+
+data: {"id":"chatcmpl-12552a63-7f10-4534-aa90-e009d6583442","object":"chat.completion.chunk","created":0,"model":"Mistral-7B-Instruct-v0.3","choices":[{"index":0,"delta":{"content":" colors"},"finish_reason":null}]}
+
+data: {"id":"chatcmpl-12552a63-7f10-4534-aa90-e009d6583442","object":"chat.completion.chunk","created":0,"model":"Mistral-7B-Instruct-v0.3","choices":[{"index":0,"delta":{"content":" can"},"finish_reason":null}]}
+
+data: {"id":"chatcmpl-12552a63-7f10-4534-aa90-e009d6583442","object":"chat.completion.chunk","created":0,"model":"Mistral-7B-Instruct-v0.3","choices":[{"index":0,"delta":{"content":" be"},"finish_reason":null}]}
+
+data: {"id":"chatcmpl-12552a63-7f10-4534-aa90-e009d6583442","object":"chat.completion.chunk","created":0,"model":"Mistral-7B-Instruct-v0.3","choices":[{"index":0,"delta":{"content":" created"},"finish_reason":null}]}
+
+data: {"id":"chatcmpl-12552a63-7f10-4534-aa90-e009d6583442","object":"chat.completion.chunk","created":0,"model":"Mistral-7B-Instruct-v0.3","choices":[{"index":0,"delta":{"content":" by"},"finish_reason":null}]}
+
+data: {"id":"chatcmpl-12552a63-7f10-4534-aa90-e009d6583442","object":"chat.completion.chunk","created":0,"model":"Mistral-7B-Instruct-v0.3","choices":[{"index":0,"delta":{"content":" mixing"},"finish_reason":null}]}
+
+data: {"id":"chatcmpl-12552a63-7f10-4534-aa90-e009d6583442","object":"chat.completion.chunk","created":0,"model":"Mistral-7B-Instruct-v0.3","choices":[{"index":0,"delta":{"content":" these"},"finish_reason":null}]}
+
+data: {"id":"chatcmpl-12552a63-7f10-4534-aa90-e009d6583442","object":"chat.completion.chunk","created":0,"model":"Mistral-7B-Instruct-v0.3","choices":[{"index":0,"delta":{"content":" three"},"finish_reason":null}]}
+
+data: {"id":"chatcmpl-12552a63-7f10-4534-aa90-e009d6583442","object":"chat.completion.chunk","created":0,"model":"Mistral-7B-Instruct-v0.3","choices":[{"index":0,"delta":{"content":" in"},"finish_reason":null}]}
+
+data: {"id":"chatcmpl-12552a63-7f10-4534-aa90-e009d6583442","object":"chat.completion.chunk","created":0,"model":"Mistral-7B-Instruct-v0.3","choices":[{"index":0,"delta":{"content":" various"},"finish_reason":null}]}
+
+data: {"id":"chatcmpl-12552a63-7f10-4534-aa90-e009d6583442","object":"chat.completion.chunk","created":0,"model":"Mistral-7B-Instruct-v0.3","choices":[{"index":0,"delta":{"content":" proport"},"finish_reason":null}]}
+
+data: {"id":"chatcmpl-12552a63-7f10-4534-aa90-e009d6583442","object":"chat.completion.chunk","created":0,"model":"Mistral-7B-Instruct-v0.3","choices":[{"index":0,"delta":{"content":"ions"},"finish_reason":null}]}
+
+data: {"id":"chatcmpl-12552a63-7f10-4534-aa90-e009d6583442","object":"chat.completion.chunk","created":0,"model":"Mistral-7B-Instruct-v0.3","choices":[{"index":0,"delta":{"content":"."},"finish_reason":null}]}
+
+data: {"id":"chatcmpl-12552a63-7f10-4534-aa90-e009d6583442","object":"chat.completion.chunk","created":0,"model":"Mistral-7B-Instruct-v0.3","choices":[{"index":0,"delta":{"content":" In"},"finish_reason":null}]}
+
+data: {"id":"chatcmpl-12552a63-7f10-4534-aa90-e009d6583442","object":"chat.completion.chunk","created":0,"model":"Mistral-7B-Instruct-v0.3","choices":[{"index":0,"delta":{"content":" the"},"finish_reason":null}]}
+
+data: {"id":"chatcmpl-12552a63-7f10-4534-aa90-e009d6583442","object":"chat.completion.chunk","created":0,"model":"Mistral-7B-Instruct-v0.3","choices":[{"index":0,"delta":{"content":" R"},"finish_reason":null}]}
+
+data: {"id":"chatcmpl-12552a63-7f10-4534-aa90-e009d6583442","object":"chat.completion.chunk","created":0,"model":"Mistral-7B-Instruct-v0.3","choices":[{"index":0,"delta":{"content":"GB"},"finish_reason":null}]}
+
+data: {"id":"chatcmpl-12552a63-7f10-4534-aa90-e009d6583442","object":"chat.completion.chunk","created":0,"model":"Mistral-7B-Instruct-v0.3","choices":[{"index":0,"delta":{"content":" color"},"finish_reason":null}]}
+
+data: {"id":"chatcmpl-12552a63-7f10-4534-aa90-e009d6583442","object":"chat.completion.chunk","created":0,"model":"Mistral-7B-Instruct-v0.3","choices":[{"index":0,"delta":{"content":" model"},"finish_reason":null}]}
+
+data: {"id":"chatcmpl-12552a63-7f10-4534-aa90-e009d6583442","object":"chat.completion.chunk","created":0,"model":"Mistral-7B-Instruct-v0.3","choices":[{"index":0,"delta":{},"finish_reason":"length"}]}
+
+data: [DONE]
+

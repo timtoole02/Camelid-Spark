@@ -1,0 +1,154 @@
+{
+ "prompt_id": "village-story",
+ "divergent_step": 13,
+ "common_prefix_text": "...named Finn. Finn was a cheerful soul, ",
+ "pin_next": {
+  "text": " always",
+  "id": 2462,
+  "note": "pin token id inferred from Camelid top-32 membership (pin exposes no ids); 2462 decodes to the \" always\" seen in pin text"
+ },
+ "camelid_next": {
+  "text": " his",
+  "id": 914
+ },
+ "camelid_top1": [
+  914,
+  23.648691
+ ],
+ "camelid_top2": [
+  2462,
+  23.56466
+ ],
+ "raw_logit_top1_minus_pintoken_gap": 0.084031,
+ "camelid_top32": [
+  [
+   914,
+   23.648691
+  ],
+  [
+   2462,
+   23.56466
+  ],
+  [
+   607,
+   23.277323
+  ],
+  [
+   5769,
+   22.462553
+  ],
+  [
+   532,
+   22.31432
+  ],
+  [
+   3224,
+   21.580736
+  ],
+  [
+   1623,
+   21.157228
+  ],
+  [
+   113807,
+   21.039396
+  ],
+  [
+   1015,
+   20.706682
+  ],
+  [
+   3004,
+   20.609594
+  ],
+  [
+   840,
+   20.284086
+  ],
+  [
+   3187,
+   20.011412
+  ],
+  [
+   31865,
+   19.914822
+  ],
+  [
+   8159,
+   19.897106
+  ],
+  [
+   17504,
+   19.81815
+  ],
+  [
+   9312,
+   19.791527
+  ],
+  [
+   11554,
+   19.715887
+  ],
+  [
+   618,
+   19.553196
+  ],
+  [
+   11704,
+   19.435366
+  ],
+  [
+   167207,
+   19.047653
+  ],
+  [
+   23011,
+   18.636375
+  ],
+  [
+   53969,
+   18.52158
+  ],
+  [
+   14456,
+   18.438179
+  ],
+  [
+   33461,
+   18.420061
+  ],
+  [
+   164058,
+   18.31356
+  ],
+  [
+   63027,
+   18.068743
+  ],
+  [
+   2587,
+   17.907696
+  ],
+  [
+   50049,
+   17.783201
+  ],
+  [
+   19297,
+   17.520885
+  ],
+  [
+   20390,
+   17.255043
+  ],
+  [
+   9785,
+   17.22283
+  ],
+  [
+   496,
+   17.0676
+  ]
+ ],
+ "attribution": "near-tie argmax flip: pin token (2462 \" always\") is Camelid top-2 at 0.084031 raw-logit gap; both full continuations recorded in legB_parity.json; top-32 retained in legB/camelid/dump-village-story/meta.json; NO tolerance widening applied (MUSTER probe-and-attribute discipline)"
+}

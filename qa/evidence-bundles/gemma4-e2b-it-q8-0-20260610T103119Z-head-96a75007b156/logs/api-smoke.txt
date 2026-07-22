@@ -1,0 +1,25 @@
+warning: function `f32_to_f16_bits` is never used
+    --> src/tensor/mod.rs:3476:15
+     |
+3476 | pub(crate) fn f32_to_f16_bits(value: f32) -> u16 {
+     |               ^^^^^^^^^^^^^^^
+     |
+     = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: `camelid` (lib) generated 1 warning
+   Compiling camelid v0.1.0 (<local>/Camelid-push)
+    Finished `release` profile [optimized] target(s) in 5.73s
+     Running tests/gemma4_api_smoke.rs (<local>/gemma4_api_smoke-df1df510e9c5a365)
+
+running 5 tests
+test multimodal_audio_and_video_parts_fail_closed ... ok
+test multimodal_image_part_fails_closed_with_typed_error ... ok
+test gemma4_request_without_runtime_fails_clearly ... ok
+test text_only_content_parts_array_is_accepted_as_text ... ok
+test live_gemma4_chat_serve_smoke has been running for over 60 seconds
+non-streaming content: "Paris"
+streamed content: "Paris"
+test live_gemma4_chat_serve_smoke ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 137.65s
+

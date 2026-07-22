@@ -1,0 +1,56 @@
+{
+  "schema": "camelid.model-promotion.smoke-bundle.v1",
+  "generated_utc": "2026-07-16T15:26:01.321Z",
+  "api_base": "http://127.0.0.1:8181",
+  "frontend_url": "http://127.0.0.1:8181",
+  "model_path": "<repo>\\models\\Llama-3.2-1B-Instruct-Q4_K_M.gguf",
+  "model_id": "llama_3_2_1b_instruct_q4_k_m",
+  "message": "hello",
+  "max_tokens": 1,
+  "temperature": 0,
+  "allow_guarded_chat": false,
+  "skip_frontend": false,
+  "steps": {
+    "health_before": {
+      "ok": true,
+      "path": "<repo>\\target\\muster-mb1-20260716-head-052c4030\\api-webui\\health-before.json"
+    },
+    "load": {
+      "ok": true,
+      "path": "<repo>\\target\\muster-mb1-20260716-head-052c4030\\api-webui\\load.response.json"
+    },
+    "current_model": {
+      "ok": true,
+      "path": "<repo>\\target\\muster-mb1-20260716-head-052c4030\\api-webui\\current-model.json"
+    },
+    "v1_models": {
+      "ok": true,
+      "path": "<repo>\\target\\muster-mb1-20260716-head-052c4030\\api-webui\\v1-models.json"
+    },
+    "capabilities": {
+      "ok": true,
+      "path": "<repo>\\target\\muster-mb1-20260716-head-052c4030\\api-webui\\capabilities.json"
+    },
+    "v1_completions": {
+      "ok": true,
+      "path": "<repo>\\target\\muster-mb1-20260716-head-052c4030\\api-webui\\completion.response.json"
+    },
+    "v1_chat_completions": {
+      "ok": true,
+      "path": "<repo>\\target\\muster-mb1-20260716-head-052c4030\\api-webui\\chat.response.json"
+    },
+    "generation_timings": {
+      "ok": true,
+      "path": "<repo>\\target\\muster-mb1-20260716-head-052c4030\\api-webui\\generation-timings.run.json"
+    },
+    "health_after": {
+      "ok": true,
+      "path": "<repo>\\target\\muster-mb1-20260716-head-052c4030\\api-webui\\health-after.json"
+    },
+    "frontend_smoke": {
+      "ok": true,
+      "path": "<repo>\\target\\muster-mb1-20260716-head-052c4030\\api-webui\\frontend.summary.json"
+    }
+  },
+  "passed": true
+}

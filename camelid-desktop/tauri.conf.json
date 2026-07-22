@@ -1,0 +1,40 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "Camelid Desktop",
+  "version": "0.3.1",
+  "identifier": "app.camelid.desktop",
+  "build": {
+    "frontendDist": "./splash"
+  },
+  "app": {
+    "windows": [
+      {
+        "label": "main",
+        "title": "Camelid Desktop",
+        "width": 1180,
+        "height": 820,
+        "minWidth": 720,
+        "minHeight": 560,
+        "url": "index.html"
+      }
+    ],
+    "security": {
+      "csp": null
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": ["nsis"],
+    "publisher": "Camelid",
+    "category": "DeveloperTool",
+    "shortDescription": "Native Windows chat app for the camelid local inference engine.",
+    "longDescription": "Camelid Desktop is an additive native Windows app that embeds the same camelid engine shipped as the server binary, run as a loopback sidecar. It inherits the identical model-support contract; it makes no broader claims.",
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.icns",
+      "icons/icon.ico"
+    ]
+  }
+}

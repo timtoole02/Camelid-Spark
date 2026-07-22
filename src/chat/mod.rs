@@ -1,0 +1,302 @@
+//! `camelid chat` — an interactive terminal chat client for the local Camelid
+//! engine.
+//!
+//! Two front ends share one [`session::Session`] core (state, sampling, request
+//! shape — no I/O):
+//! - [`tui`]: a full-screen ratatui app (scrollable chat, status bar, sidebar,
+//!   modal picker) — the default on an interactive terminal.
+//! - [`inline`]: a scrollback-friendly line REPL — used for `--plain`, pipes,
+//!   and non-TTY contexts (the lane the smoke scripts and tests drive).
+//!
+//! Both stream `/v1/chat/completions` over the same audited HTTP/SSE client, so
+//! terminal output matches the validated lane. The picker is derived from the
+//! `/api/capabilities` ledger at runtime (supported rows only); pointing
+//! `--model` at an unsupported GGUF is refused with the engine's typed error.
+//! See `DECISIONS.md` D6 and `RECON_CHAT.md`.
+
+mod agent;
+mod agent_bench;
+mod agent_eval;
+mod agent_orchestration;
+mod agent_syscap;
+mod agent_tui;
+mod audit;
+mod banner;
+mod client;
+mod clipboard;
+mod inline;
+mod markdown;
+mod models;
+mod palette;
+mod server;
+mod session;
+mod shell_sandbox;
+mod subagent;
+mod theme;
+mod tool_parse;
+mod tools;
+mod tui;
+#[cfg(windows)]
+mod win_console;
+#[cfg(windows)]
+mod win_input;
+#[cfg(windows)]
+mod win_job;
+#[cfg(windows)]
+mod win_uia;
+
+use std::io::IsTerminal;
+use std::net::SocketAddr;
+use std::path::PathBuf;
+use std::sync::atomic::Ordering;
+
+use client::Client;
+use server::ServerHandle;
+use session::{LoadResult, Session, Settings};
+
+pub(crate) const VERSION: &str = match option_env!("CAMELID_GIT_DESCRIBE") {
+    Some(describe) => describe,
+    None => env!("CARGO_PKG_VERSION"),
+};
+
+/// Parsed `camelid chat` flags.
+pub struct ChatOptions {
+    pub model: Option<PathBuf>,
+    pub addr: SocketAddr,
+    pub system: Option<String>,
+    pub max_tokens: u32,
+    pub temperature: f32,
+    pub top_p: Option<f32>,
+    pub top_k: Option<u32>,
+    pub seed: Option<u64>,
+    pub no_stream: bool,
+    pub models_dir: PathBuf,
+    /// Force the inline line REPL instead of the full-screen TUI.
+    pub plain: bool,
+    /// Enter agent mode (tool-calling loop) instead of plain chat.
+    pub agent: bool,
+    /// Sandbox root for agent tools (default: cwd).
+    pub workdir: Option<PathBuf>,
+    pub max_steps: usize,
+    pub auto_approve: bool,
+    /// `--yolo` (unattended): auto-approve EXEC tools too so the agent runs a
+    /// whole task without prompting. Refused under production.
+    pub yolo: bool,
+    pub allow_net: bool,
+    /// `--allow-fs`: agent file tools may read/write anywhere on disk (still
+    /// approval-gated), not just under the workspace root.
+    pub allow_fs: bool,
+    pub shell_timeout: u64,
+    /// Opt-in thinking mode (`chat --enable-thinking`): the model emits its own
+    /// `<think>…</think>` reasoning. NOT parity-locked (leading-trace lane only).
+    pub enable_thinking: bool,
+    /// Audit webhook URL (`--audit-webhook` / `CAMELID_AUDIT_WEBHOOK`). When unset,
+    /// the agent uses the no-op sink and emits nothing.
+    pub audit_webhook: Option<String>,
+    /// `run_shell` confinement: `disabled` | `sandboxed` (default) | `unrestricted`.
+    pub shell_sandbox: String,
+}
+
+/// Entry point for the `Chat` subcommand. Returns a process exit code (0 = ok,
+/// non-zero for the typed unsupported-state backstop) so the caller can exit
+/// after this function's `ServerHandle` has torn down any spawned server.
+pub fn run_chat(opts: ChatOptions) -> anyhow::Result<i32> {
+    init_terminal();
+    install_sigint_handler();
+
+    let client = Client::new(opts.addr);
+    let server = ServerHandle::ensure(opts.addr, &client)?;
+    let spawned = server.spawned();
+
+    let settings = Settings {
+        temperature: opts.temperature,
+        top_p: opts.top_p,
+        top_k: opts.top_k,
+        max_tokens: opts.max_tokens,
+        seed: opts.seed,
+        stream: !opts.no_stream,
+        enable_thinking: opts.enable_thinking,
+    };
+    let mut session = Session::new(client, opts.models_dir, settings, opts.system);
+
+    // --model backstop: load + classify before any UI, so an unsupported GGUF
+    // exits with the typed error and no screen takeover. Loading a cold GGUF can
+    // take several seconds, so give feedback before the UI takes the screen. A
+    // known supported GGUF is labeled with its ledger id (so posture + the agent
+    // tool-capable gate match), exactly like the picker.
+    if let Some(model) = &opts.model {
+        eprintln!("Loading {} …", model.display());
+        let label = catalog_label_for(model);
+        let posture = label.as_ref().map(|_| "supported");
+        match session.load_model_file(model, label.as_deref(), posture)? {
+            LoadResult::Loaded => {}
+            LoadResult::Unsupported(message) => {
+                eprintln!("{message}");
+                return Ok(1);
+            }
+        }
+    }
+
+    // Agent mode: a tool-calling loop (line renderer), gated to tool-capable rows.
+    if opts.agent {
+        if !session.has_model() {
+            eprintln!("agent mode needs a model — pass --model <gguf>");
+            return Ok(2);
+        }
+        let shell_sandbox = match opts.shell_sandbox.parse::<shell_sandbox::ShellSandbox>() {
+            Ok(m) => m,
+            Err(e) => {
+                eprintln!("{e}");
+                return Ok(2);
+            }
+        };
+        let cfg = agent::AgentConfig {
+            workdir: opts.workdir.unwrap_or_else(|| PathBuf::from(".")),
+            max_steps: opts.max_steps,
+            auto_approve: opts.auto_approve,
+            yolo: opts.yolo,
+            allow_net: opts.allow_net,
+            allow_fs: opts.allow_fs,
+            shell_timeout: std::time::Duration::from_secs(opts.shell_timeout),
+            max_tokens: opts.max_tokens,
+            temperature: opts.temperature,
+            audit: audit::sink_from_config(opts.audit_webhook.as_deref()),
+            shell_sandbox,
+        };
+        // Full-screen TUI agent on a real terminal (default); the line renderer
+        // is the fallback for --plain, pipes, and non-TTY runs (smoke/tests).
+        let interactive = std::io::stdout().is_terminal() && std::io::stdin().is_terminal();
+        return if interactive && !opts.plain {
+            agent_tui::run(&mut session, opts.addr, cfg)
+        } else {
+            agent::run_agent(&mut session, opts.addr, cfg)
+        };
+    }
+
+    // Full-screen TUI when we have a real terminal on both ends and the user did
+    // not ask for plain mode; otherwise the inline REPL.
+    let interactive = std::io::stdout().is_terminal() && std::io::stdin().is_terminal();
+    if interactive && !opts.plain {
+        tui::run(&mut session, opts.addr, spawned)?;
+    } else {
+        inline::run(&mut session, opts.addr, spawned)?;
+    }
+    Ok(0)
+}
+
+/// If `model`'s filename matches a curated-catalog row, return that catalog id
+/// (= the ledger row id) so a `--model`-loaded supported GGUF carries its ledger
+/// identity (posture + agent tool-capable gate).
+fn catalog_label_for(model: &std::path::Path) -> Option<String> {
+    let name = model.file_name()?.to_str()?;
+    camelid::api::curated_catalog()
+        .into_iter()
+        .find(|item| item.filename == name)
+        .map(|item| item.catalog_id.to_string())
+}
+
+/// Parsed `camelid agent-eval` flags.
+pub struct AgentEvalOptions {
+    pub model: PathBuf,
+    pub addr: SocketAddr,
+    pub load_timeout: u64,
+    pub max_steps: usize,
+    pub max_tokens: u32,
+    pub receipt_dir: PathBuf,
+}
+
+/// Entry for the `agent-eval` subcommand: the tool-capability promotion harness.
+/// Returns PASS(0) / FAIL(1) / INCONCLUSIVE(3).
+pub fn run_agent_eval(opts: AgentEvalOptions) -> anyhow::Result<i32> {
+    agent_eval::run(agent_eval::EvalConfig {
+        addr: opts.addr,
+        model: opts.model,
+        load_timeout: opts.load_timeout,
+        max_steps: opts.max_steps,
+        max_tokens: opts.max_tokens,
+        receipt_dir: opts.receipt_dir,
+    })
+}
+
+/// Parsed `camelid agent-syscap-eval` flags.
+pub struct AgentSyscapOptions {
+    pub receipt_dir: PathBuf,
+}
+
+/// Entry for the `agent-syscap-eval` subcommand: the Phase-1 Windows
+/// system-control gate. Returns PASS(0) / FAIL(1) / INCONCLUSIVE(3) and emits a
+/// sealed `camelid.agent-syscap-receipt/v1`.
+pub fn run_agent_syscap_eval(opts: AgentSyscapOptions) -> anyhow::Result<i32> {
+    agent_syscap::run(agent_syscap::SyscapConfig {
+        receipt_dir: opts.receipt_dir,
+    })
+}
+
+/// Entry for the hidden `__subagent` worker subcommand: run one scoped agent loop
+/// described by `task_file` and write its result file. Returns 0/1/3.
+pub fn run_subagent_worker(task_file: &std::path::Path) -> anyhow::Result<i32> {
+    subagent::run_worker(task_file)
+}
+
+/// Parsed `camelid agent-orchestration-eval` flags.
+pub struct AgentOrchestrationOptions {
+    pub receipt_dir: PathBuf,
+    pub model: Option<PathBuf>,
+    pub addr: SocketAddr,
+    pub load_timeout: u64,
+}
+
+/// Entry for the `agent-orchestration-eval` subcommand: the orchestration gate.
+/// Without `--model` it runs the canned rung-2 mechanics battery; with `--model`
+/// it runs the rung-3 real-model round-trip. Returns 0/1/3.
+pub fn run_agent_orchestration_eval(opts: AgentOrchestrationOptions) -> anyhow::Result<i32> {
+    agent_orchestration::run(agent_orchestration::OrchestrationConfig {
+        receipt_dir: opts.receipt_dir,
+        model: opts.model,
+        addr: opts.addr,
+        load_timeout: opts.load_timeout,
+    })
+}
+
+/// Parsed `camelid agent-orchestration-bench` flags.
+pub struct AgentOrchestrationBenchOptions {
+    pub receipt_dir: PathBuf,
+    pub model: Option<PathBuf>,
+    pub addr: SocketAddr,
+    pub load_timeout: u64,
+}
+
+/// Entry for the `agent-orchestration-bench` subcommand: the rung-4 wall-clock
+/// measurement (concurrent vs sequential subagents) → sealed bench receipt.
+pub fn run_agent_orchestration_bench(opts: AgentOrchestrationBenchOptions) -> anyhow::Result<i32> {
+    agent_bench::run(agent_bench::BenchConfig {
+        receipt_dir: opts.receipt_dir,
+        model: opts.model,
+        addr: opts.addr,
+        load_timeout: opts.load_timeout,
+    })
+}
+
+extern "C" fn on_sigint(_signal: libc::c_int) {
+    session::CANCEL.store(true, Ordering::SeqCst);
+}
+
+/// Install a SIGINT handler that flips the cancel flag (used by the inline
+/// stream loop). The TUI runs in raw mode where Ctrl-C arrives as a key event,
+/// so it cancels through its event loop instead.
+fn install_sigint_handler() {
+    unsafe {
+        libc::signal(libc::SIGINT, on_sigint as *const () as libc::sighandler_t);
+    }
+}
+
+/// Prepare the terminal for the line-mode renderers (inline + agent). On Windows
+/// this enables ANSI escape processing and a UTF-8 code page so colors and glyphs
+/// render the way they do on macOS/Linux; the full-screen TUI already gets this
+/// from crossterm. A no-op on Unix, where terminals handle ANSI + UTF-8 natively.
+#[cfg(windows)]
+fn init_terminal() {
+    win_console::init();
+}
+#[cfg(not(windows))]
+fn init_terminal() {}

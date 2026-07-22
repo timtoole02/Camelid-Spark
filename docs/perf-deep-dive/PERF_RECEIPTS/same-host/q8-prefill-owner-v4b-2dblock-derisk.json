@@ -1,0 +1,24 @@
+{
+  "schema": "camelid.q8-prefill-owner-v4b-derisk/v1",
+  "generated_utc": "2026-06-28",
+  "lane": "Lane 1 v4(b) — 2D cache blocking, DE-RISK probe (not built; informs the build/skip decision)",
+  "host": "win i7-11800H (Tiger Lake, AVX-512 VNNI)",
+  "question": "Is the owner memory-bound on input re-streaming (-> 2D cache blocking would pay), or compute/bit-exact-tax-bound (-> dead end)?",
+  "method": "camelid bench-owner-sweep (hardened, in-process paired, rounds=4) on Llama-3.2-3B-Q8 at 3 prompt lengths. Read owner_vnni4x8 prefill tok/s vs length + the owner/off ratio (the ratio cancels attention's O(M^2) growth, isolating the matmul path 2D blocking targets).",
+
+  "data": [
+    { "prompt_tokens": 393,  "off_tok_s": 26.448, "owner_vnni4x8_tok_s": 30.284, "owner_over_off": 1.139 },
+    { "prompt_tokens": 753,  "off_tok_s": 24.313, "owner_vnni4x8_tok_s": 27.441, "owner_over_off": 1.130 },
+    { "prompt_tokens": 1473, "off_tok_s": 21.558, "owner_vnni4x8_tok_s": 23.312, "owner_over_off": 1.106 }
+  ],
+
+  "findings": [
+    "Owner IS memory-bound: vnni4x8 prefill tok/s falls 30.28 -> 27.44 -> 23.31 (-23%) as the prompt grows 393 -> 1473. NOT a dead end.",
+    "Owner ADVANTAGE erodes with length: owner/off 1.139 -> 1.130 -> 1.106. As the workload becomes more memory-bound, the owner's compute edge (VNNI + weight residency) matters less and converges toward the default.",
+    "The eroding ratio is the 2D-blocking-recoverable part (attention O(M^2) hits both configs and cancels in the ratio)."
+  ],
+
+  "verdict": "REAL BUT MODEST, CONTEXT-SCALING. 2D cache blocking would recover the owner's advantage-erosion: ~+3% at ~1.5K tokens, growing at longer contexts (4K/8K erode further -> bigger recovery there). For headline (<=1.5K-token) prefill the ROI (~3%) does NOT justify the highest-complexity kernel change in the stack (esp. after v4(a) regressed against intuition). Absolute ceiling still capped by the bit-exact tax.",
+
+  "decision": "DEFERRED. Build 2D blocking ONLY if long-context prefill becomes a priority (where it pays most). Otherwise the owner at +13.5%/+15.8% (0.78x->0.89x / 0.67x->0.81x of llama, bit-exact) stands. The actual unlock to SHIP this (promote to default) is the Ubuntu/second host (both-host treaty), which Tim is provisioning."
+}

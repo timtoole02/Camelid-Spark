@@ -1,0 +1,70 @@
+### ./scripts/with-rustup-cargo.sh test capabilities --all-targets
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.25s
+     Running unittests src/lib.rs (target/debug/deps/camelid-cd48c6e95139e719)
+
+running 8 tests
+test api::tests::capabilities_api_features_stay_exact_row_scoped ... ok
+test api::tests::capabilities_public_string_guard_rejects_local_evidence_bundle_paths ... ok
+test api::tests::capabilities_report_exact_8b_1024_2048_after_source_head_alignment ... ok
+test api::tests::capabilities_report_current_rows_with_fail_closed_full_support_bar ... ok
+test api::tests::capabilities_report_next_family_rows_stay_planned_and_fail_closed ... ok
+test api::tests::capabilities_report_llama32_context_pack_boundaries ... ok
+test api::tests::capabilities_support_statuses_stay_exact_row_allowlisted ... ok
+test api::tests::capabilities_public_strings_do_not_expose_local_operator_paths ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 170 filtered out; finished in 0.01s
+
+     Running unittests src/main.rs (target/debug/deps/camelid-0328fc9979863f5a)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 12 filtered out; finished in 0.00s
+
+     Running tests/api_vertical_slice.rs (target/debug/deps/api_vertical_slice-b6c7132259dffa20)
+
+running 1 test
+test capabilities_report_support_contract_and_planned_lanes ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 55 filtered out; finished in 0.02s
+
+     Running tests/gguf_metadata.rs (target/debug/deps/gguf_metadata-6b14942b5efb6ec8)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 4 filtered out; finished in 0.00s
+
+     Running tests/inference_session.rs (target/debug/deps/inference_session-e6785ef8ae548307)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 22 filtered out; finished in 0.00s
+
+     Running tests/model_binding.rs (target/debug/deps/model_binding-e7e8c3f8c8c0d711)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 12 filtered out; finished in 0.00s
+
+     Running tests/tensor_primitives.rs (target/debug/deps/tensor_primitives-56ccbe6a5e8a8ed7)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 10 filtered out; finished in 0.00s
+
+     Running tests/tensor_store.rs (target/debug/deps/tensor_store-b6594af17dd9bff0)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 19 filtered out; finished in 0.00s
+
+     Running tests/tokenizer.rs (target/debug/deps/tokenizer-96140faadf05e243)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 24 filtered out; finished in 0.00s
+
+     Running unittests examples/dump_camelid_layer0.rs (target/debug/examples/dump_camelid_layer0-b386c5af34b42b27)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 2 filtered out; finished in 0.00s

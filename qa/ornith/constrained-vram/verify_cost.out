@@ -1,0 +1,7 @@
+
+running 1 test
+test runnable::smoke::tests::ornith_qwen35_verify_cost has been running for over 60 seconds
+test runnable::smoke::tests::ornith_qwen35_verify_cost ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 685 filtered out; finished in 310.02s
+

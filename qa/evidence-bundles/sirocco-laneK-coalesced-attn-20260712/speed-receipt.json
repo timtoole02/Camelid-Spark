@@ -1,0 +1,41 @@
+{
+  "schema": "camelid.speed-receipt/v1",
+  "campaign": "SIROCCO",
+  "lane": "K",
+  "row_id": "llama_3_2_1b_instruct_q8_0",
+  "generated_utc": "20260712",
+  "host": "i7-11800H (16T) / RTX 3060 Laptop 6 GiB (GA106, CC 8.6) / Win11 / driver 576.83 / CUDA 12.9 / WDDM",
+  "camelid_ref": "main@334653d8",
+  "model": "Llama-3.2-1B-Instruct-Q8_0.gguf",
+  "model_sha256": "3f87a880027e7b9ea8e0da9e4009584336f352af444a0e6e5c20721ac4c7ffd1",
+  "clock_state": "monitored-boost (I4 deviation; mem clock 6000 stable; interleaved A/B is thermal-robust)",
+  "optimization": {
+    "name": "CAMELID_ATTN_COALESCED",
+    "kernel": "attn_sk_scores_coalesced (one warp per key position, coalesced half K loads + warp-shuffle reduction)",
+    "status_before": "shipped but default-off",
+    "applies_to": "split-K attention path (attn_shared > 512, i.e. ctx > 512); no-op at ctx<=512",
+    "recommendation": "KEEP OPT-IN (default-off). Flipping default-on was tested and REVERTED: it re-associates the split-K decode dot so decode is no longer bit-identical to the spec-verify paths (attention_batched / attention_tree_batched), breaking the lossless-speculative-decode guarantee at ctx>512 (splitk_spec_verify_bit_identical self-skips with it on). Enabling it trades that guarantee for +5-8% long-ctx greedy speed. The default-on-able win must be a bit-identity-preserving KV-read vectorization instead.",
+    "default_on_verdict": "REJECTED — breaks lossless spec-decode at ctx>512"
+  },
+  "correctness": {
+    "gate": "token-identical greedy (temperature 0)",
+    "test": "varied coherent prompt, ctx 1542, 64 tokens",
+    "result": "byte-identical output_token_ids (baseline vs CAMELID_ATTN_COALESCED=1); both 309 bytes, diff clean",
+    "runtime_gate": "ensure_resident_parity_verdict bit_exact greedy probe (passes)"
+  },
+  "measurements": {
+    "cache_state": "cold prompt cache, warmup run discarded",
+    "interleaved_ab_decode_tok_s": {
+      "ctx_1542": {"baseline": [87.46, 81.73], "coalesced": [89.15, 84.21], "delta_pct": [1.9, 3.0]},
+      "ctx_2002": {"baseline": [81.10, 79.45], "coalesced": [86.88, 83.32], "delta_pct": [7.1, 4.9]},
+      "ctx_3302": {"baseline": [61.44, 56.17], "coalesced": [65.10, 60.64], "delta_pct": [6.0, 8.0]}
+    },
+    "trend": "speedup scales with context (more KV read -> more benefit); no-op at ctx~0",
+    "ctx0_effect": "none (split-K inactive); measured CUDA_GRAPHS=-5% separately confirms ctx~0 is GEMV-bandwidth-bound not launch-bound"
+  },
+  "recon_context": {
+    "gemv_microbench_pct_of_peak": {"lm_head": 1.01, "ffn_gate_up": 0.91, "ffn_down": 0.84, "attn_q_o": 0.68, "attn_k_v": 0.43},
+    "note": "big GEMVs already near-peak; U-unroll bump refuted. Remaining GEMV headroom is small attention projections (occupancy).",
+    "cuda_graphs_ctx0": {"baseline_tok_s": [128.82, 128.16, 127.72], "graphs_tok_s": [121.98, 121.02, 121.28], "verdict": "graphs -5% at ctx~0 (fixed-shape attention tax); Lane A/A2 empty confirmed"}
+  }
+}

@@ -1,0 +1,6 @@
+{"engine":"llama.cpp","commit":"acd79d6","workload":"code","decode_tps_median":97.774,"accept_pct_median":67.857,"reps":3,"n_gen":128,"draft_n_max":8,"ngl":99,"ngld":99}
+{"engine":"llama.cpp","commit":"acd79d6","workload":"json","decode_tps_median":108.701,"accept_pct_median":79.167,"reps":3,"n_gen":128,"draft_n_max":8,"ngl":99,"ngld":99}
+{"engine":"llama.cpp","commit":"acd79d6","workload":"extraction","decode_tps_median":76.248,"accept_pct_median":52.000,"reps":3,"n_gen":128,"draft_n_max":8,"ngl":99,"ngld":99}
+{"engine":"llama.cpp","commit":"acd79d6","workload":"chat","decode_tps_median":49.497,"accept_pct_median":27.744,"reps":3,"n_gen":128,"draft_n_max":8,"ngl":99,"ngld":99}
+{"engine":"llama.cpp","commit":"acd79d6","workload":"creative","decode_tps_median":37.726,"accept_pct_median":18.160,"reps":3,"n_gen":128,"draft_n_max":8,"ngl":99,"ngld":99}
+{"engine":"llama.cpp","commit":"acd79d6","workload":"adversarial","decode_tps_median":45.275,"accept_pct_median":24.709,"reps":3,"n_gen":128,"draft_n_max":8,"ngl":99,"ngld":99}

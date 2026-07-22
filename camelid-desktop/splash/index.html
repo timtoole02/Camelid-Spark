@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Camelid Desktop</title>
+    <style>
+      :root { color-scheme: dark; }
+      html, body {
+        margin: 0;
+        height: 100%;
+        background: #0e1216;
+        color: #d8dee6;
+        font: 15px/1.5 -apple-system, "Segoe UI", system-ui, sans-serif;
+      }
+      .wrap {
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 18px;
+        text-align: center;
+        padding: 24px;
+        box-sizing: border-box;
+      }
+      .title { font-size: 20px; font-weight: 600; letter-spacing: 0.2px; }
+      .status { color: #9aa6b2; min-height: 1.4em; }
+      .err { color: #f0a3a3; white-space: pre-wrap; text-align: left; max-width: 90%;
+             font-family: ui-monospace, "Cascadia Code", Consolas, monospace; font-size: 12.5px; }
+      .spinner {
+        width: 26px; height: 26px; border-radius: 50%;
+        border: 3px solid #2a323c; border-top-color: #6ea8fe;
+        animation: spin 0.9s linear infinite;
+      }
+      @keyframes spin { to { transform: rotate(360deg); } }
+      .hidden { display: none; }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <div id="spinner" class="spinner"></div>
+      <div class="title">Camelid Desktop</div>
+      <!-- Updated by the Rust side via emit("engine-status", ...). Never shows a fake
+           "ready" state: it reflects real sidecar spawn + /v1/health progress only. -->
+      <div id="status" class="status">Starting engine&hellip;</div>
+      <div id="error" class="err hidden"></div>
+    </div>
+    <script>
+      // Listen for real lifecycle events emitted by the Rust backend. This page does no
+      // IPC commands of its own; it only renders status the engine reports.
+      const statusEl = document.getElementById("status");
+      const errEl = document.getElementById("error");
+      const spinnerEl = document.getElementById("spinner");
+      if (window.__TAURI__ && window.__TAURI__.event) {
+        window.__TAURI__.event.listen("engine-status", (e) => {
+          const p = e.payload || {};
+          if (p.message) statusEl.textContent = p.message;
+          if (p.error) {
+            spinnerEl.classList.add("hidden");
+            errEl.classList.remove("hidden");
+            errEl.textContent = p.error;
+          }
+        });
+      }
+    </script>
+  </body>
+</html>

@@ -1,0 +1,10 @@
+Logit-probe classification of the 3 basic_v1 divergences (camelid single-node 26B,
+teacher-forced on the reference path through each divergence; top-2 at the predicting step):
+
+capital-france @idx6 : top1 236778 (24.320009)  top2 236770 (24.181950)  gap 0.138060   [ref token 236770 = camelid #2]
+haiku-sea      @idx11: top1 7315  (19.958153)    top2 236774 (19.754715)  gap 0.203438   [ref token 236774 = camelid #2]
+rust-fn        @idx15: top1 5333  (25.550446)    top2 1354   (25.131683)  gap 0.418762   [ref token 1354   = camelid #2]
+
+All three: the reference's greedy token is camelid's immediate runner-up within ~0.14-0.42 logits
+= knife-edge near-ties at the f32 precision floor. count-primes (24 tok) and translate-de (16 tok)
+are full-budget token-identical, proving the MoE forward is complete/correct (no missing feature).

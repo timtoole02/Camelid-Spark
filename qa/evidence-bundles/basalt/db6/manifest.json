@@ -1,0 +1,20 @@
+{
+  "schema": "camelid.basalt_db6_evidence.v1",
+  "generated_utc": "2026-07-17",
+  "git_head": "off main bb8382a6 (branch basalt/db6-bf16-admission)",
+  "campaign": "BASALT",
+  "pass": "D-B6 BF16 admission (Option A, SIGNED 2026-07-17)",
+  "note": "Add BF16 to the runnable-lane covered quant set as an exact-decode type so the gemma-4-E4B NVFP4 pilot (its one per_layer_model_proj BF16 tensor was the prior admission blocker) admits fully. Runnable-lane admission only; gemma4 WireQuant + D-B3 arch carve-out untouched. No support-status change (stays not_anchored). fmt/clippy clean; cargo test --all-features 1255 pass / 0 fail; ledger drift green. (db6_cargo_test.txt: operator repo path sanitized to <repo-root>.)",
+  "files": [
+    {
+      "file": "db6_receipt.md",
+      "sha256": "bfe79309e8297d2c995cf6ace4295104408d0b112f2bac785044fadfd0700f24",
+      "size_bytes": 3549
+    },
+    {
+      "file": "db6_cargo_test.txt",
+      "sha256": "c4eed0bbf5c76e59094663a729fa4657a99de85bef47d93b35dbd4bf525d8d0f",
+      "size_bytes": 115732
+    }
+  ]
+}

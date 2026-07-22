@@ -1,0 +1,12 @@
+{
+  "schema": "camelid.chat_gate_prompt_pack/v1",
+  "pack_id": "gemma3-chat-gate-pack-v1",
+  "purpose": "MUSTER M-A1 chat-parity gate pack for the exact row gemma-3-1b-it-Q8_0.gguf (sha256 b205840c5dcef55078e37d344677869a714ffd42a4ae448c48dcfb52e4bb10d5), driven by scripts/chat-parity-gemma3.mjs at greedy 1/5/50 via the runnable serve lane. Prompt construction is deliberately conservative per the recon's SPM merge-order caveat (SPM_MERGE_ORDER_CONDUCTOR.md divergence classes are rare words, multi-space runs, and emoji/byte-fallback — all avoided): plain-English single-sentence prompts, no emoji, no repeated spaces, no unusual vocabulary; every rendered sequence stays far below the 512-token sliding-window ceiling the promoted tested_context is scoped to. Committed BEFORE oracle capture per MUSTER_CONDUCTOR.md 6.1.",
+  "prompts": [
+    "What is the capital of France?",
+    "Say hello in one short sentence.",
+    "Name the largest ocean on Earth.",
+    "What color is the sky on a clear day?",
+    "Count from one to five in words."
+  ]
+}

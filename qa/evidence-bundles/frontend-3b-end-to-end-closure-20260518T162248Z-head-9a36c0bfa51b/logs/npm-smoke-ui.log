@@ -1,0 +1,5 @@
+
+> camelid-frontend@0.1.0 smoke:ui
+> node scripts/ui-regression-smoke.mjs
+
+UI regression smoke passed

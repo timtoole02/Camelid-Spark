@@ -1,0 +1,31 @@
+{
+  "schema": "camelid.capability-receipt/v1",
+  "capability_id": "context.full_length",
+  "capability": "full TRAINED context length, exact value from metadata",
+  "row": "tinyllama-1.1b-chat-q8_0",
+  "model_label": "TinyLlama 1.1B Chat Q8_0",
+  "oracle_class": "D",
+  "verdict": "validated",
+  "generated": "2026-06-25",
+  "platform": {
+    "os": "windows",
+    "target": "x86_64-pc-windows-msvc",
+    "backend": "cpu",
+    "oracle": "llama.cpp acd79d6 (MSVC, Windows AMD64)"
+  },
+  "gguf": {
+    "filename": "tinyllama-1.1b-chat-v1.0.Q8_0.gguf",
+    "sha256": "a4c9bb1dbaa372f6381a035fa5c02ef087aaa1ff1f843a56a22328114f03fc59"
+  },
+  "harness": {
+    "repo_head": "bde66bc7d5d6867124631487c6ebb4e674ba177a",
+    "branch": "feat/capability-context-chat",
+    "working_tree": "Produced with the context lane diff UNCOMMITTED on a branch based on bde66bc7 (main). Re-seal against the commit once landed.",
+    "binary": "target/release/camelid.exe",
+    "e2e_harness": "qa/capability/context_parity.mjs (Windows CPU, CUDA_VISIBLE_DEVICES=-1)"
+  },
+  "evidence": {
+    "kind": "oracle_token_parity",
+    "summary": "e2e (qa/capability/context_parity.mjs, Windows CPU): a 1953-token prompt — 95% of TinyLlama's trained context_length of 2048 — is decoded greedily (temperature=0). Camelid emits a server-sealed camelid.parity-receipt/v1 (camelid_receipt:true); `camelid verify-receipt` replays it in-process AND feeds Camelid's exact 1953 prompt token ids to llama.cpp acd79d6 /completion — the continuation matches BIT-EXACT (generated tokens (8) and text identical, first_divergent_token_index=-1; RECEIPT VERIFIED across both isolated passes). This exercises KV-cache correctness across nearly the entire trained context. TinyLlama's trained context_length=2048 is the model's hard KV cap (read at model.rs:141, enforced at inference/kv_cache.rs:23); the full-length f32 CPU KV cache is only ~88 MiB, so the FULL trained length is reachable within host RAM on this box (no host limit for this row). Non-streaming, single-choice, greedy."
+  }
+}

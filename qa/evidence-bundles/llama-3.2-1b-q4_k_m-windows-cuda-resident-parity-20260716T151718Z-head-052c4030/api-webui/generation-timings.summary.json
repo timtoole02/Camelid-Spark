@@ -1,0 +1,448 @@
+{
+  "schema": "camelid.generation_timing_summary.v1",
+  "generated_utc": "2026-07-16T15:26:06.136Z",
+  "inputs": [
+    {
+      "path": "<repo>\\target\\muster-mb1-20260716-head-052c4030\\api-webui\\completion.response.json",
+      "file": "completion.response.json",
+      "model": "llama_3_2_1b_instruct_q4_k_m",
+      "object": "text_completion",
+      "prompt_tokens": 2,
+      "completion_tokens": 1,
+      "timings_ms": {
+        "tokenize": 1,
+        "weight_load": 1076,
+        "weight_cache_hit": false,
+        "prompt_cache_hit": false,
+        "session_create": 0,
+        "generate": 857,
+        "forward_total": 849.397,
+        "embedding": 0.016,
+        "layers_total": 849.321,
+        "final_norm": 0,
+        "logits": 0,
+        "sample": 0.279,
+        "prompt_eval_prompt_tokens": 2,
+        "prompt_eval_prefill_tokens": 1,
+        "prefill_forward_total": 42.669,
+        "prefill_layers_total": 42.654,
+        "first_token_forward_total": 806.728,
+        "first_token_layers_total": 806.667,
+        "first_token_logits": 0
+      },
+      "layer_count": 16,
+      "buckets_ms": {
+        "linear_hot_path": 39.70399999999999,
+        "attention_projection": 12.021000000000004,
+        "ffn_projection": 27.683000000000007,
+        "non_linear_layer": 2.66,
+        "attention_context": 0.042000000000000016,
+        "ffn_activation": 0.587
+      },
+      "shares": {
+        "linear_hot_path_of_forward": 0.046743748800619725,
+        "linear_hot_path_of_layers": 0.04674793158299394,
+        "attention_projection_of_forward": 0.014152392815138273,
+        "ffn_projection_of_forward": 0.03259135598548147,
+        "logits_of_forward": 0
+      },
+      "slowest_layers": [
+        {
+          "layer_index": 0,
+          "total_ms": 5.476,
+          "linear_hot_path_ms": 4.196,
+          "attention_projection_ms": 2.352,
+          "ffn_projection_ms": 1.8439999999999999,
+          "non_linear_layer_ms": 1.2800000000000002,
+          "attention_context_ms": 0.024,
+          "ffn_activation_ms": 0.029,
+          "components_ms": {
+            "attention_norm": 0.552,
+            "attention_q": 1.452,
+            "attention_k": 0.305,
+            "attention_v": 0.292,
+            "attention_rope": 0.197,
+            "kv_cache_write": 0.034,
+            "attention_context": 0.024,
+            "attention_output": 0.303,
+            "attention_residual": 0.026,
+            "ffn_norm": 0.02,
+            "ffn_gate": 0.616,
+            "ffn_up": 0.592,
+            "ffn_activation": 0.029,
+            "ffn_down": 0.636,
+            "ffn_residual": 0.035
+          }
+        },
+        {
+          "layer_index": 15,
+          "total_ms": 2.894,
+          "linear_hot_path_ms": 2.7960000000000003,
+          "attention_projection_ms": 0.758,
+          "ffn_projection_ms": 2.0380000000000003,
+          "non_linear_layer_ms": 0.09799999999999986,
+          "attention_context_ms": 0.002,
+          "ffn_activation_ms": 0.04,
+          "components_ms": {
+            "attention_norm": 0.004,
+            "attention_q": 0.254,
+            "attention_k": 0.121,
+            "attention_v": 0.132,
+            "attention_rope": 0.013,
+            "kv_cache_write": 0.023,
+            "attention_context": 0.002,
+            "attention_output": 0.251,
+            "attention_residual": 0.001,
+            "ffn_norm": 0.005,
+            "ffn_gate": 0.664,
+            "ffn_up": 0.774,
+            "ffn_activation": 0.04,
+            "ffn_down": 0.6,
+            "ffn_residual": 0.001
+          }
+        },
+        {
+          "layer_index": 13,
+          "total_ms": 2.818,
+          "linear_hot_path_ms": 2.718,
+          "attention_projection_ms": 0.755,
+          "ffn_projection_ms": 1.963,
+          "non_linear_layer_ms": 0.10000000000000009,
+          "attention_context_ms": 0.001,
+          "ffn_activation_ms": 0.041,
+          "components_ms": {
+            "attention_norm": 0.004,
+            "attention_q": 0.25,
+            "attention_k": 0.125,
+            "attention_v": 0.133,
+            "attention_rope": 0.015,
+            "kv_cache_write": 0.024,
+            "attention_context": 0.001,
+            "attention_output": 0.247,
+            "attention_residual": 0,
+            "ffn_norm": 0.004,
+            "ffn_gate": 0.662,
+            "ffn_up": 0.667,
+            "ffn_activation": 0.041,
+            "ffn_down": 0.634,
+            "ffn_residual": 0.001
+          }
+        },
+        {
+          "layer_index": 10,
+          "total_ms": 2.781,
+          "linear_hot_path_ms": 2.6750000000000003,
+          "attention_projection_ms": 0.6940000000000001,
+          "ffn_projection_ms": 1.981,
+          "non_linear_layer_ms": 0.10599999999999987,
+          "attention_context_ms": 0.001,
+          "ffn_activation_ms": 0.039,
+          "components_ms": {
+            "attention_norm": 0.004,
+            "attention_q": 0.228,
+            "attention_k": 0.11,
+            "attention_v": 0.133,
+            "attention_rope": 0.01,
+            "kv_cache_write": 0.037,
+            "attention_context": 0.001,
+            "attention_output": 0.223,
+            "attention_residual": 0.001,
+            "ffn_norm": 0.003,
+            "ffn_gate": 0.628,
+            "ffn_up": 0.684,
+            "ffn_activation": 0.039,
+            "ffn_down": 0.669,
+            "ffn_residual": 0
+          }
+        },
+        {
+          "layer_index": 14,
+          "total_ms": 2.735,
+          "linear_hot_path_ms": 2.6270000000000002,
+          "attention_projection_ms": 0.737,
+          "ffn_projection_ms": 1.8900000000000001,
+          "non_linear_layer_ms": 0.10799999999999965,
+          "attention_context_ms": 0.002,
+          "ffn_activation_ms": 0.04,
+          "components_ms": {
+            "attention_norm": 0.004,
+            "attention_q": 0.246,
+            "attention_k": 0.121,
+            "attention_v": 0.134,
+            "attention_rope": 0.013,
+            "kv_cache_write": 0.032,
+            "attention_context": 0.002,
+            "attention_output": 0.236,
+            "attention_residual": 0.001,
+            "ffn_norm": 0.004,
+            "ffn_gate": 0.62,
+            "ffn_up": 0.638,
+            "ffn_activation": 0.04,
+            "ffn_down": 0.632,
+            "ffn_residual": 0.001
+          }
+        },
+        {
+          "layer_index": 11,
+          "total_ms": 2.662,
+          "linear_hot_path_ms": 2.548,
+          "attention_projection_ms": 0.739,
+          "ffn_projection_ms": 1.809,
+          "non_linear_layer_ms": 0.11399999999999988,
+          "attention_context_ms": 0.001,
+          "ffn_activation_ms": 0.044,
+          "components_ms": {
+            "attention_norm": 0.013,
+            "attention_q": 0.246,
+            "attention_k": 0.109,
+            "attention_v": 0.132,
+            "attention_rope": 0.011,
+            "kv_cache_write": 0.027,
+            "attention_context": 0.001,
+            "attention_output": 0.252,
+            "attention_residual": 0,
+            "ffn_norm": 0.005,
+            "ffn_gate": 0.66,
+            "ffn_up": 0.655,
+            "ffn_activation": 0.044,
+            "ffn_down": 0.494,
+            "ffn_residual": 0.001
+          }
+        },
+        {
+          "layer_index": 12,
+          "total_ms": 2.61,
+          "linear_hot_path_ms": 2.5039999999999996,
+          "attention_projection_ms": 0.72,
+          "ffn_projection_ms": 1.7839999999999998,
+          "non_linear_layer_ms": 0.10600000000000032,
+          "attention_context_ms": 0.002,
+          "ffn_activation_ms": 0.041,
+          "components_ms": {
+            "attention_norm": 0.005,
+            "attention_q": 0.236,
+            "attention_k": 0.121,
+            "attention_v": 0.131,
+            "attention_rope": 0.01,
+            "kv_cache_write": 0.028,
+            "attention_context": 0.002,
+            "attention_output": 0.232,
+            "attention_residual": 0.001,
+            "ffn_norm": 0.004,
+            "ffn_gate": 0.656,
+            "ffn_up": 0.639,
+            "ffn_activation": 0.041,
+            "ffn_down": 0.489,
+            "ffn_residual": 0.001
+          }
+        },
+        {
+          "layer_index": 9,
+          "total_ms": 2.504,
+          "linear_hot_path_ms": 2.4130000000000003,
+          "attention_projection_ms": 0.668,
+          "ffn_projection_ms": 1.745,
+          "non_linear_layer_ms": 0.09099999999999975,
+          "attention_context_ms": 0.001,
+          "ffn_activation_ms": 0.037,
+          "components_ms": {
+            "attention_norm": 0.004,
+            "attention_q": 0.225,
+            "attention_k": 0.112,
+            "attention_v": 0.104,
+            "attention_rope": 0.011,
+            "kv_cache_write": 0.024,
+            "attention_context": 0.001,
+            "attention_output": 0.227,
+            "attention_residual": 0,
+            "ffn_norm": 0.004,
+            "ffn_gate": 0.636,
+            "ffn_up": 0.634,
+            "ffn_activation": 0.037,
+            "ffn_down": 0.475,
+            "ffn_residual": 0
+          }
+        }
+      ],
+      "top_bottlenecks": [
+        {
+          "path": "layers.0.attention_q",
+          "ms": 1.452
+        },
+        {
+          "path": "layers.15.ffn_up",
+          "ms": 0.774
+        },
+        {
+          "path": "layers.10.ffn_up",
+          "ms": 0.684
+        },
+        {
+          "path": "layers.10.ffn_down",
+          "ms": 0.669
+        },
+        {
+          "path": "layers.13.ffn_up",
+          "ms": 0.667
+        },
+        {
+          "path": "layers.15.ffn_gate",
+          "ms": 0.664
+        },
+        {
+          "path": "layers.13.ffn_gate",
+          "ms": 0.662
+        },
+        {
+          "path": "layers.11.ffn_gate",
+          "ms": 0.66
+        },
+        {
+          "path": "layers.12.ffn_gate",
+          "ms": 0.656
+        },
+        {
+          "path": "layers.11.ffn_up",
+          "ms": 0.655
+        },
+        {
+          "path": "layers.12.ffn_up",
+          "ms": 0.639
+        },
+        {
+          "path": "layers.14.ffn_up",
+          "ms": 0.638
+        }
+      ]
+    },
+    {
+      "path": "<repo>\\target\\muster-mb1-20260716-head-052c4030\\api-webui\\chat.response.json",
+      "file": "chat.response.json",
+      "model": "llama_3_2_1b_instruct_q4_k_m",
+      "object": "chat.completion",
+      "prompt_tokens": 11,
+      "completion_tokens": 1,
+      "timings_ms": {
+        "tokenize": 4,
+        "weight_load": 0,
+        "weight_cache_hit": true,
+        "prompt_cache_hit": false,
+        "session_create": 0,
+        "generate": 82,
+        "forward_total": 77.667,
+        "embedding": 0.009,
+        "layers_total": 8.393,
+        "final_norm": 0,
+        "logits": 0,
+        "sample": 0.176,
+        "prompt_eval_prompt_tokens": 11,
+        "prompt_eval_prefill_tokens": 10,
+        "prefill_forward_total": 69.199,
+        "prefill_layers_total": 0,
+        "first_token_forward_total": 8.468,
+        "first_token_layers_total": 8.393,
+        "first_token_logits": 0
+      },
+      "layer_count": 0,
+      "buckets_ms": {
+        "linear_hot_path": 0,
+        "attention_projection": 0,
+        "ffn_projection": 0,
+        "non_linear_layer": 0,
+        "attention_context": 0,
+        "ffn_activation": 0
+      },
+      "shares": {
+        "linear_hot_path_of_forward": 0,
+        "linear_hot_path_of_layers": 0,
+        "attention_projection_of_forward": 0,
+        "ffn_projection_of_forward": 0,
+        "logits_of_forward": 0
+      },
+      "slowest_layers": [],
+      "top_bottlenecks": [
+        {
+          "path": "generation.logits",
+          "ms": 0
+        }
+      ]
+    }
+  ],
+  "aggregate": {
+    "input_count": 2,
+    "max_forward_total_ms": 849.397,
+    "avg_forward_total_ms": 463.53200000000004,
+    "avg_generate_ms": 469.5,
+    "avg_weight_load_ms": 538,
+    "avg_linear_hot_path_ms": 19.851999999999997,
+    "avg_linear_hot_path_share": 0.023371874400309862,
+    "max_logits_ms": 0,
+    "top_bottlenecks": [
+      {
+        "path": "layers.0.attention_q",
+        "ms": 1.452,
+        "input": "completion.response.json"
+      },
+      {
+        "path": "layers.15.ffn_up",
+        "ms": 0.774,
+        "input": "completion.response.json"
+      },
+      {
+        "path": "layers.10.ffn_up",
+        "ms": 0.684,
+        "input": "completion.response.json"
+      },
+      {
+        "path": "layers.10.ffn_down",
+        "ms": 0.669,
+        "input": "completion.response.json"
+      },
+      {
+        "path": "layers.13.ffn_up",
+        "ms": 0.667,
+        "input": "completion.response.json"
+      },
+      {
+        "path": "layers.15.ffn_gate",
+        "ms": 0.664,
+        "input": "completion.response.json"
+      },
+      {
+        "path": "layers.13.ffn_gate",
+        "ms": 0.662,
+        "input": "completion.response.json"
+      },
+      {
+        "path": "layers.11.ffn_gate",
+        "ms": 0.66,
+        "input": "completion.response.json"
+      },
+      {
+        "path": "layers.12.ffn_gate",
+        "ms": 0.656,
+        "input": "completion.response.json"
+      },
+      {
+        "path": "layers.11.ffn_up",
+        "ms": 0.655,
+        "input": "completion.response.json"
+      },
+      {
+        "path": "layers.12.ffn_up",
+        "ms": 0.639,
+        "input": "completion.response.json"
+      },
+      {
+        "path": "layers.14.ffn_up",
+        "ms": 0.638,
+        "input": "completion.response.json"
+      }
+    ]
+  },
+  "notes": [
+    "Summarizes Camelid response-local timing diagnostics; use alongside RSS/process samples for performance claims.",
+    "The linear hot-path bucket is attention Q/K/V/O plus FFN gate/up/down layer timing. On lazy Q8_0 runs this is the primary file-backed Q8 reader/dot cost surface.",
+    "This report is measurement evidence only and does not broaden support beyond exact rows validated by parity/API/frontend artifacts."
+  ]
+}

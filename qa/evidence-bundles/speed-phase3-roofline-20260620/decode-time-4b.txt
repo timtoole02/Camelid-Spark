@@ -1,0 +1,9 @@
+[hw] GPU: NVIDIA GeForce RTX 3060 Laptop GPU (x1) | compute 8.6 | tensor-cores yes | VRAM 5.0 GiB free / 6.0 GiB total
+[hw] CPU: 16 logical cores | SIMD AVX-512 (avx2=true avx512f=true fma=true neon=false) | RAM 9.9 GiB free / 15.7 GiB total
+[cuda] selected device 0 of 1: "NVIDIA GeForce RTX 3060 Laptop GPU" (compute capability 8.6) | VRAM 5122 MiB free / 6143 MiB total
+[bench-generate] warmup iteration (unmeasured)...
+[gpu] all 36 layers resident in VRAM (5122 MiB free) — full GPU speed
+[decode-time] per token: step wall 23.37ms | forward 23.37ms (embed 0.000 layers 0.00) | sample 0.00ms | in-step other 0.00ms | loop other 0.00ms
+[decode-time] per token: step wall 23.48ms | forward 23.47ms (embed 0.000 layers 0.00) | sample 0.00ms | in-step other 0.00ms | loop other 0.00ms
+{"runtime":"camelid","commit":"unknown","model":"$HOME/models/Qwen3-4B-Q8_0.gguf","quantization":"Q8_0","iteration":0,"prompt_tokens":8,"generated_tokens":32,"load_ms":6350.6773,"prefill_ms":69.855,"ttft_ms":92.90270000000001,"decode_ms":727.8149000000001,"tokens_per_second":42.59324726657835,"peak_memory_bytes":5632585728,"offload":{"total_layers":36,"layers_resident":36,"layers_offloaded":0,"per_layer_bytes":0,"free_vram_bytes":5370806272,"pcie_gbps":null,"source":"none"},"experimental_fast":false,"output_text":" CPU cache is a type of memory that is used to speed up the processing of data by the central processing unit (CPU). It is a small, fast memory","output_token_ids":[13940,6500,374,264,943,315,4938,429,374,1483,311,4628,705,279,8692,315,821,553,279,8622,8692,4982,320,31615,568,1084,374,264,2613,11,4937,4938]}
+[bench-generate] iter 0 | prompt 8 tok | gen 32 tok | ttft 92.9 ms | decode 727.8 ms | 42.59 tok/s | peak 5.25 GB

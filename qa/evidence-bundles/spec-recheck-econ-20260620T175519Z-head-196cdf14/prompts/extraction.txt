@@ -1,0 +1,15 @@
+Extract the name, role, and city from each line below into a uniform list of "Name | Role | City" rows. Keep the exact same format for every row.
+
+Raw records:
+- Employee record: Maria Gonzalez works as a Software Engineer based in Madrid.
+- Employee record: John Smith works as a Data Analyst based in London.
+- Employee record: Wei Chen works as a Product Manager based in Singapore.
+- Employee record: Fatima Khan works as a Software Engineer based in Dubai.
+- Employee record: Olga Petrova works as a Data Analyst based in Moscow.
+- Employee record: Carlos Mendes works as a Product Manager based in Lisbon.
+- Employee record: Priya Sharma works as a Software Engineer based in Bangalore.
+- Employee record: Kenji Tanaka works as a Data Analyst based in Tokyo.
+
+Extracted list:
+Maria Gonzalez | Software Engineer | Madrid
+John Smith | Data Analyst | London
