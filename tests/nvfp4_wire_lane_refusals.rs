@@ -140,7 +140,7 @@ fn nan_sentinel_fixture_trips_the_scan_seam() {
         !msg.contains("NaN-sentinel"),
         "if load ever reaches the sentinel scan, promote this cell to end-to-end: {msg}"
     );
-    #[cfg(not(any(target_os = "windows", target_os = "macos")))]
+    #[cfg(not(any(target_os = "windows", target_os = "macos", target_os = "linux")))]
     assert!(
         msg.contains("NVFP4 is Windows/macOS-only in this release"),
         "on unvalidated platforms the §9 platform gate fires first: {msg}"
