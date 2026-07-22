@@ -1075,8 +1075,11 @@ pub(crate) fn nvfp4_sidecar_check(tensors: &[crate::gguf::GgufTensorDescriptor])
 pub(crate) fn nvfp4_windows_only_check(
     tensors: &[crate::gguf::GgufTensorDescriptor],
 ) -> Result<()> {
+    // FLINT (DGX Spark test build): Linux joins the NVFP4 admit set (CUDA
+    // resident lane; compute_61 dp4a GEMV forward-JITs onto GB10/Blackwell).
     if !cfg!(target_os = "windows")
         && !cfg!(target_os = "macos")
+        && !cfg!(target_os = "linux")
         && tensors
             .iter()
             .any(|t| t.tensor_type == GgufTensorType::NVFP4)
@@ -5858,7 +5861,11 @@ mod gpu_lane_refusal_tests {
     }
 
     #[test]
-    #[cfg(all(not(target_os = "windows"), not(target_os = "macos")))]
+    #[cfg(all(
+        not(target_os = "windows"),
+        not(target_os = "macos"),
+        not(target_os = "linux")
+    ))]
     fn windows_only_check_refuses_nvfp4_off_windows() {
         // §9 twin (runs on the linux leg — macOS now admits, GABBRO M2): the
         // named TK2 refusal on the still-unvalidated platforms.
@@ -5886,13 +5893,13 @@ mod gpu_lane_refusal_tests {
     #[test]
     fn cuda_resident_platform_gate_fronts_the_cuda_lane_entry() {
         let pilot = vec![desc("blk.0.ffn_down.weight", GgufTensorType::NVFP4)];
-        #[cfg(any(target_os = "windows", target_os = "macos"))]
+        #[cfg(any(target_os = "windows", target_os = "macos", target_os = "linux"))]
         {
             nvfp4_windows_only_check(&pilot).expect(
-                "NVFP4 admits through the §9 gate on Windows/macOS so the resident lane binds",
+                "NVFP4 admits through the §9 gate on Windows/macOS/Linux so the resident lane binds",
             );
         }
-        #[cfg(not(any(target_os = "windows", target_os = "macos")))]
+        #[cfg(not(any(target_os = "windows", target_os = "macos", target_os = "linux")))]
         {
             match nvfp4_windows_only_check(&pilot) {
                 Err(BackendError::UnsupportedGguf(msg)) => assert_eq!(

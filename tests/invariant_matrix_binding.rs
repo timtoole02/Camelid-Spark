@@ -639,17 +639,17 @@ fn pilot_admit_fixture_is_the_platform_gate_twin() {
         .expect("fixture must parse on every platform");
     assert_eq!(gguf.architecture(), Some("gemma4"));
 
-    #[cfg(any(target_os = "windows", target_os = "macos"))]
+    #[cfg(any(target_os = "windows", target_os = "macos", target_os = "linux"))]
     {
         use camelid::gguf::GgufTensorType;
         use camelid::runnable::{admit, TokenizerFamily};
-        let ok = admit(&gguf).expect("gemma4+NVFP4 pilot must admit on Windows/macOS (D-B3)");
+        let ok = admit(&gguf).expect("gemma4+NVFP4 pilot must admit on Windows/macOS/Linux (D-B3)");
         assert_eq!(ok.architecture, "gemma4");
         assert_eq!(ok.tokenizer, TokenizerFamily::Spm);
         assert!(ok.quants.contains(&GgufTensorType::NVFP4));
     }
 
-    #[cfg(not(any(target_os = "windows", target_os = "macos")))]
+    #[cfg(not(any(target_os = "windows", target_os = "macos", target_os = "linux")))]
     {
         use camelid::runnable::{admit, AdmissionAxis};
         let reject =

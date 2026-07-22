@@ -309,9 +309,10 @@ fn check_quants(
         }
     }
 
-    // BASALT Amendment 3 §9 platform gate + GABBRO M2 narrowing: NVFP4 admission
-    // is allowed on Windows AND macOS in this release, and refused on every other
-    // target (macOS joined once its Apple-Silicon CPU decode was proven bit-exact,
+    // BASALT Amendment 3 §9 platform gate + GABBRO M2 narrowing + FLINT (DGX
+    // Spark): NVFP4 admission is allowed on Windows, macOS, AND Linux in this
+    // release, and refused on every other target (macOS joined once its
+    // Apple-Silicon CPU decode was proven bit-exact,
     // GABBRO Gate G-M1). A RUNTIME check (`cfg!` inside ordinary code),
     // deliberately not a `#[cfg]` wall — the crate compiles identically on every
     // target and refused hosts get this named refusal (DECISIONS.md D17
@@ -327,6 +328,7 @@ fn check_quants(
     // proven vs the CPU oracle, T5 sentinel guard).
     if !cfg!(target_os = "windows")
         && !cfg!(target_os = "macos")
+        && !cfg!(target_os = "linux")
         && seen.contains(&GgufTensorType::NVFP4)
     {
         let tensor = file
@@ -500,7 +502,11 @@ mod tests {
     }
 
     #[test]
-    #[cfg(all(not(target_os = "windows"), not(target_os = "macos")))]
+    #[cfg(all(
+        not(target_os = "windows"),
+        not(target_os = "macos"),
+        not(target_os = "linux")
+    ))]
     fn gemma4_nvfp4_pilot_refuses_off_windows_with_platform_gate() {
         // Amendment 3 §9 twin: the otherwise-admitting pilot shape gets the
         // named TK2 refusal on unvalidated targets — a runtime gate, not a
@@ -517,7 +523,7 @@ mod tests {
     }
 
     #[test]
-    #[cfg(any(target_os = "windows", target_os = "macos"))]
+    #[cfg(any(target_os = "windows", target_os = "macos", target_os = "linux"))]
     fn gemma4_nvfp4_with_bf16_admits_fully_after_d_b6() {
         // The REAL produced pilot row's shape (G2 receipt): NVFP4 matmuls PLUS one
         // BF16 tensor (per_layer_model_proj.weight). As of BASALT D-B6 (2026-07-17)
@@ -542,7 +548,11 @@ mod tests {
     }
 
     #[test]
-    #[cfg(all(not(target_os = "windows"), not(target_os = "macos")))]
+    #[cfg(all(
+        not(target_os = "windows"),
+        not(target_os = "macos"),
+        not(target_os = "linux")
+    ))]
     fn gemma4_nvfp4_with_bf16_refuses_off_windows_platform_gate() {
         // Unvalidated-platform twin of the D-B6 admission pin (Linux leg — macOS now
         // admits, GABBRO M2): with BF16 covered, the real pilot shape (NVFP4 + BF16)
@@ -652,7 +662,7 @@ mod tests {
     }
 
     #[test]
-    #[cfg(any(target_os = "windows", target_os = "macos"))]
+    #[cfg(any(target_os = "windows", target_os = "macos", target_os = "linux"))]
     fn pilot_layer_output_scale_weight_is_not_a_sidecar() {
         // The real gemma4 pilot carries 42 F32 `blk.N.layer_output_scale.weight`
         // tensors. They end in `.weight`, not `.scale` — the sidecar check must not
@@ -668,7 +678,11 @@ mod tests {
     }
 
     #[test]
-    #[cfg(all(not(target_os = "windows"), not(target_os = "macos")))]
+    #[cfg(all(
+        not(target_os = "windows"),
+        not(target_os = "macos"),
+        not(target_os = "linux")
+    ))]
     fn pilot_layer_output_scale_weight_is_not_a_sidecar_off_windows() {
         // Unvalidated-platform twin of the false-positive pin (Linux leg — macOS
         // now admits, GABBRO M2): the refusal must be the §9 PLATFORM gate (which
