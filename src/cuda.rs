@@ -45,6 +45,11 @@ pub struct CudaCapability {
     pub compute_capability: (u32, u32),
     pub vram_total_bytes: u64,
     pub vram_free_bytes: u64,
+    /// The GPU shares physical memory with the CPU (CU_DEVICE_ATTRIBUTE_INTEGRATED),
+    /// e.g. GB10/DGX Spark or Jetson: "VRAM" and host RAM are ONE pool, so
+    /// host+device weight copies are double-charged and PCIe-era offload
+    /// streaming is pure overhead. FLINT (Spark) policies key off this.
+    pub integrated: bool,
 }
 
 // Runtime GPU-enable switch, so the UI can toggle the CUDA decode path on/off
@@ -74,7 +79,18 @@ pub fn runtime_enabled() -> bool {
     use std::sync::atomic::Ordering;
     match RUNTIME_STATE.load(Ordering::Relaxed) {
         0 => {
-            let enabled = seed_runtime_from_env();
+            let mut enabled = seed_runtime_from_env();
+            // FLINT (DGX Spark): this legacy assist lane re-uploads weight bytes
+            // on every matmul call — on a unified-memory box that is the same
+            // DRAM copied to itself per token, ~100x slower than the resident
+            // engine that supersedes it. Ignore the old toggle there.
+            if enabled && crate::capability::HardwareProfile::cached().cuda_unified_memory {
+                eprintln!(
+                    "[cuda] CAMELID_CUDA_Q8 ignored on unified-memory GPUs: the \
+                     GPU-resident decode engine (default-on) supersedes this lane"
+                );
+                enabled = false;
+            }
             RUNTIME_STATE.store(if enabled { 2 } else { 1 }, Ordering::Relaxed);
             enabled
         }
@@ -464,12 +480,17 @@ extern "C" __global__ void q8_0_block_linear_row(
             .unwrap_or(0)
             .max(0) as u32;
         let (vram_free, vram_total) = result::mem_get_info().unwrap_or((0, 0));
+        let integrated = ctx
+            .attribute(sys::CUdevice_attribute::CU_DEVICE_ATTRIBUTE_INTEGRATED)
+            .unwrap_or(0)
+            != 0;
         Some(super::CudaCapability {
             device_count,
             device_name,
             compute_capability: (cc_major, cc_minor),
             vram_total_bytes: vram_total as u64,
             vram_free_bytes: vram_free as u64,
+            integrated,
         })
     }
 

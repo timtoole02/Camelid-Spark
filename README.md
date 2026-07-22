@@ -83,7 +83,6 @@ at Q8_0** (~34 GB), with lots of headroom to spare.
   | Model | Quant | Size | Arch |
   |---|---|---|---|
   | Qwen3 14B | Q8_0 | 14.6 GB | qwen3 |
-  | Gemma 3 27B-It | Q8_0 | 26.7 GB | gemma3 |
   | Qwen3 32B | Q8_0 | 32.4 GB | qwen3 |
   | Llama 3.3 70B Instruct | Q4_K_M | 39.6 GB | llama |
   | **Llama 3.3 70B Instruct** | **Q8_0** | **~70 GB, 2-part** | llama |

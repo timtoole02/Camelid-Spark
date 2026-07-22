@@ -325,6 +325,9 @@ pub fn plan_for_model_with_platform(
             // Rust (no OS-specific kernels) and is parity-validated bit-identical to the
             // scalar reference on Windows as well as Linux, so both share this plan.
             select_x86_q8_plan(&profile, &platform, &mut env_updates, &mut reasons)
+        } else if platform.operating_system == "linux" && platform.architecture == "aarch64" {
+            // FLINT (DGX Spark / Grace): see select_aarch64_linux_q8_plan.
+            select_aarch64_linux_q8_plan(&profile, &platform, &mut env_updates, &mut reasons)
         } else {
             reasons.push(
                     "no validated platform-specific Q8_0 plan for this OS/arch; failing closed to safe path"
@@ -757,6 +760,49 @@ fn select_x86_q8_plan(
         "q8_0_decode_packed_rows4_avx2",
         "retained_q8_reference_path",
     )
+}
+
+/// FLINT (DGX Spark): the aarch64-Linux (Grace) arm. When the CUDA resident
+/// engine drives decode this mirrors the x86 arm exactly — same plan labels,
+/// same plain-blocks reasoning; the resident engine is arch-agnostic host-side
+/// and its admission stays gated by the runtime GPU-vs-CPU parity self-check.
+/// Without a GPU there is no Grace-validated CPU repack plan yet, so the CPU
+/// path keeps the safe reference labels — but with CAMELID_PARALLEL_LINEAR
+/// enabled: the safe path's reductions are output-partitioned and order-stable
+/// (DECISIONS.md §D9), so threading them changes scheduling, never numerics,
+/// and a 20-core Grace must not run the reference single-threaded (this is
+/// also the CPU leg of the GPU-runnable parity probe, which otherwise takes
+/// minutes on 14B+ models).
+fn select_aarch64_linux_q8_plan(
+    profile: &ExecutionProfile,
+    platform: &PlanPlatform,
+    env_updates: &mut BTreeMap<&'static str, Option<&'static str>>,
+    reasons: &mut Vec<String>,
+) -> (
+    &'static str,
+    &'static str,
+    &'static str,
+    &'static str,
+    &'static str,
+    &'static str,
+) {
+    if matches!(profile, ExecutionProfile::Safe) {
+        reasons.push("safe profile selected; optimized paths disabled".into());
+        return safe_q8_plan();
+    }
+    if platform.cuda_resident_active {
+        reasons.push(
+            "CUDA resident decode active; GPU-resident Q8_0 engine drives decode (weights stay plain RAM-resident Q8_0 blocks — the CPU rows4 repack is disabled while the GPU drives decode)"
+                .into(),
+        );
+        return cuda_resident_q8_plan();
+    }
+    env_updates.insert("CAMELID_PARALLEL_LINEAR", Some("on"));
+    reasons.push(
+        "aarch64-linux CPU path: safe reference labels with parallel linear enabled          (order-stable output-partitioned reductions; no Grace-validated repack plan yet)"
+            .into(),
+    );
+    safe_q8_plan()
 }
 
 fn safe_q8_plan() -> (

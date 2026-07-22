@@ -4541,10 +4541,15 @@ async fn inspect_model(
 /// The Gemma 4 serve path is gated behind `CAMELID_GEMMA4_SERVE` (1/true/yes).
 /// When off, the existing Llama/3B backend behaves exactly as before.
 fn gemma4_serve_enabled() -> bool {
-    matches!(
-        std::env::var("CAMELID_GEMMA4_SERVE").as_deref(),
-        Ok("1") | Ok("true") | Ok("TRUE") | Ok("yes") | Ok("YES")
-    )
+    match std::env::var("CAMELID_GEMMA4_SERVE").as_deref() {
+        Ok("1") | Ok("true") | Ok("TRUE") | Ok("yes") | Ok("YES") => true,
+        Ok("0") | Ok("false") | Ok("FALSE") | Ok("no") | Ok("NO") => false,
+        // FLINT (DGX Spark): default ON when a CUDA device is present — the
+        // gemma4 rows (incl. the NVFP4 pilot this build exists to demo) must
+        // be chattable from the GUI without shell env. Hosts without a CUDA
+        // device keep the historical opt-in default (and its test posture).
+        _ => crate::cuda::is_available(),
+    }
 }
 
 /// Additionally route the gemma4 serve lane through the CUDA decode engine when
@@ -4552,10 +4557,13 @@ fn gemma4_serve_enabled() -> bool {
 /// default; with it off the gemma4 serve lane stays the CPU runtime, unchanged.
 #[cfg(feature = "cuda")]
 fn gemma4_cuda_enabled() -> bool {
-    matches!(
-        std::env::var("CAMELID_GEMMA4_CUDA").as_deref(),
-        Ok("1") | Ok("true") | Ok("TRUE") | Ok("yes") | Ok("YES")
-    )
+    match std::env::var("CAMELID_GEMMA4_CUDA").as_deref() {
+        Ok("1") | Ok("true") | Ok("TRUE") | Ok("yes") | Ok("YES") => true,
+        Ok("0") | Ok("false") | Ok("FALSE") | Ok("no") | Ok("NO") => false,
+        // FLINT (DGX Spark): default ON when a CUDA device is present, so the
+        // gemma4/NVFP4 serve lane runs on the GPU instead of the CPU wire lane.
+        _ => crate::cuda::is_available(),
+    }
 }
 
 /// Model family from the GGUF `general.architecture`.
@@ -6903,11 +6911,24 @@ async fn load_gemma4_serve_runtime(
             #[cfg(feature = "cuda")]
             {
                 if gemma4_cuda_enabled() {
-                    // KV-cache context window. 4096 fits the 6 GB card (the attention
-                    // kernel's shared memory is (2*head_dim + max_positions)*4 bytes, well
-                    // under 48 KB, and the f16 KV adds only ~100-200 MB) and gives real
-                    // multi-turn headroom; overflow past it is guarded in the runtime.
-                    return crate::gemma4_runtime::Gemma4CudaResident::load(&load_path, 4096)
+                    // KV-cache context window. The historical 4096 fits the 6 GB dev
+                    // card (the attention kernel's shared memory is
+                    // (2*head_dim + max_positions)*4 bytes, well under 48 KB, and the
+                    // f16 KV adds only ~100-200 MB). FLINT (DGX Spark): on a unified
+                    // 128 GB pool that literal starves multi-turn chat for no reason,
+                    // so default 32768 there; CAMELID_GEMMA4_KV_CAP overrides both.
+                    let kv_cap = std::env::var("CAMELID_GEMMA4_KV_CAP")
+                        .ok()
+                        .and_then(|v| v.trim().parse::<usize>().ok())
+                        .filter(|&v| v > 0)
+                        .unwrap_or_else(|| {
+                            if crate::capability::HardwareProfile::cached().cuda_unified_memory {
+                                32768
+                            } else {
+                                4096
+                            }
+                        });
+                    return crate::gemma4_runtime::Gemma4CudaResident::load(&load_path, kv_cap)
                         .map(|r| Gemma4ServeRuntime::Cuda(std::sync::Mutex::new(r)));
                 }
             }
@@ -18017,20 +18038,6 @@ pub fn curated_catalog() -> Vec<CatalogItem> {
             parts: &[],
         },
         CatalogItem {
-            catalog_id: "gemma3_27b_it_q8_0",
-            name: "Gemma 3 27B-It Q8_0 (large)",
-            repo_id: "unsloth/gemma-3-27b-it-GGUF",
-            filename: "gemma-3-27b-it-Q8_0.gguf",
-            size_bytes: 28707972192,
-            downloads: 0,
-            likes: 0,
-            quant: "Q8_0",
-            architecture: "gemma3",
-            license: "gemma",
-            task_tags: &["general", "reasoning"],
-            parts: &[],
-        },
-        CatalogItem {
             catalog_id: "qwen3_32b_q8_0",
             name: "Qwen3 32B Q8_0 (large)",
             repo_id: "Qwen/Qwen3-32B-GGUF",
@@ -20255,6 +20262,7 @@ mod catalog_fit_tests {
             cuda_tensor_cores: false,
             cuda_vram_total_bytes: vram_free,
             cuda_vram_free_bytes: vram_free,
+            cuda_unified_memory: false,
             cpu_logical_cores: 8,
             host_ram_total_bytes: ram_total,
             host_ram_free_bytes: ram_free,
