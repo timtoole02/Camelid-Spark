@@ -20273,6 +20273,7 @@ mod catalog_fit_tests {
             cuda_vram_total_bytes: vram_free,
             cuda_vram_free_bytes: vram_free,
             cuda_unified_memory: false,
+            cuda_integrated: false,
             cpu_logical_cores: 8,
             host_ram_total_bytes: ram_total,
             host_ram_free_bytes: ram_free,

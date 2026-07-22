@@ -465,7 +465,14 @@ impl LlamaLoadedWeights {
         // into page-aligned allocations the GPU wraps in place ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â no 36-byte decode, no
         // upload copy, and the page cache stays warm so reloading a model is fast.
         let metal_nocopy = metal_nocopy_fast_load_enabled();
-        let cuda_hostreg_load = cuda_hostreg_fast_load_enabled();
+        // MoE models never pass resident admission ("moe config" bail), so a
+        // blocks-less fast-load would strand their decode on per-token disk
+        // streaming — keep the historical loaders for them.
+        let model_has_moe = binding
+            .layers
+            .iter()
+            .any(|l| matches!(&l.ffn, LlamaFfnTensors::MoE { .. }));
+        let cuda_hostreg_load = cuda_hostreg_fast_load_enabled() && !model_has_moe;
         let nocopy_fast_load = metal_nocopy || cuda_hostreg_load;
         if metal_nocopy {
             eprintln!(
@@ -1494,6 +1501,22 @@ fn q8_schedule_output_projection_route_kind(
             && weight.rows == output_width
             && input_width.is_multiple_of(Q8_0_BLOCK_VALUES)
         {
+            // Loud, once: a hostreg-loaded session on the CPU path has no RAM
+            // blocks, so every forward streams the weight file from disk
+            // (~100x). Reachable when the resident engine declines after load
+            // (unsupported shape, VRAM shortfall, cap exceeded mid-request).
+            if cuda_hostreg_fast_load_enabled() {
+                static HOSTREG_CPU_STREAM_WARN: std::sync::Once = std::sync::Once::new();
+                HOSTREG_CPU_STREAM_WARN.call_once(|| {
+                    eprintln!(
+                        "[camelid] WARNING: CAMELID_CUDA_HOSTREG weights are being read on \
+                         the CPU path; with no RAM blocks every forward streams the weight \
+                         file from disk (~100x slower). The resident CUDA engine declined \
+                         this model or request; set CAMELID_CUDA_HOSTREG=0 to restore \
+                         RAM-resident CPU decode."
+                    );
+                });
+            }
             "q8_0_file_reader"
         } else {
             "q8_0_f32_fallback"
@@ -1921,9 +1944,17 @@ impl LlamaInferenceSession {
     /// speculative-coexistence reserve (how much VRAM a draft model needs to stay resident).
     #[cfg(feature = "cuda")]
     pub fn resident_weight_bytes(&self) -> u64 {
-        let blk = |t: &CpuTensor| {
+        // The wire/file arms are hostreg-gated like their raw()/eligibility
+        // siblings: a plain CAMELID_LAZY_Q8_0_LINEAR model must keep reporting 0
+        // (its file-backed tensors can never go resident), or the spec
+        // coexistence reserve would grow vs main in a flag-off configuration.
+        let hostreg = cuda_hostreg_fast_load_enabled();
+        let blk = move |t: &CpuTensor| {
             if let Some(b) = t.q8_0_blocks.as_deref() {
                 return q8_0_blocks_as_bytes(b).len() as u64;
+            }
+            if !hostreg {
+                return 0;
             }
             // Fast-load (hostreg) tensors carry only 34-byte wire pages (embedding)
             // or a file backing (projections); the lane buffer either produces is
@@ -11952,7 +11983,13 @@ fn metal_nocopy_fast_load_enabled() -> bool {
 fn cuda_hostreg_fast_load_enabled() -> bool {
     #[cfg(feature = "cuda")]
     {
-        crate::cuda_resident::cuda_hostreg_enabled() && crate::cuda::is_available()
+        // Aligned with the DECODE gate, not just device presence: if the
+        // resident engine won't drive decode (deterministic mode, the UI GPU
+        // toggle off, CAMELID_CUDA_RESIDENT_DECODE=0), blocks-less weights
+        // would strand every forward on per-token disk streaming.
+        crate::cuda_resident::cuda_hostreg_enabled()
+            && crate::cuda::is_available()
+            && resident_decode_cuda_enabled()
     }
     #[cfg(not(feature = "cuda"))]
     {

@@ -5387,6 +5387,10 @@ async fn run_distribute_worker(
     threads: Option<usize>,
     cghost: Option<PathBuf>,
 ) -> anyhow::Result<()> {
+    // Distributed CPU forwards require RAM-resident q8_0 blocks (the residency
+    // assert below refuses anything else); the hostreg fast-load strips them,
+    // so pin it off for this process regardless of the unified-memory default.
+    std::env::set_var("CAMELID_CUDA_HOSTREG", "0");
     configure_rayon_threads(threads)?;
 
     println!("Loading GGUF metadata from {:?}...", path);
@@ -5518,6 +5522,10 @@ async fn run_distribute_master(
     threads: Option<usize>,
     cghost: Option<PathBuf>,
 ) -> anyhow::Result<()> {
+    // Distributed CPU forwards require RAM-resident q8_0 blocks (the residency
+    // assert below refuses anything else); the hostreg fast-load strips them,
+    // so pin it off for this process regardless of the unified-memory default.
+    std::env::set_var("CAMELID_CUDA_HOSTREG", "0");
     configure_rayon_threads(threads)?;
 
     println!("Loading GGUF metadata from {:?}...", path);

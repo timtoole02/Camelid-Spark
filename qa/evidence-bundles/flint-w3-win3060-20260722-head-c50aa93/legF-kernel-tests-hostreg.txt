@@ -1,4 +1,4 @@
-   Compiling camelid v0.3.1 (C:\Users\timto\Camelid-Spark)
+   Compiling camelid v0.3.1 (<repo>)
 warning: type `WeightSource<'_>` is more private than the item `CudaResidentDecode::set_layer_located`
     --> src\cuda_resident.rs:6107:5
      |

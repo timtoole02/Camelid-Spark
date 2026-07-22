@@ -155,22 +155,6 @@ fn has_usable_gpu(hw: &HardwareProfile) -> bool {
 /// 2. No usable GPU → fits host RAM → [`FitVerdict::CpuOnlyOk`]; too small →
 ///    [`FitVerdict::WontFit`]; RAM unknown → [`FitVerdict::Unknown`].
 fn assess_with_headroom(hw: &HardwareProfile, m: &FitInputs, vram_headroom_mib: u64) -> FitVerdict {
-    assess_with_headroom_env(
-        hw,
-        m,
-        vram_headroom_mib,
-        std::env::var("CAMELID_CUDA_HOSTREG").ok().as_deref(),
-    )
-}
-
-/// `hostreg_env` is the raw CAMELID_CUDA_HOSTREG value, threaded as a parameter
-/// so the unified-arm tests stay deterministic without process-env mutation.
-fn assess_with_headroom_env(
-    hw: &HardwareProfile,
-    m: &FitInputs,
-    vram_headroom_mib: u64,
-    hostreg_env: Option<&str>,
-) -> FitVerdict {
     let footprint = m.footprint_bytes();
     let usable_ram = usable_host_ram_bytes(hw);
 
@@ -178,25 +162,18 @@ fn assess_with_headroom_env(
         // FLINT (DGX Spark): one physical pool — "free VRAM" and host RAM are
         // the SAME bytes, so the discrete-card arms below double-count (free
         // VRAM + 80% RAM claimed ~2x the machine) and "offload" has no meaning.
-        // The zero-copy lane (CAMELID_CUDA_HOSTREG, default ON on unified — the
-        // engine's own gate) holds ONE steady copy per weight: the registered
-        // SoA (~36/34 of wire) plus embedding pages and a per-tensor transient,
-        // so 1.25x footprint is an honest resident margin. Only an explicit
-        // hostreg opt-OUT restores the old double-copy loader, which needs ~2x;
-        // between the margin and 1x is an honest Unknown either way.
-        let hostreg_off = matches!(
-            hostreg_env,
-            Some("0") | Some("false") | Some("off") | Some("no")
-        );
+        // The double-copy loader needs ~2x the footprint from the one pool;
+        // between 1x and 2x is an honest Unknown. The hostreg zero-copy lane
+        // (CAMELID_CUDA_HOSTREG) lowers the TRUE need to ~1.06x — but only for
+        // Q8_0 llama-family models, and FitInputs carries no quant/arch, so
+        // the advisor deliberately keeps the conservative 2x for every model
+        // rather than promise resident for lanes (K-quant, MoE, gemma4) that
+        // still double-copy. Better an honest Unknown than a false fits; the
+        // load path itself is the authority.
         let pool = hw
             .cuda_vram_free_bytes
             .max(usable_ram.unwrap_or(hw.cuda_vram_free_bytes));
-        let resident_need = if hostreg_off {
-            footprint.saturating_mul(2)
-        } else {
-            footprint.saturating_mul(5) / 4
-        };
-        return if resident_need <= pool {
+        return if footprint.saturating_mul(2) <= pool {
             FitVerdict::FitsResident
         } else if footprint <= pool {
             FitVerdict::Unknown
@@ -381,6 +358,7 @@ mod tests {
             cuda_vram_total_bytes: vram_free_bytes,
             cuda_vram_free_bytes: vram_free_bytes,
             cuda_unified_memory: false,
+            cuda_integrated: false,
             cpu_logical_cores: 8,
             host_ram_total_bytes: ram_total_bytes,
             host_ram_free_bytes: ram_free_bytes,
@@ -400,40 +378,30 @@ mod tests {
     const H: u64 = 0;
 
     #[test]
-    fn unified_memory_uses_one_pool_with_hostreg_aware_margin() {
+    fn unified_memory_uses_one_pool_with_double_residency_margin() {
         // FLINT (DGX Spark): 128 GB unified pool, ~110 GB free. The discrete
         // arms would double-count (VRAM free + 80% RAM ≈ 200 GB); the unified
-        // branch budgets ONE pool. Default = the zero-copy lane drives the load
-        // (one steady copy, 1.25x margin); explicit hostreg-off restores the
-        // double-copy loader's 2x requirement.
+        // branch budgets ONE pool and requires 2x footprint while the loader
+        // holds host+device copies. (Deliberately NOT lowered for the hostreg
+        // zero-copy lane: FitInputs carries no quant/arch, and only Q8_0
+        // llama-family models get the one-copy layout — see assess_with_headroom.)
         let mut hw = profile(true, 110 * GIB, 128 * GIB, 110 * GIB);
         hw.cuda_unified_memory = true;
-        // Default (hostreg on): 70 GB model → 1.25x = 87.5 <= 110 → resident.
-        // This is the 70B Q8_0 unlock.
+        // 40 GB model: 2x80 <= 110 → resident.
         assert_eq!(
-            assess_with_headroom_env(&hw, &inputs(70 * GIB, 0), 512, None),
+            assess_with_headroom(&hw, &inputs(40 * GIB, 0), 512),
             FitVerdict::FitsResident
         );
-        // Default: 100 GB model → 1.25x = 125 > 110 but 1x fits → honest Unknown.
+        // 70 GB model: 1x fits, 2x does not → honest Unknown (not phantom offload).
         assert_eq!(
-            assess_with_headroom_env(&hw, &inputs(100 * GIB, 0), 512, None),
+            assess_with_headroom(&hw, &inputs(70 * GIB, 0), 512),
             FitVerdict::Unknown
         );
         // 120 GB model: exceeds the pool outright → WontFit (the discrete
         // FitsWithOffload arm must NOT fire on one pool).
         assert_eq!(
-            assess_with_headroom_env(&hw, &inputs(120 * GIB, 0), 512, None),
+            assess_with_headroom(&hw, &inputs(120 * GIB, 0), 512),
             FitVerdict::WontFit
-        );
-        // Explicit hostreg opt-out: the old double-copy accounting.
-        // 40 GB: 2x80 <= 110 → resident; 70 GB: 2x140 > 110, 1x fits → Unknown.
-        assert_eq!(
-            assess_with_headroom_env(&hw, &inputs(40 * GIB, 0), 512, Some("0")),
-            FitVerdict::FitsResident
-        );
-        assert_eq!(
-            assess_with_headroom_env(&hw, &inputs(70 * GIB, 0), 512, Some("0")),
-            FitVerdict::Unknown
         );
     }
 

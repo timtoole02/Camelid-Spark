@@ -40,9 +40,13 @@ separate VRAM, PCIe. Both assumptions are false on the Spark, and that mismatch
 
 The resident engine now serves Q8_0 weights from **host-registered page-aligned
 buffers** (`cuMemHostRegister` DEVICEMAP + `cuMemHostGetDevicePointer`, raw
-`cudarc::driver::sys` — no VRAM copies). Default **on when
-`cuda_unified_memory`**, off on discrete; `CAMELID_CUDA_HOSTREG=1/0` overrides
-either way. Registration lifetime = engine lifetime (synchronize → unregister →
+`cudarc::driver::sys` — no VRAM copies). Default **on only for unambiguously
+one-pool hardware** — the driver reports INTEGRATED, or the pool is ≥ 96 GiB
+(covers a GB10 driver misreporting the attribute; the VRAM≈RAM size heuristic
+alone must never flip weight serving off VRAM on a discrete 8/8 or 16/16 box).
+Off everywhere else; `CAMELID_CUDA_HOSTREG=1/0` overrides either way. MoE
+models keep the historical loaders (they never pass resident admission), and a
+hostreg-loaded session that falls to the CPU path warns loudly once. Registration lifetime = engine lifetime (synchronize → unregister →
 dealloc, guards drop last); any per-tensor registration failure falls back to
 upload silently, and the build prints the engagement receipt:
 `[cuda] hostreg: N zero-copy / M uploaded`.
@@ -66,11 +70,14 @@ host RAM 1.247 GB vs 1.256 GB flag-off control (≤1×). Discrete throughput is
 PCIe-bound as designed (TinyLlama 130.6 → 5.3 tok/s): those runs are
 correctness receipts — the perf question belongs to this box.
 
-70B Q8_0 projection: ~76.5 GB registered SoA + ~1 GB embedding pages +
-per-tensor transient ≈ **~79 GB of the 128 GB pool** (the old triple-copy path
-demanded ≈140 GB). The fit advisor's unified arm is hostreg-aware (1.25×
-admission margin instead of 2×). Wanted from this box: the two hostreg stderr
-lines + greedy tok/s — see FLINT_HANDOFF.md.
+70B Q8_0 projection: ~78.2 GB registered SoA (lm_head included) + ~1.1 GB
+embedding wire pages + a per-tensor build transient ≈ **~80.5 GB peak of the
+128 GB pool** (the old triple-copy path demanded ≈140 GB). The fit advisor's
+unified arm deliberately keeps the conservative 2× — it is quant/arch-blind
+and only Q8_0 llama-family models get the one-copy layout — so the 70B Q8_0
+row reads an honest *unknown* fit badge; the load path is the authority, and
+it admits the model. Wanted from this box: the two hostreg stderr lines +
+greedy tok/s — see FLINT_HANDOFF.md.
 
 Still open from the original list: the CPU-materialization estimator counts the
 big lanes as 0 bytes (model switches can leak a full model) — see Stage S3.

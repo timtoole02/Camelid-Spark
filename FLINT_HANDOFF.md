@@ -83,13 +83,18 @@ copied shard files onto the box by hand instead: `"$BIN" gguf-merge <any-shard>.
 
 **70B Q8_0 load path (`CAMELID_CUDA_HOSTREG`, default ON on this unified box):** projections stream
 from disk straight into page-aligned host-registered buffers the GPU reads in place — one steady copy
-in the pool (~79 GB peak for the 70B build), no VRAM upload, no offload split. **Receipts wanted from
-this box:** (1) the load-time stderr lines `[cuda] hostreg attrs: …` and
-`[cuda] hostreg: N zero-copy / M uploaded` (expect N = 561 = 80 layers × 7 + head for the 70B; any
-M > 0 means the per-tensor fallback engaged — send the line either way); (2) greedy decode tok/s;
-(3) a short greedy A/B, `CAMELID_CUDA_HOSTREG=0` vs `=1` — token streams must be identical (they are
-token-identical across the whole matrix on the 3060 reference card, `qa/evidence-bundles/flint-w3-*`).
-`CAMELID_CUDA_HOSTREG=0` restores the historical upload path if anything misbehaves.
+in the pool (~80.5 GB peak for the 70B build), no VRAM upload, no offload split. Note the Models-page
+fit badge for this row reads *unknown* — the advisor deliberately keeps the quant-blind 2× margin;
+the load itself is the authority. **Receipts wanted from this box:** (1) the load-time stderr lines
+`[cuda] hostreg attrs: …` and `[cuda] hostreg: N zero-copy / M uploaded` (expect N = 561 = 80 layers
+× 7 + head for the 70B; any M > 0 means the per-tensor fallback engaged — send the line either way);
+(2) greedy decode tok/s; (3) an upload-vs-hostreg A/B **on the 14B Q8_0 row** (small enough that
+`=0` really takes the historical VRAM-upload path): short greedy runs `CAMELID_CUDA_HOSTREG=0` vs
+`=1` — token streams must be identical (they are token-identical across the whole matrix on the 3060
+reference card, `qa/evidence-bundles/flint-w3-*`). On the **70B**, a `=0` leg does NOT reach the
+upload path — it lands on the CPU lane (the pre-hostreg posture: ~2× can't fit the pool and unified
+refuses offload); a short greedy A/B there is still expected token-identical, just minutes-slow.
+`CAMELID_CUDA_HOSTREG=0` remains the global kill-switch if anything misbehaves.
 
 ---
 

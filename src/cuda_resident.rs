@@ -5765,7 +5765,20 @@ pub(crate) fn cuda_hostreg_enabled() -> bool {
     match std::env::var("CAMELID_CUDA_HOSTREG").ok().as_deref() {
         Some("1") | Some("true") | Some("on") | Some("yes") => true,
         Some("0") | Some("false") | Some("off") | Some("no") => false,
-        _ => crate::capability::HardwareProfile::cached().cuda_unified_memory,
+        _ => {
+            // Default ON only for hardware that is unambiguously one-pool: the
+            // driver reports INTEGRATED, or the pool is unified-machine scale
+            // (>= 96 GiB — no discrete consumer/workstation card reaches that,
+            // covering a GB10 driver that misreports the attribute). The bare
+            // `cuda_unified_memory` flag also carries a VRAM≈RAM size
+            // heuristic that a discrete 8GB/8GB or 16GB/16GB box can trip;
+            // serving weights over PCIe by default there would be a silent
+            // multi-fold regression, so that heuristic alone must never flip
+            // this gate.
+            let hw = crate::capability::HardwareProfile::cached();
+            hw.cuda_unified_memory
+                && (hw.cuda_integrated || hw.cuda_vram_total_bytes >= 96 * 1024 * 1024 * 1024)
+        }
     }
 }
 
@@ -6104,7 +6117,7 @@ impl CudaResidentDecode {
     /// each forward). The repacked SoA bytes are identical either way. The small
     /// norms always stay resident.
     #[allow(clippy::too_many_arguments)]
-    pub fn set_layer_located(
+    pub(crate) fn set_layer_located(
         &mut self,
         q: WeightSource<'_>,
         kk: WeightSource<'_>,
@@ -6320,7 +6333,7 @@ impl CudaResidentDecode {
         Ok(())
     }
 
-    pub fn set_output(
+    pub(crate) fn set_output(
         &mut self,
         final_norm: &[f32],
         output_weight: WeightSource<'_>,
