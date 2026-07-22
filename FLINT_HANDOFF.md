@@ -81,6 +81,26 @@ byte-exact by a split→merge sha256 round trip on a real model). Budget ~140 GB
 copied shard files onto the box by hand instead: `"$BIN" gguf-merge <any-shard>.gguf` merges them
 (siblings are discovered automatically).
 
+**THE RECEIPT PACKET — one command.** Everything the Windows side needs back is scripted:
+
+```bash
+bash scripts/spark-receipt-packet.sh
+```
+
+(after `cargo build --release`; model paths override via `B70=`/`B14=`/`B1=`, legs skip loudly
+when a model is absent). It produces one `qa/evidence-bundles/spark-packet-*/` directory — send
+the whole directory. The legs, and what each answers: **0** hardware banner (UNIFIED?); **1** 70B
+under the hostreg default (the `hostreg attrs` + `561 zero-copy` lines + tok/s); **2** the same
+run under `=upload` (tokens must be identical; the tok/s ratio IS the mapped-read penalty —
+every speed projection rescales by it); **3** `CAMELID_CUDA_PREFILL_K` 8-vs-16 TTFT sweep;
+**4** lossless n-gram spec on the 70B (accept %, S_sync, the harness's LOSSLESS verdict);
+**5** 1B-draft spec against the 70B (the headline decode candidate — acceptance at a 1:70 cost
+ratio); **6** 70B `=0` (expected CPU-lane, slow — the pre-hostreg posture); **7** 14B three-way
+mode A/B (the true upload-path comparison); **8** suffix-prefill session A/B (multi-turn KV
+reuse, token-identical with engagement traces). Leg 9 = the Part B NVFP4 receipt, still manual.
+Watch item while running: one unreproduced >10-min `spec_draft_rollback` stall was seen once on
+the 3060 after heavy register/unregister churn — report if anything similar appears.
+
 **70B Q8_0 load path (`CAMELID_CUDA_HOSTREG`, default ON on this unified box):** projections stream
 from disk straight into page-aligned host-registered buffers the GPU reads in place — one steady copy
 in the pool (~80.5 GB peak for the 70B build), no VRAM upload, no offload split. Note the Models-page
