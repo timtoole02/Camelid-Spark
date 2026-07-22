@@ -1484,16 +1484,20 @@ fn spec_decode_mode_from_env() -> Option<SpecDecodeMode> {
     }
 }
 
-/// Run speculative decode on the GPU (CAMELID_SPEC_GPU=1): keep the target's
+/// Run speculative decode on the GPU (CAMELID_SPEC_GPU): keep the target's
 /// resident decode engine active during speculation and verify drafts via the
-/// batched GPU `verify_batch` instead of the CPU chunk verify. Opt-in while this
-/// lands; lossless either way (the target verify is authoritative), so the flag
-/// only changes where the work runs.
+/// batched GPU `verify_batch` instead of the CPU chunk verify. Lossless either
+/// way (the target verify is authoritative), so the flag only changes where
+/// the work runs. FLINT (DGX Spark): default ON whenever a CUDA device is
+/// present — CPU chunk-verify beside a resident target silently demotes the
+/// whole decode to the CPU lane, the worst foot-gun the speed audit found in
+/// the speculation stack. `CAMELID_SPEC_GPU=0` opts back out.
 fn spec_gpu_enabled() -> bool {
-    matches!(
-        env::var("CAMELID_SPEC_GPU").ok().as_deref(),
-        Some("1") | Some("true") | Some("on") | Some("yes")
-    )
+    match env::var("CAMELID_SPEC_GPU").ok().as_deref() {
+        Some("1") | Some("true") | Some("on") | Some("yes") => true,
+        Some("0") | Some("false") | Some("off") | Some("no") => false,
+        _ => crate::cuda::is_available(),
+    }
 }
 
 fn spec_draft_tokens_from_env(default: usize) -> usize {
