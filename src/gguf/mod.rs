@@ -1,3 +1,4 @@
+pub mod merge;
 mod reader;
 
 pub use reader::{GgufFile, GgufMetadataValue, GgufTensorDescriptor, GgufTensorType};
