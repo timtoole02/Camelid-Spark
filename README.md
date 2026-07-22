@@ -88,6 +88,8 @@ at Q8_0** (~34 GB), with lots of headroom to spare.
   | Llama 3.3 70B Instruct | Q4_K_M | 39.6 GB | llama |
   | **Llama 3.3 70B Instruct** | **Q8_0** | **~70 GB, 2-part** | llama |
 
+  ![The large-model picks on the Models page — download any of them with one click](docs/assets/camelid-spark-models-large.png)
+
   …alongside the small validated rows (Llama 3.2 1B/3B, Llama 3 8B, Qwen3 0.6–8B, Mistral 7B, Gemma, Phi-3).
 - **Validated vs experimental:** the ≤8B rows are **parity-anchored** exact rows (green *Supported*
   badge). The larger picks are **runnable but not parity-validated** — they load in the *Experimental*
