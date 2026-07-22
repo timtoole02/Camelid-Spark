@@ -5216,6 +5216,40 @@ impl Drop for CacheablePinned {
     }
 }
 
+/// One page-aligned host allocation pinned + mapped for zero-copy GPU reads
+/// (CAMELID_CUDA_HOSTREG). Owns an `Arc` of the pages so the memory cannot be
+/// deallocated before `cuMemHostUnregister` runs: the Drop body (synchronize →
+/// unregister) executes before the guard's own `Arc` releases, which makes the
+/// unregister-before-dealloc ordering local and independent of any other Arc
+/// holder. Guards live in the engine's LAST field, so they drop after every
+/// weight slice and after any captured decode graph.
+struct HostRegGuard {
+    pages: Arc<crate::wire_mmap::WirePages>,
+    ctx: Arc<CudaContext>,
+}
+
+impl Drop for HostRegGuard {
+    fn drop(&mut self) {
+        use cudarc::driver::sys;
+        let _ = self.ctx.bind_to_thread();
+        // A kernel must not be mid-read when the mapping is torn down. The engine
+        // only drops under the process-global resident mutex, so this final
+        // synchronize is cheap (CacheablePinned skips it; a registered mapping
+        // must not).
+        let _ = self.ctx.synchronize();
+        // SAFETY: `pages.base_ptr()` was registered exactly once when this guard
+        // was constructed.
+        unsafe {
+            let _ = sys::cuMemHostUnregister(self.pages.base_ptr() as *mut std::ffi::c_void);
+        }
+    }
+}
+
+// SAFETY: same justification as CacheablePinned — the engine (and therefore the
+// guard vector) is only ever accessed under the process-global resident-cache
+// mutex, so the registered pointer is never touched from two threads at once.
+unsafe impl Send for HostRegGuard {}
+
 /// The seven projection weights of one offloaded layer, packed CONTIGUOUSLY in one
 /// pinned host buffer so the per-forward host->device stream is a SINGLE transfer.
 /// Splitting it into seven separate `memcpy_htod` calls (one per projection) added a
@@ -5333,6 +5367,11 @@ type LayerQuants = [ProjQuant; 7];
 /// the parity charter holds by construction.
 enum ProjBytes {
     Owned(CudaSlice<u8>),
+    /// Device-pointer view of host-registered memory (CAMELID_CUDA_HOSTREG). The
+    /// mapping's host allocation is owned by the engine's `hostreg_guards` (its
+    /// LAST field, so guards drop after every slice); `ManuallyDrop` because
+    /// `CudaSlice::drop` would `cuMemFree` a host mapping.
+    Registered(std::mem::ManuallyDrop<CudaSlice<u8>>),
 }
 
 impl std::ops::Deref for ProjBytes {
@@ -5340,6 +5379,20 @@ impl std::ops::Deref for ProjBytes {
     fn deref(&self) -> &CudaSlice<u8> {
         match self {
             ProjBytes::Owned(s) => s,
+            ProjBytes::Registered(s) => s,
+        }
+    }
+}
+
+impl Drop for ProjBytes {
+    fn drop(&mut self) {
+        if let ProjBytes::Registered(slice) = self {
+            // SAFETY: drop runs once, so the slice is taken exactly once.
+            let slice = unsafe { std::mem::ManuallyDrop::take(slice) };
+            // Waits the slice's pending-use events, then forgets it WITHOUT the
+            // cuMemFree an owned drop would issue — the pointer maps registered
+            // host memory whose lifetime belongs to a HostRegGuard.
+            let _ = slice.leak();
         }
     }
 }
@@ -5554,6 +5607,16 @@ pub struct CudaResidentDecode {
     /// 1-element placeholder for Full layers. Empty for non-qwen35. Persists across
     /// tokens — zeroed by `reset_qwen35_state`.
     ssm_state: Vec<CudaSlice<f32>>,
+    /// CAMELID_CUDA_HOSTREG receipt counters: weight tensors served zero-copy from
+    /// registered host memory vs uploaded to VRAM (norms/placeholders excluded).
+    /// Only counted while the flag is on; the build log prints them once.
+    hostreg_zero_copy: usize,
+    hostreg_uploaded: usize,
+    /// Host-registration guards (CAMELID_CUDA_HOSTREG). MUST stay the LAST field:
+    /// Rust drops fields in declaration order, so every `Registered` weight slice
+    /// (which waits its pending-use events in drop) and the captured decode graph
+    /// (frozen device pointers) are gone before any mapping is unregistered.
+    hostreg_guards: Vec<HostRegGuard>,
 }
 
 /// Max tokens verified per speculative round. The batched GEMM keeps the ordered
@@ -5632,7 +5695,6 @@ fn cuda_graphs_enabled() -> bool {
 /// shape). Per-tensor fallback to upload keeps any registration failure silent and
 /// correct — the build log's `[cuda] hostreg: N zero-copy / M uploaded` line is the
 /// engagement receipt.
-#[allow(dead_code)] // consumed by the hostreg build arm (wired next).
 pub(crate) fn cuda_hostreg_enabled() -> bool {
     match std::env::var("CAMELID_CUDA_HOSTREG").ok().as_deref() {
         Some("1") | Some("true") | Some("on") | Some("yes") => true,
@@ -5830,8 +5892,109 @@ impl CudaResidentDecode {
             d_rope_sin_all: None,
             d_out_tokens: None,
             d_token_in: None,
+            hostreg_zero_copy: 0,
+            hostreg_uploaded: 0,
+            hostreg_guards: Vec::new(),
             k,
         })
+    }
+
+    /// Upload one repacked weight tensor to VRAM (`Owned`) — or, under
+    /// CAMELID_CUDA_HOSTREG (Q8_0 lanes only in this phase), pin the repacked
+    /// bytes in page-aligned host memory and map them for zero-copy GPU reads
+    /// (`Registered`). Any registration failure falls back to the upload,
+    /// silently per tensor; the build log's `N zero-copy / M uploaded` line is
+    /// the engagement receipt.
+    fn upload_weight(&mut self, bytes: &[u8], quant: ProjQuant) -> Result<ProjBytes, String> {
+        let repacked = repack_for_lane(bytes, quant);
+        if cuda_hostreg_enabled() {
+            if matches!(quant, ProjQuant::Q8_0) {
+                match self.try_register_host(&repacked) {
+                    Ok(pb) => {
+                        self.hostreg_zero_copy += 1;
+                        return Ok(pb);
+                    }
+                    Err(e) => {
+                        if std::env::var_os("CAMELID_RESIDENT_TRACE").is_some() {
+                            eprintln!("[cuda] hostreg fallback to upload: {e}");
+                        }
+                    }
+                }
+            }
+            self.hostreg_uploaded += 1;
+        }
+        self.k
+            .stream
+            .clone_htod(&repacked)
+            .map(ProjBytes::Owned)
+            .map_err(|e| format!("htod: {e}"))
+    }
+
+    /// Pin `repacked` in a fresh page-aligned allocation, register it with the
+    /// driver (DEVICEMAP), and mint the device-pointer view. Every buffer is a
+    /// fresh allocation, so ranges never overlap and no registration dedup is
+    /// needed (the tied-lm-head Arc sharing on the NOCOPY load path shares WIRE
+    /// pages, not these repacked buffers). If the device-pointer fetch fails
+    /// after registration succeeded, the guard is already in place — the pages
+    /// stay pinned until engine drop, which wastes memory but stays correct.
+    fn try_register_host(&mut self, repacked: &[u8]) -> Result<ProjBytes, String> {
+        use cudarc::driver::sys;
+        let mut pages = crate::wire_mmap::WirePages::alloc_zeroed(repacked.len())
+            .map_err(|e| format!("hostreg alloc: {e}"))?;
+        pages.bytes_mut().copy_from_slice(repacked);
+        let pages = Arc::new(pages);
+        let ctx = self.k.ctx.clone();
+        ctx.bind_to_thread().map_err(|e| format!("bind: {e}"))?;
+        let base = pages.base_ptr() as *mut std::ffi::c_void;
+        // Register the full page-multiple allocation (deterministic zero tail).
+        // SAFETY: base/alloc_len describe the live allocation owned by `pages`.
+        unsafe {
+            sys::cuMemHostRegister_v2(
+                base,
+                pages.alloc_len(),
+                sys::CU_MEMHOSTREGISTER_DEVICEMAP as std::ffi::c_uint,
+            )
+        }
+        .result()
+        .map_err(|e| format!("cuMemHostRegister: {e}"))?;
+        // Registered: from here the pages must be unregistered on every path, so
+        // the guard is constructed BEFORE the device-pointer fetch.
+        self.hostreg_guards.push(HostRegGuard {
+            pages: pages.clone(),
+            ctx: ctx.clone(),
+        });
+        let mut dptr: sys::CUdeviceptr = 0;
+        // SAFETY: `base` is a registered host pointer; flags must be 0.
+        unsafe { sys::cuMemHostGetDevicePointer_v2(&mut dptr, base, 0) }
+            .result()
+            .map_err(|e| format!("cuMemHostGetDevicePointer: {e}"))?;
+        if self.hostreg_guards.len() == 1 {
+            // One-time probe receipt: the attrs that gate registration behavior on
+            // this device/driver, plus whether the mapped pointer aliases the host
+            // address (unified addressing).
+            let attr = |a: sys::CUdevice_attribute| -> i64 {
+                ctx.attribute(a).map(|v| v as i64).unwrap_or(-1)
+            };
+            eprintln!(
+                "[cuda] hostreg attrs: host_register_supported={} can_use_host_pointer={} \
+                 unified_addressing={} dptr_eq_host={}",
+                attr(sys::CUdevice_attribute::CU_DEVICE_ATTRIBUTE_HOST_REGISTER_SUPPORTED),
+                attr(
+                    sys::CUdevice_attribute::CU_DEVICE_ATTRIBUTE_CAN_USE_HOST_POINTER_FOR_REGISTERED_MEM
+                ),
+                attr(sys::CUdevice_attribute::CU_DEVICE_ATTRIBUTE_UNIFIED_ADDRESSING),
+                dptr == base as u64,
+            );
+        }
+        // SAFETY: dptr maps the registered allocation for at least `repacked.len()`
+        // bytes; the slice is ManuallyDrop so it is never freed as a device alloc.
+        let slice = unsafe { self.k.stream.upgrade_device_ptr::<u8>(dptr, repacked.len()) };
+        Ok(ProjBytes::Registered(std::mem::ManuallyDrop::new(slice)))
+    }
+
+    /// CAMELID_CUDA_HOSTREG receipt: (zero_copy, uploaded) weight-tensor counts.
+    pub fn hostreg_counts(&self) -> (usize, usize) {
+        (self.hostreg_zero_copy, self.hostreg_uploaded)
     }
 
     /// Upload one layer's resident weights (Q8_0 36-byte block bytes) + norms.
@@ -5900,20 +6063,24 @@ impl CudaResidentDecode {
 
         if resident {
             // Resident: each projection uploaded once to its own VRAM slice (repacked
-            // into the layout its quant lane reads); no offload metadata.
-            let vram = |i: usize| -> Result<ProjBytes, String> {
-                s.clone_htod(&repack_for_lane(projections[i], quants[i]))
-                    .map(ProjBytes::Owned)
-                    .map_err(|e| format!("htod: {e}"))
-            };
+            // into the layout its quant lane reads) — or, under CAMELID_CUDA_HOSTREG,
+            // pinned host-side and mapped for zero-copy reads; no offload metadata
+            // either way.
+            let q = self.upload_weight(q, quants[0])?;
+            let k = self.upload_weight(kk, quants[1])?;
+            let v = self.upload_weight(v, quants[2])?;
+            let o = self.upload_weight(o, quants[3])?;
+            let gate = self.upload_weight(gate, quants[4])?;
+            let up = self.upload_weight(up, quants[5])?;
+            let down = self.upload_weight(down, quants[6])?;
             self.layers.push(ResidentLayer {
-                q: vram(0)?,
-                k: vram(1)?,
-                v: vram(2)?,
-                o: vram(3)?,
-                gate: vram(4)?,
-                up: vram(5)?,
-                down: vram(6)?,
+                q,
+                k,
+                v,
+                o,
+                gate,
+                up,
+                down,
                 attn_norm,
                 ffn_norm,
                 q_norm: q_norm_gpu,
@@ -6089,12 +6256,12 @@ impl CudaResidentDecode {
         output_weight: &[u8],
         output_quant: ProjQuant,
     ) -> Result<(), String> {
-        let s = &self.k.stream;
-        self.final_norm = s.clone_htod(final_norm).map_err(|e| format!("htod: {e}"))?;
-        self.output_weight = ProjBytes::Owned(
-            s.clone_htod(&repack_for_lane(output_weight, output_quant))
-                .map_err(|e| format!("htod: {e}"))?,
-        );
+        self.final_norm = self
+            .k
+            .stream
+            .clone_htod(final_norm)
+            .map_err(|e| format!("htod: {e}"))?;
+        self.output_weight = self.upload_weight(output_weight, output_quant)?;
         self.output_quant = output_quant;
         if output_quant.needs_q8k() {
             self.uses_kquant = true;

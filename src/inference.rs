@@ -11681,6 +11681,12 @@ fn build_resident_cuda_engine(
             proj_quant(weights.output_projection()),
         )
         .ok()?;
+    if crate::cuda_resident::cuda_hostreg_enabled() {
+        // The hostreg engagement receipt (FLINT W2): zero counts with the flag on
+        // means the flag silently didn't engage — treat identical tok/s as suspect.
+        let (zero_copy, uploaded) = engine.hostreg_counts();
+        eprintln!("[cuda] hostreg: {zero_copy} zero-copy / {uploaded} uploaded");
+    }
     Some(engine)
 }
 
