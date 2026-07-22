@@ -12020,6 +12020,13 @@ fn cuda_hostreg_fast_load_enabled() -> bool {
     }
 }
 
+/// Public mirror of the hostreg fast-load gate for policy callers outside this
+/// module (the serve speculation round uses it to avoid routing verify chunks
+/// onto blocks-less CPU weights).
+pub fn cuda_hostreg_fast_load_active() -> bool {
+    cuda_hostreg_fast_load_enabled()
+}
+
 const Q8_0_BLOCK_VALUES: usize = 32;
 const X86_Q8_PACKED_ROWS4_DECODE_PARALLEL_MIN_OUTPUTS: usize = 1024;
 const X86_Q8_PACKED_ROWS4_MATMUL_PARALLEL_MIN_GROUPS: usize = 64;

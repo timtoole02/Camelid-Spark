@@ -48,7 +48,7 @@ These documents are working notes, not support ledgers. When a note and a public
 `COMPATIBILITY.md` and `STATUS.md` win.
 
 - [`ARCHITECTURE.md`](docs/architecture/ARCHITECTURE.md)
-- [`SPECULATIVE_DECODE.md`](docs/architecture/SPECULATIVE_DECODE.md) — default-off lossless greedy speculation: proven byte-exact, faster than the default stack on repetitive output (measured envelope inside), CPU-vanilla floor elsewhere
+- [`SPECULATIVE_DECODE.md`](docs/architecture/SPECULATIVE_DECODE.md) — lossless greedy speculation: proven byte-exact, GPU batched verify on CUDA hosts, default-off everywhere except unified-pool-class serve (FLINT: n-gram defaults ON there — accepted drafts skip whole weight passes)
 - [`FORGELOCAL_INTEGRATION.md`](docs/architecture/FORGELOCAL_INTEGRATION.md)
 - [`INFERENCE_RECON.md`](docs/recon/INFERENCE_RECON.md)
 - [`TENSOR_RECON.md`](docs/recon/TENSOR_RECON.md)

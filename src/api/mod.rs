@@ -1480,7 +1480,41 @@ fn spec_decode_mode_from_env() -> Option<SpecDecodeMode> {
     match env::var(SPEC_DECODE_ENV) {
         Ok(value) if value.eq_ignore_ascii_case("ngram") => Some(SpecDecodeMode::NGram),
         Ok(value) if value.eq_ignore_ascii_case("draft") => Some(SpecDecodeMode::DraftModel),
-        _ => None,
+        Ok(value)
+            if value.is_empty()
+                || value.eq_ignore_ascii_case("off")
+                || value.eq_ignore_ascii_case("none")
+                || value == "0" =>
+        {
+            None
+        }
+        Ok(other) => {
+            // Unknown spellings fail OFF, loudly once — with a hardware default
+            // arm below, silently falling through would make a typo'd "off"
+            // enable speculation instead of disabling it.
+            static WARN: std::sync::Once = std::sync::Once::new();
+            WARN.call_once(|| {
+                eprintln!(
+                    "[camelid] CAMELID_SPEC_DECODE={other:?} not recognized \
+                     (ngram, draft, off/none/0) — speculation disabled"
+                );
+            });
+            None
+        }
+        Err(_) => {
+            // FLINT: lossless n-gram speculation defaults ON for unified-pool-class
+            // hardware (DGX Spark). On a bandwidth-bound big model every accepted
+            // draft skips a full weight pass — the only decode lever that
+            // multiplies past the memory-bandwidth ceiling — and the n-gram
+            // drafter costs nothing when it has nothing to propose. Greedy-only
+            // by construction (non-default sampling never speculates); discrete
+            // and CPU hosts keep the historical opt-in.
+            if crate::capability::HardwareProfile::cached().unified_pool_class() {
+                Some(SpecDecodeMode::NGram)
+            } else {
+                None
+            }
+        }
     }
 }
 
@@ -11108,7 +11142,16 @@ fn generate_token_ids(
         }) {
             let remaining = (prepared.max_tokens as usize).saturating_sub(generated.len());
             let context_room = prepared.session.remaining_context();
-            let drafts = if remaining > 0 && context_room > 0 {
+            // Under hostreg-loaded weights (no CPU-readable blocks) the CPU chunk
+            // verify would stream the weight file from disk every round AND its
+            // near-ties can diverge from the GPU decode — so if GPU verify is
+            // switched off, don't draft at all: the plain resident step below is
+            // strictly better. (A per-round GPU-verify decline still reaches the
+            // CPU chunk — rare, bounded, and loudly warned by the file-reader
+            // dispatch.)
+            let verify_lane_viable =
+                spec_gpu_enabled() || !crate::inference::cuda_hostreg_fast_load_active();
+            let drafts = if remaining > 0 && context_room > 0 && verify_lane_viable {
                 let draft_budget = spec
                     .draft_tokens
                     .min(remaining.saturating_sub(1))

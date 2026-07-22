@@ -118,6 +118,19 @@ impl HardwareProfile {
         }
     }
 
+    /// Unambiguously one-pool hardware: the driver reports INTEGRATED, or the
+    /// pool is unified-machine scale (>= 96 GiB — no discrete consumer or
+    /// workstation card reaches that, which also covers a GB10 driver that
+    /// misreports the attribute). Deliberately STRICTER than
+    /// `cuda_unified_memory`, whose VRAM≈RAM size heuristic a discrete 8GB/8GB
+    /// or 16GB/16GB box can trip: defaults that reshape weight serving or
+    /// decode policy (hostreg, n-gram speculation) key on THIS, so a heuristic
+    /// false-positive can never flip them silently.
+    pub fn unified_pool_class(&self) -> bool {
+        self.cuda_unified_memory
+            && (self.cuda_integrated || self.cuda_vram_total_bytes >= 96 * 1024 * 1024 * 1024)
+    }
+
     /// Process-wide cached probe. The first call probes the machine (opening a
     /// CUDA context once); every later call reuses the same snapshot. Use this on
     /// non-hot paths (e.g. the catalog handler) that want the profile without
