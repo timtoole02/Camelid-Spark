@@ -5582,6 +5582,11 @@ pub struct CudaResidentDecode {
     /// caller force the serial (per-token `forward_pass`) prefill, which dispatches
     /// K-quant kernels — the batched prefill GEMM is Q8-only.
     uses_kquant: bool,
+    /// Installed batched-prefill chunk width (see `install_prefill_k`): the env
+    /// request clamped by the flash-oracle bound and the device's opt-in
+    /// shared-memory limit. `MAX_VERIFY_K` by default — the byte-identical
+    /// historical chunking.
+    prefill_k: usize,
     // KV cache stored as f16 bits (u16) — half the VRAM of f32, bit-identical because the
     // stored values are f16-rounded either way (see the kv_scatter / attention kernels).
     cache_k: Vec<CudaSlice<u16>>,
@@ -5695,6 +5700,24 @@ pub struct CudaResidentDecode {
 /// lets each weight read verify more drafts per round, raising the ceiling on
 /// repetitive/structured output where n-gram acceptance is high.
 pub(crate) const MAX_VERIFY_K: usize = 8;
+
+/// Requested batched-prefill chunk width (`CAMELID_CUDA_PREFILL_K`, default
+/// `MAX_VERIFY_K`). Prefill reads every weight once per chunk, so TTFT scales
+/// ~1/K while the GEMM stays memory-bound; the cost is `k*blocks_per_row*4`
+/// bytes of ordered-sum shared memory per warp, which past K=8 can exceed the
+/// 48 KiB default limit — `install_prefill_k` raises `q8_gemm_batched`'s
+/// dynamic-shared-memory cap (device opt-in permitting) and clamps the width
+/// otherwise. The VERIFY (speculative) width deliberately stays MAX_VERIFY_K:
+/// acceptance data does not support wider verify windows, and the draft cap +
+/// Metal mirrors key off it. Parse clamp 1..=16 = the flash kernels'
+/// FLASH_MAX_BQ bound.
+pub(crate) fn cuda_prefill_k_env() -> usize {
+    std::env::var("CAMELID_CUDA_PREFILL_K")
+        .ok()
+        .and_then(|v| v.trim().parse::<usize>().ok())
+        .map(|v| v.clamp(1, 16))
+        .unwrap_or(MAX_VERIFY_K)
+}
 
 /// K-batched scratch buffers for `verify_batch`, sized `MAX_VERIFY_K * dim`.
 struct VerifyScratch {
@@ -5940,7 +5963,7 @@ impl CudaResidentDecode {
             }
             None
         };
-        Ok(Self {
+        let mut engine = Self {
             n_layers,
             n_heads,
             n_kv_heads,
@@ -6028,8 +6051,12 @@ impl CudaResidentDecode {
             hostreg_zero_copy: 0,
             hostreg_uploaded: 0,
             hostreg_guards: Vec::new(),
+            prefill_k: MAX_VERIFY_K,
             k,
-        })
+        };
+        engine.install_q8_gemv_smem_cap()?;
+        engine.install_prefill_k(cuda_prefill_k_env())?;
+        Ok(engine)
     }
 
     /// Upload one repacked weight tensor to VRAM (`Owned`) — or, under
@@ -8297,13 +8324,122 @@ impl CudaResidentDecode {
     }
 
     /// Allocate the K-batched scratch (`verify_scratch`) if not already present.
-    /// Sized to `MAX_VERIFY_K * dim` and shared by `verify_batch` and `prefill_batched`.
-    /// Idempotent — a no-op once the buffers exist.
+    /// Sized to `max(MAX_VERIFY_K, prefill_k) * dim` and shared by `verify_batch`
+    /// and `prefill_batched` (verify chunks stay <= MAX_VERIFY_K; only prefill
+    /// uses the wider rows). Idempotent — a no-op once the buffers exist.
     fn ensure_verify_scratch(&mut self) -> Result<(), String> {
         if self.verify_scratch.is_some() {
             return Ok(());
         }
-        self.verify_scratch = Some(self.alloc_verify_scratch(MAX_VERIFY_K)?);
+        self.verify_scratch = Some(self.alloc_verify_scratch(MAX_VERIFY_K.max(self.prefill_k))?);
+        Ok(())
+    }
+
+    /// Raise `q8_gemv`'s dynamic-shared-memory cap for this model's widest
+    /// projection. The GEMV stages the input vector (`bpr*36`) plus 8 warps of
+    /// per-block ordered-sum terms (`8*bpr*4`) in shared memory = `bpr*68`
+    /// bytes — past the 48 KiB default limit once blocks_per_row exceeds 722,
+    /// i.e. ffn_dim >= ~23K: Qwen3-32B (bpr 800) and Llama-3.3-70B (bpr 896)
+    /// Q8_0 could never run a single resident forward before this. Host-side
+    /// launch config only (the SPLITK_MAX-uncap precedent); the kernel source
+    /// is untouched. Errors when even the device's opt-in limit cannot fit the
+    /// model — the build then fails loudly and the caller takes the CPU path.
+    fn install_q8_gemv_smem_cap(&mut self) -> Result<(), String> {
+        const DEFAULT_SMEM_LIMIT: usize = 48 * 1024;
+        let max_bpr = self.hidden.max(self.q_width).max(self.ffn_dim) / 32;
+        let needed = max_bpr * 68;
+        if needed <= DEFAULT_SMEM_LIMIT {
+            return Ok(());
+        }
+        let optin = self
+            .k
+            .ctx
+            .attribute(
+                cudarc::driver::sys::CUdevice_attribute::CU_DEVICE_ATTRIBUTE_MAX_SHARED_MEMORY_PER_BLOCK_OPTIN,
+            )
+            .ok()
+            .map(|v| v.max(0) as usize)
+            .unwrap_or(DEFAULT_SMEM_LIMIT);
+        if needed > optin {
+            return Err(format!(
+                "q8_gemv needs {needed} B shared memory for {max_bpr} blocks/row but the \
+                 device opt-in limit is {optin} B — model too wide for the resident lane"
+            ));
+        }
+        self.k
+            .gemv
+            .set_attribute(
+                cudarc::driver::sys::CUfunction_attribute::CU_FUNC_ATTRIBUTE_MAX_DYNAMIC_SHARED_SIZE_BYTES,
+                needed as i32,
+            )
+            .map_err(|e| format!("q8_gemv shared-mem opt-in: {e}"))?;
+        if std::env::var_os("CAMELID_RESIDENT_TRACE").is_some() {
+            eprintln!(
+                "[cuda] q8_gemv dynamic-shared-mem cap raised to {needed} B \
+                 ({max_bpr} blocks/row)"
+            );
+        }
+        Ok(())
+    }
+
+    /// Resolve and install the batched-prefill chunk width: clamp the request by
+    /// the flash-oracle bound (flash prefill's token-parity oracle covers k<=8
+    /// only) and by the device's opt-in shared-memory limit for the widest
+    /// projection's `[warp][token][block]` ordered-sum scratch, raising
+    /// `q8_gemm_batched`'s dynamic-shared-memory cap when the installed width
+    /// needs more than the 48 KiB default. K=8 (the default) changes nothing —
+    /// the historical, byte-identical chunking. Called from `new` with the env
+    /// request; the K>8 chunk-parity test drives it directly.
+    fn install_prefill_k(&mut self, requested: usize) -> Result<(), String> {
+        let mut k = requested.clamp(1, 16);
+        if flash_prefill_enabled() && k > MAX_VERIFY_K {
+            eprintln!(
+                "[cuda] CAMELID_CUDA_PREFILL_K={requested} capped to {MAX_VERIFY_K}: flash \
+                 prefill's token-parity oracle covers k<={MAX_VERIFY_K}"
+            );
+            k = MAX_VERIFY_K;
+        }
+        if k > MAX_VERIFY_K {
+            const DEFAULT_SMEM_LIMIT: usize = 48 * 1024;
+            let max_bpr = self.hidden.max(self.q_width).max(self.ffn_dim) / 32;
+            let optin = self
+                .k
+                .ctx
+                .attribute(
+                    cudarc::driver::sys::CUdevice_attribute::CU_DEVICE_ATTRIBUTE_MAX_SHARED_MEMORY_PER_BLOCK_OPTIN,
+                )
+                .ok()
+                .map(|v| v.max(0) as usize)
+                .unwrap_or(DEFAULT_SMEM_LIMIT)
+                .max(DEFAULT_SMEM_LIMIT);
+            let fit_k = optin / (max_bpr * 4).max(1);
+            if k > fit_k {
+                let clamped = fit_k.max(MAX_VERIFY_K);
+                eprintln!(
+                    "[cuda] CAMELID_CUDA_PREFILL_K={requested} clamped to {clamped}: widest \
+                     projection ({max_bpr} blocks/row) needs {} B/warp vs device opt-in {optin} B",
+                    k * max_bpr * 4
+                );
+                k = clamped;
+            }
+            let per_warp = k * max_bpr * 4;
+            if per_warp > DEFAULT_SMEM_LIMIT {
+                self.k
+                    .gemm_batched
+                    .set_attribute(
+                        cudarc::driver::sys::CUfunction_attribute::CU_FUNC_ATTRIBUTE_MAX_DYNAMIC_SHARED_SIZE_BYTES,
+                        per_warp as i32,
+                    )
+                    .map_err(|e| format!("prefill-k shared-mem opt-in: {e}"))?;
+                if std::env::var_os("CAMELID_RESIDENT_TRACE").is_some() {
+                    eprintln!(
+                        "[cuda] prefill K={k}: q8_gemm_batched dynamic-shared-mem cap raised \
+                         to {per_warp} B"
+                    );
+                }
+            }
+        }
+        self.prefill_k = k;
         Ok(())
     }
 
@@ -9178,8 +9314,9 @@ impl CudaResidentDecode {
     }
 
     /// Batched GPU prefill: ingest `n` prompt tokens at positions `[0, n)` through the
-    /// batched layer stack in chunks of `MAX_VERIFY_K`, reading each weight once per
-    /// chunk instead of once per prompt token. The serial `prefill` re-streams every
+    /// batched layer stack in chunks of `prefill_k` (default `MAX_VERIFY_K`; env
+    /// `CAMELID_CUDA_PREFILL_K`, see `install_prefill_k`), reading each weight once
+    /// per chunk instead of once per prompt token. The serial `prefill` re-streams every
     /// weight from VRAM once per token (a memory-bound, device-under-filling GEMV per
     /// token); batching turns each weight read into a GEMM amortized over the chunk's
     /// tokens. Writes the KV cache identically to the serial path (same per-block dot
@@ -9213,7 +9350,7 @@ impl CudaResidentDecode {
         let mut sc = self.verify_scratch.take().expect("allocated above");
         let mut base = 0usize;
         while base < n {
-            let kk = (n - base).min(MAX_VERIFY_K);
+            let kk = (n - base).min(self.prefill_k);
             // Stage this chunk's embeddings + RoPE tables into the shared scratch at
             // offset 0; the layer stack reads [0, kk) and scatters K/V at [base, base+kk).
             s.memcpy_htod(

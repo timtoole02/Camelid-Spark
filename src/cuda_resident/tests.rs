@@ -578,6 +578,151 @@ fn prefill_then_decode_matches_sequential() {
     );
 }
 
+// P0-3 (PREFILL_K): a K=16 batched prefill must produce the same KV (hence the
+// same next-token logits) as the default K=8 chunking and the serial prefill —
+// per token the GEMM's per-row block-ordered reduction is independent of the
+// chunk grouping. The model shape is deliberately 70B-down-projection-shaped:
+// ffn=28672 → blocks_per_row=896, so K=16 needs 57,344 B/warp of ordered-sum
+// shared memory — past the 48 KiB default limit — which exercises the
+// cuFuncSetAttribute opt-in path (`install_prefill_k`) on real hardware.
+#[test]
+#[ignore = "requires a CUDA device"]
+fn batched_prefill_k16_high_bpr_matches_k8_and_serial() {
+    let Some(_k) = kernels() else {
+        return;
+    };
+    // TinyLlama-shaped attention dims (proven in the sibling test) with the FFN
+    // widened to the Llama-3.3-70B shape: ffn=28672 → down blocks_per_row=896.
+    let n_layers = 1usize;
+    let hidden = 2048usize;
+    let n_heads = 32usize;
+    let n_kv = 4usize;
+    let head_dim = 64usize;
+    let rope_dim = 64usize;
+    let ffn = 28672usize; // down bpr = 896 — the Llama-3.3-70B ffn_down shape
+    let vocab = 2048usize;
+    let max_pos = 64usize;
+    let eps = 1e-5f32;
+    let base = 10000f32;
+    let q_width = n_heads * head_dim;
+    let kv_width = n_kv * head_dim;
+    let scale = 1.0 / (head_dim as f32).sqrt();
+    let mut rng = Lcg(0x9e37_79b9);
+    let rand = |rng: &mut Lcg, n: usize| (0..n).map(|_| rng.next_f32()).collect::<Vec<f32>>();
+
+    let q = quantize_blocks(&rand(&mut rng, q_width * hidden), hidden);
+    let kk = quantize_blocks(&rand(&mut rng, kv_width * hidden), hidden);
+    let v = quantize_blocks(&rand(&mut rng, kv_width * hidden), hidden);
+    let o = quantize_blocks(&rand(&mut rng, hidden * q_width), q_width);
+    let gate = quantize_blocks(&rand(&mut rng, ffn * hidden), hidden);
+    let up = quantize_blocks(&rand(&mut rng, ffn * hidden), hidden);
+    let down = quantize_blocks(&rand(&mut rng, hidden * ffn), ffn);
+    let an: Vec<f32> = rand(&mut rng, hidden)
+        .iter()
+        .map(|v| v * 0.2 + 1.0)
+        .collect();
+    let fnv: Vec<f32> = rand(&mut rng, hidden)
+        .iter()
+        .map(|v| v * 0.2 + 1.0)
+        .collect();
+    let final_norm: Vec<f32> = rand(&mut rng, hidden)
+        .iter()
+        .map(|v| v * 0.2 + 1.0)
+        .collect();
+    let output_w = quantize_blocks(&rand(&mut rng, vocab * hidden), hidden);
+
+    let build = |prefill_k: Option<usize>| {
+        let mut engine = CudaResidentDecode::new(
+            n_layers, n_heads, n_kv, head_dim, hidden, ffn, rope_dim, max_pos, vocab, eps, false,
+        )
+        .unwrap();
+        if let Some(pk) = prefill_k {
+            engine.install_prefill_k(pk).unwrap();
+            assert_eq!(engine.prefill_k, pk, "requested prefill K must install");
+        }
+        engine
+            .set_layer(&q, &kk, &v, &o, &gate, &up, &down, &an, &fnv)
+            .unwrap();
+        engine
+            .set_output(&final_norm, WeightSource::Lane(&output_w), ProjQuant::Q8_0)
+            .unwrap();
+        engine
+    };
+
+    // 21 tokens: one full K=16 chunk + a short 4-token chunk before the decode
+    // step, so cross-chunk causal attention is exercised at both widths.
+    let n = 21usize;
+    let half = rope_dim / 2;
+    let embeddings: Vec<Vec<f32>> = (0..n).map(|_| rand(&mut rng, hidden)).collect();
+    let mut cos_all = vec![0f32; n * half];
+    let mut sin_all = vec![0f32; n * half];
+    for pos in 0..n {
+        for p in 0..half {
+            let theta = base.powf(-(2.0 * p as f32) / rope_dim as f32);
+            cos_all[pos * half + p] = (pos as f32 * theta).cos();
+            sin_all[pos * half + p] = (pos as f32 * theta).sin();
+        }
+    }
+    let flat_emb: Vec<f32> = embeddings[..n - 1].iter().flatten().copied().collect();
+    let last = |engine: &mut CudaResidentDecode| {
+        engine
+            .forward_token_logits(
+                &embeddings[n - 1],
+                &cos_all[(n - 1) * half..n * half],
+                &sin_all[(n - 1) * half..n * half],
+                n - 1,
+                scale,
+            )
+            .unwrap()
+    };
+
+    // Serial reference.
+    let mut serial = build(None);
+    serial
+        .prefill(
+            &flat_emb,
+            &cos_all[..(n - 1) * half],
+            &sin_all[..(n - 1) * half],
+            n - 1,
+            scale,
+        )
+        .unwrap();
+    let serial_logits = last(&mut serial);
+
+    // Default K=8 batched vs K=16 batched.
+    let mut b8 = build(Some(8));
+    b8.prefill_batched(
+        &flat_emb,
+        &cos_all[..(n - 1) * half],
+        &sin_all[..(n - 1) * half],
+        n - 1,
+        scale,
+    )
+    .unwrap();
+    let b8_logits = last(&mut b8);
+
+    let mut b16 = build(Some(16));
+    b16.prefill_batched(
+        &flat_emb,
+        &cos_all[..(n - 1) * half],
+        &sin_all[..(n - 1) * half],
+        n - 1,
+        scale,
+    )
+    .unwrap();
+    let b16_logits = last(&mut b16);
+
+    // K=16 vs K=8: the chunk grouping must not change any per-token reduction.
+    assert_eq!(
+        b16_logits, b8_logits,
+        "K=16 batched prefill logits must be bit-identical to K=8"
+    );
+    assert!(
+        close(&b16_logits, &serial_logits, 1e-4),
+        "K=16 batched prefill logits diverged from the serial prefill"
+    );
+}
+
 // Deterministic LCG so the tests need no rand dependency.
 struct Lcg(u64);
 impl Lcg {
