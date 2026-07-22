@@ -85,7 +85,12 @@ impl<R: Read> TeeReader<R> {
     }
 
     fn take(&mut self, n: usize) -> Result<&[u8]> {
-        if self.seen.len() + n > MAX_HEADER_BYTES {
+        if self
+            .seen
+            .len()
+            .checked_add(n)
+            .is_none_or(|total| total > MAX_HEADER_BYTES)
+        {
             return Err(invalid(format!(
                 "GGUF header/KV region exceeds {MAX_HEADER_BYTES} bytes; refusing"
             )));
@@ -147,13 +152,13 @@ impl<R: Read> TeeReader<R> {
                         self.take(count as usize)?;
                     }
                     2 | 3 => {
-                        self.take((count as usize) * 2)?;
+                        self.take(checked_elems(count, 2)?)?;
                     }
                     4 | 5 | 6 => {
-                        self.take((count as usize) * 4)?;
+                        self.take(checked_elems(count, 4)?)?;
                     }
                     10 | 11 | 12 => {
-                        self.take((count as usize) * 8)?;
+                        self.take(checked_elems(count, 8)?)?;
                     }
                     8 => {
                         for _ in 0..count {
@@ -213,6 +218,64 @@ fn walk_raw_header(path: &Path) -> Result<RawHeader> {
         kv_spans,
         kv_count,
     })
+}
+
+/// `count * size` as usize, refusing overflow (a hostile array count must not
+/// wrap into a tiny skip and desynchronize the span walk).
+fn checked_elems(count: u64, size: u64) -> Result<usize> {
+    count
+        .checked_mul(size)
+        .and_then(|n| usize::try_from(n).ok())
+        .ok_or_else(|| invalid(format!("KV array of {count} elements overflows")))
+}
+
+/// Free bytes on the filesystem holding `path` (its parent if `path` doesn't
+/// exist yet). `None` when the platform/query can't say — callers proceed.
+pub fn available_space(path: &Path) -> Option<u64> {
+    #[cfg(unix)]
+    {
+        use std::ffi::CString;
+        use std::os::unix::ffi::OsStrExt;
+        let probe = if path.exists() {
+            path
+        } else {
+            path.parent().filter(|p| !p.as_os_str().is_empty())?
+        };
+        let c = CString::new(probe.as_os_str().as_bytes()).ok()?;
+        let mut st: libc::statvfs = unsafe { std::mem::zeroed() };
+        if unsafe { libc::statvfs(c.as_ptr(), &mut st) } != 0 {
+            return None;
+        }
+        // f_bavail = blocks available to unprivileged users.
+        Some((st.f_bavail as u64).saturating_mul(st.f_frsize as u64))
+    }
+    #[cfg(not(unix))]
+    {
+        let _ = path;
+        None
+    }
+}
+
+/// Refuse an output path that aliases one of the inputs: `File::create` would
+/// truncate a shard after validation but before its data is copied, silently
+/// corrupting the merged file AND destroying the source.
+pub fn refuse_aliasing(out_path: &Path, inputs: &[PathBuf]) -> Result<()> {
+    let resolved = |p: &Path| std::fs::canonicalize(p).unwrap_or_else(|_| p.to_path_buf());
+    // The output may not exist yet: canonicalize its parent and rejoin.
+    let out_resolved = match (out_path.parent(), out_path.file_name()) {
+        (Some(dir), Some(name)) if !dir.as_os_str().is_empty() => resolved(dir).join(name),
+        _ => out_path.to_path_buf(),
+    };
+    for input in inputs {
+        if resolved(input) == out_resolved {
+            return Err(invalid(format!(
+                "output path {} aliases input shard {}; refusing",
+                out_path.display(),
+                input.display()
+            )));
+        }
+    }
+    Ok(())
 }
 
 fn align_up(value: u64, alignment: u64) -> u64 {
@@ -305,6 +368,7 @@ pub fn merge_shards(shards: &[PathBuf], out_path: &Path) -> Result<MergeReport> 
             shards.len()
         )));
     }
+    refuse_aliasing(out_path, shards)?;
 
     // Parse every shard with the production reader: this validates headers,
     // per-shard offset contiguity, data extents, and computes n_bytes.
@@ -364,12 +428,19 @@ pub fn merge_shards(shards: &[PathBuf], out_path: &Path) -> Result<MergeReport> 
     }
 
     let total_tensors: u64 = parsed.iter().map(|f| f.tensors.len() as u64).sum();
-    if let Some(declared) = meta_u64(&parsed[0], "split.tensors.count") {
-        if declared != total_tensors {
+    match meta_u64(&parsed[0], "split.tensors.count") {
+        Some(declared) if declared != total_tensors => {
             return Err(invalid(format!(
                 "split.tensors.count={declared} but shards carry {total_tensors} tensors"
             )));
         }
+        Some(_) => {}
+        None if parsed[0].metadata.contains_key("split.tensors.count") => {
+            return Err(invalid(
+                "split.tensors.count carries an unusable type".to_string(),
+            ));
+        }
+        None => {}
     }
 
     // Cross-shard duplicate tensor names would silently shadow at load time.
@@ -461,7 +532,10 @@ pub fn merge_shards(shards: &[PathBuf], out_path: &Path) -> Result<MergeReport> 
     let mut data_written: u64 = 0;
     for (i, f) in parsed.iter().enumerate() {
         debug_assert_eq!(data_written % alignment, 0);
-        debug_assert_eq!(new_offsets[i].first().copied().unwrap_or(0), data_written);
+        debug_assert_eq!(
+            new_offsets[i].first().copied().unwrap_or(data_written),
+            data_written
+        );
         let (Some(first), Some(last)) = (f.tensors.first(), f.tensors.last()) else {
             continue; // tensor-less shard contributes no data
         };
@@ -568,9 +642,13 @@ pub fn split_gguf(src: &Path, n_parts: usize, out_dir: &Path) -> Result<Vec<Path
     let mut acc = 0u64;
     for (idx, t) in parsed.tensors.iter().enumerate() {
         let remaining_tensors = parsed.tensors.len() - idx;
-        let remaining_groups = n_parts - (groups.len() - 1);
-        let must_break =
-            remaining_tensors == remaining_groups && !groups.last().expect("non-empty").is_empty();
+        // Groups still to be CREATED (excluding the one being filled): once the
+        // remaining tensors only just cover them, every further tensor must
+        // open a fresh group or the tail groups end up empty.
+        let remaining_groups = n_parts - groups.len();
+        let must_break = remaining_tensors <= remaining_groups + 1
+            && remaining_groups > 0
+            && !groups.last().expect("non-empty").is_empty();
         if groups.len() < n_parts && (acc >= target || must_break) {
             groups.push(Vec::new());
             acc = 0;

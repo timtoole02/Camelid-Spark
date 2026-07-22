@@ -203,6 +203,15 @@ fn download_multipart(
                 dest.display(),
                 meta.len() as f64 / 1e9
             );
+            // A crash between a prior run's merge-rename and its part cleanup
+            // orphans tens of GB of .shardNN files no listing ever shows;
+            // sweep them now that the merged file is proven present.
+            for i in 1..=item.parts.len() {
+                let leftover = models_dir.join(format!("{}.shard{i:02}", item.filename));
+                if std::fs::remove_file(&leftover).is_ok() {
+                    eprintln!("  removed leftover part {}", leftover.display());
+                }
+            }
             return Ok(dest.to_path_buf());
         }
     }
@@ -253,6 +262,17 @@ fn download_multipart(
         // Exact-size gate: passes a resume-of-complete (curl 416), fails any
         // truncated or size-shifted part regardless of exit code.
         if have != part.size_bytes {
+            if have > part.size_bytes {
+                // A range resume can never SHRINK a file — an oversized shard
+                // would wedge every retry forever. Start that part clean.
+                let _ = std::fs::remove_file(&shard_dest);
+                anyhow::bail!(
+                    "part {} was {have} bytes but the catalog pins {} — removed {}; re-run to re-download it",
+                    i + 1,
+                    part.size_bytes,
+                    shard_dest.display()
+                );
+            }
             if !status.success() {
                 anyhow::bail!(
                     "part {} download failed (curl exited with {status}); re-run to resume",
