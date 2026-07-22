@@ -464,11 +464,26 @@ impl LlamaLoadedWeights {
         // Fast-load (CAMELID_METAL_NOCOPY): Q8_0 linears read their wire bytes once
         // into page-aligned allocations the GPU wraps in place ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â no 36-byte decode, no
         // upload copy, and the page cache stays warm so reloading a model is fast.
-        let nocopy_fast_load = metal_nocopy_fast_load_enabled();
-        if nocopy_fast_load {
+        let metal_nocopy = metal_nocopy_fast_load_enabled();
+        // MoE models never pass resident admission ("moe config" bail), so a
+        // blocks-less fast-load would strand their decode on per-token disk
+        // streaming — keep the historical loaders for them.
+        let model_has_moe = binding
+            .layers
+            .iter()
+            .any(|l| matches!(&l.ffn, LlamaFfnTensors::MoE { .. }));
+        let cuda_hostreg_load = cuda_hostreg_fast_load_enabled() && !model_has_moe;
+        let nocopy_fast_load = metal_nocopy || cuda_hostreg_load;
+        if metal_nocopy {
             eprintln!(
                 "[camelid] CAMELID_METAL_NOCOPY: loading Q8_0 weights as page-aligned wire \
                  pages (GPU reads them in place; requires the wire kernel stack)"
+            );
+        } else if cuda_hostreg_load {
+            eprintln!(
+                "[camelid] CAMELID_CUDA_HOSTREG: loading Q8_0 weights as page-aligned wire \
+                 pages (the resident CUDA engine host-registers the repacked bytes; no \
+                 VRAM weight copies, no q8_0_blocks)"
             );
         }
         let force_lazy_q8_0 = lazy_q8_0_linear_forced();
@@ -505,8 +520,14 @@ impl LlamaLoadedWeights {
                     return store.load_kquant_wire_linear(name);
                 }
             }
-            if nocopy_fast_load {
+            if metal_nocopy {
                 store.load_q8_0_wire_pages_linear(name)
+            } else if cuda_hostreg_load {
+                // Projections keep NO RAM copy: file-backed only. The resident
+                // builder streams each tensor's wire range straight into its
+                // registered SoA buffer, so host RAM holds ONE steady copy per
+                // weight (the registered bytes) — never wire + SoA at once.
+                store.load_q8_0_file_backed_linear(name)
             } else if force_lazy_q8_0 {
                 store.load_q8_0_file_backed_linear(name)
             } else {
@@ -532,10 +553,16 @@ impl LlamaLoadedWeights {
             }
         };
         let token_embedding = if load_embedding {
-            normalize_token_embedding_shape(
-                load_linear(&binding.token_embedding.name)?,
-                &binding.token_embedding.name,
-            )?
+            let embed = if cuda_hostreg_load {
+                // The CPU reads an embedding row every token, so unlike the
+                // projections the embedding keeps its page-aligned wire pages
+                // resident (embedding_lookup decodes them in place; they also
+                // back the tied lm_head below).
+                store.load_q8_0_wire_pages_linear(&binding.token_embedding.name)?
+            } else {
+                load_linear(&binding.token_embedding.name)?
+            };
+            normalize_token_embedding_shape(embed, &binding.token_embedding.name)?
         } else {
             CpuTensor::from_f32(&binding.token_embedding.name, vec![0], vec![])?
         };
@@ -1474,6 +1501,22 @@ fn q8_schedule_output_projection_route_kind(
             && weight.rows == output_width
             && input_width.is_multiple_of(Q8_0_BLOCK_VALUES)
         {
+            // Loud, once: a hostreg-loaded session on the CPU path has no RAM
+            // blocks, so every forward streams the weight file from disk
+            // (~100x). Reachable when the resident engine declines after load
+            // (unsupported shape, VRAM shortfall, cap exceeded mid-request).
+            if cuda_hostreg_fast_load_enabled() {
+                static HOSTREG_CPU_STREAM_WARN: std::sync::Once = std::sync::Once::new();
+                HOSTREG_CPU_STREAM_WARN.call_once(|| {
+                    eprintln!(
+                        "[camelid] WARNING: CAMELID_CUDA_HOSTREG weights are being read on \
+                         the CPU path; with no RAM blocks every forward streams the weight \
+                         file from disk (~100x slower). The resident CUDA engine declined \
+                         this model or request; set CAMELID_CUDA_HOSTREG=0 to restore \
+                         RAM-resident CPU decode."
+                    );
+                });
+            }
             "q8_0_file_reader"
         } else {
             "q8_0_f32_fallback"
@@ -1901,10 +1944,27 @@ impl LlamaInferenceSession {
     /// speculative-coexistence reserve (how much VRAM a draft model needs to stay resident).
     #[cfg(feature = "cuda")]
     pub fn resident_weight_bytes(&self) -> u64 {
-        let blk = |t: &CpuTensor| {
-            t.q8_0_blocks
-                .as_deref()
-                .map(|b| q8_0_blocks_as_bytes(b).len() as u64)
+        // The wire/file arms are hostreg-gated like their raw()/eligibility
+        // siblings: a plain CAMELID_LAZY_Q8_0_LINEAR model must keep reporting 0
+        // (its file-backed tensors can never go resident), or the spec
+        // coexistence reserve would grow vs main in a flag-off configuration.
+        let hostreg = cuda_hostreg_fast_load_enabled();
+        let blk = move |t: &CpuTensor| {
+            if let Some(b) = t.q8_0_blocks.as_deref() {
+                return q8_0_blocks_as_bytes(b).len() as u64;
+            }
+            if !hostreg {
+                return 0;
+            }
+            // Fast-load (hostreg) tensors carry only 34-byte wire pages (embedding)
+            // or a file backing (projections); the lane buffer either produces is
+            // the 36-byte-per-block SoA.
+            if let Some(p) = t.q8_0_wire_pages.as_ref() {
+                return (p.byte_len() / 34 * 36) as u64;
+            }
+            t.q8_0_file_backing
+                .as_ref()
+                .map(|fb| fb.num_blocks as u64 * 36)
                 .unwrap_or(0)
         };
         self.weights
@@ -2159,10 +2219,19 @@ impl LlamaInferenceSession {
         }
         // Wire-page (fast-load) weights satisfy residency too, but only when the wire
         // kernels are active ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â their bytes exist solely in the 34-byte wire layout.
-        let wire_ok = metal_seam::wire_mode_active();
+        // FLINT W2: the CUDA hostreg build consumes the 34-byte wire pages itself
+        // (fused wire→SoA repack), so hostreg counts as an active wire consumer
+        // alongside the Metal wire kernels — and its file-backed projections
+        // (streamed into registered buffers at build) satisfy residency too. The
+        // file-backed arm is hostreg-gated so plain CAMELID_LAZY_Q8_0_LINEAR
+        // models keep their historical CPU-only posture.
+        let hostreg_ok = cuda_hostreg_fast_load_enabled();
+        let wire_ok = metal_seam::wire_mode_active() || hostreg_ok;
         let is_q8 = |t: &CpuTensor| {
             t.source_type == Some(GgufTensorType::Q8_0)
-                && (t.q8_0_blocks.is_some() || (wire_ok && t.q8_0_wire_pages.is_some()))
+                && (t.q8_0_blocks.is_some()
+                    || (wire_ok && t.q8_0_wire_pages.is_some())
+                    || (hostreg_ok && t.q8_0_file_backing.is_some()))
         };
         // Q4_K_M residency: the tensor is Q4_K with its 144-byte super-block wire
         // bytes materialized, and its contraction dimension is a whole number of
@@ -11249,38 +11318,56 @@ fn build_resident_cuda_engine(
     // The resident upload byte source for a projection: Q8_0 36-byte blocks, or the
     // raw K-quant super-block wire bytes (144 B for Q4_K, 210 B for Q6_K). These are
     // the bytes `set_layer_located`/`set_output` repack per lane.
-    fn raw(t: &CpuTensor) -> Option<&[u8]> {
+    fn raw(t: &CpuTensor) -> Option<crate::cuda_resident::WeightSource<'_>> {
+        use crate::cuda_resident::WeightSource;
         if let Some(b) = t.q8_0_blocks.as_deref() {
-            return Some(q8_0_blocks_as_bytes(b));
+            return Some(WeightSource::Lane(q8_0_blocks_as_bytes(b)));
         }
         if t.source_type == Some(GgufTensorType::Q4K) {
             if let Some(w) = t.q4_k_wire_bytes.as_deref() {
-                return Some(w.as_slice());
+                return Some(WeightSource::Lane(w.as_slice()));
             }
         }
         if t.source_type == Some(GgufTensorType::Q5K) {
             if let Some(w) = t.q5_k_wire_bytes.as_deref() {
-                return Some(w.as_slice());
+                return Some(WeightSource::Lane(w.as_slice()));
             }
         }
         if t.source_type == Some(GgufTensorType::Q6K) {
             if let Some(w) = t.q6_k_wire_bytes.as_deref() {
-                return Some(w.as_slice());
+                return Some(WeightSource::Lane(w.as_slice()));
             }
         }
         if t.source_type == Some(GgufTensorType::Q2K) {
             if let Some(w) = t.q2_k_wire_bytes.as_deref() {
-                return Some(w.as_slice());
+                return Some(WeightSource::Lane(w.as_slice()));
             }
         }
         if t.source_type == Some(GgufTensorType::Q3K) {
             if let Some(w) = t.q3_k_wire_bytes.as_deref() {
-                return Some(w.as_slice());
+                return Some(WeightSource::Lane(w.as_slice()));
             }
         }
         if t.source_type == Some(GgufTensorType::IQ4XS) {
             if let Some(w) = t.iq4_xs_wire_bytes.as_deref() {
-                return Some(w.as_slice());
+                return Some(WeightSource::Lane(w.as_slice()));
+            }
+        }
+        // Fast-load Q8_0 (CAMELID_CUDA_HOSTREG / NOCOPY loaders): no q8_0_blocks —
+        // the tensor's bytes exist only as raw 34-byte wire pages (embedding /
+        // tied head) or still on disk (hostreg projections); the engine repacks
+        // them with the fused one-pass wire→SoA (FLINT W2). Without these arms, a
+        // wire-paged model silently loses the whole resident engine. The Q8Stream
+        // arm is gated on the hostreg flag so a plain CAMELID_LAZY_Q8_0_LINEAR
+        // model keeps its historical CPU-only posture.
+        if t.source_type == Some(GgufTensorType::Q8_0) {
+            if let Some(p) = t.q8_0_wire_pages.as_ref() {
+                return Some(WeightSource::Q8Wire(p.bytes()));
+            }
+            if cuda_hostreg_fast_load_enabled() {
+                if let Some(fb) = t.q8_0_file_backing.as_ref() {
+                    return Some(WeightSource::Q8Stream(fb));
+                }
             }
         }
         None
@@ -11323,10 +11410,10 @@ fn build_resident_cuda_engine(
                 &l.ffn_down,
             ]
         })
-        .filter_map(|t| raw(t).map(|b| b.len() as u64))
+        .filter_map(|t| raw(t).map(|s| s.vram_len() as u64))
         .sum::<u64>()
         + raw(weights.output_projection())
-            .map(|b| b.len() as u64)
+            .map(|s| s.vram_len() as u64)
             .unwrap_or(0);
     // Scratch reserve: logits row (vocabÃƒâ€šÃ‚Â·f32) + per-stage activation buffers + a flat
     // safety margin for driver/context overhead and fragmentation. The flat margin is
@@ -11444,7 +11531,7 @@ fn build_resident_cuda_engine(
                 &l.ffn_down,
             ]
             .iter()
-            .filter_map(|t| raw(t).map(|b| b.len() as u64))
+            .filter_map(|t| raw(t).map(|s| s.vram_len() as u64))
             .sum()
         })
         .collect();
@@ -11681,6 +11768,12 @@ fn build_resident_cuda_engine(
             proj_quant(weights.output_projection()),
         )
         .ok()?;
+    if crate::cuda_resident::cuda_hostreg_enabled() {
+        // The hostreg engagement receipt (FLINT W2): zero counts with the flag on
+        // means the flag silently didn't engage — treat identical tok/s as suspect.
+        let (zero_copy, uploaded) = engine.hostreg_counts();
+        eprintln!("[cuda] hostreg: {zero_copy} zero-copy / {uploaded} uploaded");
+    }
     Some(engine)
 }
 
@@ -11880,6 +11973,28 @@ fn lazy_q8_0_linear_forced() -> bool {
 /// the Metal wire kernels.
 fn metal_nocopy_fast_load_enabled() -> bool {
     cfg!(target_os = "macos") && env_flag_enabled("CAMELID_METAL_NOCOPY")
+}
+
+/// Fast-load gate, CUDA twin (FLINT W2): under CAMELID_CUDA_HOSTREG, Q8_0 linears
+/// load as page-aligned wire pages so the resident CUDA engine host-registers their
+/// repacked bytes instead of uploading VRAM copies. Requires a live CUDA device —
+/// without one, wire-paged tensors (no `q8_0_blocks`) would strand decode on the
+/// per-token disk-streaming CPU path.
+fn cuda_hostreg_fast_load_enabled() -> bool {
+    #[cfg(feature = "cuda")]
+    {
+        // Aligned with the DECODE gate, not just device presence: if the
+        // resident engine won't drive decode (deterministic mode, the UI GPU
+        // toggle off, CAMELID_CUDA_RESIDENT_DECODE=0), blocks-less weights
+        // would strand every forward on per-token disk streaming.
+        crate::cuda_resident::cuda_hostreg_enabled()
+            && crate::cuda::is_available()
+            && resident_decode_cuda_enabled()
+    }
+    #[cfg(not(feature = "cuda"))]
+    {
+        false
+    }
 }
 
 const Q8_0_BLOCK_VALUES: usize = 32;

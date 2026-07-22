@@ -50,6 +50,11 @@ pub struct HardwareProfile {
     /// host/device pools (fit offload budgets, PCIe offload streaming, double
     /// weight residency) key off this.
     pub cuda_unified_memory: bool,
+    /// The raw CU_DEVICE_ATTRIBUTE_INTEGRATED report, WITHOUT the size
+    /// heuristic. Policies where a heuristic false-positive would be costly
+    /// (hostreg weight serving: a discrete box with VRAM ≈ RAM must never
+    /// silently serve weights over PCIe) require this stronger signal.
+    pub cuda_integrated: bool,
     pub cpu_logical_cores: usize,
     pub host_ram_total_bytes: u64,
     pub host_ram_free_bytes: u64,
@@ -105,6 +110,7 @@ impl HardwareProfile {
             cuda_vram_total_bytes,
             cuda_vram_free_bytes,
             cuda_unified_memory,
+            cuda_integrated,
             cpu_logical_cores,
             host_ram_total_bytes,
             host_ram_free_bytes,

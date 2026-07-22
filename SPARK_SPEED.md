@@ -36,29 +36,51 @@ separate VRAM, PCIe. Both assumptions are false on the Spark, and that mismatch
 | GPU speculative verify defaults **on** with a CUDA device (`CAMELID_SPEC_GPU=0` opts out) | CPU chunk-verify beside a resident target silently demoted the whole decode to the CPU lane |
 | K-quant guard on the batched GPU verify | The batched verify shares the Q8_0-only GEMM stack; a K-quant engine now falls back to the (lossless) CPU chunk verify instead of reading kernels that don't exist for its formats |
 
-## Stage S2-deep — pending: zero-copy weights (the 70B Q8_0 unlock)
+## Stage S2-deep — SHIPPED: zero-copy weights (`CAMELID_CUDA_HOSTREG`) — perf pending Spark
 
-**Until this lands, test 70B via the Q4_K_M row** (fully resident, ~6.8 tok/s
-ceiling); the 70B Q8_0 row downloads and merges fine but will fall back to the
-CPU lane at load.
+The resident engine now serves Q8_0 weights from **host-registered page-aligned
+buffers** (`cuMemHostRegister` DEVICEMAP + `cuMemHostGetDevicePointer`, raw
+`cudarc::driver::sys` — no VRAM copies). Default **on only for unambiguously
+one-pool hardware** — the driver reports INTEGRATED, or the pool is ≥ 96 GiB
+(covers a GB10 driver misreporting the attribute; the VRAM≈RAM size heuristic
+alone must never flip weight serving off VRAM on a discrete 8/8 or 16/16 box).
+Off everywhere else; `CAMELID_CUDA_HOSTREG=1/0` overrides either way. MoE
+models keep the historical loaders (they never pass resident admission), and a
+hostreg-loaded session that falls to the CPU path warns loudly once. Registration lifetime = engine lifetime (synchronize → unregister →
+dealloc, guards drop last); any per-tensor registration failure falls back to
+upload silently, and the build prints the engagement receipt:
+`[cuda] hostreg: N zero-copy / M uploaded`.
 
-**Today 70B Q8_0 is effectively dead on arrival**: the loader materializes all
-weights in host RAM (~74 GB), the resident engine uploads a **second** full copy
-to "device" memory — the *same physical pool* — and the auto-offload split
-(triggered by the phantom "low VRAM" this creates) adds a **third** pinned copy
-that is memcpy'd DDR→DDR every token. ≈140 GB demanded of 128 GB → OOM → falls
-to the CPU lane.
+One correction to the original sketch above-the-fold in this file's history:
+the resident `q8_gemv`/`q8_gemm_batched` kernels read a widened f32-scale
+**SoA** layout, not the raw 34-byte GGUF wire, so registering wire bytes was
+never layout-legal under the kernels-unchanged parity charter. Instead the
+loader keeps Q8_0 projections **file-backed only** and the builder streams each
+tensor disk → transient → its registered SoA buffer: **one steady host copy per
+weight** (on one physical pool the registered bytes ARE the GPU copy). Only the
+token embedding keeps wire pages (the CPU decodes a row per token; the tied
+lm_head shares them).
 
-Fix (the CUDA twin of the existing Metal `CAMELID_METAL_NOCOPY` lane, whose
-`WirePages`/mmap infrastructure is already in-tree): `cuMemHostRegister` the
-mmap'd wire pages and hand kernels the mapped device pointer — **zero copy,
-zero upload**, ~1× footprint, disk-bound loads. Plus: never take the offload
-split on unified; bound the eager KV (fills *all* free memory at the 131k
-trained context today); make the CPU-materialization estimator count retained
-bytes (it counts the big lanes as 0, so model switches leak a full model).
+3060 reference-card receipts (`qa/evidence-bundles/flint-w3-win3060-20260722-head-c50aa93/`):
+token-identical hostreg 0-vs-1 on TinyLlama Q8_0 and Qwen3 0.6B/1.7B Q8_0
+(64 greedy tokens each), 4-way identical with batched prefill over a 1082-token
+prompt, identical under CUDA graphs, 42 GPU kernel/verify/tree unit tests green
+over registered memory, spec-drafter rollback green with zero CPU steps; peak
+host RAM 1.247 GB vs 1.256 GB flag-off control (≤1×). Discrete throughput is
+PCIe-bound as designed (TinyLlama 130.6 → 5.3 tok/s): those runs are
+correctness receipts — the perf question belongs to this box.
 
-Expected: 70B Q8_0 from broken → **~3.9 tok/s**; every model frees ~1× its
-size; loads minutes → seconds.
+70B Q8_0 projection: ~78.2 GB registered SoA (lm_head included) + ~1.1 GB
+embedding wire pages + a per-tensor build transient ≈ **~80.5 GB peak of the
+128 GB pool** (the old triple-copy path demanded ≈140 GB). The fit advisor's
+unified arm deliberately keeps the conservative 2× — it is quant/arch-blind
+and only Q8_0 llama-family models get the one-copy layout — so the 70B Q8_0
+row reads an honest *unknown* fit badge; the load path is the authority, and
+it admits the model. Wanted from this box: the two hostreg stderr lines +
+greedy tok/s — see FLINT_HANDOFF.md.
+
+Still open from the original list: the CPU-materialization estimator counts the
+big lanes as 0 bytes (model switches can leak a full model) — see Stage S3.
 
 ## Stage S3 — pending: prefill chunking + multi-turn KV reuse
 

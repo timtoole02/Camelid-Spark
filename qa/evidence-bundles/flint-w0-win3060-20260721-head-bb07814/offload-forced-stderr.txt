@@ -1,0 +1,5 @@
+[hw] GPU: NVIDIA GeForce RTX 3060 Laptop GPU (x1) | compute 8.6 | tensor-cores yes | VRAM 5.0 GiB free / 6.0 GiB total
+[hw] CPU: 16 logical cores | SIMD AVX-512 (avx2=true avx512f=true fma=true neon=false) | RAM 9.0 GiB free / 15.7 GiB total
+[cuda] selected device 0 of 1: "NVIDIA GeForce RTX 3060 Laptop GPU" (compute capability 8.6) | VRAM 5122 MiB free / 6143 MiB total
+[gpu] CAPACITY MODE: 2/28 layers offloaded to host RAM (26 resident), streaming 16 MiB/layer per forward over PCIe (9.4 GB/s H2D); expect REDUCED tok/s vs fully-resident. split=forced
+[bench-generate] iter 0 | prompt 5 tok | gen 16 tok | ttft 4288.7 ms | decode 125.4 ms | 119.62 tok/s | peak 1.22 GB

@@ -6932,6 +6932,12 @@ async fn load_gemma4_serve_runtime(
                                 4096
                             }
                         });
+                    // Resolved-cap receipt: the env override parses silently (misparse
+                    // falls back to the hardware default), so log the value actually used.
+                    eprintln!(
+                        "[gemma4] cuda serve kv cap: {kv_cap} positions \
+                         (CAMELID_GEMMA4_KV_CAP overrides; default 32768 unified / 4096 discrete)"
+                    );
                     return crate::gemma4_runtime::Gemma4CudaResident::load(&load_path, kv_cap)
                         .map(|r| Gemma4ServeRuntime::Cuda(std::sync::Mutex::new(r)));
                 }
@@ -20267,6 +20273,7 @@ mod catalog_fit_tests {
             cuda_vram_total_bytes: vram_free,
             cuda_vram_free_bytes: vram_free,
             cuda_unified_memory: false,
+            cuda_integrated: false,
             cpu_logical_cores: 8,
             host_ram_total_bytes: ram_total,
             host_ram_free_bytes: ram_free,

@@ -162,9 +162,14 @@ fn assess_with_headroom(hw: &HardwareProfile, m: &FitInputs, vram_headroom_mib: 
         // FLINT (DGX Spark): one physical pool — "free VRAM" and host RAM are
         // the SAME bytes, so the discrete-card arms below double-count (free
         // VRAM + 80% RAM claimed ~2x the machine) and "offload" has no meaning.
-        // Today's loader holds host blocks AND a device copy, so a resident
-        // load needs ~2x the footprint from the one pool; between 1x and 2x is
-        // an honest Unknown (the zero-copy lane will lower this to ~1x).
+        // The double-copy loader needs ~2x the footprint from the one pool;
+        // between 1x and 2x is an honest Unknown. The hostreg zero-copy lane
+        // (CAMELID_CUDA_HOSTREG) lowers the TRUE need to ~1.06x — but only for
+        // Q8_0 llama-family models, and FitInputs carries no quant/arch, so
+        // the advisor deliberately keeps the conservative 2x for every model
+        // rather than promise resident for lanes (K-quant, MoE, gemma4) that
+        // still double-copy. Better an honest Unknown than a false fits; the
+        // load path itself is the authority.
         let pool = hw
             .cuda_vram_free_bytes
             .max(usable_ram.unwrap_or(hw.cuda_vram_free_bytes));
@@ -353,6 +358,7 @@ mod tests {
             cuda_vram_total_bytes: vram_free_bytes,
             cuda_vram_free_bytes: vram_free_bytes,
             cuda_unified_memory: false,
+            cuda_integrated: false,
             cpu_logical_cores: 8,
             host_ram_total_bytes: ram_total_bytes,
             host_ram_free_bytes: ram_free_bytes,
@@ -376,7 +382,9 @@ mod tests {
         // FLINT (DGX Spark): 128 GB unified pool, ~110 GB free. The discrete
         // arms would double-count (VRAM free + 80% RAM ≈ 200 GB); the unified
         // branch budgets ONE pool and requires 2x footprint while the loader
-        // holds host+device copies.
+        // holds host+device copies. (Deliberately NOT lowered for the hostreg
+        // zero-copy lane: FitInputs carries no quant/arch, and only Q8_0
+        // llama-family models get the one-copy layout — see assess_with_headroom.)
         let mut hw = profile(true, 110 * GIB, 128 * GIB, 110 * GIB);
         hw.cuda_unified_memory = true;
         // 40 GB model: 2x80 <= 110 → resident.

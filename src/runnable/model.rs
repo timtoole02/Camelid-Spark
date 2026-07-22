@@ -2157,14 +2157,15 @@ impl RunnableModel {
                     let (bg, qg) = prep(&layer.ffn_gate)?;
                     let (bu, qu) = prep(&layer.ffn_up)?;
                     let (bd, qd) = prep(&layer.ffn_down)?;
+                    let lane = crate::cuda_resident::WeightSource::Lane;
                     e.set_layer_located(
-                        &bq,
-                        &bk,
-                        &bv,
-                        &bo,
-                        &bg,
-                        &bu,
-                        &bd,
+                        lane(&bq),
+                        lane(&bk),
+                        lane(&bv),
+                        lane(&bo),
+                        lane(&bg),
+                        lane(&bu),
+                        lane(&bd),
                         &layer.attn_norm,
                         &layer.post_attn_norm,
                         Some(q_norm.as_slice()),
@@ -2219,7 +2220,11 @@ impl RunnableModel {
             }
         }
         let (bout, qout) = prep(&self.output)?;
-        e.set_output(&self.output_norm, &bout, qout)?;
+        e.set_output(
+            &self.output_norm,
+            crate::cuda_resident::WeightSource::Lane(&bout),
+            qout,
+        )?;
         // Device-side decode loop: resident quantized embedding table + the
         // all-positions rope tables (built with the VERBATIM qwen35_rope_tables
         // math, so the rope inputs are bit-identical to the host-fed path).

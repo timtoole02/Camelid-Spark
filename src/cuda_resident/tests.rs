@@ -3,7 +3,7 @@
 //! isolated to a single kernel. All require a CUDA device (`#[ignore]`d in
 //! GPU-less CI); run with `cargo test --features cuda -- --ignored`.
 
-use super::{CudaResidentDecode, CudaResidentKernels, ProjQuant};
+use super::{CudaResidentDecode, CudaResidentKernels, ProjQuant, WeightSource};
 use cudarc::driver::{LaunchConfig, PushKernelArg};
 
 // Pure predicate (no GPU): the device-decode embed-gather allowlist must stay in
@@ -29,6 +29,22 @@ fn device_embed_gather_allowlist_matches_the_gather_dispatch() {
             "{q:?} has no embed_gather_* kernel and must fall back to the host-fed loop"
         );
     }
+}
+
+// Pure host (no GPU): the fused 34-byte-wire → SoA repack must be byte-identical to
+// the two-step `repack_q8_soa(&widen_q8(wire))` it replaces on the hostreg load path.
+#[test]
+fn fused_wire_to_soa_repack_matches_the_two_step_repack() {
+    let scales = [0.0117f32, -3.5, 0.25, 8192.0, -0.000_061];
+    let mut wire = Vec::new();
+    for (b, s) in scales.iter().enumerate() {
+        wire.extend_from_slice(&crate::inference::f32_to_f16_bits(*s).to_le_bytes());
+        wire.extend((0..32u16).map(|i| (b as u16 * 37 + i * 5) as u8));
+    }
+    let expected = super::repack_q8_soa(&super::widen_q8(&wire));
+    let mut fused = vec![0u8; expected.len()];
+    super::repack_q8_wire_to_soa_into(&wire, &mut fused);
+    assert_eq!(fused, expected);
 }
 
 // f16 round-trip matching the engine.
@@ -243,7 +259,7 @@ fn full_forward_token_matches_cpu() {
             .unwrap();
     }
     engine
-        .set_output(&final_norm, &output_w, ProjQuant::Q8_0)
+        .set_output(&final_norm, WeightSource::Lane(&output_w), ProjQuant::Q8_0)
         .unwrap();
 
     // CPU reference KV cache, layout [kv_head][position][head_dim] per layer.
@@ -400,7 +416,7 @@ fn prefill_then_decode_matches_sequential() {
                 .unwrap();
         }
         engine
-            .set_output(final_norm, output_w, ProjQuant::Q8_0)
+            .set_output(final_norm, WeightSource::Lane(output_w), ProjQuant::Q8_0)
             .unwrap();
         engine
     };
@@ -717,7 +733,7 @@ fn verify_batch_matches_sequential() {
             )
             .unwrap();
         }
-        e.set_output(&final_norm, &output_w, ProjQuant::Q8_0)
+        e.set_output(&final_norm, WeightSource::Lane(&output_w), ProjQuant::Q8_0)
             .unwrap();
         e
     };
@@ -1732,8 +1748,12 @@ impl SynthModel {
             )
             .unwrap();
         }
-        e.set_output(&self.final_norm, &self.output_w, ProjQuant::Q8_0)
-            .unwrap();
+        e.set_output(
+            &self.final_norm,
+            WeightSource::Lane(&self.output_w),
+            ProjQuant::Q8_0,
+        )
+        .unwrap();
         e
     }
 

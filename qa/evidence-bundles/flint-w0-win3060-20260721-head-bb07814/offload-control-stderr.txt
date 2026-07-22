@@ -1,0 +1,5 @@
+[hw] GPU: NVIDIA GeForce RTX 3060 Laptop GPU (x1) | compute 8.6 | tensor-cores yes | VRAM 5.0 GiB free / 6.0 GiB total
+[hw] CPU: 16 logical cores | SIMD AVX-512 (avx2=true avx512f=true fma=true neon=false) | RAM 9.0 GiB free / 15.7 GiB total
+[cuda] selected device 0 of 1: "NVIDIA GeForce RTX 3060 Laptop GPU" (compute capability 8.6) | VRAM 5122 MiB free / 6143 MiB total
+[gpu] all 28 layers resident in VRAM (5122 MiB free) — full GPU speed
+[bench-generate] iter 0 | prompt 5 tok | gen 16 tok | ttft 648.8 ms | decode 107.2 ms | 139.89 tok/s | peak 1.17 GB

@@ -3266,6 +3266,97 @@ pub(crate) fn repack_q8_soa(bytes: &[u8]) -> Vec<u8> {
     out
 }
 
+/// Fused Q8_0 wire → SoA repack: one pass from the 34-byte f16-scale GGUF wire
+/// blocks straight to the tensor-global SoA layout `q8_gemv` reads (all i8 quants
+/// first, then all f32 scales at `+ n*32`), skipping the intermediate 36-byte block
+/// materialization. Byte-identical to `repack_q8_soa(&widen_q8(wire))` — the fusion
+/// exists so the hostreg load path never has to build `q8_0_blocks`. `dst` must be
+/// exactly `n*32 + n*4` bytes for `n = wire.len()/34` blocks.
+pub(crate) fn repack_q8_wire_to_soa_into(wire: &[u8], dst: &mut [u8]) {
+    let n = wire.len() / 34;
+    debug_assert_eq!(wire.len(), n * 34, "wire length must be a 34-byte multiple");
+    debug_assert_eq!(
+        dst.len(),
+        n * 32 + n * 4,
+        "dst must be the exact SoA length"
+    );
+    let (quants, scales) = dst.split_at_mut(n * 32);
+    for b in 0..n {
+        let base = b * 34;
+        let scale =
+            crate::tensor::f16_bits_to_f32(u16::from_le_bytes([wire[base], wire[base + 1]]));
+        scales[b * 4..b * 4 + 4].copy_from_slice(&scale.to_le_bytes());
+        quants[b * 32..b * 32 + 32].copy_from_slice(&wire[base + 2..base + 34]);
+    }
+}
+
+/// One projection's host-side byte source handed to the resident builder.
+/// `Lane` is every pre-FLINT input: Q8_0 36-byte f32-scale blocks, or raw
+/// K-quant/i-quant super-block wire (repacked per lane as always). `Q8Wire` is
+/// the fast-load path (CAMELID_CUDA_HOSTREG / CAMELID_METAL_NOCOPY loaders): the
+/// tensor's bytes exist ONLY as raw 34-byte f16-scale GGUF wire pages, and the
+/// fused one-pass repack takes them straight to the SoA layout — `q8_0_blocks`
+/// are never materialized.
+#[derive(Clone, Copy)]
+pub(crate) enum WeightSource<'a> {
+    Lane(&'a [u8]),
+    Q8Wire(&'a [u8]),
+    /// Q8_0 wire bytes still on disk (the hostreg projection load path keeps NO
+    /// RAM copy): the builder streams the tensor's file range through a transient
+    /// buffer straight into its lane buffer, so host RAM holds ONE steady copy of
+    /// each weight — the registered SoA — never wire + SoA at once. This is what
+    /// keeps a 70B Q8_0 build inside a 128 GB unified pool.
+    Q8Stream(&'a crate::tensor::Q8_0FileBacking),
+}
+
+impl WeightSource<'_> {
+    /// The bytes in the layout the projection's GPU lane reads.
+    fn repack(&self, q: ProjQuant) -> Result<Vec<u8>, String> {
+        match self {
+            WeightSource::Lane(b) => Ok(repack_for_lane(b, q)),
+            WeightSource::Q8Wire(w) => {
+                debug_assert!(
+                    matches!(q, ProjQuant::Q8_0),
+                    "Q8Wire carries Q8_0 wire bytes only"
+                );
+                let n = w.len() / 34;
+                let mut out = vec![0u8; n * 32 + n * 4];
+                repack_q8_wire_to_soa_into(w, &mut out);
+                Ok(out)
+            }
+            WeightSource::Q8Stream(fb) => {
+                debug_assert!(
+                    matches!(q, ProjQuant::Q8_0),
+                    "Q8Stream carries Q8_0 wire bytes only"
+                );
+                // Fresh handle: page-cache enabled (the backing's own cached handle
+                // disables OS caching for the per-token streaming path).
+                let file = std::fs::File::open(&fb.path)
+                    .map_err(|e| format!("hostreg wire read open {}: {e}", fb.path.display()))?;
+                let wire_len = fb.storage_bytes() as usize;
+                let mut wire = vec![0u8; wire_len];
+                crate::platform_fs::read_exact_at(&file, &mut wire, fb.absolute_offset)
+                    .map_err(|e| format!("hostreg wire read: {e}"))?;
+                let n = wire_len / 34;
+                let mut out = vec![0u8; n * 32 + n * 4];
+                repack_q8_wire_to_soa_into(&wire, &mut out);
+                Ok(out)
+            }
+        }
+    }
+
+    /// Repacked size in bytes — what the lane's device (or registered-host)
+    /// buffer will occupy. Used by the builder's VRAM sizing.
+    pub(crate) fn vram_len(&self) -> usize {
+        match self {
+            WeightSource::Lane(b) => b.len(),
+            // 34-byte f16-scale wire widens to the 36-byte-per-block SoA.
+            WeightSource::Q8Wire(w) => w.len() / 34 * 36,
+            WeightSource::Q8Stream(fb) => fb.num_blocks * 36,
+        }
+    }
+}
+
 /// Repack one projection's wire bytes into the GPU layout its lane reads. Q8_0 is
 /// repacked to the SoA layout `q8_gemv` reads; the K-quant lanes pass the RAW GGUF
 /// super-block wire bytes straight through — `q4k_gemv` (144 B/sb) and `q6k_gemv`
@@ -5191,6 +5282,40 @@ impl Drop for CacheablePinned {
     }
 }
 
+/// One page-aligned host allocation pinned + mapped for zero-copy GPU reads
+/// (CAMELID_CUDA_HOSTREG). Owns an `Arc` of the pages so the memory cannot be
+/// deallocated before `cuMemHostUnregister` runs: the Drop body (synchronize →
+/// unregister) executes before the guard's own `Arc` releases, which makes the
+/// unregister-before-dealloc ordering local and independent of any other Arc
+/// holder. Guards live in the engine's LAST field, so they drop after every
+/// weight slice and after any captured decode graph.
+struct HostRegGuard {
+    pages: Arc<crate::wire_mmap::WirePages>,
+    ctx: Arc<CudaContext>,
+}
+
+impl Drop for HostRegGuard {
+    fn drop(&mut self) {
+        use cudarc::driver::sys;
+        let _ = self.ctx.bind_to_thread();
+        // A kernel must not be mid-read when the mapping is torn down. The engine
+        // only drops under the process-global resident mutex, so this final
+        // synchronize is cheap (CacheablePinned skips it; a registered mapping
+        // must not).
+        let _ = self.ctx.synchronize();
+        // SAFETY: `pages.base_ptr()` was registered exactly once when this guard
+        // was constructed.
+        unsafe {
+            let _ = sys::cuMemHostUnregister(self.pages.base_ptr() as *mut std::ffi::c_void);
+        }
+    }
+}
+
+// SAFETY: same justification as CacheablePinned — the engine (and therefore the
+// guard vector) is only ever accessed under the process-global resident-cache
+// mutex, so the registered pointer is never touched from two threads at once.
+unsafe impl Send for HostRegGuard {}
+
 /// The seven projection weights of one offloaded layer, packed CONTIGUOUSLY in one
 /// pinned host buffer so the per-forward host->device stream is a SINGLE transfer.
 /// Splitting it into seven separate `memcpy_htod` calls (one per projection) added a
@@ -5300,17 +5425,55 @@ impl ProjQuant {
 /// The seven projection quant types of one layer, in q,k,v,o,gate,up,down order.
 type LayerQuants = [ProjQuant; 7];
 
+/// One weight tensor's device bytes for the resident engine. `Owned` is the
+/// `clone_htod` VRAM copy every lane uses today. FLINT W2's hostreg arm adds a
+/// second, registered-host-memory representation behind CAMELID_CUDA_HOSTREG.
+/// `Deref` to `CudaSlice<u8>` keeps every kernel call site (`&layer.q`,
+/// `.as_view()`, `.len()`) compiling unchanged — zero kernel/launcher edits, so
+/// the parity charter holds by construction.
+enum ProjBytes {
+    Owned(CudaSlice<u8>),
+    /// Device-pointer view of host-registered memory (CAMELID_CUDA_HOSTREG). The
+    /// mapping's host allocation is owned by the engine's `hostreg_guards` (its
+    /// LAST field, so guards drop after every slice); `ManuallyDrop` because
+    /// `CudaSlice::drop` would `cuMemFree` a host mapping.
+    Registered(std::mem::ManuallyDrop<CudaSlice<u8>>),
+}
+
+impl std::ops::Deref for ProjBytes {
+    type Target = CudaSlice<u8>;
+    fn deref(&self) -> &CudaSlice<u8> {
+        match self {
+            ProjBytes::Owned(s) => s,
+            ProjBytes::Registered(s) => s,
+        }
+    }
+}
+
+impl Drop for ProjBytes {
+    fn drop(&mut self) {
+        if let ProjBytes::Registered(slice) = self {
+            // SAFETY: drop runs once, so the slice is taken exactly once.
+            let slice = unsafe { std::mem::ManuallyDrop::take(slice) };
+            // Waits the slice's pending-use events, then forgets it WITHOUT the
+            // cuMemFree an owned drop would issue — the pointer maps registered
+            // host memory whose lifetime belongs to a HostRegGuard.
+            let _ = slice.leak();
+        }
+    }
+}
+
 struct ResidentLayer {
     // Resident VRAM projections. For an OFFLOADED layer (`offloaded.is_some()`) these
     // are 1-byte placeholders that are never read — the real bytes live in `offloaded`
     // and stream into scratch each forward.
-    q: CudaSlice<u8>,
-    k: CudaSlice<u8>,
-    v: CudaSlice<u8>,
-    o: CudaSlice<u8>,
-    gate: CudaSlice<u8>,
-    up: CudaSlice<u8>,
-    down: CudaSlice<u8>,
+    q: ProjBytes,
+    k: ProjBytes,
+    v: ProjBytes,
+    o: ProjBytes,
+    gate: ProjBytes,
+    up: ProjBytes,
+    down: ProjBytes,
     attn_norm: CudaSlice<f32>,
     ffn_norm: CudaSlice<f32>,
     q_norm: Option<CudaSlice<f32>>,
@@ -5342,11 +5505,11 @@ enum LayerKind {
 /// tensors stay f32, and `conv_state` + `state` persist across tokens (never reset).
 #[allow(dead_code)] // fields read by the SSM forward branch (wired next).
 struct SsmResident {
-    wqkv: CudaSlice<u8>,      // hidden -> conv_dim
-    wqkv_gate: CudaSlice<u8>, // hidden -> value_dim (z gate)
-    beta: CudaSlice<u8>,      // hidden -> num_v_heads
-    alpha: CudaSlice<u8>,     // hidden -> num_v_heads
-    ssm_out: CudaSlice<u8>,   // value_dim -> hidden
+    wqkv: ProjBytes,      // hidden -> conv_dim
+    wqkv_gate: ProjBytes, // hidden -> value_dim (z gate)
+    beta: ProjBytes,      // hidden -> num_v_heads
+    alpha: ProjBytes,     // hidden -> num_v_heads
+    ssm_out: ProjBytes,   // value_dim -> hidden
     /// Per-projection quant lane (wqkv, wqkv_gate, beta, alpha, ssm_out).
     quants: [ProjQuant; 5],
     conv1d: CudaSlice<f32>, // [conv_dim * d_conv], channel-major [c*d_conv + tap]
@@ -5412,7 +5575,7 @@ pub struct CudaResidentDecode {
     split_half_pairing: bool,
     layers: Vec<ResidentLayer>,
     final_norm: CudaSlice<f32>,
-    output_weight: CudaSlice<u8>,
+    output_weight: ProjBytes,
     /// Quant lane of the output (lm_head) projection. Q6_K for Q4_K_M models.
     output_quant: ProjQuant,
     /// True if any projection in the model is a K-quant lane (Q4K/Q6K). Lets the
@@ -5468,7 +5631,7 @@ pub struct CudaResidentDecode {
     /// generated-token ring (argmax writes d_out_tokens[step]; the NEXT step's
     /// embed_gather reads it directly — no per-token D2H/H2D round-trip), and a
     /// 1-slot buffer for host-fed (prefill) token ids.
-    embd_table: Option<(CudaSlice<u8>, ProjQuant)>,
+    embd_table: Option<(ProjBytes, ProjQuant)>,
     d_rope_cos_all: Option<CudaSlice<f32>>,
     d_rope_sin_all: Option<CudaSlice<f32>>,
     d_out_tokens: Option<CudaSlice<u32>>,
@@ -5510,6 +5673,16 @@ pub struct CudaResidentDecode {
     /// 1-element placeholder for Full layers. Empty for non-qwen35. Persists across
     /// tokens — zeroed by `reset_qwen35_state`.
     ssm_state: Vec<CudaSlice<f32>>,
+    /// CAMELID_CUDA_HOSTREG receipt counters: weight tensors served zero-copy from
+    /// registered host memory vs uploaded to VRAM (norms/placeholders excluded).
+    /// Only counted while the flag is on; the build log prints them once.
+    hostreg_zero_copy: usize,
+    hostreg_uploaded: usize,
+    /// Host-registration guards (CAMELID_CUDA_HOSTREG). MUST stay the LAST field:
+    /// Rust drops fields in declaration order, so every `Registered` weight slice
+    /// (which waits its pending-use events in drop) and the captured decode graph
+    /// (frozen device pointers) are gone before any mapping is unregistered.
+    hostreg_guards: Vec<HostRegGuard>,
 }
 
 /// Max tokens verified per speculative round. The batched GEMM keeps the ordered
@@ -5575,6 +5748,37 @@ fn cuda_graphs_enabled() -> bool {
         Some("1") | Some("true") | Some("on") | Some("yes") => true,
         Some("0") | Some("false") | Some("off") | Some("no") => false,
         _ => cfg!(target_os = "linux"),
+    }
+}
+
+/// FLINT W2: zero-copy weights — `cuMemHostRegister` the page-aligned repacked Q8_0
+/// host buffers (DEVICEMAP) and hand the resident engine mapped device pointers
+/// instead of `clone_htod` VRAM copies. On discrete GPUs the kernels then read
+/// weights over PCIe — slow but correct, which is what the 3060 reference box can
+/// prove; the win is on unified-memory hardware (DGX Spark) where host and device
+/// share one physical pool. **Default: on when `cuda_unified_memory`, off on
+/// discrete** (the S1/S2 gate shape; parity-proven token-identical across the
+/// W3 matrix on the 3060 before the flip). Per-tensor fallback to upload keeps
+/// any registration failure silent and correct — the build log's
+/// `[cuda] hostreg: N zero-copy / M uploaded` line is the engagement receipt.
+pub(crate) fn cuda_hostreg_enabled() -> bool {
+    match std::env::var("CAMELID_CUDA_HOSTREG").ok().as_deref() {
+        Some("1") | Some("true") | Some("on") | Some("yes") => true,
+        Some("0") | Some("false") | Some("off") | Some("no") => false,
+        _ => {
+            // Default ON only for hardware that is unambiguously one-pool: the
+            // driver reports INTEGRATED, or the pool is unified-machine scale
+            // (>= 96 GiB — no discrete consumer/workstation card reaches that,
+            // covering a GB10 driver that misreports the attribute). The bare
+            // `cuda_unified_memory` flag also carries a VRAM≈RAM size
+            // heuristic that a discrete 8GB/8GB or 16GB/16GB box can trip;
+            // serving weights over PCIe by default there would be a silent
+            // multi-fold regression, so that heuristic alone must never flip
+            // this gate.
+            let hw = crate::capability::HardwareProfile::cached();
+            hw.cuda_unified_memory
+                && (hw.cuda_integrated || hw.cuda_vram_total_bytes >= 96 * 1024 * 1024 * 1024)
+        }
     }
 }
 
@@ -5698,7 +5902,9 @@ impl CudaResidentDecode {
             split_half_pairing,
             layers: Vec::with_capacity(n_layers),
             final_norm: alloc_f(hidden)?,
-            output_weight: s.alloc_zeros::<u8>(1).map_err(|e| format!("alloc: {e}"))?,
+            output_weight: ProjBytes::Owned(
+                s.alloc_zeros::<u8>(1).map_err(|e| format!("alloc: {e}"))?,
+            ),
             output_quant: ProjQuant::Q8_0,
             uses_kquant: false,
             cache_k,
@@ -5765,8 +5971,113 @@ impl CudaResidentDecode {
             d_rope_sin_all: None,
             d_out_tokens: None,
             d_token_in: None,
+            hostreg_zero_copy: 0,
+            hostreg_uploaded: 0,
+            hostreg_guards: Vec::new(),
             k,
         })
+    }
+
+    /// Upload one repacked weight tensor to VRAM (`Owned`) — or, under
+    /// CAMELID_CUDA_HOSTREG (Q8_0 lanes only in this phase), pin the repacked
+    /// bytes in page-aligned host memory and map them for zero-copy GPU reads
+    /// (`Registered`). Any registration failure falls back to the upload,
+    /// silently per tensor; the build log's `N zero-copy / M uploaded` line is
+    /// the engagement receipt.
+    fn upload_weight(
+        &mut self,
+        src: WeightSource<'_>,
+        quant: ProjQuant,
+    ) -> Result<ProjBytes, String> {
+        let repacked = src.repack(quant)?;
+        if cuda_hostreg_enabled() {
+            if matches!(quant, ProjQuant::Q8_0) {
+                match self.try_register_host(&repacked) {
+                    Ok(pb) => {
+                        self.hostreg_zero_copy += 1;
+                        return Ok(pb);
+                    }
+                    Err(e) => {
+                        if std::env::var_os("CAMELID_RESIDENT_TRACE").is_some() {
+                            eprintln!("[cuda] hostreg fallback to upload: {e}");
+                        }
+                    }
+                }
+            }
+            self.hostreg_uploaded += 1;
+        }
+        self.k
+            .stream
+            .clone_htod(&repacked)
+            .map(ProjBytes::Owned)
+            .map_err(|e| format!("htod: {e}"))
+    }
+
+    /// Pin `repacked` in a fresh page-aligned allocation, register it with the
+    /// driver (DEVICEMAP), and mint the device-pointer view. Every buffer is a
+    /// fresh allocation, so ranges never overlap and no registration dedup is
+    /// needed (the tied-lm-head Arc sharing on the NOCOPY load path shares WIRE
+    /// pages, not these repacked buffers). If the device-pointer fetch fails
+    /// after registration succeeded, the guard is already in place — the pages
+    /// stay pinned until engine drop, which wastes memory but stays correct.
+    fn try_register_host(&mut self, repacked: &[u8]) -> Result<ProjBytes, String> {
+        use cudarc::driver::sys;
+        let mut pages = crate::wire_mmap::WirePages::alloc_zeroed(repacked.len())
+            .map_err(|e| format!("hostreg alloc: {e}"))?;
+        pages.bytes_mut().copy_from_slice(repacked);
+        let pages = Arc::new(pages);
+        let ctx = self.k.ctx.clone();
+        ctx.bind_to_thread().map_err(|e| format!("bind: {e}"))?;
+        let base = pages.base_ptr() as *mut std::ffi::c_void;
+        // Register the full page-multiple allocation (deterministic zero tail).
+        // SAFETY: base/alloc_len describe the live allocation owned by `pages`.
+        unsafe {
+            sys::cuMemHostRegister_v2(
+                base,
+                pages.alloc_len(),
+                sys::CU_MEMHOSTREGISTER_DEVICEMAP as std::ffi::c_uint,
+            )
+        }
+        .result()
+        .map_err(|e| format!("cuMemHostRegister: {e}"))?;
+        // Registered: from here the pages must be unregistered on every path, so
+        // the guard is constructed BEFORE the device-pointer fetch.
+        self.hostreg_guards.push(HostRegGuard {
+            pages: pages.clone(),
+            ctx: ctx.clone(),
+        });
+        let mut dptr: sys::CUdeviceptr = 0;
+        // SAFETY: `base` is a registered host pointer; flags must be 0.
+        unsafe { sys::cuMemHostGetDevicePointer_v2(&mut dptr, base, 0) }
+            .result()
+            .map_err(|e| format!("cuMemHostGetDevicePointer: {e}"))?;
+        if self.hostreg_guards.len() == 1 {
+            // One-time probe receipt: the attrs that gate registration behavior on
+            // this device/driver, plus whether the mapped pointer aliases the host
+            // address (unified addressing).
+            let attr = |a: sys::CUdevice_attribute| -> i64 {
+                ctx.attribute(a).map(|v| v as i64).unwrap_or(-1)
+            };
+            eprintln!(
+                "[cuda] hostreg attrs: host_register_supported={} can_use_host_pointer={} \
+                 unified_addressing={} dptr_eq_host={}",
+                attr(sys::CUdevice_attribute::CU_DEVICE_ATTRIBUTE_HOST_REGISTER_SUPPORTED),
+                attr(
+                    sys::CUdevice_attribute::CU_DEVICE_ATTRIBUTE_CAN_USE_HOST_POINTER_FOR_REGISTERED_MEM
+                ),
+                attr(sys::CUdevice_attribute::CU_DEVICE_ATTRIBUTE_UNIFIED_ADDRESSING),
+                dptr == base as u64,
+            );
+        }
+        // SAFETY: dptr maps the registered allocation for at least `repacked.len()`
+        // bytes; the slice is ManuallyDrop so it is never freed as a device alloc.
+        let slice = unsafe { self.k.stream.upgrade_device_ptr::<u8>(dptr, repacked.len()) };
+        Ok(ProjBytes::Registered(std::mem::ManuallyDrop::new(slice)))
+    }
+
+    /// CAMELID_CUDA_HOSTREG receipt: (zero_copy, uploaded) weight-tensor counts.
+    pub fn hostreg_counts(&self) -> (usize, usize) {
+        (self.hostreg_zero_copy, self.hostreg_uploaded)
     }
 
     /// Upload one layer's resident weights (Q8_0 36-byte block bytes) + norms.
@@ -5785,13 +6096,13 @@ impl CudaResidentDecode {
     ) -> Result<(), String> {
         // Default: every layer resident in VRAM, all Q8_0 (unchanged behavior).
         self.set_layer_located(
-            q,
-            kk,
-            v,
-            o,
-            gate,
-            up,
-            down,
+            WeightSource::Lane(q),
+            WeightSource::Lane(kk),
+            WeightSource::Lane(v),
+            WeightSource::Lane(o),
+            WeightSource::Lane(gate),
+            WeightSource::Lane(up),
+            WeightSource::Lane(down),
             attn_norm,
             ffn_norm,
             None,
@@ -5806,15 +6117,15 @@ impl CudaResidentDecode {
     /// each forward). The repacked SoA bytes are identical either way. The small
     /// norms always stay resident.
     #[allow(clippy::too_many_arguments)]
-    pub fn set_layer_located(
+    pub(crate) fn set_layer_located(
         &mut self,
-        q: &[u8],
-        kk: &[u8],
-        v: &[u8],
-        o: &[u8],
-        gate: &[u8],
-        up: &[u8],
-        down: &[u8],
+        q: WeightSource<'_>,
+        kk: WeightSource<'_>,
+        v: WeightSource<'_>,
+        o: WeightSource<'_>,
+        gate: WeightSource<'_>,
+        up: WeightSource<'_>,
+        down: WeightSource<'_>,
         attn_norm: &[f32],
         ffn_norm: &[f32],
         q_norm: Option<&[f32]>,
@@ -5835,19 +6146,24 @@ impl CudaResidentDecode {
 
         if resident {
             // Resident: each projection uploaded once to its own VRAM slice (repacked
-            // into the layout its quant lane reads); no offload metadata.
-            let vram = |i: usize| -> Result<CudaSlice<u8>, String> {
-                s.clone_htod(&repack_for_lane(projections[i], quants[i]))
-                    .map_err(|e| format!("htod: {e}"))
-            };
+            // into the layout its quant lane reads) — or, under CAMELID_CUDA_HOSTREG,
+            // pinned host-side and mapped for zero-copy reads; no offload metadata
+            // either way.
+            let q = self.upload_weight(q, quants[0])?;
+            let k = self.upload_weight(kk, quants[1])?;
+            let v = self.upload_weight(v, quants[2])?;
+            let o = self.upload_weight(o, quants[3])?;
+            let gate = self.upload_weight(gate, quants[4])?;
+            let up = self.upload_weight(up, quants[5])?;
+            let down = self.upload_weight(down, quants[6])?;
             self.layers.push(ResidentLayer {
-                q: vram(0)?,
-                k: vram(1)?,
-                v: vram(2)?,
-                o: vram(3)?,
-                gate: vram(4)?,
-                up: vram(5)?,
-                down: vram(6)?,
+                q,
+                k,
+                v,
+                o,
+                gate,
+                up,
+                down,
                 attn_norm,
                 ffn_norm,
                 q_norm: q_norm_gpu,
@@ -5865,8 +6181,8 @@ impl CudaResidentDecode {
         let repacked: Vec<Vec<u8>> = projections
             .iter()
             .enumerate()
-            .map(|(i, b)| repack_for_lane(b, quants[i]))
-            .collect();
+            .map(|(i, src)| src.repack(quants[i]))
+            .collect::<Result<Vec<_>, _>>()?;
         // 16-byte-align each projection start so the resident GEMV kernels' wide
         // (uint4) wire loads are legal off any projection's view base (the q4k_gemv
         // super-block is 144 B = 9*16, so every block in a row stays 16-aligned once
@@ -5887,7 +6203,11 @@ impl CudaResidentDecode {
         let pinned = CacheablePinned::from_bytes(ctx, &packed)?;
         // 1-byte placeholders for the resident-projection fields (never read while
         // offloaded — the forward resolves weights from the streamed scratch).
-        let ph = || s.clone_htod(&[0u8]).map_err(|e| format!("htod: {e}"));
+        let ph = || {
+            s.clone_htod(&[0u8])
+                .map(ProjBytes::Owned)
+                .map_err(|e| format!("htod: {e}"))
+        };
         self.layers.push(ResidentLayer {
             q: ph()?,
             k: ph()?,
@@ -6013,17 +6333,18 @@ impl CudaResidentDecode {
         Ok(())
     }
 
-    pub fn set_output(
+    pub(crate) fn set_output(
         &mut self,
         final_norm: &[f32],
-        output_weight: &[u8],
+        output_weight: WeightSource<'_>,
         output_quant: ProjQuant,
     ) -> Result<(), String> {
-        let s = &self.k.stream;
-        self.final_norm = s.clone_htod(final_norm).map_err(|e| format!("htod: {e}"))?;
-        self.output_weight = s
-            .clone_htod(&repack_for_lane(output_weight, output_quant))
+        self.final_norm = self
+            .k
+            .stream
+            .clone_htod(final_norm)
             .map_err(|e| format!("htod: {e}"))?;
+        self.output_weight = self.upload_weight(output_weight, output_quant)?;
         self.output_quant = output_quant;
         if output_quant.needs_q8k() {
             self.uses_kquant = true;
@@ -6156,14 +6477,19 @@ impl CudaResidentDecode {
         d_state: usize,
     ) -> Result<(), String> {
         let s = self.k.stream.clone();
-        let up_u8 = |b: &[u8], q: ProjQuant| -> Result<CudaSlice<u8>, String> {
+        let up_u8 = |b: &[u8], q: ProjQuant| -> Result<ProjBytes, String> {
             s.clone_htod(&repack_for_lane(b, q))
+                .map(ProjBytes::Owned)
                 .map_err(|e| format!("htod: {e}"))
         };
         let up_f = |b: &[f32]| -> Result<CudaSlice<f32>, String> {
             s.clone_htod(b).map_err(|e| format!("htod: {e}"))
         };
-        let ph = || s.clone_htod(&[0u8]).map_err(|e| format!("htod: {e}"));
+        let ph = || {
+            s.clone_htod(&[0u8])
+                .map(ProjBytes::Owned)
+                .map_err(|e| format!("htod: {e}"))
+        };
         let ssm = SsmResident {
             wqkv: up_u8(wqkv, ssm_quants[0])?,
             wqkv_gate: up_u8(wqkv_gate, ssm_quants[1])?,
@@ -7514,7 +7840,7 @@ impl CudaResidentDecode {
         let sin = s.clone_htod(sin_all).map_err(map)?;
         let out_tokens = s.alloc_zeros::<u32>(self.max_pos).map_err(map)?;
         let token_in = s.alloc_zeros::<u32>(1).map_err(map)?;
-        self.embd_table = Some((table, family));
+        self.embd_table = Some((ProjBytes::Owned(table), family));
         self.d_rope_cos_all = Some(cos);
         self.d_rope_sin_all = Some(sin);
         self.d_out_tokens = Some(out_tokens);

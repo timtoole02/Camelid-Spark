@@ -360,6 +360,43 @@ impl WirePages {
         Ok(Arc::new(pages))
     }
 
+    /// Allocate zeroed page-aligned storage for `byte_len` bytes to be filled by the
+    /// caller (construct, fill via `bytes_mut`, then wrap in an `Arc`). Same layout
+    /// contract as `read_from_file`: page-aligned base, page-multiple `alloc_len`,
+    /// deterministic (zeroed) rounding tail. FLINT W2 builds host-registered repacked
+    /// weight buffers through this.
+    pub fn alloc_zeroed(byte_len: usize) -> Result<Self> {
+        if byte_len == 0 {
+            return Err(BackendError::InvalidTensorData(
+                "wire pages refused for an empty tensor range".to_string(),
+            ));
+        }
+        let page = page_size();
+        let alloc_len = byte_len.div_ceil(page) * page;
+        let layout = std::alloc::Layout::from_size_align(alloc_len, page).map_err(|err| {
+            BackendError::InvalidTensorData(format!("wire pages layout error: {err}"))
+        })?;
+        // SAFETY: layout is non-zero and valid; alloc_zeroed keeps the tail deterministic.
+        let ptr = unsafe { std::alloc::alloc_zeroed(layout) };
+        if ptr.is_null() {
+            return Err(BackendError::InvalidTensorData(format!(
+                "wire pages allocation of {alloc_len} bytes failed"
+            )));
+        }
+        Ok(Self {
+            ptr,
+            alloc_len,
+            byte_len,
+        })
+    }
+
+    /// Mutable view of the tensor's wire bytes for the one-time fill before the pages
+    /// are shared (`&mut self` — impossible once wrapped in an `Arc`).
+    pub fn bytes_mut(&mut self) -> &mut [u8] {
+        // SAFETY: exclusive borrow; the allocation is at least `byte_len` bytes.
+        unsafe { std::slice::from_raw_parts_mut(self.ptr, self.byte_len) }
+    }
+
     /// The tensor's wire bytes (exact length, excluding the page-rounding tail).
     pub fn bytes(&self) -> &[u8] {
         // SAFETY: immutable after construction.
@@ -596,6 +633,27 @@ mod tests {
         };
         assert!(tail.iter().all(|&b| b == 0));
         std::fs::remove_file(&path).ok();
+    }
+
+    #[test]
+    fn alloc_zeroed_pages_share_the_read_from_file_layout_contract() {
+        let mut pages = WirePages::alloc_zeroed(40_000).unwrap();
+        assert_eq!(pages.base_ptr() as usize % page_size(), 0);
+        assert_eq!(pages.alloc_len() % page_size(), 0);
+        assert_eq!(pages.byte_len(), 40_000);
+        assert!(pages.bytes().iter().all(|&b| b == 0), "starts zeroed");
+        // Caller fill via bytes_mut lands in bytes(); the rounding tail stays zeroed.
+        let fill: Vec<u8> = (0..40_000usize).map(|i| (i % 249) as u8).collect();
+        pages.bytes_mut().copy_from_slice(&fill);
+        assert_eq!(pages.bytes(), &fill[..]);
+        let tail = unsafe {
+            std::slice::from_raw_parts(
+                pages.base_ptr().add(pages.byte_len()),
+                pages.alloc_len() - pages.byte_len(),
+            )
+        };
+        assert!(tail.iter().all(|&b| b == 0));
+        assert!(WirePages::alloc_zeroed(0).is_err(), "empty range refused");
     }
 
     #[test]
