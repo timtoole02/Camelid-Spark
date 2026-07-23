@@ -235,6 +235,10 @@ pub fn nvrtc_arch() -> &'static str {
 #[cfg(feature = "cuda")]
 fn probe_nvrtc_arch(arch: &str) -> std::result::Result<(), String> {
     const PROBE: &str = "extern \"C\" __global__ void camelid_arch_probe() {}";
+    // CompileOptions.arch demands &'static str; this probe runs a handful of
+    // times per process (the resolver once, gpu-doctor's few candidates), so
+    // leaking each probed name costs bytes and buys the borrow checker off.
+    let arch: &'static str = Box::leak(arch.to_string().into_boxed_str());
     let opts = cudarc::nvrtc::CompileOptions {
         fmad: Some(false),
         arch: Some(arch),
@@ -700,10 +704,10 @@ extern "C" __global__ void q8_0_block_linear_row(
         let stream = &backend.stream;
         let host: Vec<f32> = (0..100).map(|i| i as f32).collect();
         let d = stream
-            .memcpy_stod(&host)
+            .clone_htod(&host)
             .map_err(|e| format!("host->device copy failed: {e}"))?;
         let back = stream
-            .memcpy_dtov(&d)
+            .clone_dtoh(&d)
             .map_err(|e| format!("device->host copy failed: {e}"))?;
         backend
             .ctx
