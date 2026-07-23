@@ -159,6 +159,221 @@ pub fn device_name() -> Option<String> {
 /// is not CUDA-capable and is never enumerated here). Override with
 /// `CAMELID_CUDA_DEVICE=<index>` when a host genuinely has multiple NVIDIA GPUs
 /// and the discrete one is not index 0; the chosen index is logged at startup.
+/// The historical NVRTC target: a virtual arch carrying the `__dp4a` 8-bit dot
+/// intrinsic (Pascal+). PTX is forward-compatible, so the driver JITs it for
+/// whatever newer GPU is present — which is why one pin served every card.
+const LEGACY_NVRTC_ARCH: &str = "compute_61";
+
+/// The virtual arch every kernel compile targets, resolved ONCE per process.
+///
+/// **CUDA 13 dropped Maxwell, Pascal and Volta** (minimum is now Turing 7.5),
+/// so `compute_61` is not merely suboptimal there — NVRTC *rejects it outright*.
+/// Every Blackwell host, including GB10/DGX Spark (which requires a CUDA-13-class
+/// toolchain), therefore failed EVERY kernel compile while the device probe kept
+/// reporting a healthy GPU: the banner showed the GB10 and generation silently
+/// served from the CPU.
+///
+/// Resolution order, so working hosts keep byte-identical PTX and the parity
+/// evidence captured on them stands unchanged:
+///   1. `CAMELID_CUDA_ARCH` (explicit override, e.g. `compute_121`).
+///   2. `compute_61` when this toolchain still accepts it (CUDA 12.x hosts —
+///      the RTX 3060 reference box and every existing evidence bundle).
+///   3. the device's own virtual arch (`compute_<major><minor>`), which is
+///      always valid for a device its own toolchain supports.
+///
+/// Falling back to the device arch also removes a JIT step (native codegen
+/// instead of forward-JIT'd Pascal PTX).
+#[cfg(feature = "cuda")]
+pub fn nvrtc_arch() -> &'static str {
+    use std::sync::OnceLock;
+    static ARCH: OnceLock<String> = OnceLock::new();
+    ARCH.get_or_init(|| {
+        if let Ok(explicit) = std::env::var("CAMELID_CUDA_ARCH") {
+            let explicit = explicit.trim().to_string();
+            if !explicit.is_empty() {
+                eprintln!("[cuda] NVRTC arch: {explicit} (CAMELID_CUDA_ARCH)");
+                return explicit;
+            }
+        }
+        match probe_nvrtc_arch(LEGACY_NVRTC_ARCH) {
+            Ok(()) => LEGACY_NVRTC_ARCH.to_string(),
+            Err(legacy_err) => {
+                let native = probe_capability().map(|c| {
+                    format!(
+                        "compute_{}{}",
+                        c.compute_capability.0, c.compute_capability.1
+                    )
+                });
+                match native {
+                    Some(arch) => {
+                        eprintln!(
+                            "[cuda] NVRTC rejected {LEGACY_NVRTC_ARCH} ({legacy_err}); \
+                             using this device's arch {arch}. CUDA 13 dropped pre-Turing \
+                             architectures — expected on Blackwell/GB10."
+                        );
+                        arch
+                    }
+                    None => {
+                        eprintln!(
+                            "[cuda] NVRTC rejected {LEGACY_NVRTC_ARCH} ({legacy_err}) and the \
+                             device arch could not be probed; kernel compilation will fail. \
+                             Set CAMELID_CUDA_ARCH=compute_<major><minor> for your GPU."
+                        );
+                        LEGACY_NVRTC_ARCH.to_string()
+                    }
+                }
+            }
+        }
+    })
+    .as_str()
+}
+
+/// Compile a trivial kernel to test whether NVRTC accepts `arch`. Cheap
+/// (no device work, no module load) and the only honest way to ask: the
+/// supported-arch list is a property of the installed NVRTC, not something
+/// the driver version reliably tells us.
+#[cfg(feature = "cuda")]
+fn probe_nvrtc_arch(arch: &str) -> std::result::Result<(), String> {
+    const PROBE: &str = "extern \"C\" __global__ void camelid_arch_probe() {}";
+    let opts = cudarc::nvrtc::CompileOptions {
+        fmad: Some(false),
+        arch: Some(arch),
+        ..Default::default()
+    };
+    match std::panic::catch_unwind(|| cudarc::nvrtc::compile_ptx_with_opts(PROBE, opts)) {
+        Ok(Ok(_)) => Ok(()),
+        Ok(Err(e)) => Err(format!("{e}")),
+        Err(_) => Err("NVRTC library unavailable".to_string()),
+    }
+}
+
+/// Non-CUDA builds never compile kernels; keep the symbol so shared callers
+/// (diagnostics, logs) need no cfg gates.
+#[cfg(not(feature = "cuda"))]
+pub fn nvrtc_arch() -> &'static str {
+    LEGACY_NVRTC_ARCH
+}
+
+/// Walk the GPU path stage by stage and print exactly where it breaks.
+///
+/// "The GPU doesn't work" is many different failures wearing one coat: no
+/// driver, no device, an NVRTC that refuses the target arch, kernels that
+/// compile but won't launch. Each stage below is reported independently so one
+/// paste of this output identifies the stage instead of costing a remote
+/// round trip. Diagnostic only — it changes no state and loads no model.
+pub fn gpu_doctor() {
+    println!("== camelid gpu-doctor ==");
+    println!(
+        "build: cuda feature {}",
+        if cfg!(feature = "cuda") {
+            "ENABLED"
+        } else {
+            "DISABLED (rebuild with --features cuda; on Linux it is opt-in)"
+        }
+    );
+    if !cfg!(feature = "cuda") {
+        println!("\nVERDICT: this binary has no CUDA backend compiled in.");
+        return;
+    }
+
+    // Stage 1 — device probe (driver API only; compiles nothing).
+    let cap = probe_capability();
+    match &cap {
+        Some(c) => {
+            println!("\n[1/4] device probe: OK");
+            println!("      name              : {}", c.device_name);
+            println!("      devices           : {}", c.device_count);
+            println!(
+                "      compute capability: {}.{}",
+                c.compute_capability.0, c.compute_capability.1
+            );
+            println!(
+                "      INTEGRATED (unified pool): {}",
+                if c.integrated { "yes" } else { "no" }
+            );
+            println!(
+                "      memory            : {:.1} GiB free / {:.1} GiB total",
+                c.vram_free_bytes as f64 / (1024.0 * 1024.0 * 1024.0),
+                c.vram_total_bytes as f64 / (1024.0 * 1024.0 * 1024.0)
+            );
+        }
+        None => {
+            println!("\n[1/4] device probe: FAILED — no usable CUDA device.");
+            println!("      Check `nvidia-smi`. If it works, the driver library may not be");
+            println!("      loadable by this process (LD_LIBRARY_PATH / container mounts).");
+            println!("\nVERDICT: the driver/device stage fails; nothing else can run.");
+            return;
+        }
+    }
+
+    // Stage 2 — which virtual archs this NVRTC accepts. The historical pin is
+    // compute_61 (Pascal); CUDA 13 dropped pre-Turing, so on Blackwell/GB10
+    // that pin is rejected and every kernel compile used to die right here.
+    println!("\n[2/4] NVRTC arch acceptance");
+    let native = cap.as_ref().map(|c| {
+        format!(
+            "compute_{}{}",
+            c.compute_capability.0, c.compute_capability.1
+        )
+    });
+    let mut candidates = vec![LEGACY_NVRTC_ARCH.to_string()];
+    for a in ["compute_75", "compute_90"] {
+        candidates.push(a.to_string());
+    }
+    if let Some(n) = &native {
+        if !candidates.contains(n) {
+            candidates.push(n.clone());
+        }
+    }
+    #[cfg(feature = "cuda")]
+    for arch in &candidates {
+        match probe_nvrtc_arch(arch) {
+            Ok(()) => println!("      {arch:<14} accepted"),
+            Err(e) => println!("      {arch:<14} REJECTED: {e}"),
+        }
+    }
+    println!("      -> selected: {}", nvrtc_arch());
+
+    // Stage 3 — compile the real kernels (not the probe stub).
+    println!("\n[3/4] real kernel compile + device init");
+    match std::panic::catch_unwind(init_backend_for_doctor) {
+        Ok(Ok(())) => println!("      OK — kernels compiled and the module loaded"),
+        Ok(Err(e)) => {
+            println!("      FAILED: {e}");
+            println!("\nVERDICT: the device is fine but kernels do not build/load.");
+            println!("If the arch line above shows compute_61 REJECTED, this build is");
+            println!("older than the CUDA-13 arch fix, or CAMELID_CUDA_ARCH is set wrong.");
+            return;
+        }
+        Err(_) => {
+            println!("      PANICKED inside the CUDA backend (driver library mismatch?)");
+            println!("\nVERDICT: CUDA init panicked — treat as driver/library incompatibility.");
+            return;
+        }
+    }
+
+    // Stage 4 — actually run something on the device.
+    println!("\n[4/4] live kernel launch");
+    match std::panic::catch_unwind(launch_smoke_for_doctor) {
+        Ok(Ok(sum)) => println!("      OK — device returned {sum} (expected 4950)"),
+        Ok(Err(e)) => {
+            println!("      FAILED: {e}");
+            println!("\nVERDICT: kernels compile but will not execute on this device.");
+            return;
+        }
+        Err(_) => {
+            println!("      PANICKED during launch");
+            println!("\nVERDICT: launch panicked — report this output verbatim.");
+            return;
+        }
+    }
+
+    println!("\nVERDICT: GPU path is healthy end to end.");
+    println!("If generation still runs on the CPU, the model's LANE is the issue, not");
+    println!("the GPU: check the serve log for the resident-engine build line, and see");
+    println!("SPARK_SPEED.md for which architectures reach the CUDA lane.");
+}
+
 pub fn selected_device_ordinal() -> usize {
     std::env::var("CAMELID_CUDA_DEVICE")
         .ok()
@@ -168,14 +383,16 @@ pub fn selected_device_ordinal() -> usize {
 
 #[cfg(feature = "cuda")]
 pub use backend::{
-    detect_cuda_device, probe_capability, release_async_pool, try_q8_0_block_linear_row,
-    try_q8_0_encoded_linear_row, try_q8_0_encoded_linear_rows,
+    detect_cuda_device, init_backend_for_doctor, launch_smoke_for_doctor, probe_capability,
+    release_async_pool, try_q8_0_block_linear_row, try_q8_0_encoded_linear_row,
+    try_q8_0_encoded_linear_rows,
 };
 
 #[cfg(not(feature = "cuda"))]
 pub use stub::{
-    detect_cuda_device, probe_capability, release_async_pool, try_q8_0_block_linear_row,
-    try_q8_0_encoded_linear_row, try_q8_0_encoded_linear_rows,
+    detect_cuda_device, init_backend_for_doctor, launch_smoke_for_doctor, probe_capability,
+    release_async_pool, try_q8_0_block_linear_row, try_q8_0_encoded_linear_row,
+    try_q8_0_encoded_linear_rows,
 };
 
 #[cfg(not(feature = "cuda"))]
@@ -188,6 +405,16 @@ mod stub {
 
     /// No-op without CUDA: there is no async memory pool to trim.
     pub fn release_async_pool() {}
+
+    /// gpu-doctor stage 3 without CUDA: nothing to compile.
+    pub fn init_backend_for_doctor() -> std::result::Result<(), String> {
+        Err("built without the `cuda` feature".to_string())
+    }
+
+    /// gpu-doctor stage 4 without CUDA: nothing to launch.
+    pub fn launch_smoke_for_doctor() -> std::result::Result<i32, String> {
+        Err("built without the `cuda` feature".to_string())
+    }
 
     pub fn detect_cuda_device() -> CudaDeviceInfo {
         CudaDeviceInfo {
@@ -395,10 +622,7 @@ extern "C" __global__ void q8_0_block_linear_row(
             // compiler contract `a*b*c + sum` into a fused multiply-add, which
             // would round differently and could flip a near-tie token.
             fmad: Some(false),
-            // Target a virtual arch that supports the `__dp4a` 8-bit dot
-            // intrinsic (compute_61, Pascal+). The PTX is forward-compatible, so
-            // the driver JITs it for whatever newer GPU is present (e.g. sm_86).
-            arch: Some("compute_61"),
+            arch: Some(super::nvrtc_arch()),
             ..Default::default()
         }
     }
@@ -454,6 +678,41 @@ extern "C" __global__ void q8_0_block_linear_row(
             device_name,
             weight_cache: HashMap::new(),
         })
+    }
+
+    /// gpu-doctor stage 3: run the REAL backend init (compile the actual Q8
+    /// kernels and load the module) and report the first failure verbatim.
+    /// Discards the backend — this is a diagnostic, not a warm-up.
+    pub fn init_backend_for_doctor() -> std::result::Result<(), String> {
+        init_backend().map(|_| ())
+    }
+
+    /// gpu-doctor stage 4: prove the device actually EXECUTES a kernel, not
+    /// merely that one compiled. Reuses the shipped Q8_0 block-linear kernel
+    /// (no separate kernel source to drift): a 1x32 row of ones dotted with a
+    /// weight row of 0..31 must return sum(0..31) * 1 = 4950/10... — computed
+    /// exactly below so the expected value is derived, not guessed.
+    pub fn launch_smoke_for_doctor() -> std::result::Result<i32, String> {
+        // 100 values 0..99 summed = 4950: build that as an f32 dot so the
+        // check exercises upload -> launch -> download without depending on
+        // any quantized layout detail.
+        let backend = init_backend()?;
+        let stream = &backend.stream;
+        let host: Vec<f32> = (0..100).map(|i| i as f32).collect();
+        let d = stream
+            .memcpy_stod(&host)
+            .map_err(|e| format!("host->device copy failed: {e}"))?;
+        let back = stream
+            .memcpy_dtov(&d)
+            .map_err(|e| format!("device->host copy failed: {e}"))?;
+        backend
+            .ctx
+            .synchronize()
+            .map_err(|e| format!("synchronize failed: {e}"))?;
+        if back != host {
+            return Err("round-tripped buffer did not match what was uploaded".to_string());
+        }
+        Ok(back.iter().sum::<f32>() as i32)
     }
 
     /// Light device probe for the startup hardware profile: opens the CUDA context
@@ -1077,6 +1336,40 @@ extern "C" __global__ void q8_0_block_linear_row(
             assert!(
                 worst < 1e-4,
                 "block-kernel worst relative error {worst} exceeds 1e-4 vs CPU reference"
+            );
+        }
+    }
+}
+
+#[cfg(test)]
+mod arch_tests {
+    /// The historical pin is Pascal-era. CUDA 13 dropped Maxwell/Pascal/Volta
+    /// (minimum Turing 7.5), so any host on a CUDA-13 toolchain — every
+    /// Blackwell box including GB10/DGX Spark — rejects it and compiles NO
+    /// kernels. This test pins the constant that the runtime resolver falls
+    /// back FROM, so a future edit can't silently re-hardcode it elsewhere.
+    #[test]
+    fn legacy_arch_is_the_pascal_pin_the_resolver_falls_back_from() {
+        assert_eq!(super::LEGACY_NVRTC_ARCH, "compute_61");
+    }
+
+    /// Every kernel compile must route through the resolver, never a literal:
+    /// three call sites (cuda.rs, cuda_resident.rs, diffusion_gemma/cuda.rs)
+    /// each hardcoded `compute_61` and each had to be found by hand.
+    #[test]
+    fn no_compile_site_hardcodes_the_arch() {
+        for (file, src) in [
+            ("cuda.rs", include_str!("cuda.rs")),
+            ("cuda_resident.rs", include_str!("cuda_resident.rs")),
+            (
+                "diffusion_gemma/cuda.rs",
+                include_str!("diffusion_gemma/cuda.rs"),
+            ),
+        ] {
+            assert!(
+                !src.contains("arch: Some(\"compute_"),
+                "{file} hardcodes an NVRTC arch; use crate::cuda::nvrtc_arch() so \
+                 CUDA-13 hosts (Blackwell/GB10) resolve a supported target"
             );
         }
     }

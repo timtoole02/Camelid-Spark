@@ -595,6 +595,10 @@ enum Command {
         #[arg(long, env = "CAMELID_MODELS_DIR")]
         models_dir: Option<PathBuf>,
     },
+    /// Diagnose the GPU path end to end: device probe, NVRTC arch acceptance,
+    /// real kernel compile, and a live kernel launch. Run this first when the
+    /// GPU "doesn't work" — it says exactly which stage fails and why.
+    GpuDoctor,
     /// Generate text with a Gemma 4 model (correctness-first runtime).
     Gemma4Generate {
         path: PathBuf,
@@ -1608,6 +1612,9 @@ async fn main() -> anyhow::Result<()> {
         Command::Pull { model, models_dir } => {
             let dir = models_dir.unwrap_or_else(|| PathBuf::from("models"));
             camelid::catalog::run_pull(model.as_deref(), &dir)?;
+        }
+        Command::GpuDoctor => {
+            camelid::cuda::gpu_doctor();
         }
         Command::Gemma4Generate {
             path,

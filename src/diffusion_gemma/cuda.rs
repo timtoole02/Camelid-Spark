@@ -1240,7 +1240,8 @@ fn build_engine() -> Result<Engine, String> {
     }
     let opts = CompileOptions {
         fmad: Some(false),
-        arch: Some("compute_61"),
+        // See crate::cuda::nvrtc_arch — compute_61 is rejected by CUDA 13.
+        arch: Some(crate::cuda::nvrtc_arch()),
         ..Default::default()
     };
     let ptx = compile_ptx_with_opts(KERNEL, opts).map_err(|e| format!("nvrtc: {e}"))?;

@@ -3142,7 +3142,11 @@ impl CudaResidentKernels {
             .map_err(|e| format!("engine stream: {e}"))?;
         let opts = CompileOptions {
             fmad: Some(false),
-            arch: Some("compute_61"),
+            // Resolved once per process: compute_61 where NVRTC still accepts
+            // it (CUDA 12.x — unchanged PTX, existing parity evidence stands),
+            // else this device's own arch. CUDA 13 dropped pre-Turing, so a
+            // hardcoded compute_61 fails EVERY compile on Blackwell/GB10.
+            arch: Some(crate::cuda::nvrtc_arch()),
             ..Default::default()
         };
         let ptx: Ptx = cudarc::nvrtc::compile_ptx_with_opts(KERNELS, opts)
