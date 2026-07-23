@@ -70,6 +70,12 @@ jobs:
       - name: install.sh syntax
         run: bash -n install.sh
 
+      # The Spark/tester build is --features cuda, but a plain `cargo build` is
+      # the DEFAULT on Linux (CUDA is opt-in there) and on macOS. Gating only the
+      # cuda build let a misplaced #[cfg] ship that broke every no-cuda build.
+      - name: cargo check --all-targets  (NO cuda — default Linux/macOS build)
+        run: cargo check --all-targets
+
       - name: cargo check --all-targets --features cuda  (fast gate)
         run: cargo check --all-targets --features cuda
 

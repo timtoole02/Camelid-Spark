@@ -2404,13 +2404,6 @@ impl LlamaInferenceSession {
         self.try_metal_resident_prefill(token_ids)
     }
 
-    /// CUDA GPU prefill: run the whole prompt through the resident engine on the
-    /// NVIDIA device (one forward per token, KV built incrementally, a single sync
-    /// at the end), then leave the global engine ready at `position = n` so the
-    /// last prompt token decodes straight into the first generated token. Replaces
-    /// the CPU prefill ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â the main time-to-first-token cost. Returns `false` to fall
-    /// back to the CPU prefill for any unsupported config.
-    #[cfg(feature = "cuda")]
     /// P0-4 opt-in: reuse the resident engine's live KV across turns by
     /// prefilling only the token-exact new suffix (`CAMELID_CUDA_SUFFIX_PREFILL`
     /// = 1/true/on/yes; default off = today's full-prefill path, byte-for-byte).
@@ -2425,6 +2418,13 @@ impl LlamaInferenceSession {
             .unwrap_or(false)
     }
 
+    /// CUDA GPU prefill: run the whole prompt through the resident engine on the
+    /// NVIDIA device (one forward per token, KV built incrementally, a single sync
+    /// at the end), then leave the global engine ready at `position = n` so the
+    /// last prompt token decodes straight into the first generated token. Replaces
+    /// the CPU prefill ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â the main time-to-first-token cost. Returns `false` to fall
+    /// back to the CPU prefill for any unsupported config.
+    #[cfg(feature = "cuda")]
     fn try_resident_prefill_cuda(&mut self, token_ids: &[u32]) -> Result<bool> {
         // Explicit escape hatch: `CAMELID_CUDA_RESIDENT_PREFILL=0` keeps prefill on
         // the CPU while still allowing GPU-resident decode (debugging / isolation).
